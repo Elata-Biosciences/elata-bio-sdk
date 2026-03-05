@@ -13,23 +13,29 @@ usage() {
     cat <<EOF
 Usage: $0 [command] [target]
 
-Commands:
-  install    Install/update workspace dependencies
-  dev        Build debug artifacts for 'eeg', 'rppg', or 'all' (default: all)
-  build      Build release artifacts for 'eeg', 'rppg', or 'all' (default: all)
-  demo       Run the demo - specify 'rppg' (default), 'hal', or 'eeg' (example: 'run.sh demo eeg')
-  bindings   Generate bindings from an existing build (default: release)
-  sync-to    Build eeg-web and install it into a local app (default app: ../my-app)
-  doctor     Run repository health checks (toolchain, targets, package deps/artifacts)
-  verify-all Run workspace JS/TS build + wasm verification
-  release    Publish, create tags, and push tags (default: target=all, dist-tag=next)
-  publish    Publish package(s) to npm in repo release order (default: target=all, dist-tag=next)
-  tag-release Create package-scoped git tag(s) from package.json versions (default: target=all, commit=HEAD)
-  push-tags  Push package-scoped git tag(s) for current package.json versions (default: target=all)
-  test       Run Rust and web tests
-  clean      Remove generated bindings and clean build artifacts
-  help       Show this message
-  (no args)  Alias for 'doctor'
+Build & Demo:
+  install      Install/update workspace dependencies
+  dev          Build debug artifacts for 'eeg', 'rppg', or 'all' (default: all)
+  build        Build release artifacts for 'eeg', 'rppg', or 'all' (default: all)
+  bindings     Generate bindings from an existing build (default: release)
+  demo         Run the demo - specify 'rppg' (default), 'hal', or 'eeg' (example: 'run.sh demo eeg')
+  sync-to      Build eeg-web and install it into a local app (default app: ../my-app)
+
+Quality:
+  doctor       Run repository health checks (toolchain, targets, package deps/artifacts)
+  verify-all   Run workspace JS/TS build + wasm verification
+  test         Run Rust and web tests
+
+Release:
+  release      Publish, create tags, and push tags (default: target=all, dist-tag=next)
+  publish      Publish package(s) to npm in repo release order (default: target=all, dist-tag=next)
+  tag-release  Create package-scoped git tag(s) from package.json versions (default: target=all, commit=HEAD)
+  push-tags    Push package-scoped git tag(s) for current package.json versions (default: target=all)
+
+Maintenance:
+  clean        Remove generated bindings and clean build artifacts
+  help         Show this message
+  (no args)    Alias for 'doctor'
 EOF
 }
 
