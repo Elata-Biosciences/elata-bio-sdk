@@ -22,11 +22,176 @@ Commands:
   sync-to    Build eeg-web and install it into a local app (default app: ../my-app)
   doctor     Run repository health checks (toolchain, targets, package deps/artifacts)
   verify-all Run workspace JS/TS build + wasm verification
+  publish    Publish package(s) to npm in repo release order
+  tag-release Create package-scoped git tag(s) from package.json versions
+  push-tags  Push package-scoped git tag(s) for current package.json versions
   test       Run Rust and web tests
   clean      Remove generated bindings and clean build artifacts
   help       Show this message
   (no args)  Alias for 'doctor'
 EOF
+}
+
+normalize_release_target() {
+    local raw="${1:-all}"
+    case "$raw" in
+        all) echo "all" ;;
+        eeg|eeg-web|@elata-biosciences/eeg-web) echo "eeg-web" ;;
+        eeg-web-ble|ble|@elata-biosciences/eeg-web-ble) echo "eeg-web-ble" ;;
+        rppg|rppg-web|@elata-biosciences/rppg-web) echo "rppg-web" ;;
+        *)
+            echo "Unknown release target: $raw" >&2
+            return 1
+            ;;
+    esac
+}
+
+package_dir_for_target() {
+    case "$1" in
+        eeg-web) echo "packages/eeg-web" ;;
+        eeg-web-ble) echo "packages/eeg-web-ble" ;;
+        rppg-web) echo "packages/rppg-web" ;;
+        *)
+            echo "Unknown package target: $1" >&2
+            return 1
+            ;;
+    esac
+}
+
+package_name_for_target() {
+    case "$1" in
+        eeg-web) echo "@elata-biosciences/eeg-web" ;;
+        eeg-web-ble) echo "@elata-biosciences/eeg-web-ble" ;;
+        rppg-web) echo "@elata-biosciences/rppg-web" ;;
+        *)
+            echo "Unknown package target: $1" >&2
+            return 1
+            ;;
+    esac
+}
+
+release_tag_prefix_for_target() {
+    case "$1" in
+        eeg-web) echo "eeg-web" ;;
+        eeg-web-ble) echo "eeg-web-ble" ;;
+        rppg-web) echo "rppg-web" ;;
+        *)
+            echo "Unknown package target: $1" >&2
+            return 1
+            ;;
+    esac
+}
+
+release_targets_for() {
+    local target="$1"
+    if [[ "$target" == "all" ]]; then
+        # Keep repo-published dependency order.
+        echo "eeg-web eeg-web-ble rppg-web"
+    else
+        echo "$target"
+    fi
+}
+
+package_version_for_target() {
+    local target="$1"
+    local pkg_dir
+    pkg_dir="$(package_dir_for_target "$target")"
+    node -p "require('./${pkg_dir}/package.json').version"
+}
+
+validate_dist_tag() {
+    case "$1" in
+        next|latest) return 0 ;;
+        *)
+            echo "Unsupported npm dist-tag '$1'. Use: next or latest." >&2
+            return 1
+            ;;
+    esac
+}
+
+publish_packages() {
+    local raw_target="${1:-all}"
+    local dist_tag="${2:-next}"
+    local target
+    local pkg
+    target="$(normalize_release_target "$raw_target")" || exit 1
+    validate_dist_tag "$dist_tag" || exit 1
+    require_cmds npm node
+
+    for pkg in $(release_targets_for "$target"); do
+        local pkg_dir pkg_name version
+        pkg_dir="$(package_dir_for_target "$pkg")"
+        pkg_name="$(package_name_for_target "$pkg")"
+        version="$(package_version_for_target "$pkg")"
+        echo "Publishing ${pkg_name}@${version} with dist-tag '${dist_tag}'..."
+        (
+            cd "$ROOT_DIR/$pkg_dir"
+            npm publish --access public --tag "$dist_tag"
+        )
+    done
+}
+
+create_release_tags() {
+    local raw_target="${1:-all}"
+    local commit="${2:-HEAD}"
+    local target
+    local pkg
+    local -a created=()
+
+    target="$(normalize_release_target "$raw_target")" || exit 1
+    require_cmds git node
+
+    for pkg in $(release_targets_for "$target"); do
+        local prefix version tag
+        prefix="$(release_tag_prefix_for_target "$pkg")"
+        version="$(package_version_for_target "$pkg")"
+        tag="${prefix}-v${version}"
+
+        if git rev-parse -q --verify "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Tag already exists, skipping: $tag"
+            continue
+        fi
+
+        git tag "$tag" "$commit"
+        created+=("$tag")
+        echo "Created tag: $tag -> $commit"
+    done
+
+    if [[ ${#created[@]} -gt 0 ]]; then
+        echo "Push tags with:"
+        echo "  git push origin ${created[*]}"
+    fi
+}
+
+push_release_tags() {
+    local raw_target="${1:-all}"
+    local target
+    local pkg
+    local -a tags_to_push=()
+
+    target="$(normalize_release_target "$raw_target")" || exit 1
+    require_cmds git node
+
+    for pkg in $(release_targets_for "$target"); do
+        local prefix version tag
+        prefix="$(release_tag_prefix_for_target "$pkg")"
+        version="$(package_version_for_target "$pkg")"
+        tag="${prefix}-v${version}"
+
+        if ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Missing local tag, skipping: $tag"
+            continue
+        fi
+        tags_to_push+=("$tag")
+    done
+
+    if [[ ${#tags_to_push[@]} -eq 0 ]]; then
+        echo "No matching local tags to push."
+        return 0
+    fi
+
+    echo "Pushing tags to origin: ${tags_to_push[*]}"
+    git push origin "${tags_to_push[@]}"
 }
 
 normalize_profile() {
@@ -571,6 +736,27 @@ case "$cmd" in
     verify-all)
         # Run the workspace-level JS/TS verification, including wasm checks for eeg-web.
         run_root_script "verify:all"
+        ;;
+    publish)
+        # Usage:
+        #   ./run.sh publish [target] [dist-tag]
+        # Examples:
+        #   ./run.sh publish all next
+        #   ./run.sh publish eeg-web latest
+        publish_packages "${2:-all}" "${3:-next}"
+        ;;
+    tag-release)
+        # Usage:
+        #   ./run.sh tag-release [target] [commit]
+        # Tags are derived from package.json versions:
+        #   eeg-web-vX.Y.Z, eeg-web-ble-vX.Y.Z, rppg-web-vX.Y.Z
+        create_release_tags "${2:-all}" "${3:-HEAD}"
+        ;;
+    push-tags)
+        # Usage:
+        #   ./run.sh push-tags [target]
+        # Pushes existing local tags derived from package.json versions.
+        push_release_tags "${2:-all}"
         ;;
     build)
         build_targets release "${2:-all}"
