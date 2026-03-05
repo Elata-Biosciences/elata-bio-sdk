@@ -22,9 +22,10 @@ Commands:
   sync-to    Build eeg-web and install it into a local app (default app: ../my-app)
   doctor     Run repository health checks (toolchain, targets, package deps/artifacts)
   verify-all Run workspace JS/TS build + wasm verification
-  publish    Publish package(s) to npm in repo release order
-  tag-release Create package-scoped git tag(s) from package.json versions
-  push-tags  Push package-scoped git tag(s) for current package.json versions
+  release    Publish, create tags, and push tags (default: target=all, dist-tag=next)
+  publish    Publish package(s) to npm in repo release order (default: target=all, dist-tag=next)
+  tag-release Create package-scoped git tag(s) from package.json versions (default: target=all, commit=HEAD)
+  push-tags  Push package-scoped git tag(s) for current package.json versions (default: target=all)
   test       Run Rust and web tests
   clean      Remove generated bindings and clean build artifacts
   help       Show this message
@@ -192,6 +193,19 @@ push_release_tags() {
 
     echo "Pushing tags to origin: ${tags_to_push[*]}"
     git push origin "${tags_to_push[@]}"
+}
+
+release_packages() {
+    local raw_target="${1:-all}"
+    local dist_tag="${2:-next}"
+    local target
+
+    target="$(normalize_release_target "$raw_target")" || exit 1
+    validate_dist_tag "$dist_tag" || exit 1
+
+    publish_packages "$target" "$dist_tag"
+    create_release_tags "$target" "HEAD"
+    push_release_tags "$target"
 }
 
 normalize_profile() {
@@ -736,6 +750,15 @@ case "$cmd" in
     verify-all)
         # Run the workspace-level JS/TS verification, including wasm checks for eeg-web.
         run_root_script "verify:all"
+        ;;
+    release)
+        # Usage:
+        #   ./run.sh release [target] [dist-tag]
+        # Examples:
+        #   ./run.sh release all next
+        #   ./run.sh release eeg-web latest
+        # Runs: publish -> tag-release -> push-tags
+        release_packages "${2:-all}" "${3:-next}"
         ;;
     publish)
         # Usage:
