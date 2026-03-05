@@ -1,5 +1,5 @@
 {
-  "name": "@elata/eeg-web",
+  "name": "@elata-biosciences/eeg-web",
   "version": "0.1.0",
   "description": "Web wrapper for the Elata EEG WASM bindings",
   "license": "MIT",

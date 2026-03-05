@@ -1,5 +1,5 @@
 {
-  "name": "@elata/eeg-web-ble",
+  "name": "@elata-biosciences/eeg-web-ble",
   "version": "0.1.0",
   "description": "Web Bluetooth headband transport that emits normalized headband frames",
   "license": "MIT",
@@ -46,11 +46,11 @@
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true});require('fs').rmSync('tsconfig.tsbuildinfo',{force:true})\"",
     "build": "tsc -p tsconfig.json",
     "verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
-    "prepack": "pnpm --filter @elata/eeg-web run prepack && pnpm clean && pnpm build && pnpm verify:build",
+    "prepack": "pnpm --filter @elata-biosciences/eeg-web run prepack && pnpm clean && pnpm build && pnpm verify:build",
     "pack:check": "npm_config_cache=${NPM_CONFIG_CACHE:-/tmp/npm-cache} npm pack --dry-run"
   },
   "dependencies": {
-    "@elata/eeg-web": "workspace:^0.1.0"
+    "@elata-biosciences/eeg-web": "workspace:^0.1.0"
   },
   "devDependencies": {
     "@types/jest": "29.5.3",

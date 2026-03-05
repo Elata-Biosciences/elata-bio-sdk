@@ -1,6 +1,6 @@
 import * as rppgWeb from '../index';
 
-describe('@elata/rppg-web exports', () => {
+describe('@elata-biosciences/rppg-web exports', () => {
   test('exports RppgProcessor as a constructor', () => {
     expect(rppgWeb.RppgProcessor).toBeDefined();
     expect(typeof rppgWeb.RppgProcessor).toBe('function');

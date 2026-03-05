@@ -8,7 +8,7 @@ Enable Muse headset streaming on Safari/iOS by moving BLE transport into native 
 
 - iOS native BLE transport for Muse classic + Athena-capable devices.
 - Bridge native frames into a web UI hosted in `WKWebView`.
-- Keep frame schema compatible with `@elata/eeg-web` (`HeadbandFrameV1`).
+- Keep frame schema compatible with `@elata-biosciences/eeg-web` (`HeadbandFrameV1`).
 - Preserve status semantics similar to `HeadbandTransportState`.
 
 Out of scope for first release:
@@ -89,7 +89,7 @@ Web command payloads should include:
 - Athena-capable session (if device available).
 
 3. Regression checks
-- Ensure web processing (`@elata/eeg-web`, downstream metrics) runs unchanged with bridged frames.
+- Ensure web processing (`@elata-biosciences/eeg-web`, downstream metrics) runs unchanged with bridged frames.
 
 ## Risks and Mitigations
 

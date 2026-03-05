@@ -1,4 +1,4 @@
-# @elata/eeg-web-ble
+# @elata-biosciences/eeg-web-ble
 
 Web Bluetooth transport package for EEG headband devices.
 
@@ -7,13 +7,13 @@ Web Bluetooth transport package for EEG headband devices.
 Using `pnpm` (recommended):
 
 ```bash
-pnpm add @elata/eeg-web-ble @elata/eeg-web
+pnpm add @elata-biosciences/eeg-web-ble @elata-biosciences/eeg-web
 ```
 
 Using `npm`:
 
 ```bash
-npm install @elata/eeg-web-ble @elata/eeg-web
+npm install @elata-biosciences/eeg-web-ble @elata-biosciences/eeg-web
 ```
 
 ## Requirements
@@ -31,9 +31,9 @@ npm install @elata/eeg-web-ble @elata/eeg-web
 ## Key exports
 
 - `BleTransport` – main transport class for connecting to a headband over Web Bluetooth.
-- `HeadbandTransport` types – normalized frame and status shapes shared with `@elata/eeg-web`.
+- `HeadbandTransport` types – normalized frame and status shapes shared with `@elata-biosciences/eeg-web`.
 
-It intentionally depends on `@elata/eeg-web` for shared transport and frame
+It intentionally depends on `@elata-biosciences/eeg-web` for shared transport and frame
 contracts.
 
 ## Compatibility Notes
@@ -57,12 +57,12 @@ Because Safari/iOS lacks usable Web Bluetooth support, use one of these patterns
 2. Companion bridge: run BLE in a native app (or desktop helper) and stream frames to the web app over WebSocket/WebRTC.
 3. Hybrid WebView app: package the UI in `WKWebView` and expose BLE through native message handlers.
 
-In all cases, keep `@elata/eeg-web` frame schema contracts as the interface boundary so browser and native transports emit the same `HeadbandFrameV1` shape.
+In all cases, keep `@elata-biosciences/eeg-web` frame schema contracts as the interface boundary so browser and native transports emit the same `HeadbandFrameV1` shape.
 
 ## Release Notes
 
-`@elata/eeg-web-ble` depends on `@elata/eeg-web` and should be released after
-`@elata/eeg-web` when compatibility changes. Full release process and tagging:
+`@elata-biosciences/eeg-web-ble` depends on `@elata-biosciences/eeg-web` and should be released after
+`@elata-biosciences/eeg-web` when compatibility changes. Full release process and tagging:
 [`docs/releasing.md`](../../docs/releasing.md).
 
 ## Roadmap
@@ -72,8 +72,8 @@ In all cases, keep `@elata/eeg-web` frame schema contracts as the interface boun
 ## Usage
 
 ```ts
-import { BleTransport } from "@elata/eeg-web-ble";
-import { AthenaWasmDecoder } from "@elata/eeg-web";
+import { BleTransport } from "@elata-biosciences/eeg-web-ble";
+import { AthenaWasmDecoder } from "@elata-biosciences/eeg-web";
 
 const transport = new BleTransport({
   deviceOptions: {

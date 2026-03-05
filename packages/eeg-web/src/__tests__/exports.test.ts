@@ -6,7 +6,7 @@ import {
   HeadbandTransportState,
 } from '../index';
 
-describe('@elata/eeg-web exports', () => {
+describe('@elata-biosciences/eeg-web exports', () => {
   test('exports initEegWasm as a function', () => {
     expect(initEegWasm).toBeDefined();
     expect(typeof initEegWasm).toBe('function');

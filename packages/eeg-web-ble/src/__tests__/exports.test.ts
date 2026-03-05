@@ -1,7 +1,7 @@
 import { BleTransport } from '../bleTransport';
 import { MuseBleDevice } from '../museDevice';
 
-describe('@elata/eeg-web-ble exports', () => {
+describe('@elata-biosciences/eeg-web-ble exports', () => {
   test('exports BleTransport as a constructor', () => {
     expect(BleTransport).toBeDefined();
     expect(typeof BleTransport).toBe('function');

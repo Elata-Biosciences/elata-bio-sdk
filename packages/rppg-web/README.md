@@ -1,4 +1,4 @@
-# @elata/rppg-web
+# @elata-biosciences/rppg-web
 
 TypeScript wrapper for the Elata rPPG pipeline. This package provides a small
 processor class that delegates to a backend pipeline (WASM or native).
@@ -8,13 +8,13 @@ processor class that delegates to a backend pipeline (WASM or native).
 Using `pnpm` (recommended):
 
 ```bash
-pnpm add @elata/rppg-web @elata/eeg-web
+pnpm add @elata-biosciences/rppg-web @elata-biosciences/eeg-web
 ```
 
 Using `npm`:
 
 ```bash
-npm install @elata/rppg-web @elata/eeg-web
+npm install @elata-biosciences/rppg-web @elata-biosciences/eeg-web
 ```
 
 ## Requirements
@@ -32,8 +32,8 @@ npm install @elata/rppg-web @elata/eeg-web
 ## Usage
 
 ```ts
-import { RppgProcessor } from "@elata/rppg-web";
-import { initEegWasm, RppgPipeline } from "@elata/eeg-web";
+import { RppgProcessor } from "@elata-biosciences/rppg-web";
+import { initEegWasm, RppgPipeline } from "@elata-biosciences/eeg-web";
 
 await initEegWasm();
 
@@ -58,7 +58,7 @@ object with `push_sample`/`get_metrics` (or camelCase equivalents).
 - `demo/*`: demo-only files, not part of the package runtime API
 - `src/__tests__/*`: test-only files, not loaded by consumers
 
-When consuming `@elata/rppg-web`, TypeScript resolves types from `dist/index.d.ts`
+When consuming `@elata-biosciences/rppg-web`, TypeScript resolves types from `dist/index.d.ts`
 and runtime code from `dist/index.js`.
 
 ## MediaPipe face ROI
@@ -66,8 +66,8 @@ and runtime code from `dist/index.js`.
 Use MediaPipe FaceMesh to drive a face ROI for sampling:
 
 ```ts
-import { RppgProcessor, DemoRunner, MediaPipeFaceFrameSource, MediaPipeFrameSource, loadFaceMesh } from "@elata/rppg-web";
-import { initEegWasm, RppgPipeline } from "@elata/eeg-web";
+import { RppgProcessor, DemoRunner, MediaPipeFaceFrameSource, MediaPipeFrameSource, loadFaceMesh } from "@elata-biosciences/rppg-web";
+import { initEegWasm, RppgPipeline } from "@elata-biosciences/eeg-web";
 
 await initEegWasm();
 const backend = { newPipeline: (sr: number, ws: number) => new RppgPipeline(sr, ws) };

@@ -8,6 +8,6 @@ module.exports = {
   rootDir: "src",
   testMatch: ["**/__tests__/**/*.test.ts", "**/__tests__/**/*.test.js"],
   moduleNameMapper: {
-    "^@elata/eeg-web$": "<rootDir>/__tests__/mocks/eeg-web.ts"
+    "^@elata-biosciences/eeg-web$": "<rootDir>/__tests__/mocks/eeg-web.ts"
   }
 };

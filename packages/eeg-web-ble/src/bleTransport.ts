@@ -1,14 +1,14 @@
 import {
   HEADBAND_FRAME_SCHEMA_VERSION,
   HeadbandTransportState
-} from "@elata/eeg-web";
+} from "@elata-biosciences/eeg-web";
 import type {
   HeadbandFrameV1,
   HeadbandBatteryBlock,
   HeadbandSignalBlock,
   HeadbandTransport,
   HeadbandTransportStatus
-} from "@elata/eeg-web";
+} from "@elata-biosciences/eeg-web";
 import type { AthenaAuxPacket, MuseDeviceOptions } from "./museDevice";
 import { MuseBleDevice } from "./museDevice";
 

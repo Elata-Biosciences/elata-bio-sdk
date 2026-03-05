@@ -17,19 +17,19 @@ const root = path.resolve(__dirname, '..');
 
 const packages = [
   {
-    name: '@elata/rppg-web',
+    name: '@elata-biosciences/rppg-web',
     dir: 'packages/rppg-web',
     requiredFiles: ['dist/index.js', 'dist/index.d.ts', 'README.md', 'package.json'],
     forbiddenPatterns: ['__tests__', '.test.ts', '.test.js', 'node_modules/', 'tsconfig', 'jest.config', 'coverage/', 'demo/', 'scripts/'],
   },
   {
-    name: '@elata/eeg-web',
+    name: '@elata-biosciences/eeg-web',
     dir: 'packages/eeg-web',
     requiredFiles: ['dist/index.js', 'dist/index.d.ts', 'README.md', 'package.json', 'wasm/eeg_wasm.js', 'wasm/eeg_wasm.d.ts', 'wasm/eeg_wasm_bg.wasm', 'wasm/eeg_wasm_bg.wasm.d.ts'],
     forbiddenPatterns: ['__tests__', '.test.ts', '.test.js', 'node_modules/', 'tsconfig', 'jest.config', 'coverage/', 'wasm/.gitkeep'],
   },
   {
-    name: '@elata/eeg-web-ble',
+    name: '@elata-biosciences/eeg-web-ble',
     dir: 'packages/eeg-web-ble',
     requiredFiles: ['dist/index.js', 'dist/index.d.ts', 'README.md', 'package.json'],
     forbiddenPatterns: ['__tests__', '.test.ts', '.test.js', 'node_modules/', 'tsconfig', 'jest.config', 'coverage/', 'scripts/'],

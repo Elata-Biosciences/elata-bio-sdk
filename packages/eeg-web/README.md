@@ -1,11 +1,11 @@
-# @elata/eeg-web
+# @elata-biosciences/eeg-web
 
 Web wrapper for the Elata EEG WASM bindings. This package provides a simple
 init function and re-exports the generated WASM APIs.
 
 ## Package intent
 
-`@elata/eeg-web` is intentionally a thin wrapper:
+`@elata-biosciences/eeg-web` is intentionally a thin wrapper:
 
 - `dist/index.js` / `dist/index.d.ts` are small on purpose
 - they provide init helpers and re-export the generated WASM module
@@ -16,13 +16,13 @@ init function and re-exports the generated WASM APIs.
 Using `pnpm` (recommended):
 
 ```bash
-pnpm add @elata/eeg-web
+pnpm add @elata-biosciences/eeg-web
 ```
 
 Using `npm`:
 
 ```bash
-npm install @elata/eeg-web
+npm install @elata-biosciences/eeg-web
 ```
 
 ## Requirements
@@ -32,7 +32,7 @@ npm install @elata/eeg-web
 
 ## Device support
 
-`@elata/eeg-web` itself does not implement Bluetooth device connection logic.
+`@elata-biosciences/eeg-web` itself does not implement Bluetooth device connection logic.
 It exposes WASM APIs that can be used with data from supported integrations
 (for example, `eeg-demo`).
 
@@ -45,7 +45,7 @@ Current supported EEG headband integrations in this repo:
 ## Usage
 
 ```ts
-import { initEegWasm, band_powers } from "@elata/eeg-web";
+import { initEegWasm, band_powers } from "@elata-biosciences/eeg-web";
 
 await initEegWasm();
 const powers = band_powers(eegData, 256);
@@ -80,7 +80,7 @@ from bad releases, see [`docs/releasing.md`](../../docs/releasing.md).
 - `dist/*.d.ts`: emitted type declarations used by TypeScript consumers
 - `wasm/*`: generated wasm-bindgen artifacts re-exported by this package
 
-When consuming `@elata/eeg-web`, TypeScript resolves types from `dist/index.d.ts`
+When consuming `@elata-biosciences/eeg-web`, TypeScript resolves types from `dist/index.d.ts`
 and runtime code from `dist/index.js`.
 
 ## Where the API is defined
@@ -92,4 +92,4 @@ The full exported API (for example `band_powers`, `WasmAlphaBumpDetector`,
 - `packages/eeg-web/wasm/eeg_wasm.d.ts` (types)
 
 `src/index.ts` re-exports everything from that module so consumers can import
-from `@elata/eeg-web` directly.
+from `@elata-biosciences/eeg-web` directly.

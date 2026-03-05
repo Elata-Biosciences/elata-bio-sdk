@@ -9,7 +9,7 @@
     "test": "pnpm -r --if-present test",
     "clean": "pnpm -r --if-present clean",
     "verify:build": "pnpm -r --if-present verify:build",
-    "verify:all": "pnpm run verify:build && pnpm --filter @elata/eeg-web --if-present verify:wasm",
+    "verify:all": "pnpm run verify:build && pnpm --filter @elata-biosciences/eeg-web --if-present verify:wasm",
     "validate:tarballs": "node scripts/validate-tarballs.mjs"
   }
 }

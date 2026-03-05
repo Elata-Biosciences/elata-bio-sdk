@@ -3,7 +3,7 @@
   "compilerOptions": {
     "types": ["jest", "node"],
     "paths": {
-      "@elata/eeg-web": ["./src/__tests__/mocks/eeg-web.ts"]
+      "@elata-biosciences/eeg-web": ["./src/__tests__/mocks/eeg-web.ts"]
     }
   },
   "include": ["src/**/*.ts"]

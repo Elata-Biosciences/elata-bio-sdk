@@ -1,5 +1,5 @@
 import { BleTransport } from '../bleTransport';
-import type { HeadbandFrameV1, HeadbandTransportStatus } from '@elata/eeg-web';
+import type { HeadbandFrameV1, HeadbandTransportStatus } from '@elata-biosciences/eeg-web';
 
 interface FakeDeviceShape {
   isAthena: boolean;

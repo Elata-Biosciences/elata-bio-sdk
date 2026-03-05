@@ -2,17 +2,17 @@
 
 This repository publishes web packages independently:
 
-- `@elata/eeg-web`
-- `@elata/eeg-web-ble`
-- `@elata/rppg-web`
+- `@elata-biosciences/eeg-web`
+- `@elata-biosciences/eeg-web-ble`
+- `@elata-biosciences/rppg-web`
 
-Release order matters because `@elata/eeg-web-ble` depends on `@elata/eeg-web`.
+Release order matters because `@elata-biosciences/eeg-web-ble` depends on `@elata-biosciences/eeg-web`.
 
 ## Versioning and Order
 
-1. `@elata/eeg-web`
-2. `@elata/eeg-web-ble`
-3. `@elata/rppg-web`
+1. `@elata-biosciences/eeg-web`
+2. `@elata-biosciences/eeg-web-ble`
+3. `@elata-biosciences/rppg-web`
 
 Use SemVer and bump only the packages that changed.
 
@@ -56,7 +56,7 @@ npm publish --access public --tag next
 After verification, promote to `latest`:
 
 ```bash
-npm dist-tag add @elata/rppg-web@0.1.1 latest
+npm dist-tag add @elata-biosciences/rppg-web@0.1.1 latest
 ```
 
 Repeat for each package/version you want to promote.
@@ -83,7 +83,7 @@ You cannot overwrite an existing version number. Do this instead:
 1. Deprecate the bad version:
 
 ```bash
-npm deprecate @elata/rppg-web@0.1.1 "Broken build; use >=0.1.2"
+npm deprecate @elata-biosciences/rppg-web@0.1.1 "Broken build; use >=0.1.2"
 ```
 
 2. Publish a fixed patch version.
