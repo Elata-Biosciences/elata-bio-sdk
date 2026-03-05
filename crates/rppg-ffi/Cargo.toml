@@ -1,0 +1,20 @@
+[package]
+name = "rppg-ffi"
+version = "0.1.0"
+edition = "2021"
+description = "FFI wrapper for rPPG (UniFFI-ready)"
+license = "MIT"
+repository = "https://github.com/elata-bio/elata-sdk"
+homepage = "https://github.com/elata-bio/elata-sdk#readme"
+
+[lib]
+name = "rppg_ffi"
+crate-type = ["lib", "staticlib", "cdylib"]
+
+[dependencies]
+rppg = { path = "../rppg" }
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# uniffi can be added later for generated bindings; keep minimal for now

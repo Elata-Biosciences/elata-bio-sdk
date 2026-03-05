@@ -1,0 +1,133 @@
+========================================================================
+     HARMONIC SELECTION BENCHMARK SUITE
+     Heart Rate Estimation Algorithm Comparison
+========================================================================
+
+Test cases: 40
+
+OVERALL RESULTS
+======================================================================================================
+Method               |  MAE (BPM)  |        RMSE  |       <1 BPM  |        <5 BPM |        Oct. Err  |
+------------------------------------------------------------------------------------------------------
+Raw PSD Peak         | MAE:  17.18 | RMSE:  36.20 | <1bpm:  72.5% | <5bpm:  77.5% | Octave Err:  22.5%
+Cepstrum             | MAE:   2.36 | RMSE:   8.21 | <1bpm:  57.5% | <5bpm:  97.5% | Octave Err:   2.5%
+Harmonic Sum         | MAE:   5.88 | RMSE:  20.05 | <1bpm:  82.5% | <5bpm:  92.5% | Octave Err:   7.5%
+Harmonic + Prior     | MAE:   0.26 | RMSE:   0.46 | <1bpm:  95.0% | <5bpm: 100.0% | Octave Err:   0.0%
+Combined Check       | MAE:   2.36 | RMSE:   8.21 | <1bpm:  57.5% | <5bpm:  97.5% | Octave Err:   2.5%
+
+======================================================================================================
+
+BREAKDOWN BY TEST CATEGORY
+========================================================================
+
+Clean Signals (n=7)
+------------------------------------------------------------------------
+  Raw PSD Peak      : MAE= 0.00, <5bpm=100.0%, Octave Err=  0.0%
+  Cepstrum          : MAE= 0.10, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic Sum      : MAE= 0.42, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic + Prior  : MAE= 0.14, <5bpm=100.0%, Octave Err=  0.0%
+  Combined Check    : MAE= 0.10, <5bpm=100.0%, Octave Err=  0.0%
+
+Realistic Signals (n=4)
+------------------------------------------------------------------------
+  Raw PSD Peak      : MAE= 0.01, <5bpm=100.0%, Octave Err=  0.0%
+  Cepstrum          : MAE= 1.45, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic Sum      : MAE= 0.28, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic + Prior  : MAE= 0.15, <5bpm=100.0%, Octave Err=  0.0%
+  Combined Check    : MAE= 1.45, <5bpm=100.0%, Octave Err=  0.0%
+
+Highly Realistic (HRV+Resp) (n=4)
+------------------------------------------------------------------------
+  Raw PSD Peak      : MAE= 0.37, <5bpm=100.0%, Octave Err=  0.0%
+  Cepstrum          : MAE= 0.18, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic Sum      : MAE= 0.28, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic + Prior  : MAE= 0.15, <5bpm=100.0%, Octave Err=  0.0%
+  Combined Check    : MAE= 0.18, <5bpm=100.0%, Octave Err=  0.0%
+
+Challenging (All Artifacts) (n=4)
+------------------------------------------------------------------------
+  Raw PSD Peak      : MAE=76.64, <5bpm=  0.0%, Octave Err=100.0%
+  Cepstrum          : MAE= 0.68, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic Sum      : MAE= 0.27, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic + Prior  : MAE= 0.30, <5bpm=100.0%, Octave Err=  0.0%
+  Combined Check    : MAE= 0.68, <5bpm=100.0%, Octave Err=  0.0%
+
+Strong 2nd Harmonic (n=3)
+------------------------------------------------------------------------
+  Raw PSD Peak      : MAE=72.34, <5bpm=  0.0%, Octave Err=100.0%
+  Cepstrum          : MAE= 1.93, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic Sum      : MAE=72.39, <5bpm=  0.0%, Octave Err=100.0%
+  Harmonic + Prior  : MAE= 0.07, <5bpm=100.0%, Octave Err=  0.0%
+  Combined Check    : MAE= 1.93, <5bpm=100.0%, Octave Err=  0.0%
+
+Motion Artifacts (n=4)
+------------------------------------------------------------------------
+  Raw PSD Peak      : MAE=39.26, <5bpm= 50.0%, Octave Err= 50.0%
+  Cepstrum          : MAE= 1.86, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic Sum      : MAE= 0.35, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic + Prior  : MAE= 0.10, <5bpm=100.0%, Octave Err=  0.0%
+  Combined Check    : MAE= 1.86, <5bpm=100.0%, Octave Err=  0.0%
+
+Noisy Signals (n=3)
+------------------------------------------------------------------------
+  Raw PSD Peak      : MAE= 0.07, <5bpm=100.0%, Octave Err=  0.0%
+  Cepstrum          : MAE=18.74, <5bpm= 66.7%, Octave Err= 33.3%
+  Harmonic Sum      : MAE= 0.42, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic + Prior  : MAE= 0.13, <5bpm=100.0%, Octave Err=  0.0%
+  Combined Check    : MAE=18.74, <5bpm= 66.7%, Octave Err= 33.3%
+
+High HRV Stress (n=3)
+------------------------------------------------------------------------
+  Raw PSD Peak      : MAE= 1.11, <5bpm=100.0%, Octave Err=  0.0%
+  Cepstrum          : MAE= 1.87, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic Sum      : MAE= 1.49, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic + Prior  : MAE= 1.27, <5bpm=100.0%, Octave Err=  0.0%
+  Combined Check    : MAE= 1.87, <5bpm=100.0%, Octave Err=  0.0%
+
+Respiratory Interference (n=3)
+------------------------------------------------------------------------
+  Raw PSD Peak      : MAE= 0.41, <5bpm=100.0%, Octave Err=  0.0%
+  Cepstrum          : MAE= 1.05, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic Sum      : MAE= 0.41, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic + Prior  : MAE= 0.53, <5bpm=100.0%, Octave Err=  0.0%
+  Combined Check    : MAE= 1.05, <5bpm=100.0%, Octave Err=  0.0%
+
+Edge Cases (Low/High HR) (n=2)
+------------------------------------------------------------------------
+  Raw PSD Peak      : MAE= 0.05, <5bpm=100.0%, Octave Err=  0.0%
+  Cepstrum          : MAE= 0.58, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic Sum      : MAE= 0.70, <5bpm=100.0%, Octave Err=  0.0%
+  Harmonic + Prior  : MAE= 0.30, <5bpm=100.0%, Octave Err=  0.0%
+  Combined Check    : MAE= 0.58, <5bpm=100.0%, Octave Err=  0.0%
+
+========================================================================
+
+PRIOR SENSITIVITY ANALYSIS
+========================================================================
+Default (55-150)    : MAE=0.26, <5bpm=100.0%, Oct=0.0%
+Narrow (60-100)     : MAE=0.31, <5bpm=100.0%, Oct=0.0%
+Wide (40-180)       : MAE=0.26, <5bpm=100.0%, Oct=0.0%
+Athletic (45-90)    : MAE=0.34, <5bpm=100.0%, Oct=0.0%
+
+========================================================================
+
+WORST CASES (Largest Errors)
+========================================================================
+
+  HarmonicWithPrior worst cases:
+    1. high_hrv_10pct_88bpm: True=88.0, Est=86.4, Error=1.6 
+    2. high_hrv_8pct_77bpm: True=77.0, Est=75.6, Error=1.4 
+    3. resp_interference_24br_79bpm: True=79.0, Est=78.0, Error=1.0
+
+  RawPsdPeak worst cases:
+    1. challenging_95bpm: True=95.0, Est=188.7, Error=93.7 [OCTAVE]
+    2. strong_2nd_harmonic_85bpm: True=85.0, Est=170.0, Error=85.0 [OCTAVE]
+    3. motion_2x_85bpm: True=85.0, Est=170.0, Error=85.0 [OCTAVE]
+
+  Cepstrum worst cases:
+    1. noisy_0.5_91bpm: True=91.0, Est=40.0, Error=51.0 [OCTAVE]
+    2. realistic_72bpm: True=72.0, Est=75.0, Error=3.0
+    3. strong_2nd_harmonic_72bpm: True=72.0, Est=75.0, Error=3.0
+
+========================================================================
+

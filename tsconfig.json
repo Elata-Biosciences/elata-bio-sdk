@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/rppg-web" },
+    { "path": "packages/eeg-web" },
+    { "path": "packages/eeg-web-ble" }
+  ]
+}

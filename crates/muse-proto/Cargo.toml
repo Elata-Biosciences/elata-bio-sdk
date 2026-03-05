@@ -1,0 +1,10 @@
+[package]
+name = "muse-proto"
+version = "0.1.0"
+edition = "2021"
+description = "EEG headband BLE protocol constants and packet encoding/decoding (Muse-compatible)"
+license = "MIT"
+repository = "https://github.com/elata-bio/elata-sdk"
+homepage = "https://github.com/elata-bio/elata-sdk#readme"
+
+[dependencies]

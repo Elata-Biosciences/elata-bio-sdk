@@ -1,0 +1,66 @@
+{
+  "name": "@elata/rppg-web",
+  "version": "0.1.1",
+  "description": "TypeScript wrapper for the Elata rPPG pipeline",
+  "license": "MIT",
+  "author": "Elata",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elata-bio/elata-sdk.git",
+    "directory": "packages/rppg-web"
+  },
+  "homepage": "https://github.com/elata-bio/elata-sdk#readme",
+  "bugs": "https://github.com/elata-bio/elata-sdk/issues",
+  "keywords": [
+    "rppg",
+    "heart-rate",
+    "photoplethysmography",
+    "elata",
+    "bci",
+    "neuroscience"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "jest --config jest.config.cjs --passWithNoTests",
+    "clean": "node -e \"import('fs').then(f=>{f.rmSync('dist',{recursive:true,force:true});f.rmSync('tsconfig.tsbuildinfo',{force:true});})\"",
+    "build": "tsc -p .",
+    "verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
+    "build:wasm": "node ./scripts/build-demo.mjs wasm",
+    "build:demo": "node ./scripts/build-demo.mjs all",
+    "bundle:demo": "node ./scripts/build-demo.mjs bundle",
+    "start-demo": "pnpm build:demo && pnpm dlx http-server demo -p 8080 --silent",
+    "start-demo:quick": "pnpm dlx http-server demo -p 8080 --silent",
+    "prepare:wasm": "pnpm build:wasm",
+    "e2e": "pnpm dlx playwright test",
+    "ci:e2e": "pnpm dlx playwright test --project=chromium --retries=1",
+    "prepack": "pnpm clean && pnpm build && pnpm verify:build"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2",
+    "@types/jest": "29.5.3",
+    "esbuild": "0.25.10",
+    "jest": "29.6.1",
+    "jest-environment-jsdom": "^30.2.0",
+    "ts-jest": "29.1.0",
+    "typescript": "^5.9.3"
+  }
+}

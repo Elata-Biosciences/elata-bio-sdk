@@ -1,0 +1,13 @@
+namespace eeg_ffi
+
+record RppgMetricsRecord {
+    optional<float> bpm;
+    float confidence;
+    float signal_quality;
+}
+
+object RppgPipelineFFI {
+    constructor(u16 sample_rate, float window_sec);
+    void push_sample(i64 timestamp_ms, float intensity);
+    RppgMetricsRecord get_metrics();
+}

@@ -1,0 +1,29 @@
+[package]
+name = "eeg-ffi"
+version = "0.1.0"
+edition = "2021"
+description = "FFI bindings for EEG SDK (iOS/Android)"
+license = "MIT"
+repository = "https://github.com/elata-bio/elata-sdk"
+homepage = "https://github.com/elata-bio/elata-sdk#readme"
+
+[lib]
+crate-type = ["lib", "staticlib", "cdylib"]
+name = "eeg_ffi"
+
+[dependencies]
+eeg-hal = { path = "../eeg-hal" }
+eeg-signal = { path = "../eeg-signal" }
+eeg-models = { path = "../eeg-models" }
+rppg = { path = "../rppg" }
+
+uniffi = { version = "0.28" }
+thiserror = "1.0"
+
+[[bin]]
+name = "uniffi-bindgen"
+path = "uniffi-bindgen.rs"
+required-features = ["cli"]
+
+[features]
+cli = ["uniffi/cli"]

@@ -1,0 +1,12 @@
+[package]
+name = "eeg-models"
+version = "0.1.0"
+edition = "2021"
+description = "EEG analysis models (alpha bump detection, calmness)"
+license = "MIT"
+repository = "https://github.com/elata-bio/elata-sdk"
+homepage = "https://github.com/elata-bio/elata-sdk#readme"
+
+[dependencies]
+eeg-hal = { path = "../eeg-hal" }
+eeg-signal = { path = "../eeg-signal" }

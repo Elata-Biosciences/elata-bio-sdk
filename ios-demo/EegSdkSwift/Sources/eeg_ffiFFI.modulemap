@@ -1,0 +1,4 @@
+module eeg_ffiFFI {
+    header "eeg_ffiFFI.h"
+    export *
+}

@@ -1,0 +1,176 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, webcam, npm-packages ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-matrix:
+    name: Test (${{ matrix.os }} / ${{ matrix.crate }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        crate: [rppg, rppg-wasm, rppg-ffi, eeg-wasm, eeg-ffi]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo target
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-target-${{ matrix.crate }}-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run tests for crate
+        run: cargo test -p ${{ matrix.crate }} --lib --workspace
+
+  fmt-check:
+    name: Format check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Run rustfmt check
+        run: cargo fmt --all -- --check
+
+  build-wasm:
+    name: Build WASM targets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo target
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-wasm-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build eeg-wasm for wasm32
+        run: cargo build -p eeg-wasm --target wasm32-unknown-unknown --release
+
+      - name: Build rppg-wasm for wasm32
+        run: cargo build -p rppg-wasm --target wasm32-unknown-unknown --release
+
+      - name: Install wasm-bindgen CLI
+        run: cargo install wasm-bindgen-cli --locked
+
+      - name: Run wasm-bindgen for eeg
+        run: |
+          wasm-bindgen target/wasm32-unknown-unknown/release/eeg_wasm.wasm \
+            --out-dir eeg-demo/pkg --target web
+
+      - name: Sync eeg WASM into eeg-web package
+        run: bash packages/eeg-web/scripts/sync-wasm.sh
+
+      - name: Run wasm-bindgen for rppg
+        run: |
+          wasm-bindgen target/wasm32-unknown-unknown/release/rppg_wasm.wasm \
+            --out-dir packages/rppg-web/demo/pkg --target web
+
+      - name: Upload eeg WASM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: eeg-wasm-pkg
+          path: packages/eeg-web/wasm/
+          retention-days: 1
+
+      - name: Upload rppg WASM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rppg-wasm-pkg
+          path: packages/rppg-web/demo/pkg/
+          retention-days: 1
+
+  web-tests:
+    name: Run all web package tests
+    runs-on: ubuntu-latest
+    needs: build-wasm
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Download eeg WASM artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: eeg-wasm-pkg
+          path: packages/eeg-web/wasm
+
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Run all unit tests
+        run: npm test --workspaces
+
+      - name: Install Playwright browsers
+        run: cd packages/rppg-web && npx playwright install --with-deps
+
+      - name: Run Playwright E2E
+        run: cd packages/rppg-web && npm run ci:e2e
+
+  package-pack-check:
+    name: Validate npm package tarballs
+    runs-on: ubuntu-latest
+    needs: build-wasm
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Download eeg WASM artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: eeg-wasm-pkg
+          path: packages/eeg-web/wasm
+
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Build all packages
+        run: npm run build --workspaces
+
+      - name: Validate tarballs
+        run: node scripts/validate-tarballs.mjs
+
+      - name: Dry-run pack all packages
+        run: |
+          for pkg in packages/eeg-web packages/eeg-web-ble packages/rppg-web; do
+            echo "--- $pkg ---"
+            (cd $pkg && npm pack --dry-run --ignore-scripts)
+          done

@@ -1,0 +1,56 @@
+[workspace]
+members = [
+    "crates/bridge-proto",
+    "crates/muse-proto",
+    "crates/eeg-hal",
+    "crates/eeg-signal",
+    "crates/rppg",
+    "crates/rppg-wasm",
+    "crates/rppg-ffi",
+    "crates/eeg-hal-synthetic",
+    "crates/eeg-models",
+    "crates/eeg-wasm",
+    "crates/eeg-ffi",
+    "crates/synthetic-ble-bridge",
+]
+resolver = "2"
+
+[package]
+name = "eeg-sdk"
+version = "0.1.0"
+edition = "2021"
+description = "Rust EEG SDK workspace root crate"
+license = "MIT"
+repository = "https://github.com/elata-bio/elata-sdk"
+homepage = "https://github.com/elata-bio/elata-sdk#readme"
+readme = "README.md"
+
+[[example]]
+name = "hal_demo"
+path = "examples/hal_demo.rs"
+
+[dependencies]
+eeg-hal = { path = "crates/eeg-hal" }
+eeg-hal-synthetic = { path = "crates/eeg-hal-synthetic" }
+eeg-models = { path = "crates/eeg-models" }
+eeg-signal = { path = "crates/eeg-signal" }
+
+# Developer profiles for faster iterative builds/tests
+[profile.dev]
+opt-level = 0
+debug = true
+incremental = true
+codegen-units = 16
+overflow-checks = false
+
+[profile.test]
+opt-level = 0
+debug = true
+incremental = true
+codegen-units = 16
+overflow-checks = false
+sccache = "0.13.0"
+
+[profile.release]
+opt-level = "s"
+lto = true

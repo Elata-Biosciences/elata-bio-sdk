@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>rPPG E2E</title>
+  </head>
+  <body>
+    <h1>rPPG E2E Test Page</h1>
+    <script type="module">
+      (async () => {
+        try {
+          const mod = await import('/pkg/rppg_wasm.js');
+          const Constructor = mod.WasmRppgPipeline ?? mod.default?.WasmRppgPipeline ?? mod.default;
+          const backend = Constructor ? { newPipeline: (sr,w) => new Constructor(sr,w) } : null;
+          window.__rppg_demo = { backendAvailable: !!backend };
+        } catch (e) {
+          window.__rppg_demo = { backendAvailable: false };
+        }
+      })();
+    </script>
+  </body>
+</html>

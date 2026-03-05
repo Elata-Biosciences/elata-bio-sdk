@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>rPPG Demo</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 20px; }
+      video { border: 1px solid #ccc; }
+      .row { margin-top: 8px; }
+      .label { font-weight: 600; }
+      #status { margin-top: 10px; color: #666; }
+      #debug { margin-top: 12px; border-top: 1px dashed #ccc; padding-top: 8px; }
+    </style>
+  </head>
+  <body>
+    <h1>rPPG Demo (rppg-web)</h1>
+    <video id="video" width="320" height="240" autoplay muted playsinline></video>
+
+    <div class="row"><span class="label">BPM (smoothed):</span> <span id="bpm">--</span></div>
+    <div class="row"><span class="label">BPM (raw):</span> <span id="bpm-raw">--</span></div>
+    <div class="row"><span class="label">Confidence:</span> <span id="confidence">0.00</span></div>
+    <div class="row"><span class="label">Signal quality:</span> <span id="signal">0.00</span></div>
+    <div class="row"><span class="label">Backend:</span> <span id="backend">--</span></div>
+    <div class="row"><span class="label">ROI source:</span> <span id="roi">--</span></div>
+
+    <div id="debug">
+      <div class="row"><span class="label">FPS:</span> <span id="fps">--</span></div>
+      <div class="row"><span class="label">Intensity:</span> <span id="intensity">--</span></div>
+      <div class="row"><span class="label">Skin ratio:</span> <span id="skin">--</span></div>
+      <div class="row"><span class="label">Motion:</span> <span id="motion">--</span></div>
+      <div class="row"><span class="label">Clipping:</span> <span id="clipping">--</span></div>
+      <div class="row"><span class="label">SNR:</span> <span id="snr">--</span></div>
+      <div class="row"><span class="label">Metrics interval:</span> <span id="metrics-interval">--</span></div>
+      <div class="row"><span class="label">Reasons:</span> <span id="reasons">--</span></div>
+    </div>
+
+    <div id="status">Starting...</div>
+
+    <script type="module" src="./demo.js"></script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+[package]
+name = "eeg-hal-synthetic"
+version = "0.1.0"
+edition = "2021"
+description = "Synthetic EEG device implementation for testing"
+license = "MIT"
+repository = "https://github.com/elata-bio/elata-sdk"
+homepage = "https://github.com/elata-bio/elata-sdk#readme"
+
+[dependencies]
+eeg-hal = { path = "../eeg-hal" }

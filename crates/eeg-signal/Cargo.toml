@@ -1,0 +1,11 @@
+[package]
+name = "eeg-signal"
+version = "0.1.0"
+edition = "2021"
+description = "Signal processing utilities for EEG data"
+license = "MIT"
+repository = "https://github.com/elata-bio/elata-sdk"
+homepage = "https://github.com/elata-bio/elata-sdk#readme"
+
+[dependencies]
+eeg-hal = { path = "../eeg-hal" }

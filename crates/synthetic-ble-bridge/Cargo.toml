@@ -1,0 +1,28 @@
+[package]
+name = "synthetic-ble-bridge"
+version = "0.1.0"
+edition = "2021"
+description = "Synthetic BLE bridge for EEG devices using the Elata SDK"
+license = "MIT"
+repository = "https://github.com/elata-bio/elata-sdk"
+homepage = "https://github.com/elata-bio/elata-sdk#readme"
+
+[dependencies]
+bridge-proto = { path = "../bridge-proto" }
+muse-proto = { path = "../muse-proto" }
+eeg-hal = { path = "../eeg-hal" }
+eeg-hal-synthetic = { path = "../eeg-hal-synthetic" }
+eeg-models = { path = "../eeg-models" }
+eeg-signal = { path = "../eeg-signal" }
+pollster = "0.3"
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.52", features = [
+    "Devices_Bluetooth",
+    "Devices_Bluetooth_Advertisement",
+    "Devices_Bluetooth_GenericAttributeProfile",
+    "Foundation",
+    "Foundation_Collections",
+    "Security_Cryptography",
+    "Storage_Streams",
+] }
