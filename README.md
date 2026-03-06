@@ -66,13 +66,24 @@ A cross-platform Hardware Abstraction Layer (HAL) for EEG devices with real-time
 | `bridge-proto` | BLE packet format and protocol definitions |
 | `synthetic-ble-bridge` | Windows BLE peripheral bridge |
 
+## Versioning and releasing
+
+We use [Changesets](https://github.com/changesets/changesets) for versioning and changelogs.
+
+| Role | What to run |
+|------|-------------|
+| **Contributor** (your PR should be released) | `./run.sh changeset` → choose packages, bump type, write summary → commit the new `.changeset/*.md` file with your PR. |
+| **Maintainer** (cut a release) | `./run.sh bump` → review and commit version + CHANGELOG updates → `./run.sh release all next` (or `latest`). |
+
+Full details: **`docs/releasing.md`** and **`.changeset/README.md`**.
+
 ## Design Docs
 
 - `docs/architecture-rppg.md` - Hybrid rPPG + ocular proxy architecture.
 - `docs/implementation-plan-rppg.md` - rPPG implementation plan.
 - `docs/architecture-sentiment.md` - Facial sentiment architecture.
 - `docs/implementation-plan-sentiment.md` - Sentiment implementation plan.
-- `docs/releasing.md` - npm release flow, tagging strategy, and bad-release recovery.
+- `docs/releasing.md` - npm release flow, Changesets workflow, tagging, and bad-release recovery.
 
 ## Community
 

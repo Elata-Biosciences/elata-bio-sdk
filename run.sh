@@ -27,7 +27,9 @@ Quality:
   test         Run Rust and web tests
 
 Release:
-  release      Publish, create tags, and push tags (default: target=all, dist-tag=next)
+  changeset     Add a changeset (interactive; run before opening a PR)
+  bump         Apply changesets: bump versions and update CHANGELOGs (run before release)
+  release      Build, publish, tag, and push (default: target=all, dist-tag=next)
   publish      Publish package(s) to npm in repo release order (default: target=all, dist-tag=next)
   tag-release  Create package-scoped git tag(s) from package.json versions (default: target=all, commit=HEAD)
   push-tags    Push package-scoped git tag(s) for current package.json versions (default: target=all)
@@ -797,13 +799,21 @@ case "$cmd" in
         # Run the workspace-level JS/TS verification, including wasm checks for eeg-web.
         run_root_script "verify:all"
         ;;
+    changeset)
+        require_cmds pnpm node
+        (cd "$ROOT_DIR" && pnpm changeset)
+        ;;
+    bump)
+        require_cmds pnpm node
+        (cd "$ROOT_DIR" && pnpm run version)
+        ;;
     release)
         # Usage:
         #   ./run.sh release [target] [dist-tag]
         # Examples:
         #   ./run.sh release all next
         #   ./run.sh release eeg-web latest
-        # Runs: publish -> tag-release -> push-tags
+        # Runs: build -> publish -> tag-release -> push-tags
         release_packages "${2:-all}" "${3:-next}"
         ;;
     publish)

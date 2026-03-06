@@ -6,17 +6,38 @@ This repository publishes web packages independently:
 - `@elata-biosciences/eeg-web-ble`
 - `@elata-biosciences/rppg-web`
 
-Release order matters because `@elata-biosciences/eeg-web-ble` declares `@elata-biosciences/eeg-web` as a peer dependency.
+We use [Changesets](https://github.com/changesets/changesets) for versioning and changelogs. Contributors add changesets in PRs; maintainers bump versions and release.
 
-## Versioning and Order
+## Quick reference
 
-1. `@elata-biosciences/eeg-web`
-2. `@elata-biosciences/eeg-web-ble`
-3. `@elata-biosciences/rppg-web`
+| Step | Command |
+|------|---------|
+| Add a changeset (contributor) | `./run.sh changeset` |
+| Apply changesets & update CHANGELOGs (maintainer) | `./run.sh bump` |
+| Build, publish, tag, push (maintainer) | `./run.sh release all next` or `./run.sh release all latest` |
 
-Use SemVer and bump only the packages that changed.
+See also: `.changeset/README.md` in the repo root.
 
-## Pre-Release Checklist
+## Release workflow (maintainers)
+
+1. **Apply changesets** (bump versions and update CHANGELOGs):
+   ```bash
+   ./run.sh bump
+   ```
+2. Review the diff (package.json versions and `CHANGELOG.md` in each package), then commit.
+3. **Build and publish**:
+   ```bash
+   ./run.sh release all next
+   ```
+   Or use `latest` as the second argument to publish as the default dist-tag.
+
+Release order is fixed: eeg-web → eeg-web-ble → rppg-web (eeg-web-ble has eeg-web as a peer dependency).
+
+## Contributors: adding a changeset
+
+When your PR changes something that should be released, run **`./run.sh changeset`** (or `pnpm changeset`) and follow the prompts. Commit the new file under `.changeset/` with your PR.
+
+## Pre-Release Checklist (optional)
 
 1. Run repository checks and build all packages (prepack only verifies; it does not build):
 

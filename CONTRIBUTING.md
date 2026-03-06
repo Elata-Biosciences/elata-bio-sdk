@@ -35,7 +35,10 @@ See `README.md` for details on building Rust crates and web packages.
    - Web packages: `pnpm test` (or `npm test`) in the relevant `packages/*` directory.
 5. **Run checks**
    - Prefer `./run.sh` or documented scripts from `README.md` where available.
-6. **Open a pull request**
+6. **Add a changeset** (if your change should be included in a release):
+   - Run `./run.sh changeset` (or `pnpm changeset`) and follow the prompts.
+   - Commit the new file under `.changeset/` with your PR.
+7. **Open a pull request**
    - Reference associated issues.
    - Summarize what changed and why.
 
