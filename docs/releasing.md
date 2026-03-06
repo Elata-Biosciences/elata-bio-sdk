@@ -6,7 +6,7 @@ This repository publishes web packages independently:
 - `@elata-biosciences/eeg-web-ble`
 - `@elata-biosciences/rppg-web`
 
-Release order matters because `@elata-biosciences/eeg-web-ble` depends on `@elata-biosciences/eeg-web`.
+Release order matters because `@elata-biosciences/eeg-web-ble` declares `@elata-biosciences/eeg-web` as a peer dependency.
 
 ## Versioning and Order
 
@@ -18,10 +18,11 @@ Use SemVer and bump only the packages that changed.
 
 ## Pre-Release Checklist
 
-1. Run repository checks:
+1. Run repository checks and build all packages (prepack only verifies; it does not build):
 
 ```bash
 ./run.sh doctor
+./run.sh build
 ```
 
 2. Run package dry runs from repo root:

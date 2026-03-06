@@ -123,7 +123,8 @@ publish_packages() {
     local pkg
     target="$(normalize_release_target "$raw_target")" || exit 1
     validate_dist_tag "$dist_tag" || exit 1
-    require_cmds npm node
+    require_cmds node
+    require_package_manager
 
     for pkg in $(release_targets_for "$target"); do
         local pkg_dir pkg_name version
@@ -133,7 +134,11 @@ publish_packages() {
         echo "Publishing ${pkg_name}@${version} with dist-tag '${dist_tag}'..."
         (
             cd "$ROOT_DIR/$pkg_dir"
-            npm publish --access public --tag "$dist_tag"
+            if [[ "$PKG_MGR" == "pnpm" ]]; then
+                pnpm publish --access public --tag "$dist_tag" --no-git-checks
+            else
+                npm publish --access public --tag "$dist_tag"
+            fi
         )
     done
 }
@@ -201,6 +206,40 @@ push_release_tags() {
     git push origin "${tags_to_push[@]}"
 }
 
+build_release_artifacts_for_target() {
+    local target="$1"
+    require_cmds cargo wasm-bindgen node
+    require_package_manager
+
+    case "$target" in
+        all)
+            echo "Building release artifacts for eeg-web, eeg-web-ble, rppg-web..."
+            build_eeg_web_package release
+            if [[ -d "$ROOT_DIR/packages/eeg-web-ble" ]]; then
+                run_pkg_script "packages/eeg-web-ble" "build"
+            fi
+            build_rppg_web_package
+            ;;
+        eeg-web)
+            echo "Building release artifacts for eeg-web..."
+            build_eeg_web_package release
+            ;;
+        eeg-web-ble)
+            echo "Building release artifacts for eeg-web-ble (and eeg-web)..."
+            build_eeg_web_package release
+            run_pkg_script "packages/eeg-web-ble" "build"
+            ;;
+        rppg-web)
+            echo "Building release artifacts for rppg-web..."
+            build_rppg_web_package
+            ;;
+        *)
+            echo "Unknown release target: $target" >&2
+            exit 1
+            ;;
+    esac
+}
+
 release_packages() {
     local raw_target="${1:-all}"
     local dist_tag="${2:-next}"
@@ -209,6 +248,7 @@ release_packages() {
     target="$(normalize_release_target "$raw_target")" || exit 1
     validate_dist_tag "$dist_tag" || exit 1
 
+    build_release_artifacts_for_target "$target"
     publish_packages "$target" "$dist_tag"
     create_release_tags "$target" "HEAD"
     push_release_tags "$target"

@@ -52,7 +52,7 @@
     "sync-wasm": "bash ./scripts/sync-wasm.sh",
     "verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
     "verify:wasm": "node ./scripts/verify-wasm.js",
-    "prepack": "pnpm verify:wasm && pnpm clean && pnpm build && pnpm verify:build"
+    "prepack": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts"
   },
   "devDependencies": {
     "@types/jest": "29.5.3",

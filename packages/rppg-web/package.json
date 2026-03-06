@@ -52,7 +52,7 @@
     "prepare:wasm": "pnpm build:wasm",
     "e2e": "pnpm dlx playwright test",
     "ci:e2e": "pnpm dlx playwright test --project=chromium --retries=1",
-    "prepack": "pnpm clean && pnpm build && pnpm verify:build"
+    "prepack": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",
