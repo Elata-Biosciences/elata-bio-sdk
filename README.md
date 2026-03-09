@@ -1,56 +1,42 @@
 # Elata SDK
 
-A cross-platform Hardware Abstraction Layer (HAL) for EEG devices with real-time signal processing and analysis models.
+A cross-platform biosignal SDK spanning EEG device pipelines, browser transports, and rPPG processing for web and native clients.
 
 ## Features
 
 - **Cross-platform**: Browser (WASM), iOS (Swift), Android (Kotlin), Desktop (Rust)
-- **Device abstraction**: Unified interface for multiple EEG devices
-- **Signal processing**: FFT, band power analysis, filtering
-- **Analysis models**: Alpha bump detection, calmness scoring
-- **Real-time streaming**: BLE support for EEG headband devices
+- **EEG pipeline**: HAL traits, signal processing, and analysis models
+- **rPPG pipeline**: Rust core with WASM and TS wrappers for browser use
+- **Browser transports**: Web Bluetooth support for Muse-compatible EEG headbands
+- **Native bindings**: UniFFI-based native integration for EEG, plus an rPPG FFI layer
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                            Elata SDK                            │
-├─────────────────────────────────────────────────────────────────┤
-│  Platform Bindings                                              │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
-│  │  WASM    │  │  Swift   │  │  Kotlin  │  │  Rust    │        │
-│  │ (Browser)│  │  (iOS)   │  │(Android) │  │(Desktop) │        │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘        │
-│       └─────────────┴─────────────┴─────────────┘              │
-│                           │                                     │
-│  FFI Layer (eeg-ffi)      │                                     │
-│  ┌────────────────────────┴────────────────────────┐           │
-│  │            UniFFI Bindings                       │           │
-│  └──────────────────────┬──────────────────────────┘           │
-│                         │                                       │
-│  Models Layer (eeg-models)                                      │
-│  ┌─────────────────┐  ┌─────────────────┐                      │
-│  │ Alpha Bump      │  │ Calmness        │                      │
-│  │ Detector        │  │ Model           │                      │
-│  └────────┬────────┘  └────────┬────────┘                      │
-│           └────────┬───────────┘                               │
-│                    ▼                                            │
-│  Signal Processing (eeg-signal)                                 │
-│  ┌─────────────────────────────────────────────────────┐       │
-│  │ FFT │ Band Power │ Filtering │ Windowing            │       │
-│  └─────────────────────────────────────────────────────┘       │
-│                    ▲                                            │
-│  HAL Layer (eeg-hal)                                            │
-│  ┌─────────────────────────────────────────────────────┐       │
-│  │              EegDevice Trait                         │       │
-│  │   connect() │ start_stream() │ read_samples()       │       │
-│  └─────────────────────────────────────────────────────┘       │
-│           ▲                    ▲                                │
-│  ┌────────┴────────┐  ┌───────┴────────┐                       │
-│  │ Synthetic       │  │ Headband       │                       │
-│  │ Device          │  │ (Web BLE)      │                       │
-│  └─────────────────┘  └────────────────┘                       │
-└─────────────────────────────────────────────────────────────────┘
+```text
+Elata SDK
+├── Rust core crates
+│   ├── EEG pipeline
+│   │   ├── eeg-hal
+│   │   ├── eeg-hal-synthetic
+│   │   ├── eeg-signal
+│   │   └── eeg-models
+│   ├── rPPG pipeline
+│   │   └── rppg
+│   └── Protocol and bridge support
+│       ├── muse-proto
+│       ├── bridge-proto
+│       └── synthetic-ble-bridge
+├── Platform bindings
+│   ├── Browser/WASM
+│   │   ├── eeg-wasm
+│   │   └── rppg-wasm
+│   └── Native FFI
+│       ├── eeg-ffi
+│       └── rppg-ffi
+└── TypeScript packages
+    ├── packages/eeg-web
+    ├── packages/eeg-web-ble
+    └── packages/rppg-web
 ```
 
 ## Crates
@@ -63,6 +49,10 @@ A cross-platform Hardware Abstraction Layer (HAL) for EEG devices with real-time
 | `eeg-models` | Analysis models: Alpha Bump Detector, Calmness Model |
 | `eeg-ffi` | FFI bindings for iOS/Android via UniFFI |
 | `eeg-wasm` | WebAssembly bindings for browser |
+| `muse-proto` | Muse-compatible EEG BLE protocol constants and packet decoding |
+| `rppg` | Core remote photoplethysmography pipeline and estimators |
+| `rppg-wasm` | WebAssembly bindings for the rPPG core |
+| `rppg-ffi` | Native FFI wrapper for the rPPG core |
 | `bridge-proto` | BLE packet format and protocol definitions |
 | `synthetic-ble-bridge` | Windows BLE peripheral bridge |
 
