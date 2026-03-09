@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, cpSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -52,6 +52,10 @@ function buildWasm() {
     run('cargo', ['install', '-f', 'wasm-bindgen-cli']);
   }
   run('wasm-bindgen', [wasmPath, '--out-dir', outDir, '--target', 'web']);
+  // Also copy to pkg/ at package root so it's included in the published npm package
+  const pkgDir = path.resolve(packageRoot, 'pkg');
+  mkdirSync(pkgDir, { recursive: true });
+  cpSync(outDir, pkgDir, { recursive: true });
 }
 
 async function bundleDemo() {

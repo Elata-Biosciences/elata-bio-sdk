@@ -48,6 +48,7 @@ normalize_release_target() {
         eeg|eeg-web|@elata-biosciences/eeg-web) echo "eeg-web" ;;
         eeg-web-ble|ble|@elata-biosciences/eeg-web-ble) echo "eeg-web-ble" ;;
         rppg|rppg-web|@elata-biosciences/rppg-web) echo "rppg-web" ;;
+        create-rppg-app|@elata-biosciences/create-rppg-app) echo "create-rppg-app" ;;
         *)
             echo "Unknown release target: $raw" >&2
             return 1
@@ -60,6 +61,7 @@ package_dir_for_target() {
         eeg-web) echo "packages/eeg-web" ;;
         eeg-web-ble) echo "packages/eeg-web-ble" ;;
         rppg-web) echo "packages/rppg-web" ;;
+        create-rppg-app) echo "packages/create-rppg-app" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -72,6 +74,7 @@ package_name_for_target() {
         eeg-web) echo "@elata-biosciences/eeg-web" ;;
         eeg-web-ble) echo "@elata-biosciences/eeg-web-ble" ;;
         rppg-web) echo "@elata-biosciences/rppg-web" ;;
+        create-rppg-app) echo "@elata-biosciences/create-rppg-app" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -84,6 +87,7 @@ release_tag_prefix_for_target() {
         eeg-web) echo "eeg-web" ;;
         eeg-web-ble) echo "eeg-web-ble" ;;
         rppg-web) echo "rppg-web" ;;
+        create-rppg-app) echo "create-rppg-app" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -95,7 +99,7 @@ release_targets_for() {
     local target="$1"
     if [[ "$target" == "all" ]]; then
         # Keep repo-published dependency order.
-        echo "eeg-web eeg-web-ble rppg-web"
+        echo "eeg-web eeg-web-ble rppg-web create-rppg-app"
     else
         echo "$target"
     fi
@@ -234,6 +238,9 @@ build_release_artifacts_for_target() {
         rppg-web)
             echo "Building release artifacts for rppg-web..."
             build_rppg_web_package
+            ;;
+        create-rppg-app)
+            echo "create-rppg-app: no build step required (pure JS package)."
             ;;
         *)
             echo "Unknown release target: $target" >&2
@@ -709,6 +716,7 @@ doctor() {
     check_dir "crates" "crates/: present" "crates/ missing" || repo_err=1
     check_dir "packages/eeg-web" "packages/eeg-web: present" "packages/eeg-web missing" || repo_err=1
     check_dir "packages/rppg-web" "packages/rppg-web: present" "packages/rppg-web missing" || repo_err=1
+    check_dir "packages/create-rppg-app" "packages/create-rppg-app: present" "packages/create-rppg-app missing" || repo_err=1
 
     header "Package Dependencies"
     if [[ "$PKG_MGR" == "pnpm" ]]; then
@@ -722,6 +730,7 @@ doctor() {
     check_file "packages/eeg-web/wasm/eeg_wasm_bg.wasm" "packages/eeg-web/wasm/eeg_wasm_bg.wasm: present" "packages/eeg-web/wasm/eeg_wasm_bg.wasm missing" "warn" || build_err=1
     check_file "packages/rppg-web/dist/index.js" "packages/rppg-web/dist/index.js: present" "packages/rppg-web/dist/index.js missing" "warn" || build_err=1
     check_file "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm" "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm: present" "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm missing (optional; run './run.sh dev rppg' to generate)" "warn" || true
+    check_file "packages/rppg-web/pkg/rppg_wasm_bg.wasm" "packages/rppg-web/pkg/rppg_wasm_bg.wasm: present (publishable WASM)" "packages/rppg-web/pkg/rppg_wasm_bg.wasm missing (run './run.sh build rppg' before publishing)" "warn" || true
 
     header "Canned Checks"
     if [[ $deps_err -eq 0 && -d "packages/eeg-web" ]]; then
@@ -923,7 +932,8 @@ case "$cmd" in
         rm -rf \
             "$ROOT_DIR/eeg-demo/pkg" \
             "$ROOT_DIR/packages/rppg-web/demo/pkg" \
-            "$ROOT_DIR/packages/rppg-web/demo/demo.js"
+            "$ROOT_DIR/packages/rppg-web/demo/demo.js" \
+            "$ROOT_DIR/packages/rppg-web/pkg"
         find "$ROOT_DIR/packages/eeg-web/wasm" -mindepth 1 -maxdepth 1 ! -name ".gitkeep" -exec rm -rf {} +
         echo "Cleaning build artifacts for wasm crates..."
         cargo clean -p eeg-wasm -p rppg-wasm

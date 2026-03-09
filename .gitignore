@@ -43,6 +43,7 @@ pnpm-debug.log*
 # Web demo/package generated WASM glue and bundles
 eeg-demo/pkg/
 packages/rppg-web/demo/pkg/
+packages/rppg-web/pkg/
 packages/rppg-web/demo/demo.js
 packages/eeg-web/wasm/*
 !packages/eeg-web/wasm/.gitkeep

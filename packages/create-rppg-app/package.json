@@ -1,0 +1,38 @@
+{
+  "name": "@elata-biosciences/create-rppg-app",
+  "version": "0.1.0",
+  "description": "Scaffold a React + Vite rPPG heart rate demo app",
+  "license": "MIT",
+  "author": "Elata",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Elata-Biosciences/elata-bio-sdk.git",
+    "directory": "packages/create-rppg-app"
+  },
+  "homepage": "https://github.com/Elata-Biosciences/elata-bio-sdk#readme",
+  "bugs": "https://github.com/Elata-Biosciences/elata-bio-sdk/issues",
+  "keywords": [
+    "rppg",
+    "heart-rate",
+    "photoplethysmography",
+    "vite",
+    "react",
+    "create",
+    "scaffold",
+    "elata"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "bin": {
+    "create-rppg-app": "index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "template"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
