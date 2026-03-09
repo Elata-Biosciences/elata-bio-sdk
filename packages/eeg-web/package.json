@@ -6,11 +6,11 @@
   "author": "Elata",
   "repository": {
     "type": "git",
-    "url": "https://github.com/elata-bio/elata-sdk.git",
+    "url": "https://github.com/Elata-Biosciences/elata-bio-sdk.git",
     "directory": "packages/eeg-web"
   },
-  "homepage": "https://github.com/elata-bio/elata-sdk#readme",
-  "bugs": "https://github.com/elata-bio/elata-sdk/issues",
+  "homepage": "https://github.com/Elata-Biosciences/elata-bio-sdk#readme",
+  "bugs": "https://github.com/Elata-Biosciences/elata-bio-sdk/issues",
   "keywords": [
     "eeg",
     "bci",

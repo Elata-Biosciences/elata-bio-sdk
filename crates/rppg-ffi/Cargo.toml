@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 description = "FFI wrapper for rPPG (UniFFI-ready)"
 license = "MIT"
-repository = "https://github.com/elata-bio/elata-sdk"
-homepage = "https://github.com/elata-bio/elata-sdk#readme"
+repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"
+homepage = "https://github.com/Elata-Biosciences/elata-bio-sdk#readme"
 
 [lib]
 name = "rppg_ffi"

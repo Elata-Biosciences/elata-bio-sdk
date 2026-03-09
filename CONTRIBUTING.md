@@ -13,7 +13,7 @@ set up, propose changes, and work with the maintainers.
 - **Initial setup**
 
 ```bash
-git clone https://github.com/elata-bio/elata-sdk.git
+git clone https://github.com/Elata-Biosciences/elata-bio-sdk.git
 cd elata-sdk
 ./run.sh doctor      # validates toolchain, dependencies, and package artifacts
 ```

@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 description = "Synthetic BLE bridge for EEG devices using the Elata SDK"
 license = "MIT"
-repository = "https://github.com/elata-bio/elata-sdk"
-homepage = "https://github.com/elata-bio/elata-sdk#readme"
+repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"
+homepage = "https://github.com/Elata-Biosciences/elata-bio-sdk#readme"
 
 [dependencies]
 bridge-proto = { path = "../bridge-proto" }

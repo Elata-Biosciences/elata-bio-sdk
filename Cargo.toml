@@ -21,8 +21,8 @@ version = "0.1.0"
 edition = "2021"
 description = "Rust EEG SDK workspace root crate"
 license = "MIT"
-repository = "https://github.com/elata-bio/elata-sdk"
-homepage = "https://github.com/elata-bio/elata-sdk#readme"
+repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"
+homepage = "https://github.com/Elata-Biosciences/elata-bio-sdk#readme"
 readme = "README.md"
 
 [[example]]
