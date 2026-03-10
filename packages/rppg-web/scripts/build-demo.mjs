@@ -33,14 +33,6 @@ function hasCommand(cmd) {
   return !res.error && res.status === 0;
 }
 
-function ensureEsbuildInstalled() {
-  if (existsSync(path.resolve(packageRoot, 'pnpm-lock.yaml')) && hasCommand('pnpm')) {
-    run('pnpm', ['install', '--prod=false'], packageRoot);
-    return;
-  }
-  run('npm', ['install', '--include=dev'], packageRoot);
-}
-
 function buildWasm() {
   mkdirSync(outDir, { recursive: true });
   run('rustup', ['target', 'add', 'wasm32-unknown-unknown']);
@@ -58,20 +50,9 @@ async function bundleDemo() {
   let esbuild;
   try {
     esbuild = await import('esbuild');
-  } catch (initialErr) {
-    console.log("[rppg-web] 'esbuild' unavailable, attempting dependency install...");
-    ensureEsbuildInstalled();
-    try {
-      esbuild = await import('esbuild');
-    } catch (retryErr) {
-      const reason = retryErr instanceof Error ? retryErr.message : String(retryErr);
-      const initialReason = initialErr instanceof Error ? initialErr.message : String(initialErr);
-      throw new Error(
-        "Missing 'esbuild' dependency after install attempt. " +
-          "Run 'pnpm --dir packages/rppg-web install --prod=false' (or npm install --include=dev) and retry. " +
-          `Initial error: ${initialReason}. Retry error: ${reason}`
-      );
-    }
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : String(err);
+    throw new Error(`Missing 'esbuild' dependency. Run 'pnpm install --frozen-lockfile' from the repo root and retry. Error: ${reason}`);
   }
   console.log('[rppg-web] esbuild demo/main.ts -> demo/demo.js');
   await esbuild.build({

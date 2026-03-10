@@ -2,6 +2,7 @@
 name = "bridge-proto"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.94"
 description = "Protocol messages for the EEG bridge"
 license = "MIT"
 repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"

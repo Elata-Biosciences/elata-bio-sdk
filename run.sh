@@ -22,7 +22,7 @@ Build & Demo:
   sync-to      Build eeg-web and install it into a local app (default app: ../my-app)
 
 Quality:
-  doctor       Run repository health checks (toolchain, targets, package deps/artifacts)
+  doctor       Run repository health checks (toolchain, repo audit, static analysis, package artifacts)
   verify-all   Run workspace JS/TS build + wasm verification
   test         Run Rust and web tests
 
@@ -351,17 +351,12 @@ require_cmds() {
 }
 
 init_package_manager() {
-    # Prefer npm for npm-workspaces repos unless pnpm workspace is explicitly configured.
-    if [[ -f "$ROOT_DIR/pnpm-workspace.yaml" ]] && command -v pnpm >/dev/null 2>&1; then
+    if command -v pnpm >/dev/null 2>&1; then
         PKG_MGR="pnpm"
-    elif command -v npm >/dev/null 2>&1; then
-        PKG_MGR="npm"
-    elif command -v pnpm >/dev/null 2>&1; then
-        PKG_MGR="pnpm"
-    else
-        echo "Missing required package manager: pnpm or npm" >&2
-        exit 1
+        return
     fi
+    echo "Missing required package manager: pnpm" >&2
+    exit 1
 }
 
 require_package_manager() {
@@ -737,7 +732,7 @@ doctor() {
     }
 
     printf "\n${c_bold}${c_cyan}Elata SDK Doctor${c_reset}\n"
-    printf "${c_dim}Checks: toolchain, wasm target, package deps, generated artifacts${c_reset}\n"
+    printf "${c_dim}Checks: toolchain, repo audit, static analysis, package deps, generated artifacts${c_reset}\n"
 
     header "Toolchain"
     check_cmd "cargo" "cargo: $(cargo --version)" "cargo missing (install Rust via https://rustup.rs)" || toolchain_err=1
@@ -764,24 +759,64 @@ doctor() {
         if [[ ! -f "pnpm-workspace.yaml" && -f "package.json" ]] && grep -q '"workspaces"' package.json; then
             warn_line "pnpm selected but pnpm-workspace.yaml is missing; add it to avoid workspace warnings"
         fi
-    elif command -v npm >/dev/null 2>&1; then
-        ok_line "npm: $(npm --version) (selected)"
     else
-        err_line "package manager missing (install pnpm or npm)"
+        err_line "package manager missing (install pnpm)"
         toolchain_err=1
     fi
 
     header "Repository Layout"
     check_file "Cargo.toml" "Cargo.toml: present" "Cargo.toml missing" || repo_err=1
+    check_file "rust-toolchain.toml" "rust-toolchain.toml: present" "rust-toolchain.toml missing" || repo_err=1
+    check_file "pnpm-lock.yaml" "pnpm-lock.yaml: present" "pnpm-lock.yaml missing" || repo_err=1
     check_dir "crates" "crates/: present" "crates/ missing" || repo_err=1
     check_dir "packages/eeg-web" "packages/eeg-web: present" "packages/eeg-web missing" || repo_err=1
     check_dir "packages/rppg-web" "packages/rppg-web: present" "packages/rppg-web missing" || repo_err=1
 
+    header "Repository Audit"
+    if [[ -f "package.json" ]]; then
+        local audit_output audit_rc
+        audit_output="$(run_root_script "audit:repo" 2>&1)"
+        audit_rc=$?
+        while IFS= read -r line; do
+            printf "  ${c_dim}|${c_reset} %s\n" "$line"
+        done <<< "$audit_output"
+        if [[ $audit_rc -ne 0 ]]; then
+            repo_err=1
+        fi
+    fi
+
     header "Package Dependencies"
-    if [[ "$PKG_MGR" == "pnpm" ]]; then
-        check_dir "node_modules" "node_modules/: present (pnpm workspace root)" "node_modules/ missing (run: pnpm install)" || deps_err=1
+    check_dir "node_modules" "node_modules/: present (pnpm workspace root)" "node_modules/ missing (run: pnpm install)" || deps_err=1
+
+    header "Static Analysis"
+    local clippy_output clippy_rc
+    clippy_output="$(cargo clippy --workspace --all-targets -- -D warnings 2>&1)"
+    clippy_rc=$?
+    while IFS= read -r line; do
+        printf "  ${c_dim}|${c_reset} %s\n" "$line"
+    done <<< "$clippy_output"
+    if [[ $clippy_rc -eq 0 ]]; then
+        ok_line "cargo clippy passed"
     else
-        check_dir "node_modules" "node_modules/: present (npm workspace root)" "node_modules/ missing (run: npm install)" || deps_err=1
+        err_line "cargo clippy failed"
+        build_err=1
+    fi
+
+    if [[ $deps_err -eq 0 && -f "package.json" ]]; then
+        local lint_output lint_rc
+        lint_output="$(run_root_script "lint:web" 2>&1)"
+        lint_rc=$?
+        while IFS= read -r line; do
+            printf "  ${c_dim}|${c_reset} %s\n" "$line"
+        done <<< "$lint_output"
+        if [[ $lint_rc -eq 0 ]]; then
+            ok_line "web lint passed"
+        else
+            err_line "web lint failed"
+            build_err=1
+        fi
+    else
+        info_line "skipping web lint (dependencies missing)"
     fi
 
     header "Generated Artifacts"
@@ -835,7 +870,7 @@ doctor() {
     fi
     if [[ $deps_err -ne 0 ]]; then
         info_line "install web dependencies:"
-        printf "    npm install   # from repo root (uses workspaces)\n"
+        printf "    pnpm install   # from repo root\n"
     fi
     if [[ $build_err -ne 0 ]]; then
         info_line "rebuild artifacts:"
@@ -853,11 +888,7 @@ cmd="${1:-doctor}"
 case "$cmd" in
     install)
         require_package_manager
-        if [[ "$PKG_MGR" == "pnpm" ]]; then
-            pnpm install
-        else
-            npm install
-        fi
+        pnpm install
         ;;
     doctor)
         doctor
@@ -961,6 +992,15 @@ case "$cmd" in
         require_cmd cargo
         require_package_manager
         local_jobs="${BUILD_JOBS:-$DEFAULT_JOBS}"
+
+        echo "Auditing repository structure..."
+        run_root_script "audit:repo"
+
+        echo "Running web lint..."
+        run_root_script "lint:web"
+
+        echo "Running Rust clippy..."
+        cargo clippy --workspace --all-targets -- -D warnings
 
         echo "Running Rust workspace tests (unit + integration + doc)..."
         cargo test --workspace -j "$local_jobs"

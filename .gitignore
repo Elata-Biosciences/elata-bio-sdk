@@ -28,6 +28,7 @@ android-demo/eeg-sdk/build/
 
 # Node / web artifacts
 node_modules/
+package-lock.json
 dist/
 coverage/
 .turbo/
@@ -38,6 +39,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .pnpm-store/
+packages/*/pnpm-lock.yaml
 
 # Generated bindings (keep in git for easier onboarding)
 # Web demo/package generated WASM glue and bundles
@@ -46,6 +48,9 @@ packages/rppg-web/demo/pkg/
 packages/rppg-web/demo/demo.js
 packages/eeg-web/wasm/*
 !packages/eeg-web/wasm/.gitkeep
+packages/eeg-web/src/*.js
+packages/eeg-web/src/*.d.ts
+packages/eeg-web/src/*.d.ts.map
 # ios-demo/EegSdkSwift/Sources/eeg_ffi.swift
 # android-demo/eeg-sdk/src/main/kotlin/uniffi/
 

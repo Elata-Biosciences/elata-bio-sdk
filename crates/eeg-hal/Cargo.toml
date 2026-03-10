@@ -2,6 +2,7 @@
 name = "eeg-hal"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.94"
 description = "Hardware Abstraction Layer for EEG devices"
 license = "MIT"
 repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"

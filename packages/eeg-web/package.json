@@ -45,6 +45,7 @@
     "access": "public"
   },
   "scripts": {
+    "lint": "pnpm exec biome lint src scripts/verify-wasm.js jest.config.cjs",
     "test": "jest --config jest.config.cjs --passWithNoTests",
     "test:coverage": "jest --config jest.config.cjs --coverage --passWithNoTests",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true});require('fs').rmSync('tsconfig.tsbuildinfo',{force:true})\"",
@@ -55,10 +56,10 @@
     "prepack": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts"
   },
   "devDependencies": {
-    "@types/jest": "29.5.3",
-    "jest": "29.6.1",
-    "jest-environment-jsdom": "^30.2.0",
-    "ts-jest": "29.1.0",
-    "typescript": "^5.3.3"
+    "@types/jest": "29.5.14",
+    "jest": "29.7.0",
+    "jest-environment-jsdom": "29.7.0",
+    "ts-jest": "29.4.4",
+    "typescript": "5.9.3"
   }
 }

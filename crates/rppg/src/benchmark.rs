@@ -814,11 +814,13 @@ mod tests {
     #[test]
     fn test_cepstrum_vs_psd_on_harmonic_signal() {
         // Create a signal where cepstrum should outperform raw PSD
-        let mut config = SyntheticSignalConfig::default();
-        config.true_bpm = 70.0;
-        config.fundamental_amplitude = 0.6;
-        config.harmonic_amplitudes = vec![1.2, 0.4]; // Strong 2nd harmonic
-        config.noise_std = 0.02;
+        let config = SyntheticSignalConfig {
+            true_bpm: 70.0,
+            fundamental_amplitude: 0.6,
+            harmonic_amplitudes: vec![1.2, 0.4],
+            noise_std: 0.02,
+            ..SyntheticSignalConfig::default()
+        };
 
         let signal = generate_synthetic_signal(&config);
 

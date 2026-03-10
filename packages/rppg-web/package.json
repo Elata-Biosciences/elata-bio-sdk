@@ -40,6 +40,7 @@
     "access": "public"
   },
   "scripts": {
+    "lint": "pnpm exec biome lint src playwright.config.ts scripts/build-demo.mjs jest.config.cjs",
     "test": "jest --config jest.config.cjs --passWithNoTests",
     "clean": "node -e \"import('fs').then(f=>{f.rmSync('dist',{recursive:true,force:true});f.rmSync('tsconfig.tsbuildinfo',{force:true});})\"",
     "build": "tsc -p .",
@@ -56,11 +57,11 @@
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",
-    "@types/jest": "29.5.3",
+    "@types/jest": "29.5.14",
     "esbuild": "0.25.10",
-    "jest": "29.6.1",
-    "jest-environment-jsdom": "^30.2.0",
-    "ts-jest": "29.1.0",
-    "typescript": "^5.9.3"
+    "jest": "29.7.0",
+    "jest-environment-jsdom": "29.7.0",
+    "ts-jest": "29.4.4",
+    "typescript": "5.9.3"
   }
 }

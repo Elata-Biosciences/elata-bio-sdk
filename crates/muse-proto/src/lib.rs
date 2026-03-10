@@ -355,7 +355,7 @@ mod tests {
 
     #[test]
     fn test_packet_clamps_out_of_range_samples() {
-        let samples = vec![1_000_000.0, -1_000_000.0].repeat(6);
+        let samples = [1_000_000.0, -1_000_000.0].repeat(6);
         let packet = encode_eeg_packet(7, &samples);
         let (_seq, decoded) = decode_eeg_packet(&packet);
 

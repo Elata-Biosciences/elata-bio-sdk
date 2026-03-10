@@ -2,6 +2,12 @@
 name = "facial-affect"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.94"
+description = "Calibration-based facial affect classifier core for Elata SDK"
+license = "MIT"
+repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"
+homepage = "https://github.com/Elata-Biosciences/elata-bio-sdk/tree/main/crates/facial-affect"
+readme = "README.md"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }

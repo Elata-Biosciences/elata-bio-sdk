@@ -2,6 +2,7 @@
 name = "rppg-ffi"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.94"
 description = "FFI wrapper for rPPG (UniFFI-ready)"
 license = "MIT"
 repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"

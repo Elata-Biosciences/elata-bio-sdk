@@ -19,9 +19,6 @@ pub use signal::*;
 /// Initialize the WASM module (call once at startup)
 #[wasm_bindgen(start)]
 pub fn init() {
-    // Set up better panic messages in debug builds
-    #[cfg(feature = "console_error_panic_hook")]
-    console_error_panic_hook::set_once();
 }
 
 /// Get the SDK version

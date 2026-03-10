@@ -35,6 +35,8 @@ fn print_method_results(method: EstimationMethod, metrics: &BenchmarkMetrics) {
     );
 }
 
+type CategoryPredicate = fn(&BenchmarkCase) -> bool;
+
 fn main() {
     println!();
     print_separator();
@@ -70,7 +72,7 @@ fn main() {
     println!("BREAKDOWN BY TEST CATEGORY");
     print_separator();
 
-    let categories: &[(&str, fn(&BenchmarkCase) -> bool)] = &[
+    let categories: &[(&str, CategoryPredicate)] = &[
         ("Clean Signals", |c| c.name.starts_with("clean_")),
         ("Realistic Signals", |c| c.name.starts_with("realistic_")),
         ("Highly Realistic (HRV+Resp)", |c| {

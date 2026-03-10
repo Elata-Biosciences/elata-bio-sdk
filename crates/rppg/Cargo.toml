@@ -2,6 +2,7 @@
 name = "rppg"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.94"
 authors = ["Elata Biosciences <devs@elata.bio>"]
 description = "Remote photoplethysmography (rPPG) core for Elata SDK"
 license = "MIT"

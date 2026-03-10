@@ -86,8 +86,6 @@ impl SentimentCore {
         Self { cfg, buffer: VecDeque::with_capacity(smooth_cap), baseline_buffer: VecDeque::with_capacity(baseline_cap), baseline: None, last_metrics: None }
     }
 
-    pub fn default() -> Self { Self::new(SentimentConfig::default()) }
-
     /// Start filling baseline buffer (useful to call when user starts calibration)
     pub fn start_calibration(&mut self) {
         self.baseline_buffer.clear();
@@ -185,6 +183,12 @@ impl SentimentCore {
 
         let quality = 1.0; // placeholder (face-found checks should be done upstream)
         SentimentResult { label, confidence: conf, quality, metrics: s }
+    }
+}
+
+impl Default for SentimentCore {
+    fn default() -> Self {
+        Self::new(SentimentConfig::default())
     }
 }
 

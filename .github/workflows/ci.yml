@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        crate: [rppg, rppg-wasm, rppg-ffi, eeg-wasm, eeg-ffi]
+        crate: [rppg, rppg-wasm, rppg-ffi, eeg-wasm, eeg-ffi, facial-affect]
     steps:
       - uses: actions/checkout@v4
 
@@ -36,7 +36,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Run tests for crate
-        run: cargo test -p ${{ matrix.crate }} --lib --workspace
+        run: cargo test -p ${{ matrix.crate }} --all-targets
 
   fmt-check:
     name: Format check
@@ -49,6 +49,19 @@ jobs:
           components: rustfmt
       - name: Run rustfmt check
         run: cargo fmt --all -- --check
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+          targets: wasm32-unknown-unknown
+      - name: Run clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
 
   build-wasm:
     name: Build WASM targets
@@ -118,10 +131,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.31.0
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
+          cache: pnpm
 
       - name: Download eeg WASM artifacts
         uses: actions/download-artifact@v4
@@ -130,16 +149,19 @@ jobs:
           path: packages/eeg-web/wasm
 
       - name: Install workspace dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
+
+      - name: Run repo audit and web lint
+        run: pnpm lint
 
       - name: Run all unit tests
-        run: npm test --workspaces
+        run: pnpm test
 
       - name: Install Playwright browsers
-        run: cd packages/rppg-web && npx playwright install --with-deps
+        run: pnpm --dir packages/rppg-web exec playwright install --with-deps
 
       - name: Run Playwright E2E
-        run: cd packages/rppg-web && npm run ci:e2e
+        run: pnpm --dir packages/rppg-web run ci:e2e
 
   package-pack-check:
     name: Validate npm package tarballs
@@ -148,10 +170,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.31.0
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
+          cache: pnpm
 
       - name: Download eeg WASM artifacts
         uses: actions/download-artifact@v4
@@ -160,10 +188,10 @@ jobs:
           path: packages/eeg-web/wasm
 
       - name: Install workspace dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build all packages
-        run: npm run build --workspaces
+        run: pnpm build
 
       - name: Validate tarballs
         run: node scripts/validate-tarballs.mjs

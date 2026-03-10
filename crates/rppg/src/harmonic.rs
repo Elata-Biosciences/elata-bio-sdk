@@ -40,8 +40,8 @@ pub fn harmonic_probability_check(samples: &[f32], fs: f32) -> HarmonicCheckResu
 
     let pos_len = nfft / 2 + 1;
     let mut psd_pos: Vec<f32> = Vec::with_capacity(pos_len);
-    for k in 0..pos_len {
-        let c = buf[k];
+    for value in buf.iter().take(pos_len) {
+        let c = *value;
         psd_pos.push((c.norm_sqr()) / (n as f32));
     }
 
@@ -66,9 +66,9 @@ pub fn harmonic_probability_check(samples: &[f32], fs: f32) -> HarmonicCheckResu
     // Cepstrum: log-PSD (symmetrize to full-length) -> inverse FFT
     let eps = 1e-10_f32;
     let mut psd_full: Vec<f32> = vec![0.0; nfft];
-    for k in 0..nfft {
+    for (k, value) in psd_full.iter_mut().enumerate().take(nfft) {
         let idx = if k <= nfft / 2 { k } else { nfft - k };
-        psd_full[k] = psd_pos[idx];
+        *value = psd_pos[idx];
     }
 
     let mut log_spec: Vec<Complex<f32>> = psd_full
@@ -101,10 +101,10 @@ pub fn harmonic_probability_check(samples: &[f32], fs: f32) -> HarmonicCheckResu
     // Harmonic sum: add contributions from k=2,3 (downsampled PSD alignment)
     let mut h_sum = psd_pos.clone();
     for k in 2..=3 {
-        for i in 0..pos_len {
+        for (i, sum) in h_sum.iter_mut().enumerate().take(pos_len) {
             let j = i * k;
             if j < pos_len {
-                h_sum[i] += psd_pos[j] / (k as f32);
+                *sum += psd_pos[j] / (k as f32);
             }
         }
     }

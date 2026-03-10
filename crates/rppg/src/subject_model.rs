@@ -18,10 +18,6 @@ impl SubjectModel {
         }
     }
 
-    pub fn default() -> Self {
-        Self::new(75.0, 36.0, 0.1) // default mean 75 bpm, var ~6^2, alpha=0.1
-    }
-
     pub fn update(&mut self, bpm: f32) {
         // simple EMA for mean and a running variance using EMA
         let delta = bpm - self.mean_bpm;
@@ -39,6 +35,12 @@ impl SubjectModel {
         let min_bpm = (self.mean_bpm - 2.0 * sigma).max(30.0);
         let max_bpm = (self.mean_bpm + 2.0 * sigma).min(200.0);
         HarmonicPrior::new(min_bpm, max_bpm)
+    }
+}
+
+impl Default for SubjectModel {
+    fn default() -> Self {
+        Self::new(75.0, 36.0, 0.1)
     }
 }
 

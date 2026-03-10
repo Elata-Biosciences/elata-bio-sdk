@@ -1,4 +1,5 @@
 use rppg::RppgPipeline;
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
 /// Simple WASM-friendly wrapper around `RppgPipeline`.

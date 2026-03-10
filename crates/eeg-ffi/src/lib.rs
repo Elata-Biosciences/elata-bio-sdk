@@ -95,6 +95,12 @@ impl EegBands {
     }
 }
 
+impl Default for EegBands {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Signal processing functions
 #[derive(uniffi::Object)]
 pub struct SignalProcessor {
