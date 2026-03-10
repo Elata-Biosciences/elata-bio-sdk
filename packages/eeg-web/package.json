@@ -21,7 +21,7 @@
     "wasm"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "type": "module",
   "sideEffects": false,

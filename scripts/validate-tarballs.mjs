@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Validates npm pack --dry-run output for all three packages.
+ * Validates pnpm pack --dry-run --json output for published packages.
  * Ensures tarballs contain expected files and no test/dev artifacts leak.
  *
  * Usage: node scripts/validate-tarballs.mjs
@@ -44,28 +44,21 @@ for (const pkg of packages) {
 
   let output;
   try {
-    output = execSync('npm pack --dry-run --ignore-scripts 2>&1', {
+    output = execSync('pnpm pack --dry-run --json', {
       cwd: pkgDir,
       encoding: 'utf-8',
-      env: { ...process.env, npm_config_cache: process.env.NPM_CONFIG_CACHE || '/tmp/npm-cache' },
     });
   } catch (err) {
-    console.error(`  FAIL: npm pack --dry-run failed for ${pkg.name}`);
+    console.error(`  FAIL: pnpm pack --dry-run --json failed for ${pkg.name}`);
     console.error(`  ${err.message || err}`);
     totalErrors++;
     continue;
   }
 
-  // Parse file list from npm pack --dry-run output.
-  // Lines look like: "npm notice 1.2kB dist/index.js"
-  const fileLines = output
-    .split('\n')
-    .filter(line => line.includes('npm notice') && !line.includes('=') && !line.includes('Tarball'))
-    .map(line => {
-      const match = line.match(/npm notice\s+[\d.]+[kKmMgG]?B?\s+(.+)/);
-      return match ? match[1].trim() : null;
-    })
-    .filter(Boolean);
+  const jsonStart = output.lastIndexOf('\n{');
+  const jsonText = (jsonStart >= 0 ? output.slice(jsonStart + 1) : output).trim();
+  const packJson = JSON.parse(jsonText);
+  const fileLines = Array.isArray(packJson.files) ? packJson.files.map((file) => file.path) : [];
 
   let pkgErrors = 0;
 

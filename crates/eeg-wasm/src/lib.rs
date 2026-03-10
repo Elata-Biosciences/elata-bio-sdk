@@ -18,8 +18,7 @@ pub use signal::*;
 
 /// Initialize the WASM module (call once at startup)
 #[wasm_bindgen(start)]
-pub fn init() {
-}
+pub fn init() {}
 
 /// Get the SDK version
 #[wasm_bindgen]

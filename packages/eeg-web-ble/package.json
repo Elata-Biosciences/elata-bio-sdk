@@ -22,7 +22,7 @@
     "ble"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "type": "module",
   "sideEffects": false,
@@ -48,7 +48,7 @@
     "build": "tsc -p tsconfig.json",
     "verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
     "prepack": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
-    "pack:check": "npm_config_cache=${NPM_CONFIG_CACHE:-/tmp/npm-cache} npm pack --dry-run"
+    "pack:check": "pnpm pack --dry-run --json"
   },
   "peerDependencies": {
     "@elata-biosciences/eeg-web": "^0.1.0"

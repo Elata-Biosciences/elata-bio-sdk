@@ -350,6 +350,54 @@ require_cmds() {
     done
 }
 
+read_package_engine() {
+    local key="$1"
+    node -p "(() => { const pkg = require('./package.json'); return (pkg.engines && pkg.engines['$key']) || ''; })()"
+}
+
+extract_min_major() {
+    local constraint="$1"
+    if [[ "$constraint" =~ \>\=([0-9]+) ]]; then
+        printf "%s\n" "${BASH_REMATCH[1]}"
+        return 0
+    fi
+    return 1
+}
+
+extract_installed_major() {
+    local version="$1"
+    if [[ "$version" =~ ^v?([0-9]+) ]]; then
+        printf "%s\n" "${BASH_REMATCH[1]}"
+        return 0
+    fi
+    return 1
+}
+
+check_engine_major() {
+    local tool="$1"
+    local current_version="$2"
+    local constraint="$3"
+    local min_major installed_major
+    if [[ -z "$constraint" ]]; then
+        warn_line "$tool engine constraint missing from package.json"
+        return 1
+    fi
+    if ! min_major="$(extract_min_major "$constraint")"; then
+        warn_line "$tool engine constraint '$constraint' is not a simple >=major range"
+        return 1
+    fi
+    if ! installed_major="$(extract_installed_major "$current_version")"; then
+        err_line "unable to parse installed $tool version: $current_version"
+        return 1
+    fi
+    if (( installed_major < min_major )); then
+        err_line "$tool $current_version does not satisfy engines.$tool=$constraint"
+        return 1
+    fi
+    ok_line "$tool version satisfies engines.$tool ($constraint)"
+    return 0
+}
+
 init_package_manager() {
     if command -v pnpm >/dev/null 2>&1; then
         PKG_MGR="pnpm"
@@ -752,10 +800,16 @@ doctor() {
 
     check_cmd "wasm-bindgen" "wasm-bindgen: $(wasm-bindgen --version)" "wasm-bindgen missing (run: cargo install wasm-bindgen-cli)" || toolchain_err=1
     check_cmd "node" "node: $(node --version)" "node missing (install from https://nodejs.org/)" || toolchain_err=1
+    if command -v node >/dev/null 2>&1 && [[ -f "package.json" ]]; then
+        check_engine_major "node" "$(node --version)" "$(read_package_engine node)" || toolchain_err=1
+    fi
 
     require_package_manager
     if [[ "$PKG_MGR" == "pnpm" ]]; then
         ok_line "pnpm: $(pnpm --version) (selected)"
+        if [[ -f "package.json" ]]; then
+            check_engine_major "pnpm" "$(pnpm --version)" "$(read_package_engine pnpm)" || toolchain_err=1
+        fi
         if [[ ! -f "pnpm-workspace.yaml" && -f "package.json" ]] && grep -q '"workspaces"' package.json; then
             warn_line "pnpm selected but pnpm-workspace.yaml is missing; add it to avoid workspace warnings"
         fi
@@ -789,6 +843,19 @@ doctor() {
     check_dir "node_modules" "node_modules/: present (pnpm workspace root)" "node_modules/ missing (run: pnpm install)" || deps_err=1
 
     header "Static Analysis"
+    local fmt_output fmt_rc
+    fmt_output="$(cargo fmt --all -- --check 2>&1)"
+    fmt_rc=$?
+    while IFS= read -r line; do
+        printf "  ${c_dim}|${c_reset} %s\n" "$line"
+    done <<< "$fmt_output"
+    if [[ $fmt_rc -eq 0 ]]; then
+        ok_line "cargo fmt check passed"
+    else
+        err_line "cargo fmt check failed"
+        build_err=1
+    fi
+
     local clippy_output clippy_rc
     clippy_output="$(cargo clippy --workspace --all-targets -- -D warnings 2>&1)"
     clippy_rc=$?
@@ -998,6 +1065,9 @@ case "$cmd" in
 
         echo "Running web lint..."
         run_root_script "lint:web"
+
+        echo "Running Rust format check..."
+        cargo fmt --all -- --check
 
         echo "Running Rust clippy..."
         cargo clippy --workspace --all-targets -- -D warnings
