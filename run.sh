@@ -123,16 +123,40 @@ publish_packages() {
     local dist_tag="${2:-next}"
     local target
     local pkg
+    local pkg_dir pkg_name version
     target="$(normalize_release_target "$raw_target")" || exit 1
     validate_dist_tag "$dist_tag" || exit 1
     require_cmds node
     require_package_manager
 
     for pkg in $(release_targets_for "$target"); do
-        local pkg_dir pkg_name version
         pkg_dir="$(package_dir_for_target "$pkg")"
         pkg_name="$(package_name_for_target "$pkg")"
         version="$(package_version_for_target "$pkg")"
+
+        # If this exact version is already published, automatically bump patch
+        # before attempting to publish, to avoid "cannot publish over previous version" errors.
+        local remote_version=""
+        if [[ "$PKG_MGR" == "pnpm" ]]; then
+            remote_version="$(pnpm view "${pkg_name}@${version}" version 2>/dev/null || echo "")"
+        else
+            remote_version="$(npm view "${pkg_name}@${version}" version 2>/dev/null || echo "")"
+        fi
+
+        if [[ -n "$remote_version" ]]; then
+            echo "Detected already published version for ${pkg_name}@${version}; bumping patch version before publish..."
+            (
+                cd "$ROOT_DIR/$pkg_dir"
+                if [[ "$PKG_MGR" == "pnpm" ]]; then
+                    pnpm version patch --no-git-tag-version
+                else
+                    npm version patch --no-git-tag-version
+                fi
+            )
+            # Refresh version after bump
+            version="$(package_version_for_target "$pkg")"
+        fi
+
         echo "Publishing ${pkg_name}@${version} with dist-tag '${dist_tag}'..."
         (
             cd "$ROOT_DIR/$pkg_dir"
