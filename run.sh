@@ -31,7 +31,7 @@ Release:
   bump         Apply changesets: bump versions and update CHANGELOGs (run before release)
   release      Build, publish, tag, and push (default: target=all, dist-tag=next)
   publish      Publish package(s) to npm in repo release order (default: target=all, dist-tag=next)
-  promote-latest Promote currently bumped version(s) to 'latest' dist-tag on npm
+  promote Promote currently bumped version(s) to 'latest' dist-tag on npm
   tag-release  Create package-scoped git tag(s) from package.json versions (default: target=all, commit=HEAD)
   push-tags    Push package-scoped git tag(s) for current package.json versions (default: target=all)
 
@@ -893,10 +893,10 @@ case "$cmd" in
         ;;
     promote*)
         # Usage:
-        #   ./run.sh promote-latest [target]
+        #   ./run.sh promote [target]
         # Examples:
-        #   ./run.sh promote-latest all
-        #   ./run.sh promote-latest rppg-web
+        #   ./run.sh promote all
+        #   ./run.sh promote rppg-web
         # Sets the 'latest' npm dist-tag for the version currently in package.json.
         promote_latest "${2:-all}"
         ;;
