@@ -1,11 +1,10 @@
 {
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "types": ["jest", "node"],
-    "paths": {
-      "@elata-biosciences/eeg-web": ["./src/__tests__/mocks/eeg-web.ts"]
-    }
-  },
-  "include": ["src/**/*.ts"]
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"types": ["jest", "node"],
+		"paths": {
+			"@elata-biosciences/eeg-web": ["./src/__tests__/mocks/eeg-web.ts"]
+		}
+	},
+	"include": ["src/**/*.ts"]
 }
-

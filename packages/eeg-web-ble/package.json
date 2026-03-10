@@ -1,63 +1,60 @@
 {
-  "name": "@elata-biosciences/eeg-web-ble",
-  "version": "0.1.4",
-  "description": "Web Bluetooth headband transport that emits normalized headband frames",
-  "license": "MIT",
-  "author": "Elata",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Elata-Biosciences/elata-bio-sdk.git",
-    "directory": "packages/eeg-web-ble"
-  },
-  "homepage": "https://github.com/Elata-Biosciences/elata-bio-sdk#readme",
-  "bugs": "https://github.com/Elata-Biosciences/elata-bio-sdk/issues",
-  "keywords": [
-    "eeg",
-    "bci",
-    "neuroscience",
-    "brain-computer-interface",
-    "headband",
-    "elata",
-    "web-bluetooth",
-    "ble"
-  ],
-  "engines": {
-    "node": ">=20"
-  },
-  "type": "module",
-  "sideEffects": false,
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
-  },
-  "files": [
-    "dist",
-    "README.md"
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "scripts": {
-    "lint": "pnpm exec biome lint src jest.config.cjs",
-    "test": "jest --config ./jest.config.cjs --passWithNoTests",
-    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true});require('fs').rmSync('tsconfig.tsbuildinfo',{force:true})\"",
-    "build": "tsc -p tsconfig.json",
-    "verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
-    "prepack": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
-    "pack:check": "pnpm pack --dry-run --json"
-  },
-  "peerDependencies": {
-    "@elata-biosciences/eeg-web": "^0.1.0"
-  },
-  "devDependencies": {
-    "@types/jest": "29.5.14",
-    "jest": "29.7.0",
-    "jest-environment-jsdom": "29.7.0",
-    "ts-jest": "29.4.4",
-    "typescript": "5.9.3"
-  }
+	"name": "@elata-biosciences/eeg-web-ble",
+	"version": "0.1.4",
+	"description": "Web Bluetooth headband transport that emits normalized headband frames",
+	"license": "MIT",
+	"author": "Elata",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Elata-Biosciences/elata-bio-sdk.git",
+		"directory": "packages/eeg-web-ble"
+	},
+	"homepage": "https://github.com/Elata-Biosciences/elata-bio-sdk#readme",
+	"bugs": "https://github.com/Elata-Biosciences/elata-bio-sdk/issues",
+	"keywords": [
+		"eeg",
+		"bci",
+		"neuroscience",
+		"brain-computer-interface",
+		"headband",
+		"elata",
+		"web-bluetooth",
+		"ble"
+	],
+	"engines": {
+		"node": ">=20"
+	},
+	"type": "module",
+	"sideEffects": false,
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": ["dist", "README.md"],
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"lint": "pnpm exec biome lint src jest.config.cjs",
+		"test": "jest --config ./jest.config.cjs --passWithNoTests",
+		"clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true});require('fs').rmSync('tsconfig.tsbuildinfo',{force:true})\"",
+		"build": "tsc -p tsconfig.json",
+		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
+		"prepack": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
+		"pack:check": "pnpm pack --dry-run --json"
+	},
+	"peerDependencies": {
+		"@elata-biosciences/eeg-web": "^0.1.0"
+	},
+	"devDependencies": {
+		"@types/jest": "29.5.14",
+		"jest": "29.7.0",
+		"jest-environment-jsdom": "29.7.0",
+		"ts-jest": "29.4.4",
+		"typescript": "5.9.3"
+	}
 }

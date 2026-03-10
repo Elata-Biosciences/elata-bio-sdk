@@ -25,6 +25,8 @@ Quality:
   doctor       Run repository health checks (toolchain, repo audit, static analysis, package artifacts)
   verify-all   Run workspace JS/TS build + wasm verification
   test         Run Rust and web tests
+  format       Format all files with Biome
+  format-check Run Biome format check (no write)
 
 Release:
   changeset     Add a changeset (interactive; run before opening a PR)
@@ -870,6 +872,19 @@ doctor() {
     fi
 
     if [[ $deps_err -eq 0 && -f "package.json" ]]; then
+        local format_output format_rc
+        format_output="$(run_root_script "format:check" 2>&1)"
+        format_rc=$?
+        while IFS= read -r line; do
+            printf "  ${c_dim}|${c_reset} %s\n" "$line"
+        done <<< "$format_output"
+        if [[ $format_rc -eq 0 ]]; then
+            ok_line "Biome format check passed"
+        else
+            err_line "Biome format check failed (run: ./run.sh format)"
+            build_err=1
+        fi
+
         local lint_output lint_rc
         lint_output="$(run_root_script "lint:web" 2>&1)"
         lint_rc=$?
@@ -883,7 +898,7 @@ doctor() {
             build_err=1
         fi
     else
-        info_line "skipping web lint (dependencies missing)"
+        info_line "skipping format check and web lint (dependencies missing)"
     fi
 
     header "Generated Artifacts"
@@ -1122,6 +1137,14 @@ case "$cmd" in
         find "$ROOT_DIR/packages/eeg-web/wasm" -mindepth 1 -maxdepth 1 ! -name ".gitkeep" -exec rm -rf {} +
         echo "Cleaning build artifacts for wasm crates..."
         cargo clean -p eeg-wasm -p rppg-wasm
+        ;;
+    format)
+        require_package_manager
+        run_root_script "format"
+        ;;
+    format-check)
+        require_package_manager
+        run_root_script "format:check"
         ;;
     help|-h|--help)
         usage

@@ -151,7 +151,7 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run repo audit and web lint
+      - name: Run repo audit, format check, and web lint
         run: pnpm lint
 
       - name: Run all unit tests

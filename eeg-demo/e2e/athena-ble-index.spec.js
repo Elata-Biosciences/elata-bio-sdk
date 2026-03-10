@@ -2,13 +2,13 @@ const { test, expect } = require("@playwright/test");
 
 const SERVICE_UUID = "0000fe8d-0000-1000-8000-00805f9b34fb";
 const CHAR_UUIDS = {
-  command: "273e0001-4c4d-454d-96be-f03bac821358",
-  athenaEeg: "273e0013-4c4d-454d-96be-f03bac821358",
-  athenaOther: "273e0014-4c4d-454d-96be-f03bac821358"
+	command: "273e0001-4c4d-454d-96be-f03bac821358",
+	athenaEeg: "273e0013-4c4d-454d-96be-f03bac821358",
+	athenaOther: "273e0014-4c4d-454d-96be-f03bac821358",
 };
 
 function wasmStubModuleSource() {
-  return `
+	return `
 export default async function init() {
   return undefined;
 }
@@ -89,174 +89,197 @@ export class AthenaWasmDecoder {
 `;
 }
 
-test("Athena BLE path in index.html is covered by an automated browser test", async ({ page }) => {
-  await page.route("**/pkg/eeg_wasm.js", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/javascript; charset=utf-8",
-      body: wasmStubModuleSource()
-    });
-  });
+test("Athena BLE path in index.html is covered by an automated browser test", async ({
+	page,
+}) => {
+	await page.route("**/pkg/eeg_wasm.js", async (route) => {
+		await route.fulfill({
+			status: 200,
+			contentType: "application/javascript; charset=utf-8",
+			body: wasmStubModuleSource(),
+		});
+	});
 
-  await page.addInitScript(
-    ({ serviceUuid, charUuids }) => {
-      const state = {
-        requestDeviceCalls: 0,
-        requestOptions: null,
-        commands: [],
-        notificationStarts: [],
-        decoder: {
-          constructed: 0,
-          useDeviceTimestamps: null,
-          clockKind: null,
-          reorderWindowMs: null,
-          resetCalls: 0,
-          decodeCalls: 0,
-          decodePayloadSizes: []
-        }
-      };
-      window.__athenaTest = state;
+	await page.addInitScript(
+		({ serviceUuid, charUuids }) => {
+			const state = {
+				requestDeviceCalls: 0,
+				requestOptions: null,
+				commands: [],
+				notificationStarts: [],
+				decoder: {
+					constructed: 0,
+					useDeviceTimestamps: null,
+					clockKind: null,
+					reorderWindowMs: null,
+					resetCalls: 0,
+					decodeCalls: 0,
+					decodePayloadSizes: [],
+				},
+			};
+			window.__athenaTest = state;
 
-      class FakeCharacteristic {
-        constructor(uuid, opts = {}) {
-          this.uuid = uuid.toLowerCase();
-          this.value = new DataView(new Uint8Array([0]).buffer);
-          this.listeners = new Map();
-          this.emitOnSubscribe = !!opts.emitOnSubscribe;
-          this.isCommand = !!opts.isCommand;
-        }
+			class FakeCharacteristic {
+				constructor(uuid, opts = {}) {
+					this.uuid = uuid.toLowerCase();
+					this.value = new DataView(new Uint8Array([0]).buffer);
+					this.listeners = new Map();
+					this.emitOnSubscribe = !!opts.emitOnSubscribe;
+					this.isCommand = !!opts.isCommand;
+				}
 
-        async startNotifications() {
-          state.notificationStarts.push(this.uuid);
-          return this;
-        }
+				async startNotifications() {
+					state.notificationStarts.push(this.uuid);
+					return this;
+				}
 
-        async stopNotifications() {
-          return this;
-        }
+				async stopNotifications() {
+					return this;
+				}
 
-        addEventListener(type, handler) {
-          const handlers = this.listeners.get(type) || [];
-          handlers.push(handler);
-          this.listeners.set(type, handlers);
+				addEventListener(type, handler) {
+					const handlers = this.listeners.get(type) || [];
+					handlers.push(handler);
+					this.listeners.set(type, handlers);
 
-          if (type === "characteristicvaluechanged" && this.emitOnSubscribe) {
-            const payload = new Uint8Array([44, 1, 2, 3, 4, 5, 6, 7]);
-            this.value = new DataView(payload.buffer);
-            setTimeout(() => handler({ target: this }), 0);
-          }
-        }
+					if (type === "characteristicvaluechanged" && this.emitOnSubscribe) {
+						const payload = new Uint8Array([44, 1, 2, 3, 4, 5, 6, 7]);
+						this.value = new DataView(payload.buffer);
+						setTimeout(() => handler({ target: this }), 0);
+					}
+				}
 
-        removeEventListener(type, handler) {
-          const handlers = this.listeners.get(type) || [];
-          this.listeners.set(
-            type,
-            handlers.filter((entry) => entry !== handler)
-          );
-        }
+				removeEventListener(type, handler) {
+					const handlers = this.listeners.get(type) || [];
+					this.listeners.set(
+						type,
+						handlers.filter((entry) => entry !== handler),
+					);
+				}
 
-        async writeValueWithoutResponse(value) {
-          this.#recordCommand(value);
-        }
+				async writeValueWithoutResponse(value) {
+					this.#recordCommand(value);
+				}
 
-        async writeValue(value) {
-          this.#recordCommand(value);
-        }
+				async writeValue(value) {
+					this.#recordCommand(value);
+				}
 
-        #recordCommand(value) {
-          const bytes =
-            value instanceof Uint8Array
-              ? value
-              : new Uint8Array(value.buffer || value);
-          const cmd = String.fromCharCode(...bytes.slice(1, bytes.length - 1));
-          state.commands.push(cmd);
-        }
-      }
+				#recordCommand(value) {
+					const bytes =
+						value instanceof Uint8Array
+							? value
+							: new Uint8Array(value.buffer || value);
+					const cmd = String.fromCharCode(...bytes.slice(1, bytes.length - 1));
+					state.commands.push(cmd);
+				}
+			}
 
-      const commandChar = new FakeCharacteristic(charUuids.command, { isCommand: true });
-      const athenaEeg = new FakeCharacteristic(charUuids.athenaEeg, { emitOnSubscribe: true });
-      const athenaOther = new FakeCharacteristic(charUuids.athenaOther, { emitOnSubscribe: true });
-      const characteristics = [commandChar, athenaEeg, athenaOther];
+			const commandChar = new FakeCharacteristic(charUuids.command, {
+				isCommand: true,
+			});
+			const athenaEeg = new FakeCharacteristic(charUuids.athenaEeg, {
+				emitOnSubscribe: true,
+			});
+			const athenaOther = new FakeCharacteristic(charUuids.athenaOther, {
+				emitOnSubscribe: true,
+			});
+			const characteristics = [commandChar, athenaEeg, athenaOther];
 
-      const service = {
-        async getCharacteristics() {
-          return characteristics;
-        },
-        async getCharacteristic(uuid) {
-          const key = uuid.toLowerCase();
-          const found = characteristics.find((ch) => ch.uuid === key);
-          if (!found) {
-            throw new Error("Unknown characteristic: " + uuid);
-          }
-          return found;
-        }
-      };
+			const service = {
+				async getCharacteristics() {
+					return characteristics;
+				},
+				async getCharacteristic(uuid) {
+					const key = uuid.toLowerCase();
+					const found = characteristics.find((ch) => ch.uuid === key);
+					if (!found) {
+						throw new Error("Unknown characteristic: " + uuid);
+					}
+					return found;
+				},
+			};
 
-      const server = {
-        async getPrimaryService(uuid) {
-          if (uuid.toLowerCase() !== serviceUuid.toLowerCase()) {
-            throw new Error("Unknown service: " + uuid);
-          }
-          return service;
-        }
-      };
+			const server = {
+				async getPrimaryService(uuid) {
+					if (uuid.toLowerCase() !== serviceUuid.toLowerCase()) {
+						throw new Error("Unknown service: " + uuid);
+					}
+					return service;
+				},
+			};
 
-      const device = {
-        name: "Muse-Athena-Test",
-        gatt: {
-          connected: false,
-          async connect() {
-            this.connected = true;
-            return server;
-          }
-        },
-        addEventListener() {},
-        removeEventListener() {}
-      };
+			const device = {
+				name: "Muse-Athena-Test",
+				gatt: {
+					connected: false,
+					async connect() {
+						this.connected = true;
+						return server;
+					},
+				},
+				addEventListener() {},
+				removeEventListener() {},
+			};
 
-      Object.defineProperty(navigator, "bluetooth", {
-        configurable: true,
-        value: {
-          async requestDevice(options) {
-            state.requestDeviceCalls += 1;
-            state.requestOptions = options;
-            return device;
-          }
-        }
-      });
-    },
-    { serviceUuid: SERVICE_UUID, charUuids: CHAR_UUIDS }
-  );
+			Object.defineProperty(navigator, "bluetooth", {
+				configurable: true,
+				value: {
+					async requestDevice(options) {
+						state.requestDeviceCalls += 1;
+						state.requestOptions = options;
+						return device;
+					},
+				},
+			});
+		},
+		{ serviceUuid: SERVICE_UUID, charUuids: CHAR_UUIDS },
+	);
 
-  await page.goto("/");
+	await page.goto("/");
 
-  await expect(page.locator("#status")).toContainText("WASM loaded");
+	await expect(page.locator("#status")).toContainText("WASM loaded");
 
-  await page.selectOption("#device-source", "muse");
-  await expect(page.locator("#status")).toContainText("Mode: Muse / Athena / Synthetic Bridge");
+	await page.selectOption("#device-source", "muse");
+	await expect(page.locator("#status")).toContainText(
+		"Mode: Muse / Athena / Synthetic Bridge",
+	);
 
-  await page.click("#connect");
-  await expect(page.locator("#status")).toContainText("Connected to Muse-Athena-Test");
-  await expect(page.locator("#start")).toBeEnabled();
-  await expect(page.locator("#info")).toContainText('"protocol": "athena"');
-  await expect(page.locator("#ppg-label")).toContainText("Optics");
+	await page.click("#connect");
+	await expect(page.locator("#status")).toContainText(
+		"Connected to Muse-Athena-Test",
+	);
+	await expect(page.locator("#start")).toBeEnabled();
+	await expect(page.locator("#info")).toContainText('"protocol": "athena"');
+	await expect(page.locator("#ppg-label")).toContainText("Optics");
 
-  await page.click("#start");
-  await expect(page.locator("#status")).toContainText("Streaming Athena EEG + optics + IMU...");
+	await page.click("#start");
+	await expect(page.locator("#status")).toContainText(
+		"Streaming Athena EEG + optics + IMU...",
+	);
 
-  await expect
-    .poll(() => page.evaluate(() => window.__athenaTest.decoder.decodeCalls))
-    .toBeGreaterThan(0);
+	await expect
+		.poll(() => page.evaluate(() => window.__athenaTest.decoder.decodeCalls))
+		.toBeGreaterThan(0);
 
-  await expect
-    .poll(() => page.evaluate(() => window.__athenaTest.commands.length))
-    .toBe(8);
+	await expect
+		.poll(() => page.evaluate(() => window.__athenaTest.commands.length))
+		.toBe(8);
 
-  const commands = await page.evaluate(() => window.__athenaTest.commands);
-  expect(commands).toEqual(["v6", "s", "h", "p1041", "s", "dc001", "dc001", "s"]);
+	const commands = await page.evaluate(() => window.__athenaTest.commands);
+	expect(commands).toEqual([
+		"v6",
+		"s",
+		"h",
+		"p1041",
+		"s",
+		"dc001",
+		"dc001",
+		"s",
+	]);
 
-  const decoderState = await page.evaluate(() => window.__athenaTest.decoder);
-  expect(decoderState.useDeviceTimestamps).toBe(true);
-  expect(decoderState.clockKind).toBe("windowed");
-  expect(decoderState.reorderWindowMs).toBe(0);
+	const decoderState = await page.evaluate(() => window.__athenaTest.decoder);
+	expect(decoderState.useDeviceTimestamps).toBe(true);
+	expect(decoderState.clockKind).toBe("windowed");
+	expect(decoderState.reorderWindowMs).toBe(0);
 });
