@@ -31,6 +31,7 @@ Release:
   bump         Apply changesets: bump versions and update CHANGELOGs (run before release)
   release      Build, publish, tag, and push (default: target=all, dist-tag=next)
   publish      Publish package(s) to npm in repo release order (default: target=all, dist-tag=next)
+  promote-latest Promote currently bumped version(s) to 'latest' dist-tag on npm
   tag-release  Create package-scoped git tag(s) from package.json versions (default: target=all, commit=HEAD)
   push-tags    Push package-scoped git tag(s) for current package.json versions (default: target=all)
 
@@ -166,6 +167,48 @@ publish_packages() {
                 npm publish --access public --tag "$dist_tag"
             fi
         )
+    done
+}
+
+view_packages() {
+    local raw_target="${1:-all}"
+    local target
+    local pkg
+    local pkg_name
+
+    target="$(normalize_release_target "$raw_target")" || exit 1
+    require_cmds node
+    require_package_manager
+
+    for pkg in $(release_targets_for "$target"); do
+        pkg_name="$(package_name_for_target "$pkg")"
+        echo "Package: ${pkg_name}"
+        if [[ "$PKG_MGR" == "pnpm" ]]; then
+            pnpm view "$pkg_name" version
+        else
+            npm view "$pkg_name" version
+        fi
+        echo
+    done
+}
+
+promote_latest() {
+    local raw_target="${1:-all}"
+    local target
+    local pkg
+    local pkg_name
+    local version
+
+    target="$(normalize_release_target "$raw_target")" || exit 1
+    require_cmds npm node
+
+    for pkg in $(release_targets_for "$target"); do
+        pkg_name="$(package_name_for_target "$pkg")"
+        version="$(package_version_for_target "$pkg")"
+        echo "Setting 'latest' dist-tag for ${pkg_name}@${version}..."
+        npm dist-tag add "${pkg_name}@${version}" latest || {
+            echo "Failed to set 'latest' for ${pkg_name}@${version} (is this version published?)." >&2
+        }
     done
 }
 
@@ -847,6 +890,24 @@ case "$cmd" in
         #   ./run.sh publish all next
         #   ./run.sh publish eeg-web latest
         publish_packages "${2:-all}" "${3:-next}"
+        ;;
+    promote*)
+        # Usage:
+        #   ./run.sh promote-latest [target]
+        # Examples:
+        #   ./run.sh promote-latest all
+        #   ./run.sh promote-latest rppg-web
+        # Sets the 'latest' npm dist-tag for the version currently in package.json.
+        promote_latest "${2:-all}"
+        ;;
+    view)
+        # Usage:
+        #   ./run.sh view [target]
+        # Examples:
+        #   ./run.sh view all
+        #   ./run.sh view rppg-web
+        # Shows latest published npm version(s) for the selected package(s).
+        view_packages "${2:-all}"
         ;;
     tag-release)
         # Usage:

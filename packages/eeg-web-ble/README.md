@@ -63,11 +63,11 @@ In all cases, keep `@elata-biosciences/eeg-web` frame schema contracts as the in
 
 `@elata-biosciences/eeg-web-ble` depends on `@elata-biosciences/eeg-web` and should be released after
 `@elata-biosciences/eeg-web` when compatibility changes. Full release process and tagging:
-[`docs/releasing.md`](../../docs/releasing.md).
+[docs/releasing.md](https://github.com/Elata-Biosciences/elata-bio-sdk/blob/main/docs/releasing.md).
 
 ## Roadmap
 
-- [ ] Implement Safari/iOS native BLE bridge plan: [`docs/implementation-plan-ios-safari-ble-bridge.md`](../../docs/implementation-plan-ios-safari-ble-bridge.md)
+- [ ] Implement Safari/iOS native BLE bridge plan: [docs/implementation-plan-ios-safari-ble-bridge.md](https://github.com/Elata-Biosciences/elata-bio-sdk/blob/main/docs/implementation-plan-ios-safari-ble-bridge.md)
 
 ## Usage
 

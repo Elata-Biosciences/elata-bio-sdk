@@ -71,7 +71,7 @@ This builds `eeg-wasm`, runs `wasm-bindgen`, syncs generated WASM files into
 ## Release Notes
 
 For package publishing, release order, dist-tags (`next`/`latest`), and recovery
-from bad releases, see [`docs/releasing.md`](../../docs/releasing.md).
+from bad releases, see [docs/releasing.md](https://github.com/Elata-Biosciences/elata-bio-sdk/blob/main/docs/releasing.md).
 
 ## TypeScript layout
 
