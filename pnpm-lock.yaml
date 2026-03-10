@@ -12,6 +12,8 @@ importers:
         specifier: ^2.27.10
         version: 2.30.0(@types/node@25.3.3)
 
+  packages/create-rppg-app: {}
+
   packages/eeg-web:
     devDependencies:
       '@types/jest':
