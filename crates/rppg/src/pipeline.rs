@@ -11,6 +11,7 @@ pub struct RppgPipeline {
     sample_rate: f32,
     window_sec: f32,
     buffer: VecDeque<Sample>,
+    #[cfg_attr(not(test), allow(dead_code))]
     window_len: usize,
     tracker: Option<KalmanTracker>,
     last_tracker_ts: Option<i64>,
@@ -67,11 +68,11 @@ impl KalmanTracker {
     }
 
     fn update(&mut self, z: f32, confidence: f32) {
-        let conf = confidence.max(0.01).min(1.0);
+        let conf = confidence.clamp(0.01, 1.0);
         let r = (16.0 / (conf * conf)).max(4.0); // measurement noise (bpm^2)
         let k = self.p / (self.p + r);
         self.x = self.x + k * (z - self.x);
-        self.p = (1.0 - k) * self.p;
+        self.p *= 1.0 - k;
         self.x = self.x.clamp(self.min_bpm, self.max_bpm);
         self.initialized = true;
     }
@@ -158,6 +159,7 @@ impl RppgPipeline {
         self.push_sample_rgb_meta(timestamp_ms, r, g, b, skin_ratio, 0.0, 0.0);
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn push_sample_rgb_meta(
         &mut self,
         timestamp_ms: i64,
@@ -400,7 +402,7 @@ impl RppgPipeline {
             }
         }
         let reason_codes = reasons.iter().map(|s| s.to_string()).collect();
-        return RppgMetrics {
+        RppgMetrics {
             bpm: output_bpm,
             confidence: output_conf,
             signal_quality,
@@ -411,7 +413,7 @@ impl RppgPipeline {
             motion_mean,
             clip_mean,
             reason_codes,
-        };
+        }
     }
 
     // Expose window length for testing
@@ -469,6 +471,7 @@ fn resample_rgb_into(
     r_out.len() >= 10
 }
 
+#[allow(clippy::too_many_arguments)]
 fn pos_from_rgb_windowed_into(
     r: &[f32],
     g: &[f32],

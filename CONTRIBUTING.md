@@ -8,7 +8,7 @@ set up, propose changes, and work with the maintainers.
 - **Prerequisites**
   - Node.js >= 18
   - Rust toolchain (via `rustup`)
-  - `pnpm` (preferred) or `npm` for JS tooling
+  - `pnpm` for JS tooling
 
 - **Initial setup**
 
@@ -32,7 +32,7 @@ See `README.md` for details on building Rust crates and web packages.
    - Follow existing code style and patterns.
 4. **Add tests where appropriate**
    - Rust: `cargo test`
-   - Web packages: `pnpm test` (or `npm test`) in the relevant `packages/*` directory.
+   - Web packages: `pnpm test` in the relevant `packages/*` directory.
 5. **Run checks**
    - Prefer `./run.sh` or documented scripts from `README.md` where available.
 6. **Add a changeset** (if your change should be included in a release):

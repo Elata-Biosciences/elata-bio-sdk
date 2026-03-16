@@ -2,6 +2,7 @@
 name = "synthetic-ble-bridge"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.94"
 description = "Synthetic BLE bridge for EEG devices using the Elata SDK"
 license = "MIT"
 repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"

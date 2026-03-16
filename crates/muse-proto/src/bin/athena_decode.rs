@@ -32,7 +32,7 @@ struct OpticsFrameRow {
 
 fn hex_to_bytes(hex: &str) -> Result<Vec<u8>, String> {
     let hex = hex.trim();
-    if hex.len() % 2 != 0 {
+    if !hex.len().is_multiple_of(2) {
         return Err("hex string has odd length".to_string());
     }
     let mut out = Vec::with_capacity(hex.len() / 2);

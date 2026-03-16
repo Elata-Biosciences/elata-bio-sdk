@@ -22,15 +22,18 @@ Build & Demo:
   sync-to      Build eeg-web and install it into a local app (default app: ../my-app)
 
 Quality:
-  doctor       Run repository health checks (toolchain, targets, package deps/artifacts)
+  doctor       Run repository health checks (toolchain, repo audit, static analysis, package artifacts)
   verify-all   Run workspace JS/TS build + wasm verification
   test         Run Rust and web tests
+  format       Format all files with Biome
+  format-check Run Biome format check (no write)
 
 Release:
   changeset     Add a changeset (interactive; run before opening a PR)
   bump         Apply changesets: bump versions and update CHANGELOGs (run before release)
   release      Build, publish, tag, and push (default: target=all, dist-tag=next)
   publish      Publish package(s) to npm in repo release order (default: target=all, dist-tag=next)
+  promote Promote currently bumped version(s) to 'latest' dist-tag on npm
   tag-release  Create package-scoped git tag(s) from package.json versions (default: target=all, commit=HEAD)
   push-tags    Push package-scoped git tag(s) for current package.json versions (default: target=all)
 
@@ -127,16 +130,40 @@ publish_packages() {
     local dist_tag="${2:-next}"
     local target
     local pkg
+    local pkg_dir pkg_name version
     target="$(normalize_release_target "$raw_target")" || exit 1
     validate_dist_tag "$dist_tag" || exit 1
     require_cmds node
     require_package_manager
 
     for pkg in $(release_targets_for "$target"); do
-        local pkg_dir pkg_name version
         pkg_dir="$(package_dir_for_target "$pkg")"
         pkg_name="$(package_name_for_target "$pkg")"
         version="$(package_version_for_target "$pkg")"
+
+        # If this exact version is already published, automatically bump patch
+        # before attempting to publish, to avoid "cannot publish over previous version" errors.
+        local remote_version=""
+        if [[ "$PKG_MGR" == "pnpm" ]]; then
+            remote_version="$(pnpm view "${pkg_name}@${version}" version 2>/dev/null || echo "")"
+        else
+            remote_version="$(npm view "${pkg_name}@${version}" version 2>/dev/null || echo "")"
+        fi
+
+        if [[ -n "$remote_version" ]]; then
+            echo "Detected already published version for ${pkg_name}@${version}; bumping patch version before publish..."
+            (
+                cd "$ROOT_DIR/$pkg_dir"
+                if [[ "$PKG_MGR" == "pnpm" ]]; then
+                    pnpm version patch --no-git-tag-version
+                else
+                    npm version patch --no-git-tag-version
+                fi
+            )
+            # Refresh version after bump
+            version="$(package_version_for_target "$pkg")"
+        fi
+
         echo "Publishing ${pkg_name}@${version} with dist-tag '${dist_tag}'..."
         (
             cd "$ROOT_DIR/$pkg_dir"
@@ -146,6 +173,48 @@ publish_packages() {
                 npm publish --access public --tag "$dist_tag"
             fi
         )
+    done
+}
+
+view_packages() {
+    local raw_target="${1:-all}"
+    local target
+    local pkg
+    local pkg_name
+
+    target="$(normalize_release_target "$raw_target")" || exit 1
+    require_cmds node
+    require_package_manager
+
+    for pkg in $(release_targets_for "$target"); do
+        pkg_name="$(package_name_for_target "$pkg")"
+        echo "Package: ${pkg_name}"
+        if [[ "$PKG_MGR" == "pnpm" ]]; then
+            pnpm view "$pkg_name" version
+        else
+            npm view "$pkg_name" version
+        fi
+        echo
+    done
+}
+
+promote_latest() {
+    local raw_target="${1:-all}"
+    local target
+    local pkg
+    local pkg_name
+    local version
+
+    target="$(normalize_release_target "$raw_target")" || exit 1
+    require_cmds npm node
+
+    for pkg in $(release_targets_for "$target"); do
+        pkg_name="$(package_name_for_target "$pkg")"
+        version="$(package_version_for_target "$pkg")"
+        echo "Setting 'latest' dist-tag for ${pkg_name}@${version}..."
+        npm dist-tag add "${pkg_name}@${version}" latest || {
+            echo "Failed to set 'latest' for ${pkg_name}@${version} (is this version published?)." >&2
+        }
     done
 }
 
@@ -290,18 +359,61 @@ require_cmds() {
     done
 }
 
-init_package_manager() {
-    # Prefer npm for npm-workspaces repos unless pnpm workspace is explicitly configured.
-    if [[ -f "$ROOT_DIR/pnpm-workspace.yaml" ]] && command -v pnpm >/dev/null 2>&1; then
-        PKG_MGR="pnpm"
-    elif command -v npm >/dev/null 2>&1; then
-        PKG_MGR="npm"
-    elif command -v pnpm >/dev/null 2>&1; then
-        PKG_MGR="pnpm"
-    else
-        echo "Missing required package manager: pnpm or npm" >&2
-        exit 1
+read_package_engine() {
+    local key="$1"
+    node -p "(() => { const pkg = require('./package.json'); return (pkg.engines && pkg.engines['$key']) || ''; })()"
+}
+
+extract_min_major() {
+    local constraint="$1"
+    if [[ "$constraint" =~ \>\=([0-9]+) ]]; then
+        printf "%s\n" "${BASH_REMATCH[1]}"
+        return 0
     fi
+    return 1
+}
+
+extract_installed_major() {
+    local version="$1"
+    if [[ "$version" =~ ^v?([0-9]+) ]]; then
+        printf "%s\n" "${BASH_REMATCH[1]}"
+        return 0
+    fi
+    return 1
+}
+
+check_engine_major() {
+    local tool="$1"
+    local current_version="$2"
+    local constraint="$3"
+    local min_major installed_major
+    if [[ -z "$constraint" ]]; then
+        warn_line "$tool engine constraint missing from package.json"
+        return 1
+    fi
+    if ! min_major="$(extract_min_major "$constraint")"; then
+        warn_line "$tool engine constraint '$constraint' is not a simple >=major range"
+        return 1
+    fi
+    if ! installed_major="$(extract_installed_major "$current_version")"; then
+        err_line "unable to parse installed $tool version: $current_version"
+        return 1
+    fi
+    if (( installed_major < min_major )); then
+        err_line "$tool $current_version does not satisfy engines.$tool=$constraint"
+        return 1
+    fi
+    ok_line "$tool version satisfies engines.$tool ($constraint)"
+    return 0
+}
+
+init_package_manager() {
+    if command -v pnpm >/dev/null 2>&1; then
+        PKG_MGR="pnpm"
+        return
+    fi
+    echo "Missing required package manager: pnpm" >&2
+    exit 1
 }
 
 require_package_manager() {
@@ -677,7 +789,7 @@ doctor() {
     }
 
     printf "\n${c_bold}${c_cyan}Elata SDK Doctor${c_reset}\n"
-    printf "${c_dim}Checks: toolchain, wasm target, package deps, generated artifacts${c_reset}\n"
+    printf "${c_dim}Checks: toolchain, repo audit, static analysis, package deps, generated artifacts${c_reset}\n"
 
     header "Toolchain"
     check_cmd "cargo" "cargo: $(cargo --version)" "cargo missing (install Rust via https://rustup.rs)" || toolchain_err=1
@@ -697,32 +809,104 @@ doctor() {
 
     check_cmd "wasm-bindgen" "wasm-bindgen: $(wasm-bindgen --version)" "wasm-bindgen missing (run: cargo install wasm-bindgen-cli)" || toolchain_err=1
     check_cmd "node" "node: $(node --version)" "node missing (install from https://nodejs.org/)" || toolchain_err=1
+    if command -v node >/dev/null 2>&1 && [[ -f "package.json" ]]; then
+        check_engine_major "node" "$(node --version)" "$(read_package_engine node)" || toolchain_err=1
+    fi
 
     require_package_manager
     if [[ "$PKG_MGR" == "pnpm" ]]; then
         ok_line "pnpm: $(pnpm --version) (selected)"
+        if [[ -f "package.json" ]]; then
+            check_engine_major "pnpm" "$(pnpm --version)" "$(read_package_engine pnpm)" || toolchain_err=1
+        fi
         if [[ ! -f "pnpm-workspace.yaml" && -f "package.json" ]] && grep -q '"workspaces"' package.json; then
             warn_line "pnpm selected but pnpm-workspace.yaml is missing; add it to avoid workspace warnings"
         fi
-    elif command -v npm >/dev/null 2>&1; then
-        ok_line "npm: $(npm --version) (selected)"
     else
-        err_line "package manager missing (install pnpm or npm)"
+        err_line "package manager missing (install pnpm)"
         toolchain_err=1
     fi
 
     header "Repository Layout"
     check_file "Cargo.toml" "Cargo.toml: present" "Cargo.toml missing" || repo_err=1
+    check_file "rust-toolchain.toml" "rust-toolchain.toml: present" "rust-toolchain.toml missing" || repo_err=1
+    check_file "pnpm-lock.yaml" "pnpm-lock.yaml: present" "pnpm-lock.yaml missing" || repo_err=1
     check_dir "crates" "crates/: present" "crates/ missing" || repo_err=1
     check_dir "packages/eeg-web" "packages/eeg-web: present" "packages/eeg-web missing" || repo_err=1
     check_dir "packages/rppg-web" "packages/rppg-web: present" "packages/rppg-web missing" || repo_err=1
     check_dir "packages/create-rppg-app" "packages/create-rppg-app: present" "packages/create-rppg-app missing" || repo_err=1
 
+    header "Repository Audit"
+    if [[ -f "package.json" ]]; then
+        local audit_output audit_rc
+        audit_output="$(run_root_script "audit:repo" 2>&1)"
+        audit_rc=$?
+        while IFS= read -r line; do
+            printf "  ${c_dim}|${c_reset} %s\n" "$line"
+        done <<< "$audit_output"
+        if [[ $audit_rc -ne 0 ]]; then
+            repo_err=1
+        fi
+    fi
+
     header "Package Dependencies"
-    if [[ "$PKG_MGR" == "pnpm" ]]; then
-        check_dir "node_modules" "node_modules/: present (pnpm workspace root)" "node_modules/ missing (run: pnpm install)" || deps_err=1
+    check_dir "node_modules" "node_modules/: present (pnpm workspace root)" "node_modules/ missing (run: pnpm install)" || deps_err=1
+
+    header "Static Analysis"
+    local fmt_output fmt_rc
+    fmt_output="$(cargo fmt --all -- --check 2>&1)"
+    fmt_rc=$?
+    while IFS= read -r line; do
+        printf "  ${c_dim}|${c_reset} %s\n" "$line"
+    done <<< "$fmt_output"
+    if [[ $fmt_rc -eq 0 ]]; then
+        ok_line "cargo fmt check passed"
     else
-        check_dir "node_modules" "node_modules/: present (npm workspace root)" "node_modules/ missing (run: npm install)" || deps_err=1
+        err_line "cargo fmt check failed"
+        build_err=1
+    fi
+
+    local clippy_output clippy_rc
+    clippy_output="$(cargo clippy --workspace --all-targets -- -D warnings 2>&1)"
+    clippy_rc=$?
+    while IFS= read -r line; do
+        printf "  ${c_dim}|${c_reset} %s\n" "$line"
+    done <<< "$clippy_output"
+    if [[ $clippy_rc -eq 0 ]]; then
+        ok_line "cargo clippy passed"
+    else
+        err_line "cargo clippy failed"
+        build_err=1
+    fi
+
+    if [[ $deps_err -eq 0 && -f "package.json" ]]; then
+        local format_output format_rc
+        format_output="$(run_root_script "format:check" 2>&1)"
+        format_rc=$?
+        while IFS= read -r line; do
+            printf "  ${c_dim}|${c_reset} %s\n" "$line"
+        done <<< "$format_output"
+        if [[ $format_rc -eq 0 ]]; then
+            ok_line "Biome format check passed"
+        else
+            err_line "Biome format check failed (run: ./run.sh format)"
+            build_err=1
+        fi
+
+        local lint_output lint_rc
+        lint_output="$(run_root_script "lint:web" 2>&1)"
+        lint_rc=$?
+        while IFS= read -r line; do
+            printf "  ${c_dim}|${c_reset} %s\n" "$line"
+        done <<< "$lint_output"
+        if [[ $lint_rc -eq 0 ]]; then
+            ok_line "web lint passed"
+        else
+            err_line "web lint failed"
+            build_err=1
+        fi
+    else
+        info_line "skipping format check and web lint (dependencies missing)"
     fi
 
     header "Generated Artifacts"
@@ -777,7 +961,7 @@ doctor() {
     fi
     if [[ $deps_err -ne 0 ]]; then
         info_line "install web dependencies:"
-        printf "    npm install   # from repo root (uses workspaces)\n"
+        printf "    pnpm install   # from repo root\n"
     fi
     if [[ $build_err -ne 0 ]]; then
         info_line "rebuild artifacts:"
@@ -795,11 +979,7 @@ cmd="${1:-doctor}"
 case "$cmd" in
     install)
         require_package_manager
-        if [[ "$PKG_MGR" == "pnpm" ]]; then
-            pnpm install
-        else
-            npm install
-        fi
+        pnpm install
         ;;
     doctor)
         doctor
@@ -832,6 +1012,24 @@ case "$cmd" in
         #   ./run.sh publish all next
         #   ./run.sh publish eeg-web latest
         publish_packages "${2:-all}" "${3:-next}"
+        ;;
+    promote*)
+        # Usage:
+        #   ./run.sh promote [target]
+        # Examples:
+        #   ./run.sh promote all
+        #   ./run.sh promote rppg-web
+        # Sets the 'latest' npm dist-tag for the version currently in package.json.
+        promote_latest "${2:-all}"
+        ;;
+    view)
+        # Usage:
+        #   ./run.sh view [target]
+        # Examples:
+        #   ./run.sh view all
+        #   ./run.sh view rppg-web
+        # Shows latest published npm version(s) for the selected package(s).
+        view_packages "${2:-all}"
         ;;
     tag-release)
         # Usage:
@@ -886,6 +1084,18 @@ case "$cmd" in
         require_package_manager
         local_jobs="${BUILD_JOBS:-$DEFAULT_JOBS}"
 
+        echo "Auditing repository structure..."
+        run_root_script "audit:repo"
+
+        echo "Running web lint..."
+        run_root_script "lint:web"
+
+        echo "Running Rust format check..."
+        cargo fmt --all -- --check
+
+        echo "Running Rust clippy..."
+        cargo clippy --workspace --all-targets -- -D warnings
+
         echo "Running Rust workspace tests (unit + integration + doc)..."
         cargo test --workspace -j "$local_jobs"
 
@@ -937,6 +1147,14 @@ case "$cmd" in
         find "$ROOT_DIR/packages/eeg-web/wasm" -mindepth 1 -maxdepth 1 ! -name ".gitkeep" -exec rm -rf {} +
         echo "Cleaning build artifacts for wasm crates..."
         cargo clean -p eeg-wasm -p rppg-wasm
+        ;;
+    format)
+        require_package_manager
+        run_root_script "format"
+        ;;
+    format-check)
+        require_package_manager
+        run_root_script "format:check"
         ;;
     help|-h|--help)
         usage

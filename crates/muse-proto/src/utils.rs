@@ -18,7 +18,7 @@ pub fn extract_packed_le(data: &[u8], bit_start: usize, bit_width: usize) -> u32
 /// `bit_width` specifies how many bits of each value to write.
 pub fn pack_packed_le(values: &[u16], bit_width: usize) -> Vec<u8> {
     let total_bits = values.len() * bit_width;
-    let mut out = vec![0u8; (total_bits + 7) / 8];
+    let mut out = vec![0u8; total_bits.div_ceil(8)];
     let mut bit_idx = 0usize;
     for &value in values {
         for i in 0..bit_width {

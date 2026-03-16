@@ -11,6 +11,7 @@ members = [
     "crates/eeg-models",
     "crates/eeg-wasm",
     "crates/eeg-ffi",
+    "crates/facial-affect",
     "crates/synthetic-ble-bridge",
 ]
 resolver = "2"
@@ -19,6 +20,7 @@ resolver = "2"
 name = "eeg-sdk"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.94"
 description = "Rust EEG SDK workspace root crate"
 license = "MIT"
 repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"
@@ -49,7 +51,6 @@ debug = true
 incremental = true
 codegen-units = 16
 overflow-checks = false
-sccache = "0.13.0"
 
 [profile.release]
 opt-level = "s"

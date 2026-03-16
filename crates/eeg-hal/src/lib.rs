@@ -9,7 +9,7 @@ mod error;
 mod sample;
 
 pub use channel::{Channel, ChannelConfig, ChannelType};
-pub use device::{DeviceInfo, DeviceState, EegDevice};
+pub use device::{ConfigurableDevice, DeviceInfo, DeviceState, EegDevice};
 pub use error::{HalError, Result};
 pub use sample::{EegSample, SampleBuffer};
 

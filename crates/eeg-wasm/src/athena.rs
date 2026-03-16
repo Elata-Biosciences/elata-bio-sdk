@@ -80,6 +80,7 @@ struct WindowedRegressionClock {
 }
 
 impl WindowedRegressionClock {
+    #[allow(dead_code)]
     fn reset(&mut self) {
         self.history.clear();
         self.slope = 1.0;
@@ -180,6 +181,7 @@ impl Default for RobustOffsetClock {
 }
 
 impl RobustOffsetClock {
+    #[allow(dead_code)]
     fn reset(&mut self) {
         *self = Self::default();
     }
@@ -253,6 +255,7 @@ impl Default for AdaptiveOffsetClock {
 }
 
 impl AdaptiveOffsetClock {
+    #[allow(dead_code)]
     fn reset(&mut self) {
         *self = Self::default();
     }
@@ -423,11 +426,11 @@ fn take_ready_frames<T: ArrivalTimestamp>(
     }
 
     if window_ms == 0 {
-        return buffer.drain(..).collect();
+        return std::mem::take(buffer);
     }
 
     if buffer.len() <= 1 {
-        return buffer.drain(..).collect();
+        return std::mem::take(buffer);
     }
 
     let cutoff = now_ms.saturating_sub(window_ms);
@@ -685,10 +688,10 @@ impl AthenaWasmDecoder {
             }
         }
 
-        self.buffer_eeg.extend(self.pending_eeg.drain(..));
-        self.buffer_accgyro.extend(self.pending_accgyro.drain(..));
-        self.buffer_optics.extend(self.pending_optics.drain(..));
-        self.buffer_battery.extend(self.pending_battery.drain(..));
+        self.buffer_eeg.append(&mut self.pending_eeg);
+        self.buffer_accgyro.append(&mut self.pending_accgyro);
+        self.buffer_optics.append(&mut self.pending_optics);
+        self.buffer_battery.append(&mut self.pending_battery);
 
         let mut eeg_ready = take_ready_frames(
             &mut self.buffer_eeg,
@@ -738,7 +741,7 @@ impl AthenaWasmDecoder {
                 let device_time = self.tick_eeg.device_time_sec(frame.frame.pkt_time_raw);
                 let arrival_sec = frame.arrival_ms as f64 / 1000.0;
                 self.clock_eeg.update(device_time, arrival_sec);
-                (self.clock_eeg.map_time(device_time) * 1000.0) as f64
+                self.clock_eeg.map_time(device_time) * 1000.0
             } else {
                 frame.arrival_ms as f64
             };
@@ -767,7 +770,7 @@ impl AthenaWasmDecoder {
                 let device_time = self.tick_accgyro.device_time_sec(frame.frame.pkt_time_raw);
                 let arrival_sec = frame.arrival_ms as f64 / 1000.0;
                 self.clock_accgyro.update(device_time, arrival_sec);
-                (self.clock_accgyro.map_time(device_time) * 1000.0) as f64
+                self.clock_accgyro.map_time(device_time) * 1000.0
             } else {
                 frame.arrival_ms as f64
             };
@@ -795,7 +798,7 @@ impl AthenaWasmDecoder {
                 let device_time = self.tick_optics.device_time_sec(frame.frame.pkt_time_raw);
                 let arrival_sec = frame.arrival_ms as f64 / 1000.0;
                 self.clock_optics.update(device_time, arrival_sec);
-                (self.clock_optics.map_time(device_time) * 1000.0) as f64
+                self.clock_optics.map_time(device_time) * 1000.0
             } else {
                 frame.arrival_ms as f64
             };
@@ -821,7 +824,7 @@ impl AthenaWasmDecoder {
                 let device_time = self.tick_battery.device_time_sec(frame.frame.pkt_time_raw);
                 let arrival_sec = frame.arrival_ms as f64 / 1000.0;
                 self.clock_battery.update(device_time, arrival_sec);
-                (self.clock_battery.map_time(device_time) * 1000.0) as f64
+                self.clock_battery.map_time(device_time) * 1000.0
             } else {
                 frame.arrival_ms as f64
             };
@@ -841,6 +844,12 @@ impl AthenaWasmDecoder {
             battery_samples,
             battery_timestamps_ms: battery_timestamps,
         }
+    }
+}
+
+impl Default for AthenaWasmDecoder {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

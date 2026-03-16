@@ -2,6 +2,7 @@
 name = "eeg-signal"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.94"
 description = "Signal processing utilities for EEG data"
 license = "MIT"
 repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"

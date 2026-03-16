@@ -221,9 +221,9 @@ pub fn periodogram_peak_freq(
     let mean = samples.iter().sum::<f32>() / ns;
     let mut x: Vec<f32> = samples.iter().map(|v| v - mean).collect();
     // Hann window
-    for i in 0..n {
+    for (i, sample) in x.iter_mut().enumerate().take(n) {
         let w = 0.5 * (1.0 - ((2.0 * PI * i as f32) / (ns - 1.0)).cos());
-        x[i] *= w as f32;
+        *sample *= w;
     }
 
     let mut powers = Vec::new();
@@ -386,13 +386,13 @@ pub fn cepstrum_from_powers(
     let m_f = m as f32;
     // inverse DFT (real) -> cepstrum (we compute only real part)
     let mut cep: Vec<f32> = vec![0.0_f32; m];
-    for n in 0..m {
+    for (n, cep_val) in cep.iter_mut().enumerate().take(m) {
         let mut sum = 0.0_f32;
-        for k in 0..m {
+        for (k, log_val) in log_spec.iter().enumerate().take(m) {
             let angle = 2.0 * PI * (k as f32) * (n as f32) / m_f;
-            sum += log_spec[k] * angle.cos();
+            sum += *log_val * angle.cos();
         }
-        cep[n] = sum / m_f;
+        *cep_val = sum / m_f;
     }
 
     // quefrency (seconds) per index = 1 / (M * df)
@@ -545,7 +545,7 @@ pub fn select_harmonic_with_prior(
                 break;
             }
             if let Some(p) = power_at_freq(powers, fmin, df, fh) {
-                harmonic_sum += p * weights[(h - 1) as usize];
+                harmonic_sum += p * weights[h - 1];
             }
         }
         // support count
@@ -654,7 +654,7 @@ pub fn rank_harmonic_candidates(
                 break;
             }
             if let Some(p) = power_at_freq(powers, fmin, df, fh) {
-                harmonic_sum += p * weights[(h - 1) as usize];
+                harmonic_sum += p * weights[h - 1];
             }
         }
         let peak_power = power_at_freq(powers, fmin, df, cand).unwrap_or(0.0);
@@ -663,7 +663,7 @@ pub fn rank_harmonic_candidates(
         let idx = ((cand - fmin) / df).round() as isize;
         let mut width_bins = 0usize;
         if idx >= 0 {
-            let idx = idx as isize as usize;
+            let idx = idx as usize;
             let thresh = peak_power * 0.5;
             let mut i = idx as isize;
             while i > 0 {
@@ -898,8 +898,8 @@ mod tests {
         assert!(sqi > 0.2, "sqi too low for clean tone: {}", sqi);
 
         // add out-of-band noise, sqi should reduce
-        for i in 0..n {
-            sig[i] += 0.5 * (2.0 * PI * 8.0 * (i as f32 / fs)).sin();
+        for (i, sample) in sig.iter_mut().enumerate().take(n) {
+            *sample += 0.5 * (2.0 * PI * 8.0 * (i as f32 / fs)).sin();
         }
         let norm2 = temporal_normalize(&sig);
         let mut bp2 = BandpassFilter::new(0.7, 4.0, fs);

@@ -125,4 +125,4 @@ Wait a couple seconds before the pipeline starts computing BPM predictions
 ## Release Notes
 
 For package publishing flow, release tags (`next` then promote to `latest`),
-and rollback/deprecate guidance, see [`docs/releasing.md`](../../docs/releasing.md).
+and rollback/deprecate guidance, see [docs/releasing.md](https://github.com/Elata-Biosciences/elata-bio-sdk/blob/main/docs/releasing.md).

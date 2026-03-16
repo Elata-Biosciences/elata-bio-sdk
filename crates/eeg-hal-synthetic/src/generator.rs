@@ -184,8 +184,7 @@ impl SignalGenerator {
         self.rng_state ^= self.rng_state << 17;
 
         // Convert to [-1, 1] range
-        let normalized = (self.rng_state as f32 / u64::MAX as f32) * 2.0 - 1.0;
-        normalized
+        (self.rng_state as f32 / u64::MAX as f32) * 2.0 - 1.0
     }
 }
 

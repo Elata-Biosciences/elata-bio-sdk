@@ -356,9 +356,9 @@ fn decode_eeg(
 
     let mut channels = vec![Vec::with_capacity(cfg.n_samples); cfg.n_channels];
     for sample_idx in 0..cfg.n_samples {
-        for ch in 0..cfg.n_channels {
+        for (ch, channel) in channels.iter_mut().enumerate().take(cfg.n_channels) {
             let idx = sample_idx * cfg.n_channels + ch;
-            channels[ch].push(values[idx]);
+            channel.push(values[idx]);
         }
     }
 
@@ -384,10 +384,10 @@ fn decode_accgyro(
     for i in 0..3 {
         let base = i * 12;
         let mut vals = [0f32; 6];
-        for ch in 0..6 {
+        for (ch, val) in vals.iter_mut().enumerate() {
             let idx = base + ch * 2;
             let raw = i16::from_le_bytes([data[idx], data[idx + 1]]) as f32;
-            vals[ch] = if ch < 3 {
+            *val = if ch < 3 {
                 raw * ACC_SCALE
             } else {
                 raw * GYRO_SCALE
@@ -428,9 +428,9 @@ fn decode_optics(
 
     let mut channels = vec![Vec::with_capacity(cfg.n_samples); cfg.n_channels];
     for sample_idx in 0..cfg.n_samples {
-        for ch in 0..cfg.n_channels {
+        for (ch, channel) in channels.iter_mut().enumerate().take(cfg.n_channels) {
             let idx = sample_idx * cfg.n_channels + ch;
-            channels[ch].push(values[idx]);
+            channel.push(values[idx]);
         }
     }
 

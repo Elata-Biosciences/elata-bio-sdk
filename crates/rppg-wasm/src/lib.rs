@@ -32,6 +32,7 @@ impl WasmRppgPipeline {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    #[allow(clippy::too_many_arguments)]
     pub fn push_sample_rgb_meta(
         &mut self,
         timestamp_ms: i64,
