@@ -28,6 +28,9 @@
   "bin": {
     "create-rppg-app": "index.mjs"
   },
+  "scripts": {
+    "test": "node --test index.test.mjs"
+  },
   "files": [
     "index.mjs",
     "template"
