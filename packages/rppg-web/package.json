@@ -1,6 +1,6 @@
 {
 	"name": "@elata-biosciences/rppg-web",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "TypeScript wrapper for the Elata rPPG pipeline",
 	"license": "MIT",
 	"author": "Elata",
@@ -33,7 +33,11 @@
 		},
 		"./pkg/*": "./pkg/*"
 	},
-	"files": ["dist", "pkg", "README.md"],
+	"files": [
+		"dist",
+		"pkg",
+		"README.md"
+	],
 	"publishConfig": {
 		"access": "public"
 	},

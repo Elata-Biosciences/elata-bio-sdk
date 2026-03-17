@@ -1,6 +1,6 @@
 {
 	"name": "@elata-biosciences/eeg-web",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "Web wrapper for the Elata EEG WASM bindings",
 	"license": "MIT",
 	"author": "Elata",
@@ -34,7 +34,13 @@
 		},
 		"./wasm/*": "./wasm/*"
 	},
-	"files": ["dist", "wasm/*.js", "wasm/*.ts", "wasm/*.wasm", "README.md"],
+	"files": [
+		"dist",
+		"wasm/*.js",
+		"wasm/*.ts",
+		"wasm/*.wasm",
+		"README.md"
+	],
 	"publishConfig": {
 		"access": "public"
 	},
