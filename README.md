@@ -87,6 +87,30 @@ Full details: **`docs/releasing.md`** and **`.changeset/README.md`**.
 - `packages/eeg-web-ble` - Web Bluetooth transport for EEG headband devices (Muse-compatible) emitting normalized headband frames.
 - `packages/rppg-web` - TS wrapper for the rPPG pipeline (processor + backend adapter).
 
+### NPM Organization and Installation
+
+Published JavaScript/TypeScript packages for this SDK live under the
+[`@elata-biosciences` npm organization](https://www.npmjs.com/org/elata-biosciences).
+
+Typical installs:
+
+```bash
+# EEG web wrapper (WASM bindings + TS API)
+pnpm add @elata-biosciences/eeg-web
+npm install @elata-biosciences/eeg-web
+
+# EEG Web Bluetooth transport
+pnpm add @elata-biosciences/eeg-web-ble
+npm install @elata-biosciences/eeg-web-ble
+
+# rPPG web wrapper
+pnpm add @elata-biosciences/rppg-web
+npm install @elata-biosciences/rppg-web
+```
+
+See the individual package READMEs in `packages/*` for usage details and
+examples.
+
 ## Local Development (Web Wrapper)
 
 The SDK provides a single convenient command to build the EEG WASM, generate the
