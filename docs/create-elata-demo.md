@@ -51,7 +51,7 @@ Behind the scenes this runs the `create-elata-demo` binary, which:
 
 Each generated app includes:
 
-- a `package.json` pinned to a compatible Elata SDK release,
+- a `package.json` pinned to the current compatible Elata SDK package versions,
 - a minimal React + Vite shell, and
 - a template-specific `README.md` with browser and hardware notes,
 - a `build` script that Type-checks and runs `vite build`.

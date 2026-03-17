@@ -23,6 +23,11 @@
     "node": ">=18"
   },
   "type": "module",
+  "elataSdkVersions": {
+    "eegWeb": "0.1.5",
+    "eegWebBle": "0.1.5",
+    "rppgWeb": "0.1.5"
+  },
   "bin": {
     "create-elata-demo": "index.mjs"
   },

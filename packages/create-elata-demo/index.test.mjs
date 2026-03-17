@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import {
+  cpSync,
   mkdtempSync,
   mkdirSync,
   rmSync,
@@ -15,6 +16,18 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CLI = join(__dirname, 'index.mjs');
+const scaffolderPackage = JSON.parse(
+  readFileSync(join(__dirname, 'package.json'), 'utf8'),
+);
+const eegWebVersion = JSON.parse(
+  readFileSync(join(__dirname, '..', 'eeg-web', 'package.json'), 'utf8'),
+).version;
+const eegWebBleVersion = JSON.parse(
+  readFileSync(join(__dirname, '..', 'eeg-web-ble', 'package.json'), 'utf8'),
+).version;
+const rppgWebVersion = JSON.parse(
+  readFileSync(join(__dirname, '..', 'rppg-web', 'package.json'), 'utf8'),
+).version;
 
 function runCli(args, cwd) {
   return spawnSync(process.execPath, [CLI, ...args], {
@@ -50,6 +63,12 @@ test('lists templates', () => {
   assert.match(result.stdout, /eeg-web-ble-demo/);
 });
 
+test('ships fallback SDK versions that match the repo package versions', () => {
+  assert.equal(scaffolderPackage.elataSdkVersions.eegWeb, eegWebVersion);
+  assert.equal(scaffolderPackage.elataSdkVersions.eegWebBle, eegWebBleVersion);
+  assert.equal(scaffolderPackage.elataSdkVersions.rppgWeb, rppgWebVersion);
+});
+
 test('scaffolds the default template', () => {
   const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
   try {
@@ -58,6 +77,33 @@ test('scaffolds the default template', () => {
     assert.ok(existsSync(join(tmp, 'demo-app', 'package.json')));
     assert.ok(existsSync(join(tmp, 'demo-app', 'README.md')));
     assert.ok(existsSync(join(tmp, 'demo-app', 'src', 'App.tsx')));
+    const pkg = readFileSync(join(tmp, 'demo-app', 'package.json'), 'utf8');
+    assert.match(pkg, new RegExp(`"@elata-biosciences/rppg-web": "${rppgWebVersion}"`));
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('scaffolds correctly from packaged contents without monorepo siblings', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-packaged-'));
+  try {
+    const packagedDir = join(tmp, 'pkg');
+    mkdirSync(packagedDir);
+    cpSync(join(__dirname, 'index.mjs'), join(packagedDir, 'index.mjs'));
+    cpSync(join(__dirname, 'package.json'), join(packagedDir, 'package.json'));
+    cpSync(join(__dirname, 'templates'), join(packagedDir, 'templates'), {
+      recursive: true,
+    });
+
+    const result = spawnSync(process.execPath, [join(packagedDir, 'index.mjs'), 'demo-app'], {
+      cwd: tmp,
+      encoding: 'utf8',
+      timeout: 10_000,
+    });
+
+    assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
+    const pkg = readFileSync(join(tmp, 'demo-app', 'package.json'), 'utf8');
+    assert.match(pkg, new RegExp(`"@elata-biosciences/rppg-web": "${rppgWebVersion}"`));
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
@@ -95,7 +141,23 @@ test('scaffolds a selected EEG template', () => {
     const result = runCli(['brain-demo', '--template', 'eeg-web-demo'], tmp);
     assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
     const pkg = readFileSync(join(tmp, 'brain-demo', 'package.json'), 'utf8');
-    assert.match(pkg, /@elata-biosciences\/eeg-web/);
+    assert.match(pkg, new RegExp(`"@elata-biosciences/eeg-web": "${eegWebVersion}"`));
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('scaffolds the BLE template with current package versions', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
+  try {
+    const result = runCli(['ble-demo', '--template', 'eeg-web-ble-demo'], tmp);
+    assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
+    const pkg = readFileSync(join(tmp, 'ble-demo', 'package.json'), 'utf8');
+    assert.match(pkg, new RegExp(`"@elata-biosciences/eeg-web": "${eegWebVersion}"`));
+    assert.match(
+      pkg,
+      new RegExp(`"@elata-biosciences/eeg-web-ble": "${eegWebBleVersion}"`),
+    );
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }

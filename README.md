@@ -143,6 +143,16 @@ local EEG package against an app you already have.
 - [docs/repo-map.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/repo-map.md): package ownership and repo layout
 - [docs/create-elata-demo.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/create-elata-demo.md): scaffolding workflow
 - [docs/dev_setup.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/dev_setup.md): local setup and iteration tips
+- [docs/guides/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/README.md): consumer guide index
+- [docs/guides/getting-started.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/getting-started.md): fastest path to a running app
+- [docs/guides/choose-the-right-package.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/choose-the-right-package.md): package selection help
+- [docs/guides/using-eeg-in-a-browser-app.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
+- [docs/guides/using-web-bluetooth-with-supported-devices.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-web-bluetooth-with-supported-devices.md): supported browser BLE flow
+- [docs/guides/using-rppg-in-a-browser-app.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-rppg-in-a-browser-app.md): browser rPPG integration guide
+- [docs/guides/compatibility.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/compatibility.md): browser, device, and tooling expectations
+- [docs/guides/troubleshooting.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/troubleshooting.md): common setup and runtime failures
+- [docs/sdk-adoption-baseline.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/sdk-adoption-baseline.md): current onboarding baseline and friction summary
+- [docs/sdk-adoption-issues.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/sdk-adoption-issues.md): grouped issue list for remaining SDK DX work
 - [docs/maintainers.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/maintainers.md): maintainer-focused workflow guide
 - [docs/releasing.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/releasing.md): release and publish flow
 

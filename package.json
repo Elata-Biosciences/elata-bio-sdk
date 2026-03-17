@@ -11,6 +11,7 @@
 		"build": "pnpm -r --if-present build",
 		"test": "./run.sh test",
 		"test:all": "./run.sh test",
+		"smoke:consumers": "node scripts/smoke-consumer-tarballs.mjs",
 		"clean": "pnpm -r --if-present clean",
 		"lint:web": "pnpm -r --if-present lint",
 		"format": "biome format --write .",

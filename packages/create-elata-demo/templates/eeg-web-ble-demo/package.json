@@ -9,7 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@elata-biosciences/eeg-web-ble": "^0.1.4",
+    "@elata-biosciences/eeg-web": "__EEG_WEB_VERSION__",
+    "@elata-biosciences/eeg-web-ble": "__EEG_WEB_BLE_VERSION__",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

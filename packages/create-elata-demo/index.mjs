@@ -12,6 +12,9 @@ import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const packageMetadata = JSON.parse(
+  readFileSync(join(__dirname, 'package.json'), 'utf8'),
+);
 
 const templates = {
   'rppg-web-demo': {
@@ -26,6 +29,35 @@ const templates = {
     dir: 'eeg-web-ble-demo',
     description: 'React + Vite Muse Web Bluetooth demo',
   },
+};
+
+function readVersion(relativePath, fallbackVersion, packageName) {
+  const candidate = join(__dirname, relativePath);
+  if (existsSync(candidate)) {
+    return JSON.parse(readFileSync(candidate, 'utf8')).version;
+  }
+  if (fallbackVersion) {
+    return fallbackVersion;
+  }
+  throw new Error(`Missing packaged SDK version metadata for ${packageName}.`);
+}
+
+const packageVersions = {
+  eegWeb: readVersion(
+    '../eeg-web/package.json',
+    packageMetadata.elataSdkVersions?.eegWeb,
+    '@elata-biosciences/eeg-web',
+  ),
+  eegWebBle: readVersion(
+    '../eeg-web-ble/package.json',
+    packageMetadata.elataSdkVersions?.eegWebBle,
+    '@elata-biosciences/eeg-web-ble',
+  ),
+  rppgWeb: readVersion(
+    '../rppg-web/package.json',
+    packageMetadata.elataSdkVersions?.rppgWeb,
+    '@elata-biosciences/rppg-web',
+  ),
 };
 
 async function prompt(question) {
@@ -150,6 +182,9 @@ const templateDir = join(__dirname, 'templates', template.dir);
 copyDir(templateDir, targetDir, {
   __APP_NAME__: projectName,
   __TEMPLATE_NAME__: templateName,
+  __EEG_WEB_VERSION__: packageVersions.eegWeb,
+  __EEG_WEB_BLE_VERSION__: packageVersions.eegWebBle,
+  __RPPG_WEB_VERSION__: packageVersions.rppgWeb,
 });
 
 console.log(`\nCreated ${projectName} using ${templateName}!\n`);

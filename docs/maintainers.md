@@ -12,6 +12,7 @@ Use `run.sh` from the repo root:
 ./run.sh doctor
 ./run.sh test
 ./run.sh verify-all
+pnpm smoke:consumers
 ./run.sh bump
 ./run.sh release-check all
 ./run.sh release all next
@@ -57,6 +58,7 @@ Before changing release docs, verify the package set against current
 
 - Package README changes: confirm referenced commands still exist
 - Scaffolder changes: run `./run.sh test create-elata-demo`
+- Consumer onboarding or packaging changes: run `pnpm smoke:consumers`
 - `run.sh` changes: run the narrowest affected command and prefer broader checks if release paths are touched
 - Release-tooling changes: run `./run.sh verify-all` if feasible
 - Docs that mention onboarding: verify `create-elata-demo` guidance and workspace caveats

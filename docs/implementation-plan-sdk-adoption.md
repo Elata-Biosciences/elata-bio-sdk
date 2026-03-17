@@ -1,6 +1,21 @@
 # SDK Adoption And Developer Experience Plan
 
-Status: proposed implementation plan
+Status: in progress
+
+## Progress Snapshot
+
+- [x] Phase 0 baseline report now exists in `docs/`
+- [x] Phase 0 grouped issue list now exists in `docs/`
+- [x] Root README now has package-selection guidance
+- [x] Root README now has a compatibility summary
+- [x] Package READMEs include “when to use it” and troubleshooting guidance
+- [x] Scaffolded apps now include generated template READMEs
+- [x] Scaffolded templates now pin to current live package versions
+- [x] Consumer-oriented guides now exist under `docs/guides/`
+- [x] The first consumer guide set is now complete
+- [x] A centralized compatibility matrix now exists for published SDK surfaces
+- [x] Local tarball-based consumer smoke testing exists via `pnpm smoke:consumers`
+- [x] CI now runs consumer smoke tests against local packaged artifacts
 
 ## Goal
 
@@ -31,24 +46,24 @@ Objective:
 
 Tasks:
 
-- document the current “new developer” flows for:
+- [x] document the current “new developer” flows for:
   - scaffold a demo app
   - add SDK packages to an existing app
   - run EEG web demo
   - run rPPG web demo
-- measure time-to-first-success and friction points for each flow
-- list current public surfaces:
+- [x] measure time-to-first-success and friction points for each flow
+- [x] list current public surfaces:
   - README
   - package READMEs
   - `create-elata-demo`
   - package exports
   - demo templates
-- identify all consumer-facing docs that still read like maintainer docs
+- [x] identify all consumer-facing docs that still read like maintainer docs
 
 Deliverables:
 
-- a short baseline report in `docs/`
-- an issue list grouped by onboarding, package docs, runtime UX, and release UX
+- [x] a short baseline report in `docs/`
+- [x] an issue list grouped by onboarding, package docs, runtime UX, and release UX
 
 Exit criteria:
 
@@ -62,15 +77,15 @@ Objective:
 
 Tasks:
 
-- keep `create-elata-demo` as the primary “new project” path
-- make the root README answer three questions quickly:
+- [x] keep `create-elata-demo` as the primary “new project” path
+- [x] make the root README answer three questions quickly:
   - what packages exist
   - which one should I use
   - how do I start fast
-- add a “Choose the right package” section to the root README
-- add a “When to use this package” section to every package README
-- keep `sync-to` explicitly framed as local `eeg-web` development only
-- add a short compatibility summary to the root README:
+- [x] add a “Choose the right package” section to the root README
+- [x] add a “When to use this package” section to every package README
+- [x] keep `sync-to` explicitly framed as local `eeg-web` development only
+- [x] add a short compatibility summary to the root README:
   - browser support
   - BLE caveats
   - Safari/iOS limitation
@@ -94,18 +109,18 @@ Objective:
 
 Tasks:
 
-- add a generated README to each scaffolded template
-- include template-specific notes in generated apps:
+- [x] add a generated README to each scaffolded template
+- [x] include template-specific notes in generated apps:
   - what the app demonstrates
   - required browser capabilities
   - required hardware, if any
   - how to run it
-- ensure scaffolder output prints the correct next steps for:
+- [x] ensure scaffolder output prints the correct next steps for:
   - standalone app
   - app created inside a parent `pnpm` workspace
-- review all template copy for clarity and consistency
-- add template screenshots or GIF references where helpful
-- consider a “doctor” or “preflight” script for scaffolded apps if setup friction remains high
+- [x] review all template copy for clarity and consistency
+- [ ] add template screenshots or GIF references where helpful
+- [ ] consider a “doctor” or “preflight” script for scaffolded apps if setup friction remains high
 
 Deliverables:
 
@@ -125,7 +140,7 @@ Objective:
 
 Tasks:
 
-- standardize all package READMEs around:
+- [x] standardize all package READMEs around:
   - what this package is
   - when to use it
   - install
@@ -133,12 +148,12 @@ Tasks:
   - minimal usage
   - build/dev notes
   - release notes link
-- add one “recommended path” example per package
-- add one “advanced/custom integration” example where relevant
-- ensure examples reflect current runtime behavior:
+- [x] add one “recommended path” example per package
+- [ ] add one “advanced/custom integration” example where relevant
+- [x] ensure examples reflect current runtime behavior:
   - `rppg-web` should show `loadWasmBackend()` first
   - `eeg-web-ble` should show realistic transport startup and caveats
-- add links between related packages:
+- [x] add links between related packages:
   - `eeg-web-ble` -> `eeg-web`
   - `rppg-web` -> scaffolder and demo paths
 
@@ -159,23 +174,23 @@ Objective:
 
 Tasks:
 
-- create a consumer-oriented docs area, either:
+- [x] create a consumer-oriented docs area, either:
   - a lightweight `docs/guides/` structure in-repo, or
   - a generated docs site later
-- add the first guide set:
-  - getting started
-  - choosing packages
-  - using EEG in a browser app
-  - using Web Bluetooth with supported devices
-  - using rPPG in a browser app
-  - troubleshooting common failures
-- add a compatibility matrix covering:
+- [x] add the first guide set:
+  - [x] getting started
+  - [x] choosing packages
+  - [x] using EEG in a browser app
+  - [x] using Web Bluetooth with supported devices
+  - [x] using rPPG in a browser app
+  - [x] troubleshooting common failures
+- [x] add a compatibility matrix covering:
   - browser support
   - Web Bluetooth support
   - Safari/iOS behavior
   - supported device classes
   - Node and package manager expectations
-- separate planning docs from public docs in navigation
+- [x] separate planning docs from public docs in navigation
 
 Deliverables:
 
@@ -223,19 +238,19 @@ Objective:
 
 Tasks:
 
-- audit user-facing error messages across:
+- [ ] audit user-facing error messages across:
   - scaffolded apps
   - `eeg-web-ble`
   - `rppg-web`
   - WASM-loading paths
-- replace vague failures with actionable guidance
-- document expected failure modes:
+- [ ] replace vague failures with actionable guidance
+- [x] document expected failure modes:
   - unsupported browser
   - missing secure context
   - missing BLE support
   - missing packaged WASM assets
   - workspace install pitfalls
-- add troubleshooting sections to relevant package READMEs and consumer docs
+- [x] add troubleshooting sections to relevant package READMEs and consumer docs
 
 Deliverables:
 
@@ -254,17 +269,17 @@ Objective:
 
 Tasks:
 
-- add CI jobs that simulate real consumers:
+- [x] add CI jobs that simulate real consumers:
   - scaffold app outside the repo workspace
   - install package tarballs or published-style artifacts
   - build the generated app
   - run lightweight runtime smoke checks if feasible
-- add one smoke flow for each entry point:
-  - `create-elata-demo`
-  - `@elata-biosciences/eeg-web`
-  - `@elata-biosciences/eeg-web-ble`
-  - `@elata-biosciences/rppg-web`
-- ensure release verification covers consumer packaging expectations, not just internal builds
+- [x] add one smoke flow for each entry point:
+  - [x] `create-elata-demo`
+  - [x] `@elata-biosciences/eeg-web`
+  - [x] `@elata-biosciences/eeg-web-ble`
+  - [x] `@elata-biosciences/rppg-web`
+- [x] ensure release verification covers consumer packaging expectations, not just internal builds
 
 Deliverables:
 

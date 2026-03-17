@@ -8,6 +8,22 @@ Use this page to find the right document quickly.
 - [dev_setup.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/dev_setup.md): local development setup and faster iteration tips
 - [repo-map.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/repo-map.md): repo layout, package ownership, and canonical workflows
 
+## Consumer Guides
+
+- [guides/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/README.md): guide index for SDK consumers
+- [guides/getting-started.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/getting-started.md): fastest path to a running demo
+- [guides/choose-the-right-package.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/choose-the-right-package.md): package decision guide
+- [guides/using-eeg-in-a-browser-app.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
+- [guides/using-web-bluetooth-with-supported-devices.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-web-bluetooth-with-supported-devices.md): supported browser BLE flow
+- [guides/using-rppg-in-a-browser-app.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-rppg-in-a-browser-app.md): browser rPPG integration guide
+- [guides/compatibility.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/compatibility.md): browser, device, and tooling expectations
+- [guides/troubleshooting.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/troubleshooting.md): common failures and fixes
+
+## SDK Adoption Tracking
+
+- [sdk-adoption-baseline.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/sdk-adoption-baseline.md): current onboarding baseline and friction summary
+- [sdk-adoption-issues.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/sdk-adoption-issues.md): grouped issue list for the remaining DX work
+
 ## Maintainers
 
 - [maintainers.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/maintainers.md): maintainer-focused operational guide

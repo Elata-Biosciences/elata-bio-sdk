@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@elata-biosciences/rppg-web": "^0.1.4",
+    "@elata-biosciences/rppg-web": "__RPPG_WEB_VERSION__",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
