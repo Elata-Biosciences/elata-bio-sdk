@@ -21,6 +21,7 @@ export function initEegWasmSync(
 
 export type { InitInput, InitOutput };
 export * from "./headband";
+export * from "./models";
 
 export * from "../wasm/eeg_wasm.js";
 export { wasm };
