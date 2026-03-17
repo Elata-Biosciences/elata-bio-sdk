@@ -1,9 +1,5 @@
 lockfileVersion: '9.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 importers:
 
   .:
@@ -20,6 +16,8 @@ importers:
       '@playwright/test':
         specifier: ^1.51.1
         version: 1.58.2
+
+  packages/create-rppg-app: {}
 
   packages/eeg-web:
     devDependencies:

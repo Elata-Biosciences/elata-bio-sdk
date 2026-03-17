@@ -1,40 +1,220 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>rPPG Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      body { font-family: Arial, sans-serif; margin: 20px; }
-      video { border: 1px solid #ccc; }
-      .row { margin-top: 8px; }
-      .label { font-weight: 600; }
-      #status { margin-top: 10px; color: #666; }
-      #debug { margin-top: 12px; border-top: 1px dashed #ccc; padding-top: 8px; }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0; padding: 0;
+        width: 100vw; min-height: 100vh;
+        background: #0f172a;
+        color: #f1f5f9;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      @keyframes pulse-heart {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.15); }
+      }
+      .heart-pulse { animation: pulse-heart 1s ease-in-out infinite; }
+      .heart-idle { opacity: 0.4; }
     </style>
   </head>
-  <body>
-    <h1>rPPG Demo (rppg-web)</h1>
-    <video id="video" width="320" height="240" autoplay muted playsinline></video>
+  <body class="bg-slate-900 text-slate-100">
 
-    <div class="row"><span class="label">BPM (smoothed):</span> <span id="bpm">--</span></div>
-    <div class="row"><span class="label">BPM (raw):</span> <span id="bpm-raw">--</span></div>
-    <div class="row"><span class="label">Confidence:</span> <span id="confidence">0.00</span></div>
-    <div class="row"><span class="label">Signal quality:</span> <span id="signal">0.00</span></div>
-    <div class="row"><span class="label">Backend:</span> <span id="backend">--</span></div>
-    <div class="row"><span class="label">ROI source:</span> <span id="roi">--</span></div>
-
-    <div id="debug">
-      <div class="row"><span class="label">FPS:</span> <span id="fps">--</span></div>
-      <div class="row"><span class="label">Intensity:</span> <span id="intensity">--</span></div>
-      <div class="row"><span class="label">Skin ratio:</span> <span id="skin">--</span></div>
-      <div class="row"><span class="label">Motion:</span> <span id="motion">--</span></div>
-      <div class="row"><span class="label">Clipping:</span> <span id="clipping">--</span></div>
-      <div class="row"><span class="label">SNR:</span> <span id="snr">--</span></div>
-      <div class="row"><span class="label">Metrics interval:</span> <span id="metrics-interval">--</span></div>
-      <div class="row"><span class="label">Reasons:</span> <span id="reasons">--</span></div>
+    <!-- Header -->
+    <div class="sticky top-0 z-20 bg-slate-900/90 border-b border-slate-800 px-4 py-3 flex items-center justify-between backdrop-blur-sm">
+      <div class="flex items-center gap-3">
+        <!-- Heart Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" class="text-rose-500">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        <div>
+          <span class="text-sm font-bold tracking-widest uppercase text-slate-100">rPPG Demo</span>
+          <span class="hidden sm:inline text-[10px] text-slate-500 ml-2 uppercase tracking-wider">Elata Biosciences</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="backend-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">--</span>
+        <button
+          id="start-btn"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider transition-colors"
+        >
+          <!-- Play icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span id="start-btn-label">Start</span>
+        </button>
+      </div>
     </div>
 
-    <div id="status">Starting...</div>
+    <!-- Main Grid -->
+    <div class="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
+
+      <!-- Left Column: Video, Waveform, Metric Cards -->
+      <div class="lg:col-span-7 space-y-4 md:space-y-5">
+
+        <!-- Video Feed -->
+        <div class="relative bg-black rounded-xl md:rounded-2xl overflow-hidden shadow-2xl aspect-video border border-slate-800">
+          <video
+            id="video"
+            class="w-full h-full object-cover"
+            style="transform: scaleX(-1);"
+            autoplay
+            muted
+            playsinline
+          ></video>
+
+          <!-- Idle overlay -->
+          <div id="idle-overlay" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-slate-600 mb-4">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            <p class="text-slate-500 max-w-xs text-sm">Camera access required. Press Start to begin rPPG signal acquisition.</p>
+          </div>
+
+          <!-- Status badge (top center) -->
+          <div id="status-badge-wrap" class="hidden absolute top-3 left-0 right-0 flex justify-center pointer-events-none">
+            <span id="status-badge" class="text-xs px-4 py-1.5 rounded-full font-semibold shadow-lg bg-amber-500/90 text-white flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Initializing...
+            </span>
+          </div>
+
+          <!-- Signal Quality badge (bottom center) -->
+          <div id="quality-badge-wrap" class="hidden absolute bottom-4 left-0 right-0 text-center pointer-events-none">
+            <div class="inline-block bg-black/60 px-3 py-1 rounded-full border border-emerald-500/30 backdrop-blur-sm">
+              <span class="text-xs font-medium text-emerald-400">
+                Signal Quality: <span id="signal-quality-badge">0%</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pulse Waveform -->
+        <div class="bg-slate-800/50 rounded-xl md:rounded-2xl p-3 md:p-4 border border-slate-700/50 shadow-xl backdrop-blur-sm space-y-2">
+          <p class="text-[10px] uppercase tracking-widest text-slate-400">Camera Pulse Waveform</p>
+          <p class="text-[11px] text-slate-500">
+            Green channel intensity (rPPG signal). X-axis: last ~10 seconds; Y-axis: relative pulse amplitude.
+          </p>
+          <canvas id="wave-canvas" width="600" height="100" class="w-full h-[100px] rounded bg-slate-900/50"></canvas>
+        </div>
+
+        <!-- Camera rPPG Metric Cards -->
+        <div class="bg-slate-900/30 p-3 md:p-4 rounded-xl md:rounded-2xl border border-slate-800/60 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-[10px] uppercase tracking-widest text-slate-500">Camera rPPG</p>
+              <p class="text-sm text-slate-300">Face &amp; skin signal processing</p>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">Vision</span>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="bg-slate-800/30 p-3 rounded-xl border border-slate-700/50">
+              <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">BPM (Smoothed)</div>
+              <div id="bpm" class="text-xl font-bold font-mono text-white">--</div>
+            </div>
+            <div class="bg-slate-800/30 p-3 rounded-xl border border-slate-700/50">
+              <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">BPM (Raw)</div>
+              <div id="bpm-raw" class="text-xl font-bold font-mono text-sky-200">--</div>
+            </div>
+            <div class="bg-slate-800/30 p-3 rounded-xl border border-slate-700/50">
+              <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Confidence</div>
+              <div id="confidence" class="text-xl font-bold font-mono text-emerald-200">--</div>
+            </div>
+            <div class="bg-slate-800/30 p-3 rounded-xl border border-slate-700/50">
+              <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Signal Quality</div>
+              <div id="signal" class="text-xl font-bold font-mono text-indigo-200">--</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Main BPM Display + Info -->
+      <div class="lg:col-span-5 space-y-3 md:space-y-4">
+
+        <!-- Big Heart Rate Panel -->
+        <div class="bg-slate-800/40 rounded-xl p-4 md:p-5 border border-slate-700/50 flex flex-col gap-4">
+          <div class="flex items-center gap-3 md:gap-4">
+            <!-- Animated heart icon -->
+            <svg id="heart-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="currentColor" class="text-rose-500 heart-idle flex-shrink-0">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            <div>
+              <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-0.5">Heart Rate</div>
+              <div class="flex items-baseline gap-1.5">
+                <span id="bpm-main" class="text-5xl md:text-6xl font-black text-white font-mono tracking-tighter">--</span>
+                <span class="text-sm text-slate-500 font-bold">BPM</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status badges row -->
+          <div class="flex flex-wrap gap-2">
+            <span id="roi-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">ROI: --</span>
+            <span id="fps-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">FPS: --</span>
+            <span id="snr-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">SNR: --</span>
+          </div>
+
+          <!-- Reason codes -->
+          <div id="reason-wrap" class="hidden">
+            <p class="text-[10px] uppercase tracking-widest text-slate-500 mb-1">Status</p>
+            <p id="reasons" class="text-[11px] text-amber-300 font-mono"></p>
+          </div>
+        </div>
+
+        <!-- Signal Details -->
+        <div class="bg-slate-800/40 rounded-xl border border-slate-700/50 overflow-hidden">
+          <button
+            id="debug-toggle"
+            class="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-700/30 transition-colors"
+          >
+            <div class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-500"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span class="text-[10px] uppercase tracking-widest font-bold text-slate-400">Signal Debug</span>
+            </div>
+            <svg id="debug-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-500 transition-transform"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="debug-panel" class="hidden px-4 pb-4 space-y-1 border-t border-slate-700/50 pt-3">
+            <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+              <div>
+                <div class="text-[9px] uppercase tracking-wider text-slate-500 mb-0.5">Intensity</div>
+                <div id="intensity" class="text-[11px] font-mono text-slate-300">--</div>
+              </div>
+              <div>
+                <div class="text-[9px] uppercase tracking-wider text-slate-500 mb-0.5">Skin Ratio</div>
+                <div id="skin" class="text-[11px] font-mono text-slate-300">--</div>
+              </div>
+              <div>
+                <div class="text-[9px] uppercase tracking-wider text-slate-500 mb-0.5">Motion</div>
+                <div id="motion" class="text-[11px] font-mono text-slate-300">--</div>
+              </div>
+              <div>
+                <div class="text-[9px] uppercase tracking-wider text-slate-500 mb-0.5">Clipping</div>
+                <div id="clipping" class="text-[11px] font-mono text-slate-300">--</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- About rPPG -->
+        <div class="bg-slate-800/20 rounded-xl p-4 border border-slate-800/60 space-y-2">
+          <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">About</p>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            Remote photoplethysmography (rPPG) measures blood volume pulse from subtle color changes in facial skin captured by a standard camera. No contact required.
+          </p>
+          <p class="text-[11px] text-slate-500 leading-relaxed">
+            Uses MediaPipe face detection for ROI tracking and a CHROM-based algorithm for pulse extraction.
+          </p>
+        </div>
+
+      </div>
+    </div>
 
     <script type="module" src="./demo.js"></script>
   </body>

@@ -28,3 +28,4 @@ export { MediaPipeFaceFrameSource } from "./mediaPipeFaceFrameSource";
 export { loadFaceMesh } from "./mediapipeLoader";
 export { averageGreenInROI } from "./frameSource";
 export type { FrameSource, Frame, ROI } from "./frameSource";
+export { loadWasmBackend } from "./wasmBackend";
