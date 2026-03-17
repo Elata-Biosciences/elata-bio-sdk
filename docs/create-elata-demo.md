@@ -23,6 +23,7 @@ You can list templates from any environment:
 
 ```bash
 pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates
+npx @elata-biosciences/create-elata-demo -- --list-templates
 ```
 
 ### Creating a new demo app
@@ -60,6 +61,8 @@ After scaffolding:
 cd my-app
 pnpm install
 pnpm run dev
+npm install
+npm run dev
 ```
 
 > Note: The templates are compatible with `pnpm` and other package managers; this repo prefers `pnpm` for local work.
@@ -70,6 +73,7 @@ If you prefer not to go through the npm "create" alias, you can invoke the scaff
 
 ```bash
 pnpm dlx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
+npx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
 ```
 
 This is equivalent to the `npm create @elata-biosciences/elata-demo` examples above.

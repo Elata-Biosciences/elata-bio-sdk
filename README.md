@@ -92,7 +92,7 @@ Full details: **`docs/releasing.md`** and **`.changeset/README.md`**.
 Published JavaScript/TypeScript packages for this SDK live under the
 [`@elata-biosciences` npm organization](https://www.npmjs.com/org/elata-biosciences).
 
-Typical installs:
+Typical installs (for existing apps):
 
 ```bash
 # EEG web wrapper (WASM bindings + TS API)
@@ -110,6 +110,42 @@ npm install @elata-biosciences/rppg-web
 
 See the individual package READMEs in `packages/*` for usage details and
 examples.
+
+### Scaffolding a Demo App
+
+For a ready-to-run demo that already wires up the Elata SDK and Vite, use the
+`create-elata-demo` scaffolder (via the standard npm "create" flow):
+
+```bash
+# RPPG web demo (default template)
+npm create @elata-biosciences/elata-demo my-app
+
+# EEG web demo
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+
+# EEG Web Bluetooth demo (Muse-compatible)
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
+```
+
+If you prefer `pnpm` or `npx`, you can call the scaffolder package directly (both are equivalent):
+
+```bash
+pnpm dlx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
+npx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
+```
+
+After scaffolding:
+
+```bash
+cd my-app
+pnpm install
+pnpm run dev
+
+npm install
+npm run dev
+```
+
+See `docs/create-elata-demo.md` for full details on templates and behavior.
 
 ## Local Development (Web Wrapper)
 
