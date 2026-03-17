@@ -1,3 +1,4 @@
+import { BpmBayesTracker } from '../bpmBayesTracker';
 import { RppgProcessor, MuseCalibrationModel, MuseFusionCalibrator } from '../rppgProcessor';
 
 describe('MuseCalibrationModel', () => {
@@ -140,6 +141,76 @@ describe('MuseFusionCalibrator', () => {
     
     const result = calibrator.fuse(74, 60, now);
     expect(result.bias).toBe(0);
+  });
+
+  test('getReference exposes fresh muse BPM as tracker prior', () => {
+    calibrator.updateMuse(72, 90, now);
+    expect(calibrator.getReference(now)).toEqual({
+      bpm: 72,
+      strength: 0.9,
+    });
+    expect(calibrator.getReference(now + 3000)).toBeNull();
+  });
+});
+
+describe('BpmBayesTracker', () => {
+  test('converges toward consistent measurements', () => {
+    const tracker = new BpmBayesTracker(40, 180, 1);
+
+    let estimate = tracker.update([
+      { source: 'spectral', bpm: 72, confidence: 0.9 },
+      { source: 'acf', bpm: 71, confidence: 0.8 },
+      { source: 'peaks', bpm: 72, confidence: 0.7 },
+    ], 1 / 30, {
+      motion: 0.05,
+      snrDb: 6,
+      quality: 0.9,
+    });
+
+    for (let i = 0; i < 8; i++) {
+      estimate = tracker.update([
+        { source: 'spectral', bpm: 72, confidence: 0.9 },
+        { source: 'acf', bpm: 71, confidence: 0.8 },
+        { source: 'peaks', bpm: 72, confidence: 0.7 },
+      ], 1 / 30, {
+        motion: 0.05,
+        snrDb: 6,
+        quality: 0.9,
+      });
+    }
+
+    expect(estimate.bpm).not.toBeNull();
+    expect(Math.abs((estimate.bpm ?? 0) - 72)).toBeLessThanOrEqual(2);
+    expect(estimate.confidence).toBeGreaterThan(0.4);
+  });
+
+  test('snapshot round-trip preserves posterior state', () => {
+    const tracker = new BpmBayesTracker(40, 180, 1);
+    for (let i = 0; i < 4; i++) {
+      tracker.update([
+        { source: 'spectral', bpm: 72, confidence: 0.9 },
+        { source: 'acf', bpm: 72, confidence: 0.8 },
+      ], 1 / 30, {
+        motion: 0.02,
+        snrDb: 8,
+        quality: 0.95,
+        referenceBpm: 72,
+        referenceStrength: 0.9,
+      });
+    }
+
+    const snapshot = tracker.getSnapshot();
+    const restored = new BpmBayesTracker(40, 180, 1);
+    restored.loadSnapshot(snapshot);
+    const estimate = restored.update([], 1 / 30, {
+      motion: 0.02,
+      snrDb: 8,
+      quality: 0.95,
+    });
+
+    expect(snapshot.posterior.length).toBeGreaterThan(0);
+    expect(estimate.bpm).not.toBeNull();
+    expect(Math.abs((estimate.bpm ?? 0) - 72)).toBeLessThanOrEqual(3);
   });
 });
 
@@ -378,9 +449,78 @@ describe('RppgProcessor', () => {
     expect(m.spectral_bpm).not.toBeNull();
     expect(m.acf_bpm).not.toBeNull();
     expect(m.resolved_bpm).not.toBeNull();
+    expect(m.bayes_bpm).not.toBeNull();
+    expect((m.bayes_confidence ?? 0)).toBeGreaterThan(0);
     expect(m.hrv_rmssd == null || m.hrv_rmssd >= 0).toBeTruthy();
     expect(m.respiration_rate == null || m.respiration_rate >= 4).toBeTruthy();
     expect(m.fused_source).toBeDefined();
+  });
+
+  test('uses RGB-derived local signal modeling for colored samples', () => {
+    const backend = createMockBackend({
+      get_metrics: jest.fn(() => ({ bpm: null, confidence: 0.2, signal_quality: 0.9 })),
+    });
+    const p = new RppgProcessor(backend as any, 30, 10);
+    const fs = 30;
+    const n = 30 * 12;
+
+    for (let i = 0; i < n; i++) {
+      const t = i / fs;
+      const pulse = Math.sin(2 * Math.PI * 1.2 * t);
+      const r = 0.55 + 0.08 * pulse;
+      const g = 0.5 + 0.2 * pulse;
+      const b = 0.42 - 0.05 * pulse;
+      p.pushSampleRgbMeta(i * (1000 / fs), r, g, b, 0.92, 0.03, 0.01);
+    }
+
+    const m = p.getMetrics();
+    expect(m.spectral_bpm).not.toBeNull();
+    expect(m.resolved_bpm).not.toBeNull();
+  });
+
+  test('suppresses unstable readings when motion and noise are high', () => {
+    const backend = createMockBackend({
+      get_metrics: jest.fn(() => ({ bpm: null, confidence: 0.15, signal_quality: 0.4 })),
+    });
+    const p = new RppgProcessor(backend as any, 30, 10);
+    const fs = 30;
+    const n = 30 * 12;
+
+    for (let i = 0; i < n; i++) {
+      const tMs = i * (1000 / fs);
+      const noisy =
+        0.5 +
+        0.22 * Math.sin(2 * Math.PI * 0.35 * (i / fs)) +
+        0.18 * Math.sin(2 * Math.PI * 2.9 * (i / fs));
+      p.pushSampleRgbMeta(tMs, noisy, noisy * 0.9, noisy * 1.1, 0.55, 0.45, 0.2);
+    }
+
+    const m = p.getMetrics();
+    expect(m.fused_source).toBe('none');
+    expect(m.fused_bpm).toBeNull();
+    expect((m.confidence ?? 1)).toBeLessThanOrEqual(0.3);
+  });
+
+  test('state snapshot includes Bayes tracker state', () => {
+    const backend = createMockBackend({
+      get_metrics: jest.fn(() => ({ bpm: null, confidence: 0.2, signal_quality: 0.9 })),
+    });
+    const p = new RppgProcessor(backend as any, 30, 10);
+    const fs = 30;
+    const n = 30 * 8;
+
+    for (let i = 0; i < n; i++) {
+      const tMs = i * (1000 / fs);
+      const phase = 2 * Math.PI * 1.2 * (i / fs);
+      const g = 0.5 + 0.15 * Math.sin(phase);
+      p.pushSampleRgbMeta(tMs, g, g, g, 0.9, 0.02, 0.01);
+    }
+    p.updateMuseMetrics(72, 90, n * (1000 / fs));
+    p.getMetrics();
+
+    const snapshot = p.getStateSnapshot() as Record<string, any>;
+    expect(snapshot.bayesTracker).toBeDefined();
+    expect(Array.isArray(snapshot.bayesTracker.posterior)).toBe(true);
   });
 
   test('handles invalid sample values gracefully', () => {

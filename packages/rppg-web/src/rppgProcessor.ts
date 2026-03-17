@@ -1,3 +1,14 @@
+import {
+	BpmBayesTracker,
+	type EstimatorMeasurement,
+	type TrackerEstimate,
+} from "./bpmBayesTracker";
+import {
+	ChannelGainController,
+	ChromPulseModel,
+	computeSignalSnrDb,
+} from "./rppgSignalModel";
+
 export type Backend = {
 	newPipeline: (sampleRate: number, windowSec: number) => any;
 };
@@ -63,6 +74,8 @@ export type Metrics = {
 	resolved_confidence?: number;
 	winning_sources?: BpmEvidenceSource[];
 	alias_flag?: boolean;
+	bayes_bpm?: number | null;
+	bayes_confidence?: number;
 	calibrated_bpm?: number | null;
 	fused_bpm?: number | null;
 	fused_source?: FusionSource;
@@ -335,6 +348,16 @@ export class MuseFusionCalibrator {
 		return nowMs - this.lastMuseTs < 2500 && this.lastMuseQuality >= 50;
 	}
 
+	getReference(
+		nowMs = Date.now(),
+	): { bpm: number; strength: number } | null {
+		if (!this.isMuseFresh(nowMs) || this.lastMuseBpm == null) return null;
+		return {
+			bpm: this.lastMuseBpm,
+			strength: clamp(this.lastMuseQuality / 100, 0.35, 1),
+		};
+	}
+
 	getSnapshot() {
 		return {
 			bias: this.bias,
@@ -363,8 +386,12 @@ export class RppgProcessor {
 	private readonly bpmHistory: number[] = [];
 	private readonly cameraCalibration = new MuseCalibrationModel();
 	private readonly fusion = new MuseFusionCalibrator();
+	private readonly bayesTracker = new BpmBayesTracker(BPM_MIN, BPM_MAX);
+	private readonly channelGain = new ChannelGainController();
+	private readonly chromPulse = new ChromPulseModel();
 	private baselineBpm: number | null = null;
 	private baselineDeviationStartMs: number | null = null;
+	private lastBayesUpdateMs: number | null = null;
 
 	constructor(
 		private backend: Backend,
@@ -419,7 +446,16 @@ export class RppgProcessor {
 			this.pushSample(timestampMs, g);
 			return;
 		}
-		this.pushLocalSample(timestampMs, g, r, g, b, skinRatio, 0, 0);
+		this.pushLocalSample(
+			timestampMs,
+			this.computeLocalRgbIntensity(r, g, b),
+			r,
+			g,
+			b,
+			skinRatio,
+			0,
+			0,
+		);
 	}
 
 	pushSampleRgbMeta(
@@ -456,7 +492,16 @@ export class RppgProcessor {
 			this.pushSampleRgb(timestampMs, r, g, b, skinRatio);
 			return;
 		}
-		this.pushLocalSample(timestampMs, g, r, g, b, skinRatio, motion, clipRatio);
+		this.pushLocalSample(
+			timestampMs,
+			this.computeLocalRgbIntensity(r, g, b),
+			r,
+			g,
+			b,
+			skinRatio,
+			motion,
+			clipRatio,
+		);
 	}
 
 	updateMuseMetrics(bpm: number | null, quality = 0, timestampMs = Date.now()) {
@@ -465,8 +510,12 @@ export class RppgProcessor {
 
 	resetCalibration() {
 		this.cameraCalibration.reset();
+		this.bayesTracker.reset();
+		this.channelGain.reset();
+		this.chromPulse.reset();
 		this.baselineBpm = null;
 		this.baselineDeviationStartMs = null;
+		this.lastBayesUpdateMs = null;
 	}
 
 	getStateSnapshot() {
@@ -475,6 +524,7 @@ export class RppgProcessor {
 			baselineDeviationStartMs: this.baselineDeviationStartMs,
 			bpmHistory: this.bpmHistory.slice(-60),
 			cameraCalibration: this.cameraCalibration.getSnapshot(),
+			bayesTracker: this.bayesTracker.getSnapshot(),
 			fusion: this.fusion.getSnapshot(),
 		};
 	}
@@ -486,6 +536,7 @@ export class RppgProcessor {
 			baselineDeviationStartMs?: number | null;
 			bpmHistory?: number[];
 			cameraCalibration?: unknown;
+			bayesTracker?: unknown;
 			fusion?: unknown;
 		};
 		if (raw.baselineBpm == null) {
@@ -506,6 +557,7 @@ export class RppgProcessor {
 			this.bpmHistory.push(...nextHistory);
 		}
 		this.cameraCalibration.loadSnapshot(raw.cameraCalibration);
+		this.bayesTracker.loadSnapshot(raw.bayesTracker);
 		this.fusion.loadSnapshot(raw.fusion);
 	}
 
@@ -557,12 +609,26 @@ export class RppgProcessor {
 		}
 	}
 
+	private computeLocalRgbIntensity(r: number, g: number, b: number): number {
+		if (!Number.isFinite(r) || !Number.isFinite(g) || !Number.isFinite(b)) {
+			return Number.isFinite(g) ? g : 0;
+		}
+		const balanced = this.channelGain.process(r, g, b);
+		const chrom = this.chromPulse.process(balanced.r, balanced.g, balanced.b);
+		if (!Number.isFinite(chrom) || Math.abs(chrom) < 1e-6) {
+			return g;
+		}
+		return chrom;
+	}
+
 	private computeAdvancedMetrics(base: Metrics): Partial<Metrics> {
 		if (this.samples.length < 24) {
 			return {
 				calibrated_bpm: base.bpm ?? null,
 				fused_bpm: base.bpm ?? null,
 				fused_source: base.bpm == null ? "none" : "camera",
+				bayes_bpm: null,
+				bayes_confidence: 0,
 				calibration_trained: this.cameraCalibration.isTrained(),
 				baseline_bpm: this.baselineBpm,
 			};
@@ -574,6 +640,8 @@ export class RppgProcessor {
 				calibrated_bpm: base.bpm ?? null,
 				fused_bpm: base.bpm ?? null,
 				fused_source: base.bpm == null ? "none" : "camera",
+				bayes_bpm: null,
+				bayes_confidence: 0,
 				calibration_trained: this.cameraCalibration.isTrained(),
 				baseline_bpm: this.baselineBpm,
 			};
@@ -625,19 +693,61 @@ export class RppgProcessor {
 			candidates,
 			this.bpmHistory.slice(-12),
 		);
-		const resolvedBpm = resolved.bpm;
+		const trackerMeasurements = buildTrackerMeasurements(spectral, acf, peaks);
+		const trackerDtSec =
+			this.lastBayesUpdateMs == null
+				? 1 / 30
+				: clamp((analysis.nowMs - this.lastBayesUpdateMs) / 1000, 1 / 30, 2);
+		this.lastBayesUpdateMs = analysis.nowMs;
+		const reference = this.fusion.getReference(analysis.nowMs);
+		const bayes = this.bayesTracker.update(trackerMeasurements, trackerDtSec, {
+			motion: base.motion_mean ?? analysis.motionMean,
+			snrDb: base.snr ?? 0,
+			quality: analysis.quality,
+			referenceBpm: reference?.bpm,
+			referenceStrength: reference?.strength,
+		});
+		if (reference && trackerMeasurements.length > 0) {
+			this.bayesTracker.updateReliability(reference.bpm, trackerMeasurements);
+		}
+		const resolvedChoice = chooseResolvedBpm(resolved, bayes);
+		const resolvedBpm = resolvedChoice.bpm;
+		const resolvedConfidence = resolvedChoice.confidence;
+		const winningSources =
+			resolvedChoice.origin === "bayes"
+				? (trackerMeasurements
+						.filter(
+							(measurement) =>
+								measurement.bpm != null &&
+								resolvedBpm != null &&
+								Math.abs(measurement.bpm - resolvedBpm) <= BPM_TOLERANCE,
+						)
+						.map((measurement) => measurement.source) as BpmEvidenceSource[])
+				: resolved.winningSources;
 
-		if (spectral && acf && resolvedBpm != null && resolved.confidence >= 0.55) {
+		if (spectral && acf && resolvedBpm != null && resolvedConfidence >= 0.55) {
 			this.cameraCalibration.train(spectral.bpm, acf.bpm, resolvedBpm);
 			calibratedBpm = this.cameraCalibration.predict(spectral.bpm, acf.bpm);
 		}
 
-		const cameraCandidate = calibratedBpm ?? resolvedBpm ?? base.bpm ?? null;
+		const estimatorSpread = computeEstimatorSpread(
+			peaks?.bpm ?? null,
+			acf?.bpm ?? null,
+			spectral?.bpm ?? null,
+		);
+		const lowConfidenceGate =
+			(resolvedConfidence < 0.32 && bayes.confidence < 0.45) ||
+			analysis.snrDb < -4.5 ||
+			analysis.motionMean > 0.22 ||
+			(resolved.aliasFlag && estimatorSpread > 28);
+		const cameraCandidate = lowConfidenceGate
+			? null
+			: calibratedBpm ?? resolvedBpm ?? base.bpm ?? null;
 		const cameraQuality = clamp(
 			((base.signal_quality || 0) + (analysis.quality || 0)) * 50,
 			0,
 			100,
-		);
+		) * (lowConfidenceGate ? 0.45 : 1);
 		this.fusion.updateCamera(cameraCandidate, cameraQuality, analysis.nowMs);
 		const fused = this.fusion.fuse(
 			cameraCandidate,
@@ -652,24 +762,33 @@ export class RppgProcessor {
 
 		this.updateBaseline(
 			fused.bpm,
-			resolved.confidence,
+			resolvedConfidence,
 			base.signal_quality,
 			analysis.nowMs,
 		);
 
 		return {
 			bpm: fused.bpm ?? cameraCandidate ?? base.bpm ?? null,
-			confidence: Math.max(base.confidence || 0, resolved.confidence || 0),
+			confidence: lowConfidenceGate
+				? Math.min(Math.max(base.confidence || 0, resolvedConfidence || 0), 0.3)
+				: Math.max(base.confidence || 0, resolvedConfidence || 0),
 			spectral_bpm: spectral?.bpm ?? null,
 			acf_bpm: acf?.bpm ?? null,
 			peaks_bpm: peaks?.bpm ?? null,
-			resolved_bpm: resolved.bpm,
-			resolved_confidence: resolved.confidence,
-			winning_sources: resolved.winningSources,
-			alias_flag: resolved.aliasFlag,
+			resolved_bpm: resolvedBpm,
+			resolved_confidence: resolvedConfidence,
+			winning_sources: winningSources,
+			alias_flag:
+				resolved.aliasFlag ||
+				(resolved.bpm != null &&
+					bayes.bpm != null &&
+					isAliasRelation(bayes.bpm, resolved.bpm) &&
+					bayes.confidence > resolved.confidence),
+			bayes_bpm: bayes.bpm,
+			bayes_confidence: bayes.confidence,
 			calibrated_bpm: calibratedBpm,
-			fused_bpm: fused.bpm,
-			fused_source: fused.source,
+			fused_bpm: lowConfidenceGate ? null : fused.bpm,
+			fused_source: lowConfidenceGate ? "none" : fused.source,
 			calibration_trained: this.cameraCalibration.isTrained(),
 			baseline_bpm: this.baselineBpm,
 			baseline_delta:
@@ -874,6 +993,97 @@ function resolveBpmCandidates(
 	};
 }
 
+function buildTrackerMeasurements(
+	spectral: { bpm: number; confidence: number } | null,
+	acf: BpmEvidence | null,
+	peaks: { bpm: number; confidence: number } | null,
+): EstimatorMeasurement[] {
+	const measurements: EstimatorMeasurement[] = [];
+
+	if (spectral) {
+		measurements.push({
+			source: "spectral",
+			bpm: spectral.bpm,
+			confidence: spectral.confidence,
+		});
+	}
+	if (acf) {
+		measurements.push({
+			source: "acf",
+			bpm: acf.bpm,
+			confidence: acf.confidence,
+		});
+	}
+	if (peaks) {
+		measurements.push({
+			source: "peaks",
+			bpm: peaks.bpm,
+			confidence: peaks.confidence,
+		});
+	}
+
+	return measurements;
+}
+
+function chooseResolvedBpm(
+	resolved: BpmResolutionResult,
+	bayes: TrackerEstimate,
+): { bpm: number | null; confidence: number; origin: "resolver" | "bayes" } {
+	if (bayes.bpm == null) {
+		return {
+			bpm: resolved.bpm,
+			confidence: resolved.confidence,
+			origin: "resolver",
+		};
+	}
+
+	if (resolved.bpm == null) {
+		return {
+			bpm: bayes.bpm,
+			confidence: bayes.confidence,
+			origin: "bayes",
+		};
+	}
+
+	if (isWithin(bayes.bpm, resolved.bpm, 4)) {
+		return {
+			bpm: (bayes.bpm + resolved.bpm) / 2,
+			confidence: Math.max(resolved.confidence, bayes.confidence),
+			origin: bayes.confidence >= resolved.confidence ? "bayes" : "resolver",
+		};
+	}
+
+	if (
+		bayes.confidence >= 0.45 &&
+		(bayes.confidence >= resolved.confidence + 0.05 ||
+			(resolved.confidence < 0.45 && isAliasRelation(bayes.bpm, resolved.bpm)))
+	) {
+		return {
+			bpm: bayes.bpm,
+			confidence: bayes.confidence,
+			origin: "bayes",
+		};
+	}
+
+	return {
+		bpm: resolved.bpm,
+		confidence: resolved.confidence,
+		origin: "resolver",
+	};
+}
+
+function computeEstimatorSpread(
+	peaksBpm: number | null,
+	acfBpm: number | null,
+	spectralBpm: number | null,
+): number {
+	const values = [peaksBpm, acfBpm, spectralBpm].filter(
+		(value): value is number => value != null && Number.isFinite(value),
+	);
+	if (values.length < 2) return 0;
+	return Math.max(...values) - Math.min(...values);
+}
+
 function analyzeWindow(samples: Sample[]): {
 	spectral: { bpm: number; confidence: number } | null;
 	acf: BpmEvidence | null;
@@ -881,7 +1091,9 @@ function analyzeWindow(samples: Sample[]): {
 	respiration: number | null;
 	hrvRmssd: number | null;
 	quality: number;
+	snrDb: number;
 	nowMs: number;
+	motionMean: number;
 } | null {
 	const n = samples.length;
 	if (n < 24) return null;
@@ -894,6 +1106,7 @@ function analyzeWindow(samples: Sample[]): {
 
 	const values = samples.map((s) => s.intensity);
 	const norm = temporalNormalize(values);
+	const snrDb = computeSignalSnrDb(norm);
 
 	const spectral = estimateDominantBpm(norm, fs, 0.7, 3.3);
 	const acf = calculateBpmViaAutocorrelation(norm, fs, spectral?.bpm ?? null);
@@ -933,7 +1146,9 @@ function analyzeWindow(samples: Sample[]): {
 		respiration,
 		hrvRmssd,
 		quality,
+		snrDb,
 		nowMs,
+		motionMean,
 	};
 }
 

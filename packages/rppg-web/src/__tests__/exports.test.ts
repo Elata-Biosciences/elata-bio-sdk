@@ -16,6 +16,11 @@ describe('@elata-biosciences/rppg-web exports', () => {
     expect(typeof rppgWeb.MuseFusionCalibrator).toBe('function');
   });
 
+  test('exports BpmBayesTracker as a constructor', () => {
+    expect(rppgWeb.BpmBayesTracker).toBeDefined();
+    expect(typeof rppgWeb.BpmBayesTracker).toBe('function');
+  });
+
   test('exports museStyleFilter as a function', () => {
     expect(rppgWeb.museStyleFilter).toBeDefined();
     expect(typeof rppgWeb.museStyleFilter).toBe('function');
@@ -51,6 +56,7 @@ describe('@elata-biosciences/rppg-web exports', () => {
       'RppgProcessor',
       'MuseCalibrationModel',
       'MuseFusionCalibrator',
+      'BpmBayesTracker',
       'museStyleFilter',
       'DemoRunner',
       'MediaPipeFrameSource',

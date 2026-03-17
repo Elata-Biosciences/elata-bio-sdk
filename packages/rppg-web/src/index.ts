@@ -12,6 +12,15 @@ export type {
 	BpmResolutionResult,
 	FusionSource,
 } from "./rppgProcessor";
+export { BpmBayesTracker } from "./bpmBayesTracker";
+export type {
+	BpmBayesSnapshot,
+	EstimatorMeasurement,
+	TrackerEstimate,
+	TrackerContext,
+	TrackerSource,
+	HarmonicMode,
+} from "./bpmBayesTracker";
 export { DemoRunner } from "./demoRunner";
 export type { DemoRunnerOptions } from "./demoRunner";
 export { MediaPipeFrameSource } from "./mediaPipeFrameSource";
