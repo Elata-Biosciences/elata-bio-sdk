@@ -53,6 +53,7 @@ Each generated app includes:
 
 - a `package.json` pinned to a compatible Elata SDK release,
 - a minimal React + Vite shell, and
+- a template-specific `README.md` with browser and hardware notes,
 - a `build` script that Type-checks and runs `vite build`.
 
 After scaffolding:
@@ -66,6 +67,16 @@ npm run dev
 ```
 
 > Note: The templates are compatible with `pnpm` and other package managers; this repo prefers `pnpm` for local work.
+>
+> If you scaffold **inside an existing pnpm workspace** but do not add the new app
+> to that workspace's `pnpm-workspace.yaml`, run this from the parent directory:
+>
+> ```bash
+> pnpm --dir my-app --ignore-workspace install
+> pnpm --dir my-app --ignore-workspace run dev
+> ```
+>
+> or use `npm install` / `npm run dev` from inside `my-app`.
 
 ### Using `pnpm dlx` directly
 
@@ -114,4 +125,3 @@ This gives us a fast end-to-end smoke test that:
   - are developing the SDK itself,
   - need deeper debugging hooks, or
   - want to iterate on WASM and analysis internals.
-

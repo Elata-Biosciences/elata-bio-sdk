@@ -6,7 +6,7 @@ set up, propose changes, and work with the maintainers.
 ### Getting Started
 
 - **Prerequisites**
-  - Node.js >= 18
+  - Node.js >= 20
   - Rust toolchain (via `rustup`)
   - `pnpm` for JS tooling
 
@@ -19,6 +19,8 @@ cd elata-sdk
 ```
 
 See `README.md` for details on building Rust crates and web packages.
+See `docs/README.md` for the broader docs map, and `AGENTS.md` for the
+repo-specific AI agent playbook.
 
 ### How to Propose Changes
 

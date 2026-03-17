@@ -1,78 +1,82 @@
 # @elata-biosciences/rppg-web
 
-TypeScript wrapper for the Elata rPPG pipeline. This package provides a small
-processor class that delegates to a backend pipeline (WASM or native).
+TypeScript wrapper for the Elata rPPG pipeline.
+
+## What This Package Is
+
+This package provides:
+
+- `RppgProcessor` for ingesting samples and computing metrics
+- packaged browser WASM backend loading from `/pkg`
+- demo-oriented helpers such as `DemoRunner` and frame sources
+
+## When To Use It
+
+Use `@elata-biosciences/rppg-web` when you want:
+
+- browser-side rPPG processing
+- packaged WASM backend loading without wiring the low-level runtime yourself
+- demo helpers for camera-driven prototypes and integrations
+
+If you are evaluating the SDK for the first time, start with the
+`create-elata-demo` rPPG template before integrating manually.
 
 ## Install
 
-Using `pnpm` (recommended):
-
 ```bash
-pnpm add @elata-biosciences/rppg-web @elata-biosciences/eeg-web
-```
-
-Using `npm`:
-
-```bash
-npm install @elata-biosciences/rppg-web @elata-biosciences/eeg-web
+pnpm add @elata-biosciences/rppg-web
+npm install @elata-biosciences/rppg-web
 ```
 
 ## Requirements
 
-- Node.js **>= 18** for builds, tests, and demos.
-- Modern browser with WebAssembly support for using the default WASM backend.
-- Optional: MediaPipe FaceMesh if you use the face-ROI demo helpers.
-
-## Key exports
-
-- `RppgProcessor` – high-level processor for ingesting samples and computing metrics.
-- `DemoRunner` – helper for wiring a frame source to a processor in demos.
-- `MediaPipeFrameSource`, `MediaPipeFaceFrameSource` – frame sources for camera input.
-- `loadWasmBackend` – helper that discovers the packaged WASM bundle from `/pkg`.
+- Node.js `>= 20` for builds, tests, and demos
+- modern browser with WebAssembly support for the default backend
+- optional MediaPipe FaceMesh for face-ROI demo helpers
 
 ## Usage
 
 ```ts
-import { RppgProcessor } from "@elata-biosciences/rppg-web";
-import { initEegWasm, RppgPipeline } from "@elata-biosciences/eeg-web";
+import { RppgProcessor, loadWasmBackend } from "@elata-biosciences/rppg-web";
 
-await initEegWasm();
-
-const backend = {
-  newPipeline: (sampleRate: number, windowSec: number) =>
-    new RppgPipeline(sampleRate, windowSec),
-};
+const backend = await loadWasmBackend();
+if (!backend) {
+  throw new Error("No packaged rPPG WASM backend found.");
+}
 
 const processor = new RppgProcessor(backend, 30, 5);
 processor.pushSample(Date.now(), 0.42);
 console.log(processor.getMetrics());
 ```
 
-The backend must expose `newPipeline(sampleRate, windowSec)` and return an
-object with `push_sample`/`get_metrics` (or camelCase equivalents).
+`loadWasmBackend()` looks for packaged WASM bundles at common paths such as
+`/pkg/rppg_wasm.js` and the legacy `/pkg/eeg_wasm.js`.
 
-## TypeScript layout
+If you want to inject your own backend, it must expose
+`newPipeline(sampleRate, windowSec)` and return an object with `push_sample`
+and `get_metrics` or camelCase equivalents.
 
-- `src/*.ts`: source code edited in this repo
-- `dist/*.js`: emitted runtime files used by consumers
-- `dist/*.d.ts`: emitted type declarations used by TypeScript consumers
-- `demo/*`: demo-only files, not part of the package runtime API
-- `src/__tests__/*`: test-only files, not loaded by consumers
+## Key Exports
 
-When consuming `@elata-biosciences/rppg-web`, TypeScript resolves types from `dist/index.d.ts`
-and runtime code from `dist/index.js`.
-The published package also ships `pkg/rppg_wasm.js` and `pkg/rppg_wasm_bg.wasm` for browser loading.
+- `RppgProcessor`
+- `DemoRunner`
+- `MediaPipeFrameSource`
+- `MediaPipeFaceFrameSource`
+- `loadWasmBackend`
 
-## MediaPipe face ROI
-
-Use MediaPipe FaceMesh to drive a face ROI for sampling:
+## MediaPipe Face ROI
 
 ```ts
-import { RppgProcessor, DemoRunner, MediaPipeFaceFrameSource, MediaPipeFrameSource, loadFaceMesh } from "@elata-biosciences/rppg-web";
-import { initEegWasm, RppgPipeline } from "@elata-biosciences/eeg-web";
-
-await initEegWasm();
-const backend = { newPipeline: (sr: number, ws: number) => new RppgPipeline(sr, ws) };
+import {
+  RppgProcessor,
+  DemoRunner,
+  MediaPipeFaceFrameSource,
+  MediaPipeFrameSource,
+  loadFaceMesh,
+  loadWasmBackend
+} from "@elata-biosciences/rppg-web";
+const backend = await loadWasmBackend();
+if (!backend) throw new Error("No packaged rPPG WASM backend found.");
 const processor = new RppgProcessor(backend, 30, 6);
 
 const faceMesh = await loadFaceMesh();
@@ -84,48 +88,45 @@ const runner = new DemoRunner(source, processor);
 await runner.start();
 ```
 
-When a face ROI is available, `DemoRunner` uses it automatically.
+## Build And Dev Notes
 
-
-## TO RUN DEMO
-
-Install dependencies first:
+From the repo root:
 
 ```bash
-npm --prefix packages/rppg-web install
+pnpm --dir packages/rppg-web run build:demo
+pnpm --dir packages/rppg-web build
+pnpm --dir packages/rppg-web test
 ```
 
-Then run:
+To run the in-package demo:
 
 ```bash
-npm --prefix packages/rppg-web run start-demo
+pnpm --dir packages/rppg-web run start-demo
 ```
-
-This now does all required build steps before serving:
-- builds `rppg-wasm` for `wasm32-unknown-unknown`
-- runs `wasm-bindgen` into `packages/rppg-web/demo/pkg`
-- copies the generated WASM bundle into `packages/rppg-web/pkg` for npm publishing
-- bundles `packages/rppg-web/demo/main.ts` to `packages/rppg-web/demo/demo.js`
 
 Useful explicit commands:
 
 ```bash
-# build wasm glue only
-npm --prefix packages/rppg-web run build:wasm
-
-# bundle demo JS only
-npm --prefix packages/rppg-web run bundle:demo
-
-# full build (wasm + bundle), no server
-npm --prefix packages/rppg-web run build:demo
-
-# serve existing artifacts without rebuilding
-npm --prefix packages/rppg-web run start-demo:quick
+pnpm --dir packages/rppg-web run build:wasm
+pnpm --dir packages/rppg-web run bundle:demo
+pnpm --dir packages/rppg-web run start-demo:quick
 ```
 
-Wait a couple seconds before the pipeline starts computing BPM predictions
+## Package Layout
+
+- `src/*.ts`: source edited in this repo
+- `dist/*.js`: emitted runtime files
+- `dist/*.d.ts`: emitted type declarations
+- `pkg/*`: packaged WASM runtime assets
+- `demo/*`: demo-only files
+
+## Troubleshooting
+
+- If `loadWasmBackend()` returns `null`, make sure your app is serving the packaged `pkg/rppg_wasm.js` and `.wasm` assets.
+- If camera access fails, verify that the page has permission to use `getUserMedia` and that the browser supports the required APIs.
+- If you want a known-good starting point, scaffold the `rppg-web-demo` template with `create-elata-demo` and compare your setup against it.
 
 ## Release Notes
 
-For package publishing flow, release tags (`next` then promote to `latest`),
-and rollback/deprecate guidance, see [docs/releasing.md](https://github.com/Elata-Biosciences/elata-bio-sdk/blob/main/docs/releasing.md).
+For release flow, dist-tags, and recovery guidance, see
+[docs/releasing.md](https://github.com/Elata-Biosciences/elata-bio-sdk/blob/main/docs/releasing.md).

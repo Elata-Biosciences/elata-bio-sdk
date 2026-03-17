@@ -1,5 +1,17 @@
 # Demo Scaffolding Implementation Plan
 
+Status: partially implemented historical plan
+
+Current source of truth:
+
+- `packages/create-elata-demo/index.mjs` for the live CLI
+- `docs/create-elata-demo.md` for current usage and caveats
+
+Notes:
+
+- `inject` mode described below is not implemented today
+- `packages/create-elata-demo/src/cli.mjs` and `src/template.js` were proposed internals, not the current package layout
+
 ## Goal
 
 Provide a standard, publishable way for developers to generate working Elata demo apps they can drop into a new or existing project, without bundling demo-only files into the runtime SDK packages.
@@ -79,7 +91,7 @@ Deliverable:
 
 - templates that are usable as examples and production starting points
 
-### Phase 3: Optional Inject Mode for Existing Apps
+### Phase 3: Optional Future Inject Mode For Existing Apps
 
 Support adding a demo module into an existing codebase without creating a new app.
 
@@ -108,7 +120,7 @@ Add or evolve these packages:
 
 - `packages/create-elata-demo`
 
-Potential shared internals:
+Historical proposed internals:
 
 - `packages/create-elata-demo/src/cli.mjs`
 - `packages/create-elata-demo/src/template.js`

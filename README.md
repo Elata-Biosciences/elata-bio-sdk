@@ -1,120 +1,22 @@
 # Elata SDK
 
-A cross-platform biosignal SDK spanning EEG device pipelines, browser transports, and rPPG processing for web and native clients.
+A cross-platform biosignal SDK spanning EEG device pipelines, browser
+transports, and rPPG processing for web and native clients.
 
-## Features
+## What Is In This Repo
 
-- **Cross-platform**: Browser (WASM), iOS (Swift), Android (Kotlin), Desktop (Rust)
-- **EEG pipeline**: HAL traits, signal processing, and analysis models
-- **rPPG pipeline**: Rust core with WASM and TS wrappers for browser use
-- **Browser transports**: Web Bluetooth support for Muse-compatible EEG headbands
-- **Native bindings**: UniFFI-based native integration for EEG, plus an rPPG FFI layer
+- EEG core crates, signal processing, and models
+- WebAssembly bindings for EEG and rPPG
+- Web Bluetooth transport for Muse-compatible EEG devices
+- Native FFI layers for iOS and Android integration
+- Demo scaffolding and in-repo reference demos
 
-## Architecture
+## Quick Start
 
-```text
-Elata SDK
-├── Rust core crates
-│   ├── EEG pipeline
-│   │   ├── eeg-hal
-│   │   ├── eeg-hal-synthetic
-│   │   ├── eeg-signal
-│   │   └── eeg-models
-│   ├── rPPG pipeline
-│   │   └── rppg
-│   └── Protocol and bridge support
-│       ├── muse-proto
-│       ├── bridge-proto
-│       └── synthetic-ble-bridge
-├── Platform bindings
-│   ├── Browser/WASM
-│   │   ├── eeg-wasm
-│   │   └── rppg-wasm
-│   └── Native FFI
-│       ├── eeg-ffi
-│       └── rppg-ffi
-└── TypeScript packages
-    ├── packages/eeg-web
-    ├── packages/eeg-web-ble
-    └── packages/rppg-web
-```
+### Scaffold a demo app
 
-## Crates
-
-| Crate | Description |
-|-------|-------------|
-| `eeg-hal` | Core HAL traits: `EegDevice`, `SampleBuffer`, `ChannelConfig` |
-| `eeg-hal-synthetic` | Synthetic EEG device for testing (configurable profiles) |
-| `eeg-signal` | Signal processing: FFT, band power, filtering |
-| `eeg-models` | Analysis models: Alpha Bump Detector, Calmness Model |
-| `eeg-ffi` | FFI bindings for iOS/Android via UniFFI |
-| `eeg-wasm` | WebAssembly bindings for browser |
-| `muse-proto` | Muse-compatible EEG BLE protocol constants and packet decoding |
-| `rppg` | Core remote photoplethysmography pipeline and estimators |
-| `rppg-wasm` | WebAssembly bindings for the rPPG core |
-| `rppg-ffi` | Native FFI wrapper for the rPPG core |
-| `bridge-proto` | BLE packet format and protocol definitions |
-| `synthetic-ble-bridge` | Windows BLE peripheral bridge |
-
-## Versioning and releasing
-
-We use [Changesets](https://github.com/changesets/changesets) for versioning and changelogs.
-
-| Role | What to run |
-|------|-------------|
-| **Contributor** (your PR should be released) | `./run.sh changeset` → choose packages, bump type, write summary → commit the new `.changeset/*.md` file with your PR. |
-| **Maintainer** (cut a release) | `./run.sh bump` → review and commit version + CHANGELOG updates → `./run.sh release all next` (or `latest`). |
-
-Full details: **`docs/releasing.md`** and **`.changeset/README.md`**.
-
-## Design Docs
-
-- `docs/architecture-rppg.md` - Hybrid rPPG + ocular proxy architecture.
-- `docs/implementation-plan-rppg.md` - rPPG implementation plan.
-- `docs/architecture-sentiment.md` - Facial sentiment architecture.
-- `docs/implementation-plan-sentiment.md` - Sentiment implementation plan.
-- `docs/releasing.md` - npm release flow, Changesets workflow, tagging, and bad-release recovery.
-
-## Community
-
-- `CONTRIBUTING.md` - How to propose changes, run checks, and submit PRs.
-- `CODE_OF_CONDUCT.md` - Collaboration standards and enforcement.
-- `SECURITY.md` - How to report vulnerabilities privately.
-
-## Packages
-
-- `packages/eeg-web` - Web wrapper around the WASM bindings (TS init + re-exports).
-- `packages/eeg-web-ble` - Web Bluetooth transport for EEG headband devices (Muse-compatible) emitting normalized headband frames.
-- `packages/rppg-web` - TS wrapper for the rPPG pipeline (processor + backend adapter).
-
-### NPM Organization and Installation
-
-Published JavaScript/TypeScript packages for this SDK live under the
-[`@elata-biosciences` npm organization](https://www.npmjs.com/org/elata-biosciences).
-
-Typical installs (for existing apps):
-
-```bash
-# EEG web wrapper (WASM bindings + TS API)
-pnpm add @elata-biosciences/eeg-web
-npm install @elata-biosciences/eeg-web
-
-# EEG Web Bluetooth transport
-pnpm add @elata-biosciences/eeg-web-ble
-npm install @elata-biosciences/eeg-web-ble
-
-# rPPG web wrapper
-pnpm add @elata-biosciences/rppg-web
-npm install @elata-biosciences/rppg-web
-```
-
-See the individual package READMEs in `packages/*` for usage details and
-examples.
-
-### Scaffolding a Demo App
-
-For a ready-to-run demo that already wires up the Elata SDK and Vite, use the
-`create-elata-demo` scaffolder (via the standard npm "create" flow):
+The recommended way to try the SDK is to scaffold a demo app with
+`create-elata-demo`.
 
 ```bash
 # RPPG web demo (default template)
@@ -123,11 +25,11 @@ npm create @elata-biosciences/elata-demo my-app
 # EEG web demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
 
-# EEG Web Bluetooth demo (Muse-compatible)
+# EEG Web Bluetooth demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
 ```
 
-If you prefer `pnpm` or `npx`, you can call the scaffolder package directly (both are equivalent):
+You can also call the scaffolder directly:
 
 ```bash
 pnpm dlx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
@@ -140,265 +42,131 @@ After scaffolding:
 cd my-app
 pnpm install
 pnpm run dev
-
-npm install
-npm run dev
 ```
 
-See `docs/create-elata-demo.md` for full details on templates and behavior.
-
-## Local Development (Web Wrapper)
-
-The SDK provides a single convenient command to build the EEG WASM, generate the
-JS bindings, build the `packages/eeg-web` wrapper, and install it into a local
-app. Use `run.sh sync-to` — it does everything for you.
-
-Examples:
+If the new app lives inside another `pnpm` workspace, run this from the parent
+directory instead:
 
 ```bash
-# build release artifacts and install into a local app (no save)
+pnpm --dir my-app --ignore-workspace install
+pnpm --dir my-app --ignore-workspace run dev
+```
+
+Full details: [docs/create-elata-demo.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/create-elata-demo.md)
+
+### Add packages to an existing app
+
+Published JavaScript and TypeScript packages live under the
+[`@elata-biosciences` npm organization](https://www.npmjs.com/org/elata-biosciences).
+
+```bash
+pnpm add @elata-biosciences/eeg-web
+pnpm add @elata-biosciences/eeg-web-ble
+pnpm add @elata-biosciences/rppg-web
+```
+
+## Choose The Right Package
+
+Use this quick guide if you are starting from an existing app:
+
+| Goal | Start here | Notes |
+|------|------------|-------|
+| Scaffold a new demo app | `@elata-biosciences/create-elata-demo` | Fastest path for evaluation and onboarding |
+| Run EEG WASM APIs in the browser | `@elata-biosciences/eeg-web` | Signal processing, models, and WASM helpers |
+| Connect to a Muse-compatible EEG device in the browser | `@elata-biosciences/eeg-web-ble` | Requires `@elata-biosciences/eeg-web` and Web Bluetooth |
+| Run camera-based rPPG in a browser app | `@elata-biosciences/rppg-web` | Includes processor, backend loader, and demo helpers |
+
+If you are trying the SDK for the first time, prefer `create-elata-demo` over
+manual package setup.
+
+## Packages
+
+- `@elata-biosciences/eeg-web`: EEG WASM wrapper and re-export surface
+- `@elata-biosciences/eeg-web-ble`: Web Bluetooth transport for EEG headbands
+- `@elata-biosciences/rppg-web`: rPPG processing wrapper and demo helpers
+- `@elata-biosciences/create-elata-demo`: demo scaffolder with multiple templates
+
+## Compatibility Summary
+
+| Surface | Chrome / Edge | Safari macOS | Safari iOS | Node.js |
+|---------|----------------|--------------|------------|---------|
+| `create-elata-demo` | n/a | n/a | n/a | `>= 18` |
+| `eeg-web` | Supported | Supported | Supported | `>= 20` for local repo tooling |
+| `eeg-web-ble` | Supported in secure context | Not supported for this workflow | Not supported for this workflow | `>= 20` for local repo tooling |
+| `rppg-web` | Supported | Supported | Supported with camera permissions | `>= 20` for local repo tooling |
+
+Browser caveats:
+
+- `eeg-web-ble` requires Web Bluetooth and an `https://` origin or `localhost`
+- Safari and iOS do not provide usable Web Bluetooth support for Muse browser workflows
+- `rppg-web` needs camera access and packaged WASM assets when using `loadWasmBackend()`
+
+Package docs:
+
+- [packages/eeg-web/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/eeg-web/README.md)
+- [packages/eeg-web-ble/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/eeg-web-ble/README.md)
+- [packages/rppg-web/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/rppg-web/README.md)
+- [packages/create-elata-demo/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/create-elata-demo/README.md)
+
+## Common Repo Workflows
+
+Use `run.sh` as the canonical task runner:
+
+```bash
+./run.sh doctor
+./run.sh dev all
+./run.sh build all
+./run.sh demo eeg
+./run.sh demo rppg
+./run.sh test
+./run.sh verify-all
+```
+
+### Local EEG package linking
+
+`sync-to` still exists, but it is only for local `packages/eeg-web`
+development. It builds the EEG WASM wrapper and installs that package into an
+existing local app.
+
+```bash
 ./run.sh sync-to ../my-app
-
-# same, but persist the dependency in the app's package.json
 SAVE=1 ./run.sh sync-to ../my-app
-
-# build debug profile instead of release
 ./run.sh sync-to ../my-app debug
 ```
 
-Notes:
-- `sync-to` runs the wasm build + wasm-bindgen + `npm run sync-wasm` for
-  `packages/eeg-web`, then installs that package into the target app.
-- The command will error if the target app directory doesn't exist.
-- `scripts/dev-link.sh` remains as a thin backward-compatible wrapper that
-  delegates to `run.sh sync-to`.
+Use `create-elata-demo` for new apps. Use `sync-to` only when iterating on the
+local EEG package against an app you already have.
 
+## Docs Map
 
-## Quick Start
+- [docs/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/README.md): docs index
+- [docs/repo-map.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/repo-map.md): package ownership and repo layout
+- [docs/create-elata-demo.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/create-elata-demo.md): scaffolding workflow
+- [docs/dev_setup.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/dev_setup.md): local setup and iteration tips
+- [docs/maintainers.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/maintainers.md): maintainer-focused workflow guide
+- [docs/releasing.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/releasing.md): release and publish flow
 
-### Rust
+Architecture and planning notes:
 
-```rust
-use eeg_hal::{EegDevice, SampleBuffer};
-use eeg_hal_synthetic::{SyntheticDevice, SignalProfile};
-use eeg_models::{AlphaBumpDetector, CalmnessModel, Model};
+- [docs/architecture-rppg.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/architecture-rppg.md)
+- [docs/architecture-sentiment.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/architecture-sentiment.md)
+- [docs/implementation-plan-rppg.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-rppg.md)
+- [docs/implementation-plan-sentiment.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-sentiment.md)
+- [docs/implementation-plan-demo-scaffolding.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-demo-scaffolding.md)
+- [docs/implementation-plan-sdk-adoption.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-sdk-adoption.md)
+- [docs/implementation-plan-ios-safari-ble-bridge.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-ios-safari-ble-bridge.md)
+- [docs/implementation-plan-harmonic-selection.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-harmonic-selection.md)
 
-// Create and configure device
-let mut device = SyntheticDevice::new();
-device.set_profile(SignalProfile::Relaxed);
-device.connect()?;
-device.start_stream()?;
+Some implementation-plan docs are historical or exploratory snapshots. Treat
+`run.sh`, package READMEs, and the maintainer/scaffolding docs above as the
+current operational source of truth.
 
-// Create analysis models
-let mut alpha_detector = AlphaBumpDetector::new(256);
-let mut calmness = CalmnessModel::new(256);
+## Contributor And Agent Guides
 
-// Read and analyze data
-let mut buffer = SampleBuffer::new(256, 4);
-device.read_samples(&mut buffer)?;
-
-if let Some(output) = alpha_detector.process(&buffer) {
-    println!("Alpha state: {:?}", output.state);
-}
-if let Some(output) = calmness.process(&buffer) {
-    println!("Calmness: {:.0}%", output.smoothed_score * 100.0);
-}
-```
-
-### Swift (iOS)
-
-```swift
-let processor = SignalProcessor(sampleRate: 256)
-let powers = try processor.computeBandPowers(data: eegData)
-print("Alpha: \(powers.alpha)")
-
-let detector = AlphaBumpDetector(sampleRate: 256, channelCount: 4)
-if let result = try detector.process(interleavedData: data) {
-    print("State: \(result.state)")
-}
-```
-
-### Kotlin (Android)
-
-```kotlin
-import uniffi.eeg_ffi.*
-
-val processor = SignalProcessor(256u)
-val powers = processor.computeBandPowers(eegData)
-println("Alpha: ${powers.alpha}")
-
-val detector = AlphaBumpDetector(256u, 4u)
-detector.process(interleavedData)?.let { result ->
-    println("State: ${result.state}")
-}
-```
-
-### JavaScript (Browser)
-
-```javascript
-import init, { band_powers } from './pkg/eeg_wasm.js';
-
-await init();
-const powers = band_powers(eegData, 256);
-console.log(`Alpha: ${powers.alpha}`);
-```
-
-## Platform Builds
-
-### Browser (WASM)
-
-```powershell
-# Build WASM
-cargo build --package eeg-wasm --target wasm32-unknown-unknown --release
-
-# Generate JS bindings (PowerShell line continuation)
-wasm-bindgen target/wasm32-unknown-unknown/release/eeg_wasm.wasm `
-  --out-dir eeg-demo/pkg --target web
-
-# Serve demo
-npx http-server eeg-demo -p 8080
-```
-
-To use the Synthetic BLE bridge option in the web demo, run the bridge in Muse-compatible BLE mode:
-
-```bash
-cargo run -p synthetic-ble-bridge -- --ble
-```
-
-Note: This requires a Bluetooth LE adapter that supports the Peripheral (GATT server) role; many built-in Bluetooth radios on desktops/laptops do not.
-
-See [eeg-demo/](eeg-demo/) for a complete browser demo with Muse BLE support.
-
-### iOS
-
-```bash
-# Install targets (on macOS)
-rustup target add aarch64-apple-ios aarch64-apple-ios-sim
-
-# Build XCFramework
-./scripts/build-ios.sh
-```
-
-See [ios-demo/](ios-demo/) for Swift Package and demo app.
-
-### Android
-
-```bash
-# Install targets
-rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
-
-# Build native libraries
-export ANDROID_NDK_HOME=/path/to/ndk
-./scripts/build-android.sh
-```
-
-See [android-demo/](android-demo/) for Gradle project and demo app.
-
-## Models
-
-### Alpha Bump Detector
-
-Detects transitions between high and low alpha states:
-
-- **High alpha**: Relaxed, eyes closed
-- **Low alpha**: Alert, eyes open
-- **Transitioning**: State change in progress
-
-```rust
-let mut detector = AlphaBumpDetector::new(256);
-detector.set_threshold(1.5);  // Sensitivity
-
-if let Some(output) = detector.process(&buffer) {
-    match output.state {
-        AlphaState::High => println!("Relaxed"),
-        AlphaState::Low => println!("Alert"),
-        AlphaState::Transitioning => println!("Changing..."),
-        AlphaState::Unknown => println!("Calibrating..."),
-    }
-}
-```
-
-### Calmness Model
-
-Computes a continuous calmness score (0-100%) based on alpha/beta ratio:
-
-```rust
-let mut model = CalmnessModel::new(256);
-model.set_smoothing(0.2);  // EMA smoothing factor
-
-if let Some(output) = model.process(&buffer) {
-    println!("Calmness: {:.0}%", output.smoothed_score * 100.0);
-    println!("Alpha/Beta: {:.2}", output.alpha_beta_ratio);
-}
-```
-
-## Signal Processing
-
-```rust
-use eeg_signal::{band_powers, fft, power_spectrum};
-
-// Compute all band powers
-let powers = band_powers(channel_data, 256.0);
-println!("Delta: {}", powers.delta);  // 0.5-4 Hz
-println!("Theta: {}", powers.theta);  // 4-8 Hz
-println!("Alpha: {}", powers.alpha);  // 8-12 Hz
-println!("Beta: {}", powers.beta);    // 12-30 Hz
-println!("Gamma: {}", powers.gamma);  // 30-100 Hz
-
-// Get relative powers (sum to 1.0)
-let relative = powers.relative();
-```
-
-## Running Examples
-
-```bash
-# HAL demo with synthetic device
-cargo run --example hal_demo
-
-# BLE bridge with model analysis (Windows)
-cargo run -p synthetic-ble-bridge -- --models --profile relaxed
-
-# Run tests
-cargo test --lib
-```
-
-## Project Structure
-
-```
-eeg-sdk/
-├── crates/
-│   ├── eeg-hal/              # Core HAL traits
-│   ├── eeg-hal-synthetic/    # Synthetic device
-│   ├── eeg-signal/           # Signal processing
-│   ├── eeg-models/           # Analysis models
-│   ├── eeg-ffi/              # iOS/Android bindings (UniFFI)
-│   ├── eeg-wasm/             # Browser bindings (WASM)
-│   ├── bridge-proto/         # BLE protocol
-│   └── synthetic-ble-bridge/ # Windows BLE bridge
-├── ios-demo/                 # iOS Swift demo
-├── android-demo/             # Android Kotlin demo
-├── eeg-demo/                 # Browser EEG demo (canonical)
-├── examples/                 # Rust examples
-└── scripts/                  # Build scripts
-```
-
-## Platform Support
-
-| Platform | Status | Notes |
-|----------|--------|-------|
-| Browser | ✅ Ready | WASM + Web Bluetooth |
-| iOS | ✅ Ready | Swift via UniFFI |
-| Android | ✅ Ready | Kotlin via UniFFI |
-| Windows | ✅ Ready | Native Rust + BLE bridge |
-| macOS | ✅ Ready | Native Rust |
-| Linux | ✅ Ready | Native Rust |
-
-## Device Support
-
-| Device | Status | Notes |
-|--------|--------|-------|
-| Synthetic | ✅ Implemented | Configurable signal profiles |
-| EEG headband | ✅ Browser | Web Bluetooth in eeg-demo |
+- [CONTRIBUTING.md](/Users/khan/Documents/Projects/elata-bio-sdk/CONTRIBUTING.md): contributor workflow
+- [AGENTS.md](/Users/khan/Documents/Projects/elata-bio-sdk/AGENTS.md): repo-specific instructions for AI coding agents
+- [CODE_OF_CONDUCT.md](/Users/khan/Documents/Projects/elata-bio-sdk/CODE_OF_CONDUCT.md)
+- [SECURITY.md](/Users/khan/Documents/Projects/elata-bio-sdk/SECURITY.md)
 
 ## License
 

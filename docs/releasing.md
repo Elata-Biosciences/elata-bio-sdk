@@ -1,10 +1,11 @@
 # Releasing NPM Packages
 
-This repository publishes web packages independently:
+This repository publishes npm packages independently:
 
 - `@elata-biosciences/eeg-web`
 - `@elata-biosciences/eeg-web-ble`
 - `@elata-biosciences/rppg-web`
+- `@elata-biosciences/create-elata-demo`
 
 We use [Changesets](https://github.com/changesets/changesets) for versioning and changelogs. Contributors add changesets in PRs; maintainers bump versions and release.
 
@@ -36,7 +37,8 @@ See also: `.changeset/README.md` in the repo root.
    ```
    Or use `latest` as the second argument to publish as the default dist-tag.
 
-Release order is fixed: eeg-web → eeg-web-ble → rppg-web (eeg-web-ble has eeg-web as a peer dependency).
+Release order is fixed in `run.sh`: `eeg-web` → `eeg-web-ble` → `rppg-web` → `create-elata-demo`.
+`eeg-web-ble` must follow `eeg-web` because it has an `eeg-web` peer dependency.
 
 ## Contributors: adding a changeset
 
@@ -54,14 +56,10 @@ When your PR changes something that should be released, run **`./run.sh changese
 2. Run package dry runs from repo root:
 
 ```bash
-cd packages/eeg-web
-npm_config_cache=${NPM_CONFIG_CACHE:-/tmp/npm-cache} npm pack --dry-run
-
-cd ../eeg-web-ble
-npm_config_cache=${NPM_CONFIG_CACHE:-/tmp/npm-cache} npm pack --dry-run
-
-cd ../rppg-web
-npm_config_cache=${NPM_CONFIG_CACHE:-/tmp/npm-cache} npm pack --dry-run
+pnpm --dir packages/eeg-web pack --dry-run --json
+pnpm --dir packages/eeg-web-ble pack --dry-run --json
+pnpm --dir packages/rppg-web pack --dry-run --json
+pnpm --dir packages/create-elata-demo pack --dry-run --json
 ```
 
 3. Validate tarball contents before publish:
@@ -71,7 +69,9 @@ npm_config_cache=${NPM_CONFIG_CACHE:-/tmp/npm-cache} npm pack --dry-run
 - expected entry points and type declarations are present
 - required packaged WASM assets are present for `eeg-web` and `rppg-web`
 
-`prepack` now rebuilds and verifies publishable artifacts for the web packages, but maintainers should still run the repo-level checks above before publishing.
+`prepack` now rebuilds and verifies publishable artifacts for the published
+packages, but maintainers should still run the repo-level checks above before
+publishing.
 
 ## Safe Publish Flow
 
@@ -98,6 +98,7 @@ Use package-scoped git tags in this monorepo:
 - `eeg-web-vX.Y.Z`
 - `eeg-web-ble-vX.Y.Z`
 - `rppg-web-vX.Y.Z`
+- `create-elata-demo-vX.Y.Z`
 
 Example:
 

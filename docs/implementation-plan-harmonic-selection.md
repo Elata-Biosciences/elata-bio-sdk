@@ -1,5 +1,10 @@
 # Implementation Plan: Robust Harmonic Selection & User Adaptation for Heart Rate Estimation ✅
 
+Status: exploratory planning reference
+
+This document is a forward-looking algorithm plan. Validate any binding,
+artifact, or packaging statement against the current repo before acting on it.
+
 **Summary**
 
 This document describes a practical implementation plan to fix the current issue of selecting the wrong harmonic when estimating pulse rate (bpm). The plan covers algorithmic improvements, per-user learning (priors/hierarchical/online adaptation), integration into the repository, testing and evaluation, milestones, and risk mitigation.
@@ -189,12 +194,11 @@ Estimated total: 6–10 weeks depending on scope (supervised model, labeling nee
 
 ---
 
-If you'd like, I can also:  
-- Draft the GitHub issue list & titles,  
-- Produce a starter Python notebook or Rust prototype for the candidate/cepstrum pipeline, or  
-- Open the first PR that implements `rppg/harmonic_detection.rs` with tests.  
- 
-Which next step do you prefer? 🔧
+Suggested concrete outputs from this plan:
+
+- draft a GitHub issue list and titles
+- produce a small Python notebook to validate candidate and cepstrum checks
+- prototype `rppg/harmonic_detection.rs` with unit tests
 
 ## Continued Workstreams (Phase 4+)
 
@@ -210,7 +214,7 @@ Which next step do you prefer? 🔧
 
 ### 14) Release Integration & Packaging (week 7–8)
 - Harden the `run.sh` script with sanity checks for `wasm-bindgen` and add `ci/build.sh` that mirrors the release pipeline for CI.
-- Publish new `eeg-wasm` bindings into `packages/rppg-web` and `eeg-demo` after each release cycle; ensure versioned artifacts are captured and documented (e.g., `eeg-demo/pkg` should reflect the embedded `rppg` release).
+- Publish new `rppg-wasm` bindings into `packages/rppg-web` after each release cycle, and keep any compatibility exposure via `eeg-wasm` documented where relevant.
 - Document the new APIs and workflows in `docs/` (sections covering `RppgMetrics`, tracker configuration, and subject priors).
 
 ### 15) Validation & Continuous Improvement (ongoing)
@@ -218,10 +222,8 @@ Which next step do you prefer? 🔧
 - Use per-window logging to compute how often cepstrum overrides, tracker smoothing, or priors are the deciding factor and keep those heuristics balanced.
 - Allocate time each sprint for `cargo clippy`/`cargo fmt` hygiene so the codebase stays maintainable as diagnostics code grows.
 
-## Next follow-up options
+## Suggested follow-up options
 
-1. Generate the backlog and epics for Phase 4+ (observability, demo UX, packaging) so the team knows which issues to pick next.  
-2. Prototype the telemetry mode and demo visualizations in `packages/rppg-web/demo/index.html`, showing realtime harmonic scores and tracker weight arrows.  
-3. Build the benchmark suite that runs the new metrics in CI and exports a reproducible report for each release.
-
-Let me know which direction to take next or if you’d like me to knock out one of those follow-ups now.
+1. Generate the backlog and epics for Phase 4+ so the team has a concrete issue list.
+2. Prototype the telemetry mode and demo visualizations in `packages/rppg-web/demo/index.html`.
+3. Build the benchmark suite that runs the new metrics in CI and exports a reproducible report.

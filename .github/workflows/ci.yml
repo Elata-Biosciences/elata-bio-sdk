@@ -198,7 +198,7 @@ jobs:
 
       - name: Dry-run pack all packages
         run: |
-          for pkg in packages/eeg-web packages/eeg-web-ble packages/rppg-web; do
+          for pkg in packages/eeg-web packages/eeg-web-ble packages/rppg-web packages/create-elata-demo; do
             echo "--- $pkg ---"
             (cd $pkg && pnpm pack --dry-run --json)
           done

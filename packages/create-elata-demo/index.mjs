@@ -7,7 +7,7 @@ import {
   readFileSync,
   writeFileSync,
 } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline';
 
@@ -61,6 +61,23 @@ function copyDir(src, dest, transforms) {
       }
       writeFileSync(destPath, content, 'utf8');
     }
+  }
+}
+
+function findParentPnpmWorkspace(startDir) {
+  let currentDir = resolve(startDir);
+
+  while (true) {
+    const workspaceFile = join(currentDir, 'pnpm-workspace.yaml');
+    if (existsSync(workspaceFile)) {
+      return currentDir;
+    }
+
+    const parentDir = dirname(currentDir);
+    if (parentDir === currentDir) {
+      return null;
+    }
+    currentDir = parentDir;
   }
 }
 
@@ -123,7 +140,7 @@ if (!template) {
   process.exit(1);
 }
 
-const targetDir = join(process.cwd(), projectName);
+const targetDir = resolve(process.cwd(), projectName);
 if (existsSync(targetDir)) {
   console.error(`Error: directory "${projectName}" already exists.`);
   process.exit(1);
@@ -140,3 +157,15 @@ console.log('Next steps:\n');
 console.log(`  cd ${projectName}`);
 console.log('  npm install');
 console.log('  npm run dev\n');
+
+const parentWorkspaceDir = findParentPnpmWorkspace(dirname(targetDir));
+if (parentWorkspaceDir) {
+  console.log('Note: this app was created inside an existing pnpm workspace.\n');
+  console.log(
+    'If the new app is not added to that workspace, use one of these install flows:\n',
+  );
+  console.log(`  pnpm --dir ${projectName} --ignore-workspace install`);
+  console.log(`  pnpm --dir ${projectName} --ignore-workspace run dev`);
+  console.log('  # or');
+  console.log(`  cd ${projectName} && npm install && npm run dev\n`);
+}

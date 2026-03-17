@@ -1,7 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, readFileSync, existsSync } from 'node:fs';
+import {
+  mkdtempSync,
+  mkdirSync,
+  rmSync,
+  readFileSync,
+  existsSync,
+  writeFileSync,
+} from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -49,6 +56,7 @@ test('scaffolds the default template', () => {
     const result = runCli(['demo-app'], tmp);
     assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
     assert.ok(existsSync(join(tmp, 'demo-app', 'package.json')));
+    assert.ok(existsSync(join(tmp, 'demo-app', 'README.md')));
     assert.ok(existsSync(join(tmp, 'demo-app', 'src', 'App.tsx')));
   } finally {
     rmSync(tmp, { recursive: true, force: true });
@@ -71,6 +79,7 @@ test('smoke: each template scaffolds, installs, and builds', () => {
         `CLI failed for ${templateName}:\n${result.stderr}`,
       );
       assert.ok(existsSync(join(appDir, 'package.json')));
+      assert.ok(existsSync(join(appDir, 'README.md')));
 
       runCommand('pnpm', ['install'], appDir);
       runCommand('pnpm', ['run', 'build'], appDir);
@@ -87,6 +96,22 @@ test('scaffolds a selected EEG template', () => {
     assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
     const pkg = readFileSync(join(tmp, 'brain-demo', 'package.json'), 'utf8');
     assert.match(pkg, /@elata-biosciences\/eeg-web/);
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('warns when scaffolding inside a parent pnpm workspace', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-workspace-'));
+  try {
+    const workspaceDir = join(tmp, 'workspace');
+    mkdirSync(workspaceDir);
+    writeFileSync(join(workspaceDir, 'pnpm-workspace.yaml'), 'packages:\n  - "packages/*"\n');
+
+    const result = runCli(['nested-demo'], workspaceDir);
+    assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
+    assert.match(result.stdout, /inside an existing pnpm workspace/);
+    assert.match(result.stdout, /--ignore-workspace install/);
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }

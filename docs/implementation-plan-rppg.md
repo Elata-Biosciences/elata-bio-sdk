@@ -2,6 +2,10 @@
 
 Status: In progress
 
+This is a planning document with some historical checkpoints. For the current
+repo state, treat `crates/rppg-wasm`, `crates/rppg-ffi`, `packages/rppg-web`,
+and `run.sh` as the source of truth.
+
 ## Scope
 Deliver a hybrid system: cross-device rPPG DSP core in Rust with WASM/FFI bindings, plus a thin TS abstraction for capture pipelines (MediaPipe and native). Optional JS fallbacks can exist for web-only use. Optional fusion/sentiment remains modular.
 
@@ -21,12 +25,12 @@ Deliver a hybrid system: cross-device rPPG DSP core in Rust with WASM/FFI bindin
 - [x] Add unit tests that mirror reference implementation expectations (buffering, DSP units, HR estimator, SQI).
 
 ## Phase 2: WASM + FFI bindings
-- [x] Expose `RppgPipeline` from `crates/eeg-wasm` (wrapper added; tests passing on native target).
+- [x] Expose `RppgPipeline` through dedicated `crates/rppg-wasm`. Compatibility constructors also remain available from `crates/eeg-wasm`.
 - [x] Add minimal JS API:
   - `new RppgPipeline(sample_rate, window_sec)` (WASM wrapper constructor implemented)
   - `push_sample(timestamp, intensity)` (implemented)
   - `get_metrics()` or `on_metric(cb)` (returns JSON string; will add `on_metric` event later)
-- [x] Expose the same API via `crates/eeg-ffi` for native apps (FFI wrapper added; UniFFI bindings present in demo projects).
+- [x] Expose the same API through dedicated `crates/rppg-ffi`. Compatibility `RppgPipelineFFI` also remains available via `crates/eeg-ffi` for shared SDK consumers.
 
 - [x] Add `crates/rppg-wasm` (thin, feature-specific wrapper crate).
 - [x] Add `crates/rppg-ffi` (thin, feature-specific wrapper crate).
@@ -83,9 +87,9 @@ Deliver a hybrid system: cross-device rPPG DSP core in Rust with WASM/FFI bindin
 - Milestone 1: Add `crates/rppg` with tests for buffering and basic metrics. ✅
 - Milestone 2: Port temporal normalization and bandpass filter, add unit tests. ✅
 - Milestone 3: Add periodogram & ACF fallback tests and implementation. ✅
-- Milestone 4: Expose `RppgPipeline` to `crates/eeg-wasm` and `crates/eeg-ffi`, add integration tests. ✅ (WASM build, FFI wrapper tests added; Playwright E2E added)
+- Milestone 4: Expose `RppgPipeline` through dedicated WASM and FFI crates, plus compatibility bindings in `crates/eeg-wasm` and `crates/eeg-ffi`, and add integration tests. ✅
 - [x] CI: Run `cargo test` and `npm test` (for TS wrappers) on PRs (GitHub Actions CI workflow added).
 
 ## Progress & next steps
 - Completed: core DSP units, `RppgPipeline`, SQI, periodogram with interpolation, ACF fallback, and unit tests (see commits above). ✅
-- Next (TDD): Add failing integration tests for WASM and FFI exports, then implement the bindings in `crates/eeg-wasm` and `crates/eeg-ffi`. 🚀
+- Next (TDD): expand integration coverage for dedicated `rppg-wasm` / `rppg-ffi` bindings and keep compatibility exports in `eeg-wasm` / `eeg-ffi` aligned.

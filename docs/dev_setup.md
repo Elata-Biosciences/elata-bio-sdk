@@ -1,6 +1,12 @@
-# Developer Setup & Fast Iteration Tips ⚡
+# Developer Setup And Fast Iteration Tips
 
 This short guide shows quick ways to speed up the Rust edit/build/test loop for this workspace.
+
+## Repo requirements
+
+- Node.js `>= 20`
+- `pnpm` `>= 10`
+- Rust toolchain via `rustup`
 
 ## Fast test & compile tips
 - Run only the package you care about (fast):
@@ -34,5 +40,3 @@ This short guide shows quick ways to speed up the Rust edit/build/test loop for 
 ## Notes
 - If you add heavy dependencies to `rppg` tests, test compile times will increase; keep dependencies minimal for unit tests.
 - Consider adding selective feature flags for dev/test to reduce dependency compile footprint.
-
-Happy hacking — ping me to add CI caching steps or remote sccache configuration. 🚀

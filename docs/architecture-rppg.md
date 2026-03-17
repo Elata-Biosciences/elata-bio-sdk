@@ -50,8 +50,8 @@ Build a cross-device pipeline that extracts rPPG from camera video and optional 
 - Can be JS/ONNX or native ML; keep independent of rPPG core.
 
 ## Distribution strategy (hybrid)
-- Web: Rust -> WASM via `rppg-wasm` (or `eeg-wasm` for the full SDK), wrapped by `packages/rppg-web` for a stable TS API.
-- Native: Rust -> FFI via `eeg-ffi`, with native camera + MediaPipe feeding samples.
+- Web: prefer dedicated Rust -> WASM bindings via `rppg-wasm`, wrapped by `packages/rppg-web` for a stable TS API. Compatibility constructors also remain available via `eeg-wasm` / `@elata-biosciences/eeg-web`.
+- Native: prefer dedicated Rust -> FFI bindings via `rppg-ffi`; compatibility `RppgPipelineFFI` also exists in `eeg-ffi`.
 - Keep camera + MediaPipe outside WASM (browser/native APIs).
 
 ## Quality, calibration, and uncertainty
@@ -67,5 +67,6 @@ Build a cross-device pipeline that extracts rPPG from camera video and optional 
 
 ## Implementation notes for this repo
 - Add `crates/rppg` (or extend `crates/eeg-signal` with rPPG DSP).
-- Expose `RppgPipeline` to `crates/rppg-wasm` (or `crates/eeg-wasm`) and `crates/eeg-ffi`.
+- Expose `RppgPipeline` through `crates/rppg-wasm` and `crates/rppg-ffi`.
+- Keep compatibility exposure in `crates/eeg-wasm` and `crates/eeg-ffi` only where it helps shared SDK consumers.
 - Provide a TS wrapper (`packages/rppg-web`) for FrameSource + RppgProcessor interfaces.
