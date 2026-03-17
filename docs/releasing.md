@@ -14,6 +14,7 @@ We use [Changesets](https://github.com/changesets/changesets) for versioning and
 |------|---------|
 | Add a changeset (contributor) | `./run.sh changeset` |
 | Apply changesets & update CHANGELOGs (maintainer) | `./run.sh bump` |
+| Run release preflight only | `./run.sh release-check all` |
 | Build, publish, tag, push (maintainer) | `./run.sh release all next` or `./run.sh release all latest` |
 
 See also: `.changeset/README.md` in the repo root.
@@ -25,7 +26,11 @@ See also: `.changeset/README.md` in the repo root.
    ./run.sh bump
    ```
 2. Review the diff (package.json versions and `CHANGELOG.md` in each package), then commit.
-3. **Build and publish**:
+3. **Run the release preflight**:
+   ```bash
+   ./run.sh release-check all
+   ```
+4. **Build and publish**:
    ```bash
    ./run.sh release all next
    ```

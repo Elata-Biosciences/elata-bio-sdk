@@ -27,7 +27,10 @@
     "create-elata-demo": "index.mjs"
   },
   "scripts": {
-    "test": "node --test index.test.mjs"
+    "test": "node --test index.test.mjs",
+    "verify:publish": "node ../../scripts/verify-package-build.mjs index.mjs templates/rppg-web-demo/package.json templates/eeg-web-demo/package.json templates/eeg-web-ble-demo/package.json",
+    "prepare:publish": "pnpm run verify:publish",
+    "prepack": "pnpm run prepare:publish && pnpm run verify:publish"
   },
   "files": [
     "index.mjs",

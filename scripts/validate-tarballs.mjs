@@ -87,6 +87,24 @@ const packages = [
 			"jest.config",
 			"coverage/",
 			"scripts/",
+			],
+	},
+	{
+		name: "@elata-biosciences/create-elata-demo",
+		aliases: ["create-elata-demo", "packages/create-elata-demo"],
+		dir: "packages/create-elata-demo",
+		allowTypeScriptSources: true,
+		requiredFiles: [
+			"index.mjs",
+			"package.json",
+			"templates/rppg-web-demo/package.json",
+			"templates/eeg-web-demo/package.json",
+			"templates/eeg-web-ble-demo/package.json",
+		],
+		forbiddenPatterns: [
+			"node_modules/",
+			"index.test.mjs",
+			"coverage/",
 		],
 	},
 ];
@@ -174,7 +192,11 @@ for (const pkg of selectedPackages) {
 
 	// Check no .ts source files leaked (only .d.ts and .js should be present)
 	for (const file of fileLines) {
-		if (file.endsWith(".ts") && !file.endsWith(".d.ts")) {
+		if (
+			!pkg.allowTypeScriptSources &&
+			file.endsWith(".ts") &&
+			!file.endsWith(".d.ts")
+		) {
 			console.error(`  LEAKED: ${file} (TypeScript source file in tarball)`);
 			pkgErrors++;
 		}

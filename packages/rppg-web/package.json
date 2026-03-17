@@ -40,10 +40,11 @@
 	"scripts": {
 		"lint": "pnpm exec biome lint src playwright.config.ts scripts/build-demo.mjs jest.config.cjs",
 		"test": "jest --config jest.config.cjs --passWithNoTests",
-		"clean": "node -e \"import('fs').then(f=>{f.rmSync('dist',{recursive:true,force:true});f.rmSync('tsconfig.tsbuildinfo',{force:true});})\"",
+		"clean": "node ./scripts/clean.mjs",
 		"build": "tsc -p .",
 		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
 		"verify:publish": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts pkg/rppg_wasm.js pkg/rppg_wasm_bg.wasm",
+		"prepare:publish": "pnpm run build:demo && pnpm run build",
 		"build:wasm": "node ./scripts/build-demo.mjs wasm",
 		"build:demo": "node ./scripts/build-demo.mjs all",
 		"bundle:demo": "node ./scripts/build-demo.mjs bundle",
@@ -52,7 +53,7 @@
 		"prepare:wasm": "pnpm build:wasm",
 		"e2e": "pnpm dlx playwright test",
 		"ci:e2e": "pnpm dlx playwright test --project=chromium --retries=1",
-		"prepack": "pnpm run build && pnpm run prepare:wasm && pnpm run verify:publish"
+		"prepack": "pnpm run prepare:publish && pnpm run verify:publish"
 	},
 	"devDependencies": {
 		"@playwright/test": "1.58.2",

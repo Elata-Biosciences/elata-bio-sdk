@@ -47,8 +47,9 @@
 		"sync-wasm": "bash ./scripts/sync-wasm.sh",
 		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
 		"verify:publish": "pnpm run verify:build && pnpm run verify:wasm",
+		"prepare:publish": "node ./scripts/prepare-publish.mjs",
 		"verify:wasm": "node ./scripts/verify-wasm.js",
-		"prepack": "pnpm run build && pnpm run sync-wasm && pnpm run verify:publish"
+		"prepack": "pnpm run prepare:publish && pnpm run verify:publish"
 	},
 	"devDependencies": {
 		"@types/jest": "29.5.14",

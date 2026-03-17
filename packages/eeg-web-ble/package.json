@@ -41,11 +41,12 @@
 	"scripts": {
 		"lint": "pnpm exec biome lint src jest.config.cjs",
 		"test": "jest --config ./jest.config.cjs --passWithNoTests",
-		"clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true});require('fs').rmSync('tsconfig.tsbuildinfo',{force:true})\"",
+		"clean": "node ./scripts/clean.mjs",
 		"build": "tsc -p tsconfig.json",
 		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
 		"verify:publish": "pnpm run verify:build",
-		"prepack": "pnpm run build && pnpm run verify:publish",
+		"prepare:publish": "pnpm run build",
+		"prepack": "pnpm run prepare:publish && pnpm run verify:publish",
 		"pack:check": "pnpm pack --dry-run --json"
 	},
 	"peerDependencies": {

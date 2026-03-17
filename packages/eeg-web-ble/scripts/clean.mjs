@@ -16,19 +16,11 @@ for (const dir of dirs) {
 		console.log("Removed:", dir);
 	}
 }
+
 for (const file of files) {
 	const full = path.join(pkgDir, file);
 	if (fs.existsSync(full)) {
 		fs.rmSync(full, { force: true });
 		console.log("Removed:", file);
-	}
-}
-
-const wasmDir = path.join(pkgDir, "wasm");
-if (fs.existsSync(wasmDir)) {
-	for (const entry of fs.readdirSync(wasmDir)) {
-		if (entry === ".gitkeep") continue;
-		fs.rmSync(path.join(wasmDir, entry), { recursive: true, force: true });
-		console.log("Removed:", path.join("wasm", entry));
 	}
 }

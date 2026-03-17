@@ -22,15 +22,16 @@ Build & Demo:
   sync-to      Build eeg-web and install it into a local app (default app: ../my-app)
 
 Quality:
-  doctor       Run repository health checks (toolchain, repo audit, static analysis, package artifacts)
-  verify-all   Run workspace JS/TS build + wasm verification
-  test         Run Rust and web tests
+  doctor       Run fast repository health checks (toolchain, repo audit, deps, artifact presence)
+  verify-all   Run publish-grade verification for release artifacts and tarballs
+  test         Run Rust and web test suites
   format       Format all files with Biome
   format-check Run Biome format check (no write)
 
 Release:
   changeset     Add a changeset (interactive; run before opening a PR)
   bump         Apply changesets: bump versions and update CHANGELOGs (run before release)
+  release-check Run the full release preflight without publishing (default: target=all)
   release      Build, publish, tag, and push (default: target=all, dist-tag=next)
   publish      Publish package(s) to npm in repo release order (default: target=all, dist-tag=next)
   promote Promote currently bumped version(s) to 'latest' dist-tag on npm
@@ -127,8 +128,17 @@ validate_dist_tag() {
 
 verify_script_for_target() {
     case "$1" in
-        eeg-web|eeg-web-ble|rppg-web) echo "verify:publish" ;;
-        create-elata-demo) echo "" ;;
+        eeg-web|eeg-web-ble|rppg-web|create-elata-demo) echo "verify:publish" ;;
+        *)
+            echo "Unknown package target: $1" >&2
+            return 1
+            ;;
+    esac
+}
+
+prepare_script_for_target() {
+    case "$1" in
+        eeg-web|eeg-web-ble|rppg-web|create-elata-demo) echo "prepare:publish" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -166,6 +176,7 @@ verify_release_contract_for_target() {
 publish_packages() {
     local raw_target="${1:-all}"
     local dist_tag="${2:-next}"
+    local skip_verify="${3:-0}"
     local target
     local pkg
     local pkg_dir pkg_name version
@@ -174,7 +185,9 @@ publish_packages() {
     require_cmds node
     require_package_manager
 
-    verify_release_contract_for_target "$target"
+    if [[ "$skip_verify" != "1" ]]; then
+        verify_release_contract_for_target "$target"
+    fi
 
     for pkg in $(release_targets_for "$target"); do
         pkg_dir="$(package_dir_for_target "$pkg")"
@@ -323,39 +336,29 @@ push_release_tags() {
 
 build_release_artifacts_for_target() {
     local target="$1"
-    require_cmds cargo wasm-bindgen node
+    require_cmds node
     require_package_manager
 
-    case "$target" in
-        all)
-            echo "Building release artifacts for eeg-web, eeg-web-ble, rppg-web..."
-            build_eeg_web_package release
-            if [[ -d "$ROOT_DIR/packages/eeg-web-ble" ]]; then
-                run_pkg_script "packages/eeg-web-ble" "build"
-            fi
-            build_rppg_web_package
-            ;;
-        eeg-web)
-            echo "Building release artifacts for eeg-web..."
-            build_eeg_web_package release
-            ;;
-        eeg-web-ble)
-            echo "Building release artifacts for eeg-web-ble (and eeg-web)..."
-            build_eeg_web_package release
-            run_pkg_script "packages/eeg-web-ble" "build"
-            ;;
-        rppg-web)
-            echo "Building release artifacts for rppg-web..."
-            build_rppg_web_package
-            ;;
-        create-elata-demo)
-            echo "$target: no build step required (pure JS package)."
-            ;;
-        *)
-            echo "Unknown release target: $target" >&2
-            exit 1
-            ;;
-    esac
+    local normalized_target
+    local pkg
+    normalized_target="$(normalize_release_target "$target")" || exit 1
+
+    for pkg in $(release_targets_for "$normalized_target"); do
+        local pkg_dir prepare_script
+        pkg_dir="$(package_dir_for_target "$pkg")"
+        prepare_script="$(prepare_script_for_target "$pkg")"
+        echo "Preparing publish artifacts for ${pkg}..."
+        run_pkg_script "$pkg_dir" "$prepare_script"
+    done
+}
+
+release_check_for_target() {
+    local raw_target="${1:-all}"
+    local target
+
+    target="$(normalize_release_target "$raw_target")" || exit 1
+    build_release_artifacts_for_target "$target"
+    verify_release_contract_for_target "$target"
 }
 
 release_packages() {
@@ -366,8 +369,8 @@ release_packages() {
     target="$(normalize_release_target "$raw_target")" || exit 1
     validate_dist_tag "$dist_tag" || exit 1
 
-    build_release_artifacts_for_target "$target"
-    publish_packages "$target" "$dist_tag"
+    release_check_for_target "$target"
+    publish_packages "$target" "$dist_tag" 1
     create_release_tags "$target" "HEAD"
     push_release_tags "$target"
 }
@@ -522,6 +525,49 @@ run_root_script() {
             npm run "$script"
         fi
     fi
+}
+
+run_and_capture() {
+    local logfile="$1"
+    shift
+
+    set +e
+    "$@" 2>&1 | tee "$logfile"
+    local rc=${PIPESTATUS[0]}
+    set -e
+    return "$rc"
+}
+
+summarize_jest_log() {
+    local label="$1"
+    local logfile="$2"
+    local suites tests
+
+    suites="$(sed -nE 's/^Test Suites:[[:space:]]+([0-9]+) passed, ([0-9]+) total/\1\/\2/p' "$logfile" | tail -n 1)"
+    tests="$(sed -nE 's/^Tests:[[:space:]]+([0-9]+) passed, ([0-9]+) total/\2/p' "$logfile" | tail -n 1)"
+
+    if [[ -n "$suites" && -n "$tests" ]]; then
+        printf "%s: %s suites, %s tests\n" "$label" "$suites" "$tests"
+        return 0
+    fi
+
+    printf "%s\n" "$label"
+}
+
+summarize_node_test_log() {
+    local label="$1"
+    local logfile="$2"
+    local total passed
+
+    total="$(sed -nE 's/^ℹ tests ([0-9]+)/\1/p' "$logfile" | tail -n 1)"
+    passed="$(sed -nE 's/^ℹ pass ([0-9]+)/\1/p' "$logfile" | tail -n 1)"
+
+    if [[ -n "$total" && -n "$passed" ]]; then
+        printf "%s: %s/%s\n" "$label" "$passed" "$total"
+        return 0
+    fi
+
+    printf "%s\n" "$label"
 }
 
 install_local_package_into_app() {
@@ -811,26 +857,8 @@ doctor() {
         err_line "$missing_msg"
         return 1
     }
-    run_verify_check() {
-        local pkg_dir="$1"
-        local pkg_name="$2"
-        local verify_script="${3:-verify:build}"
-        local verify_output verify_rc
-        verify_output="$(run_pkg_script "$pkg_dir" "$verify_script" 2>&1)"
-        verify_rc=$?
-        while IFS= read -r line; do
-            printf "  ${c_dim}|${c_reset} %s\n" "$line"
-        done <<< "$verify_output"
-        if [[ $verify_rc -eq 0 ]]; then
-            ok_line "$pkg_name ${verify_script} passed"
-            return 0
-        fi
-        err_line "$pkg_name ${verify_script} failed"
-        return 1
-    }
-
     printf "\n${c_bold}${c_cyan}Elata SDK Doctor${c_reset}\n"
-    printf "${c_dim}Checks: toolchain, repo audit, static analysis, package deps, generated artifacts${c_reset}\n"
+    printf "${c_dim}Checks: toolchain, repo audit, package deps, generated artifacts${c_reset}\n"
 
     header "Toolchain"
     check_cmd "cargo" "cargo: $(cargo --version)" "cargo missing (install Rust via https://rustup.rs)" || toolchain_err=1
@@ -893,63 +921,6 @@ doctor() {
     header "Package Dependencies"
     check_dir "node_modules" "node_modules/: present (pnpm workspace root)" "node_modules/ missing (run: pnpm install)" || deps_err=1
 
-    header "Static Analysis"
-    local fmt_output fmt_rc
-    fmt_output="$(cargo fmt --all -- --check 2>&1)"
-    fmt_rc=$?
-    while IFS= read -r line; do
-        printf "  ${c_dim}|${c_reset} %s\n" "$line"
-    done <<< "$fmt_output"
-    if [[ $fmt_rc -eq 0 ]]; then
-        ok_line "cargo fmt check passed"
-    else
-        err_line "cargo fmt check failed"
-        build_err=1
-    fi
-
-    local clippy_output clippy_rc
-    clippy_output="$(cargo clippy --workspace --all-targets -- -D warnings 2>&1)"
-    clippy_rc=$?
-    while IFS= read -r line; do
-        printf "  ${c_dim}|${c_reset} %s\n" "$line"
-    done <<< "$clippy_output"
-    if [[ $clippy_rc -eq 0 ]]; then
-        ok_line "cargo clippy passed"
-    else
-        err_line "cargo clippy failed"
-        build_err=1
-    fi
-
-    if [[ $deps_err -eq 0 && -f "package.json" ]]; then
-        local format_output format_rc
-        format_output="$(run_root_script "format:check" 2>&1)"
-        format_rc=$?
-        while IFS= read -r line; do
-            printf "  ${c_dim}|${c_reset} %s\n" "$line"
-        done <<< "$format_output"
-        if [[ $format_rc -eq 0 ]]; then
-            ok_line "Biome format check passed"
-        else
-            err_line "Biome format check failed (run: ./run.sh format)"
-            build_err=1
-        fi
-
-        local lint_output lint_rc
-        lint_output="$(run_root_script "lint:web" 2>&1)"
-        lint_rc=$?
-        while IFS= read -r line; do
-            printf "  ${c_dim}|${c_reset} %s\n" "$line"
-        done <<< "$lint_output"
-        if [[ $lint_rc -eq 0 ]]; then
-            ok_line "web lint passed"
-        else
-            err_line "web lint failed"
-            build_err=1
-        fi
-    else
-        info_line "skipping format check and web lint (dependencies missing)"
-    fi
-
     header "Generated Artifacts"
     check_file "packages/eeg-web/dist/index.js" "packages/eeg-web/dist/index.js: present" "packages/eeg-web/dist/index.js missing" "warn" || build_err=1
     check_file "packages/eeg-web/wasm/eeg_wasm_bg.wasm" "packages/eeg-web/wasm/eeg_wasm_bg.wasm: present" "packages/eeg-web/wasm/eeg_wasm_bg.wasm missing" "warn" || build_err=1
@@ -957,38 +928,6 @@ doctor() {
     check_file "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm" "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm: present" "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm missing (optional; run './run.sh dev rppg' to generate)" "warn" || true
     check_file "packages/rppg-web/pkg/rppg_wasm.js" "packages/rppg-web/pkg/rppg_wasm.js: present (publishable loader)" "packages/rppg-web/pkg/rppg_wasm.js missing (run './run.sh build rppg' before publishing)" "warn" || build_err=1
     check_file "packages/rppg-web/pkg/rppg_wasm_bg.wasm" "packages/rppg-web/pkg/rppg_wasm_bg.wasm: present (publishable WASM)" "packages/rppg-web/pkg/rppg_wasm_bg.wasm missing (run './run.sh build rppg' before publishing)" "warn" || build_err=1
-
-    header "Canned Checks"
-    if [[ $deps_err -eq 0 && -d "packages/eeg-web" ]]; then
-        run_verify_check "packages/eeg-web" "packages/eeg-web" "verify:publish" || build_err=1
-    else
-        info_line "skipping packages/eeg-web verify:publish (dependencies missing)"
-    fi
-
-    if [[ $deps_err -eq 0 && -d "packages/rppg-web" ]]; then
-        run_verify_check "packages/rppg-web" "packages/rppg-web" "verify:publish" || build_err=1
-    else
-        info_line "skipping packages/rppg-web verify:publish (dependencies missing)"
-    fi
-
-    if [[ $deps_err -eq 0 && -d "packages/eeg-web-ble" ]]; then
-        run_verify_check "packages/eeg-web-ble" "packages/eeg-web-ble" "verify:publish" || build_err=1
-    else
-        info_line "skipping packages/eeg-web-ble verify:publish (dependencies missing)"
-    fi
-
-    if [[ $deps_err -eq 0 && -f "package.json" ]]; then
-        header "Workspace Verification"
-        local verify_output verify_rc
-        verify_output="$(run_root_script "verify:all" 2>&1)"
-        verify_rc=$?
-        while IFS= read -r line; do
-            printf "  ${c_dim}|${c_reset} %s\n" "$line"
-        done <<< "$verify_output"
-        if [[ $verify_rc -ne 0 ]]; then
-            build_err=1
-        fi
-    fi
 
     header "Summary"
     if [[ $toolchain_err -eq 0 && $repo_err -eq 0 && $deps_err -eq 0 && $build_err -eq 0 ]]; then
@@ -1037,6 +976,15 @@ case "$cmd" in
     bump)
         require_cmds pnpm node
         (cd "$ROOT_DIR" && pnpm run version)
+        ;;
+    release-check)
+        # Usage:
+        #   ./run.sh release-check [target]
+        # Examples:
+        #   ./run.sh release-check all
+        #   ./run.sh release-check rppg-web
+        # Runs: build release artifacts -> verify publish contract -> validate tarballs
+        release_check_for_target "${2:-all}"
         ;;
     release)
         # Usage:
@@ -1123,6 +1071,23 @@ case "$cmd" in
         ;;
     test)
         require_package_manager
+        declare -a test_summaries=()
+        declare -a test_logs=()
+
+        create_test_log() {
+            local logfile
+            logfile="$(mktemp)"
+            test_logs+=("$logfile")
+            printf "%s\n" "$logfile"
+        }
+
+        cleanup_test_logs() {
+            if [[ ${#test_logs[@]} -gt 0 ]]; then
+                rm -f "${test_logs[@]}"
+            fi
+        }
+
+        trap cleanup_test_logs EXIT
 
         if [[ "${2:-}" == "create-elata-demo" ]]; then
             if [[ ! -d "node_modules" ]]; then
@@ -1131,45 +1096,50 @@ case "$cmd" in
             fi
 
             echo "Running create-elata-demo tests (including template smoke builds)..."
-            run_pkg_script "packages/create-elata-demo" "test"
+            log_file="$(create_test_log)"
+            run_and_capture "$log_file" run_pkg_script "packages/create-elata-demo" "test"
+            test_summaries+=("$(summarize_node_test_log "create-elata-demo full smoke/build tests" "$log_file")")
+            printf "\nTest summary\n"
+            printf "%s\n" "${test_summaries[@]}"
             exit 0
         fi
 
-        require_cmds cargo rustup wasm-bindgen node
+        require_cmds cargo node
         local_jobs="${BUILD_JOBS:-$DEFAULT_JOBS}"
 
-        echo "Auditing repository structure..."
-        run_root_script "audit:repo"
-
-        echo "Running web lint..."
-        run_root_script "lint:web" || echo "Warning: web lint failed (non-fatal; Biome may not support this platform)."
-
-        echo "Running Rust format check..."
-        cargo fmt --all -- --check
-
-        echo "Running Rust clippy..."
-        cargo clippy --workspace --all-targets -- -D warnings
-
         echo "Running Rust workspace tests (unit + integration + doc)..."
-        cargo test --workspace -j "$local_jobs"
+        rust_log="$(create_test_log)"
+        run_and_capture "$rust_log" cargo test --workspace -j "$local_jobs"
+        test_summaries+=("Rust workspace unit/integration/doc tests")
 
-        # Build and verify rppg-web publish artifacts before running tests
         if [[ -d "packages/rppg-web" ]]; then
-            echo "Building packages/rppg-web release artifacts..."
-            build_rppg_web_package
-            echo "Verifying packages/rppg-web publish outputs..."
-            run_pkg_script "packages/rppg-web" "verify:publish"
+            echo "Running rppg-web Jest tests..."
+            rppg_log="$(create_test_log)"
+            run_and_capture "$rppg_log" run_pkg_script "packages/rppg-web" "test" "--runInBand"
+            test_summaries+=("$(summarize_jest_log "rppg-web Jest suite" "$rppg_log")")
         fi
-
-        echo "Running rppg-web Jest tests..."
-        run_pkg_script "packages/rppg-web" "test" "--runInBand"
 
         if [[ -d "packages/create-elata-demo" ]]; then
             echo "Running create-elata-demo tests..."
-            run_pkg_script "packages/create-elata-demo" "test"
+            create_demo_log="$(create_test_log)"
+            run_and_capture "$create_demo_log" run_pkg_script "packages/create-elata-demo" "test"
+            test_summaries+=("$(summarize_node_test_log "create-elata-demo full smoke/build tests" "$create_demo_log")")
         fi
 
-        # Verify rppg-web demo artifacts and optionally run Playwright e2e
+        if [[ -d "packages/eeg-web" ]]; then
+            echo "Running eeg-web Jest tests..."
+            eeg_log="$(create_test_log)"
+            run_and_capture "$eeg_log" run_pkg_script "packages/eeg-web" "test" "--runInBand"
+            test_summaries+=("$(summarize_jest_log "eeg-web Jest suite" "$eeg_log")")
+        fi
+
+        if [[ -d "packages/eeg-web-ble" ]]; then
+            echo "Running eeg-web-ble Jest tests..."
+            eeg_ble_log="$(create_test_log)"
+            run_and_capture "$eeg_ble_log" run_pkg_script "packages/eeg-web-ble" "test" "--runInBand"
+            test_summaries+=("$(summarize_jest_log "eeg-web-ble Jest suite" "$eeg_ble_log")")
+        fi
+
         if [[ "${RUN_E2E:-0}" == "1" ]]; then
             echo "Running rppg-web Playwright e2e tests..."
             run_pkg_script "packages/rppg-web" "ci:e2e"
@@ -1177,36 +1147,14 @@ case "$cmd" in
             echo "Skipping Playwright e2e tests (set RUN_E2E=1 to enable)."
         fi
 
-        # Build and verify other web packages with publish-level checks
-        if [[ -d "packages/eeg-web" ]]; then
-            echo "Building packages/eeg-web release artifacts..."
-            build_eeg_web_package release
-            echo "Verifying packages/eeg-web publish outputs..."
-            run_pkg_script "packages/eeg-web" "verify:publish"
-        fi
-
-        # Build and verify eeg-web-ble before release/publish workflows
-        if [[ -d "packages/eeg-web-ble" ]]; then
-            echo "Building packages/eeg-web-ble..."
-            run_pkg_script "packages/eeg-web-ble" "build"
-            echo "Verifying packages/eeg-web-ble publish outputs..."
-            run_pkg_script "packages/eeg-web-ble" "verify:publish"
-            echo "Running eeg-web-ble Jest tests..."
-            run_pkg_script "packages/eeg-web-ble" "test" "--runInBand"
-        fi
-
-        echo "Validating publish tarballs..."
-        run_root_script "validate:tarballs"
+        printf "\nTest summary\n"
+        printf "%s\n" "${test_summaries[@]}"
         ;;
     clean)
         require_cmd cargo
         echo "Removing generated web bindings/bundles..."
-        rm -rf \
-            "$ROOT_DIR/eeg-demo/pkg" \
-            "$ROOT_DIR/packages/rppg-web/demo/pkg" \
-            "$ROOT_DIR/packages/rppg-web/demo/demo.js" \
-            "$ROOT_DIR/packages/rppg-web/pkg"
-        find "$ROOT_DIR/packages/eeg-web/wasm" -mindepth 1 -maxdepth 1 ! -name ".gitkeep" -exec rm -rf {} +
+        run_root_script "clean"
+        rm -rf "$ROOT_DIR/eeg-demo/pkg"
         echo "Cleaning build artifacts for wasm crates..."
         cargo clean -p eeg-wasm -p rppg-wasm
         ;;
