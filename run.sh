@@ -51,7 +51,7 @@ normalize_release_target() {
         eeg|eeg-web|@elata-biosciences/eeg-web) echo "eeg-web" ;;
         eeg-web-ble|ble|@elata-biosciences/eeg-web-ble) echo "eeg-web-ble" ;;
         rppg|rppg-web|@elata-biosciences/rppg-web) echo "rppg-web" ;;
-        create-rppg-app|@elata-biosciences/create-rppg-app) echo "create-rppg-app" ;;
+        create-elata-demo|@elata-biosciences/create-elata-demo) echo "create-elata-demo" ;;
         *)
             echo "Unknown release target: $raw" >&2
             return 1
@@ -64,7 +64,7 @@ package_dir_for_target() {
         eeg-web) echo "packages/eeg-web" ;;
         eeg-web-ble) echo "packages/eeg-web-ble" ;;
         rppg-web) echo "packages/rppg-web" ;;
-        create-rppg-app) echo "packages/create-rppg-app" ;;
+        create-elata-demo) echo "packages/create-elata-demo" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -77,7 +77,7 @@ package_name_for_target() {
         eeg-web) echo "@elata-biosciences/eeg-web" ;;
         eeg-web-ble) echo "@elata-biosciences/eeg-web-ble" ;;
         rppg-web) echo "@elata-biosciences/rppg-web" ;;
-        create-rppg-app) echo "@elata-biosciences/create-rppg-app" ;;
+        create-elata-demo) echo "@elata-biosciences/create-elata-demo" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -90,7 +90,7 @@ release_tag_prefix_for_target() {
         eeg-web) echo "eeg-web" ;;
         eeg-web-ble) echo "eeg-web-ble" ;;
         rppg-web) echo "rppg-web" ;;
-        create-rppg-app) echo "create-rppg-app" ;;
+        create-elata-demo) echo "create-elata-demo" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -102,7 +102,7 @@ release_targets_for() {
     local target="$1"
     if [[ "$target" == "all" ]]; then
         # Keep repo-published dependency order.
-        echo "eeg-web eeg-web-ble rppg-web create-rppg-app"
+        echo "eeg-web eeg-web-ble rppg-web create-elata-demo"
     else
         echo "$target"
     fi
@@ -125,6 +125,44 @@ validate_dist_tag() {
     esac
 }
 
+verify_script_for_target() {
+    case "$1" in
+        eeg-web|eeg-web-ble|rppg-web) echo "verify:publish" ;;
+        create-elata-demo) echo "" ;;
+        *)
+            echo "Unknown package target: $1" >&2
+            return 1
+            ;;
+    esac
+}
+
+verify_release_contract_for_target() {
+    local raw_target="${1:-all}"
+    local target
+    local pkg
+
+    target="$(normalize_release_target "$raw_target")" || exit 1
+    require_cmds node
+    require_package_manager
+
+    for pkg in $(release_targets_for "$target"); do
+        local pkg_dir verify_script
+        pkg_dir="$(package_dir_for_target "$pkg")"
+        verify_script="$(verify_script_for_target "$pkg")"
+        if [[ -n "$verify_script" ]]; then
+            echo "Verifying publish artifacts for ${pkg}..."
+            run_pkg_script "$pkg_dir" "$verify_script"
+        fi
+    done
+
+    echo "Validating tarball contents for ${target}..."
+    if [[ "$target" == "all" ]]; then
+        node "$ROOT_DIR/scripts/validate-tarballs.mjs"
+    else
+        node "$ROOT_DIR/scripts/validate-tarballs.mjs" "$target"
+    fi
+}
+
 publish_packages() {
     local raw_target="${1:-all}"
     local dist_tag="${2:-next}"
@@ -135,6 +173,8 @@ publish_packages() {
     validate_dist_tag "$dist_tag" || exit 1
     require_cmds node
     require_package_manager
+
+    verify_release_contract_for_target "$target"
 
     for pkg in $(release_targets_for "$target"); do
         pkg_dir="$(package_dir_for_target "$pkg")"
@@ -308,8 +348,8 @@ build_release_artifacts_for_target() {
             echo "Building release artifacts for rppg-web..."
             build_rppg_web_package
             ;;
-        create-rppg-app)
-            echo "create-rppg-app: no build step required (pure JS package)."
+        create-elata-demo)
+            echo "$target: no build step required (pure JS package)."
             ;;
         *)
             echo "Unknown release target: $target" >&2
@@ -774,17 +814,18 @@ doctor() {
     run_verify_check() {
         local pkg_dir="$1"
         local pkg_name="$2"
+        local verify_script="${3:-verify:build}"
         local verify_output verify_rc
-        verify_output="$(run_pkg_script "$pkg_dir" "verify:build" 2>&1)"
+        verify_output="$(run_pkg_script "$pkg_dir" "$verify_script" 2>&1)"
         verify_rc=$?
         while IFS= read -r line; do
             printf "  ${c_dim}|${c_reset} %s\n" "$line"
         done <<< "$verify_output"
         if [[ $verify_rc -eq 0 ]]; then
-            ok_line "$pkg_name verify:build passed"
+            ok_line "$pkg_name ${verify_script} passed"
             return 0
         fi
-        err_line "$pkg_name verify:build failed"
+        err_line "$pkg_name ${verify_script} failed"
         return 1
     }
 
@@ -834,7 +875,7 @@ doctor() {
     check_dir "crates" "crates/: present" "crates/ missing" || repo_err=1
     check_dir "packages/eeg-web" "packages/eeg-web: present" "packages/eeg-web missing" || repo_err=1
     check_dir "packages/rppg-web" "packages/rppg-web: present" "packages/rppg-web missing" || repo_err=1
-    check_dir "packages/create-rppg-app" "packages/create-rppg-app: present" "packages/create-rppg-app missing" || repo_err=1
+    check_dir "packages/create-elata-demo" "packages/create-elata-demo: present" "packages/create-elata-demo missing" || repo_err=1
 
     header "Repository Audit"
     if [[ -f "package.json" ]]; then
@@ -914,25 +955,26 @@ doctor() {
     check_file "packages/eeg-web/wasm/eeg_wasm_bg.wasm" "packages/eeg-web/wasm/eeg_wasm_bg.wasm: present" "packages/eeg-web/wasm/eeg_wasm_bg.wasm missing" "warn" || build_err=1
     check_file "packages/rppg-web/dist/index.js" "packages/rppg-web/dist/index.js: present" "packages/rppg-web/dist/index.js missing" "warn" || build_err=1
     check_file "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm" "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm: present" "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm missing (optional; run './run.sh dev rppg' to generate)" "warn" || true
-    check_file "packages/rppg-web/pkg/rppg_wasm_bg.wasm" "packages/rppg-web/pkg/rppg_wasm_bg.wasm: present (publishable WASM)" "packages/rppg-web/pkg/rppg_wasm_bg.wasm missing (run './run.sh build rppg' before publishing)" "warn" || true
+    check_file "packages/rppg-web/pkg/rppg_wasm.js" "packages/rppg-web/pkg/rppg_wasm.js: present (publishable loader)" "packages/rppg-web/pkg/rppg_wasm.js missing (run './run.sh build rppg' before publishing)" "warn" || build_err=1
+    check_file "packages/rppg-web/pkg/rppg_wasm_bg.wasm" "packages/rppg-web/pkg/rppg_wasm_bg.wasm: present (publishable WASM)" "packages/rppg-web/pkg/rppg_wasm_bg.wasm missing (run './run.sh build rppg' before publishing)" "warn" || build_err=1
 
     header "Canned Checks"
     if [[ $deps_err -eq 0 && -d "packages/eeg-web" ]]; then
-        run_verify_check "packages/eeg-web" "packages/eeg-web" || build_err=1
+        run_verify_check "packages/eeg-web" "packages/eeg-web" "verify:publish" || build_err=1
     else
-        info_line "skipping packages/eeg-web verify:build (dependencies missing)"
+        info_line "skipping packages/eeg-web verify:publish (dependencies missing)"
     fi
 
     if [[ $deps_err -eq 0 && -d "packages/rppg-web" ]]; then
-        run_verify_check "packages/rppg-web" "packages/rppg-web" || build_err=1
+        run_verify_check "packages/rppg-web" "packages/rppg-web" "verify:publish" || build_err=1
     else
-        info_line "skipping packages/rppg-web verify:build (dependencies missing)"
+        info_line "skipping packages/rppg-web verify:publish (dependencies missing)"
     fi
 
     if [[ $deps_err -eq 0 && -d "packages/eeg-web-ble" ]]; then
-        run_verify_check "packages/eeg-web-ble" "packages/eeg-web-ble" || build_err=1
+        run_verify_check "packages/eeg-web-ble" "packages/eeg-web-ble" "verify:publish" || build_err=1
     else
-        info_line "skipping packages/eeg-web-ble verify:build (dependencies missing)"
+        info_line "skipping packages/eeg-web-ble verify:publish (dependencies missing)"
     fi
 
     if [[ $deps_err -eq 0 && -f "package.json" ]]; then
@@ -985,7 +1027,7 @@ case "$cmd" in
         doctor
         ;;
     verify-all)
-        # Run the workspace-level JS/TS verification, including wasm checks for eeg-web.
+        # Run publish-level verification, including packaged wasm and tarball checks.
         run_root_script "verify:all"
         ;;
     changeset)
@@ -1082,55 +1124,18 @@ case "$cmd" in
     test)
         require_package_manager
 
-        if [[ "${2:-}" == "rppg-script" || "${2:-}" == "create-rppg-app" ]]; then
-            echo "Running create-rppg-app automated tests..."
-            run_pkg_script "packages/create-rppg-app" "test"
+        if [[ "${2:-}" == "create-elata-demo" ]]; then
+            if [[ ! -d "node_modules" ]]; then
+                echo "node_modules/ missing; running pnpm install at workspace root..."
+                pnpm install
+            fi
 
-            # Build rppg-web so the file: dep resolves correctly
-            echo "Building packages/rppg-web..."
-            run_pkg_script "packages/rppg-web" "build"
-
-            # Scaffold a real app in a temp dir for manual browser testing
-            tmp_dir="$(mktemp -d)"
-            trap 'rm -rf "$tmp_dir"' EXIT
-            app_name="rppg-demo-test"
-            echo "Scaffolding $app_name in $tmp_dir..."
-            (cd "$tmp_dir" && node "$ROOT_DIR/packages/create-rppg-app/index.mjs" "$app_name")
-
-            # Point rppg-web at the local package so we test unreleased code
-            app_dir="$tmp_dir/$app_name"
-            node -e "
-              const fs = require('fs');
-              const p = process.argv[1];
-              const pkg = JSON.parse(fs.readFileSync(p, 'utf8'));
-              pkg.dependencies['@elata-biosciences/rppg-web'] = 'file:' + process.argv[2];
-              fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + '\n');
-            " "$app_dir/package.json" "$ROOT_DIR/packages/rppg-web"
-
-            echo "Installing dependencies..."
-            (cd "$app_dir" && pnpm install)
-
-            # Open browser once Vite is ready
-            (
-                sleep 3
-                url="http://localhost:5173"
-                if command -v termux-open-url >/dev/null 2>&1; then
-                    termux-open-url "$url"
-                elif command -v xdg-open >/dev/null 2>&1; then
-                    xdg-open "$url"
-                elif command -v open >/dev/null 2>&1; then
-                    open "$url"
-                else
-                    echo "Open $url in your browser."
-                fi
-            ) &
-
-            echo "Starting dev server (Ctrl+C to stop)..."
-            (cd "$app_dir" && pnpm run dev)
+            echo "Running create-elata-demo tests (including template smoke builds)..."
+            run_pkg_script "packages/create-elata-demo" "test"
             exit 0
         fi
 
-        require_cmd cargo
+        require_cmds cargo rustup wasm-bindgen node
         local_jobs="${BUILD_JOBS:-$DEFAULT_JOBS}"
 
         echo "Auditing repository structure..."
@@ -1148,20 +1153,20 @@ case "$cmd" in
         echo "Running Rust workspace tests (unit + integration + doc)..."
         cargo test --workspace -j "$local_jobs"
 
-        # Build and verify rppg-web (ensure TypeScript outputs exist) before running tests
+        # Build and verify rppg-web publish artifacts before running tests
         if [[ -d "packages/rppg-web" ]]; then
-            echo "Building packages/rppg-web..."
-            run_pkg_script "packages/rppg-web" "build"
-            echo "Verifying packages/rppg-web build outputs..."
-            run_pkg_script "packages/rppg-web" "verify:build"
+            echo "Building packages/rppg-web release artifacts..."
+            build_rppg_web_package
+            echo "Verifying packages/rppg-web publish outputs..."
+            run_pkg_script "packages/rppg-web" "verify:publish"
         fi
 
         echo "Running rppg-web Jest tests..."
         run_pkg_script "packages/rppg-web" "test" "--runInBand"
 
-        if [[ -d "packages/create-rppg-app" ]]; then
-            echo "Running create-rppg-app tests..."
-            run_pkg_script "packages/create-rppg-app" "test"
+        if [[ -d "packages/create-elata-demo" ]]; then
+            echo "Running create-elata-demo tests..."
+            run_pkg_script "packages/create-elata-demo" "test"
         fi
 
         # Verify rppg-web demo artifacts and optionally run Playwright e2e
@@ -1172,23 +1177,26 @@ case "$cmd" in
             echo "Skipping Playwright e2e tests (set RUN_E2E=1 to enable)."
         fi
 
-        # Build and verify other web packages (ensure built artifacts exist)
+        # Build and verify other web packages with publish-level checks
         if [[ -d "packages/eeg-web" ]]; then
-            echo "Building packages/eeg-web..."
-            run_pkg_script "packages/eeg-web" "build"
-            echo "Verifying packages/eeg-web build outputs..."
-            run_pkg_script "packages/eeg-web" "verify:build"
+            echo "Building packages/eeg-web release artifacts..."
+            build_eeg_web_package release
+            echo "Verifying packages/eeg-web publish outputs..."
+            run_pkg_script "packages/eeg-web" "verify:publish"
         fi
 
-        # Build and package-validate eeg-web-ble before release/publish workflows
+        # Build and verify eeg-web-ble before release/publish workflows
         if [[ -d "packages/eeg-web-ble" ]]; then
             echo "Building packages/eeg-web-ble..."
             run_pkg_script "packages/eeg-web-ble" "build"
-            echo "Validating packages/eeg-web-ble pack output..."
-            run_pkg_script "packages/eeg-web-ble" "pack:check"
+            echo "Verifying packages/eeg-web-ble publish outputs..."
+            run_pkg_script "packages/eeg-web-ble" "verify:publish"
             echo "Running eeg-web-ble Jest tests..."
             run_pkg_script "packages/eeg-web-ble" "test" "--runInBand"
         fi
+
+        echo "Validating publish tarballs..."
+        run_root_script "validate:tarballs"
         ;;
     clean)
         require_cmd cargo

@@ -30,7 +30,8 @@
 		".": {
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js"
-		}
+		},
+		"./pkg/*": "./pkg/*"
 	},
 	"files": ["dist", "pkg", "README.md"],
 	"publishConfig": {
@@ -42,6 +43,7 @@
 		"clean": "node -e \"import('fs').then(f=>{f.rmSync('dist',{recursive:true,force:true});f.rmSync('tsconfig.tsbuildinfo',{force:true});})\"",
 		"build": "tsc -p .",
 		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
+		"verify:publish": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts pkg/rppg_wasm.js pkg/rppg_wasm_bg.wasm",
 		"build:wasm": "node ./scripts/build-demo.mjs wasm",
 		"build:demo": "node ./scripts/build-demo.mjs all",
 		"bundle:demo": "node ./scripts/build-demo.mjs bundle",
@@ -50,7 +52,7 @@
 		"prepare:wasm": "pnpm build:wasm",
 		"e2e": "pnpm dlx playwright test",
 		"ci:e2e": "pnpm dlx playwright test --project=chromium --retries=1",
-		"prepack": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts"
+		"prepack": "pnpm run build && pnpm run prepare:wasm && pnpm run verify:publish"
 	},
 	"devDependencies": {
 		"@playwright/test": "1.58.2",

@@ -51,6 +51,11 @@ describe('@elata-biosciences/rppg-web exports', () => {
     expect(typeof rppgWeb.averageGreenInROI).toBe('function');
   });
 
+  test('exports loadWasmBackend as a function', () => {
+    expect(rppgWeb.loadWasmBackend).toBeDefined();
+    expect(typeof rppgWeb.loadWasmBackend).toBe('function');
+  });
+
   test('has no unexpected undefined exports', () => {
     const expectedKeys = [
       'RppgProcessor',
@@ -63,6 +68,7 @@ describe('@elata-biosciences/rppg-web exports', () => {
       'MediaPipeFaceFrameSource',
       'loadFaceMesh',
       'averageGreenInROI',
+      'loadWasmBackend',
     ];
     for (const key of expectedKeys) {
       expect((rppgWeb as Record<string, unknown>)[key]).toBeDefined();

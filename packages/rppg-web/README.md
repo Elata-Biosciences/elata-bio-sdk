@@ -28,6 +28,7 @@ npm install @elata-biosciences/rppg-web @elata-biosciences/eeg-web
 - `RppgProcessor` – high-level processor for ingesting samples and computing metrics.
 - `DemoRunner` – helper for wiring a frame source to a processor in demos.
 - `MediaPipeFrameSource`, `MediaPipeFaceFrameSource` – frame sources for camera input.
+- `loadWasmBackend` – helper that discovers the packaged WASM bundle from `/pkg`.
 
 ## Usage
 
@@ -60,6 +61,7 @@ object with `push_sample`/`get_metrics` (or camelCase equivalents).
 
 When consuming `@elata-biosciences/rppg-web`, TypeScript resolves types from `dist/index.d.ts`
 and runtime code from `dist/index.js`.
+The published package also ships `pkg/rppg_wasm.js` and `pkg/rppg_wasm_bg.wasm` for browser loading.
 
 ## MediaPipe face ROI
 
@@ -102,6 +104,7 @@ npm --prefix packages/rppg-web run start-demo
 This now does all required build steps before serving:
 - builds `rppg-wasm` for `wasm32-unknown-unknown`
 - runs `wasm-bindgen` into `packages/rppg-web/demo/pkg`
+- copies the generated WASM bundle into `packages/rppg-web/pkg` for npm publishing
 - bundles `packages/rppg-web/demo/main.ts` to `packages/rppg-web/demo/demo.js`
 
 Useful explicit commands:

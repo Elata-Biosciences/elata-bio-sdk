@@ -18,10 +18,15 @@ const root = path.resolve(__dirname, "..");
 const packages = [
 	{
 		name: "@elata-biosciences/rppg-web",
+		aliases: ["rppg-web", "packages/rppg-web"],
 		dir: "packages/rppg-web",
 		requiredFiles: [
 			"dist/index.js",
 			"dist/index.d.ts",
+			"pkg/rppg_wasm.js",
+			"pkg/rppg_wasm.d.ts",
+			"pkg/rppg_wasm_bg.wasm",
+			"pkg/rppg_wasm_bg.wasm.d.ts",
 			"README.md",
 			"package.json",
 		],
@@ -35,10 +40,12 @@ const packages = [
 			"coverage/",
 			"demo/",
 			"scripts/",
+			"pkg/.gitkeep",
 		],
 	},
 	{
 		name: "@elata-biosciences/eeg-web",
+		aliases: ["eeg-web", "packages/eeg-web"],
 		dir: "packages/eeg-web",
 		requiredFiles: [
 			"dist/index.js",
@@ -63,6 +70,7 @@ const packages = [
 	},
 	{
 		name: "@elata-biosciences/eeg-web-ble",
+		aliases: ["eeg-web-ble", "packages/eeg-web-ble", "ble"],
 		dir: "packages/eeg-web-ble",
 		requiredFiles: [
 			"dist/index.js",
@@ -83,9 +91,37 @@ const packages = [
 	},
 ];
 
+const requested = process.argv.slice(2);
+const normalizedRequested = new Set(requested.map((entry) => entry.trim()).filter(Boolean));
+
+const selectedPackages =
+	normalizedRequested.size === 0
+		? packages
+		: packages.filter((pkg) => {
+				const aliases = new Set([pkg.name, pkg.dir, ...(pkg.aliases ?? [])]);
+				for (const entry of normalizedRequested) {
+					if (aliases.has(entry)) {
+						return true;
+					}
+				}
+				return false;
+			});
+
+if (normalizedRequested.size > 0 && selectedPackages.length !== normalizedRequested.size) {
+	const known = new Set(
+		packages.flatMap((pkg) => [pkg.name, pkg.dir, ...(pkg.aliases ?? [])]),
+	);
+	for (const entry of normalizedRequested) {
+		if (!known.has(entry)) {
+			console.error(`Unknown tarball validation target: ${entry}`);
+		}
+	}
+	process.exit(1);
+}
+
 let totalErrors = 0;
 
-for (const pkg of packages) {
+for (const pkg of selectedPackages) {
 	const pkgDir = path.join(root, pkg.dir);
 	console.log(`\n--- Validating ${pkg.name} ---`);
 

@@ -17,7 +17,7 @@ importers:
         specifier: ^1.51.1
         version: 1.58.2
 
-  packages/create-rppg-app: {}
+  packages/create-elata-demo: {}
 
   packages/eeg-web:
     devDependencies:

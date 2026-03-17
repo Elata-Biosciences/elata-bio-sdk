@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@elata-biosciences/rppg-web": "^0.1.2",
+    "@elata-biosciences/eeg-web": "^0.1.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -18,7 +18,6 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "^5.6.2",
-    "vite": "^6.0.5",
-    "vite-plugin-static-copy": "^2.2.0"
+    "vite": "^6.0.5"
   }
 }

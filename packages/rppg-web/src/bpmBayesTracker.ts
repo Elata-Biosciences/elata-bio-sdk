@@ -147,7 +147,7 @@ export class BpmBayesTracker {
 						harmonicConfusion *
 							(0.6 * stateFund + 0.2 * stateHalf + 0.2 * stateDouble);
 					const posteriorIndex = this.toIndex(bpmIndex, modeIndex);
-					this.posterior[posteriorIndex] *= Math.pow(blended, reliability);
+					this.posterior[posteriorIndex] *= blended ** reliability;
 				}
 			}
 		}
@@ -180,7 +180,7 @@ export class BpmBayesTracker {
 			);
 			for (let modeIndex = 0; modeIndex < MODES.length; modeIndex++) {
 				const posteriorIndex = this.toIndex(bpmIndex, modeIndex);
-				this.posterior[posteriorIndex] *= Math.pow(referenceLikelihood, gain);
+				this.posterior[posteriorIndex] *= referenceLikelihood ** gain;
 			}
 		}
 		this.normalize();

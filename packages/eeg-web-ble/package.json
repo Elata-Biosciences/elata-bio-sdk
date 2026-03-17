@@ -44,7 +44,8 @@
 		"clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true});require('fs').rmSync('tsconfig.tsbuildinfo',{force:true})\"",
 		"build": "tsc -p tsconfig.json",
 		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
-		"prepack": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
+		"verify:publish": "pnpm run verify:build",
+		"prepack": "pnpm run build && pnpm run verify:publish",
 		"pack:check": "pnpm pack --dry-run --json"
 	},
 	"peerDependencies": {

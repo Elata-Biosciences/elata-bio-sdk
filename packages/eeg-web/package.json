@@ -46,8 +46,9 @@
 		"build": "tsc -p tsconfig.json",
 		"sync-wasm": "bash ./scripts/sync-wasm.sh",
 		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
+		"verify:publish": "pnpm run verify:build && pnpm run verify:wasm",
 		"verify:wasm": "node ./scripts/verify-wasm.js",
-		"prepack": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts"
+		"prepack": "pnpm run build && pnpm run sync-wasm && pnpm run verify:publish"
 	},
 	"devDependencies": {
 		"@types/jest": "29.5.14",

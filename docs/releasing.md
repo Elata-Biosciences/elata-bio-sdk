@@ -39,7 +39,7 @@ When your PR changes something that should be released, run **`./run.sh changese
 
 ## Pre-Release Checklist (optional)
 
-1. Run repository checks and build all packages (prepack only verifies; it does not build):
+1. Run repository checks and build all packages:
 
 ```bash
 ./run.sh doctor
@@ -64,6 +64,9 @@ npm_config_cache=${NPM_CONFIG_CACHE:-/tmp/npm-cache} npm pack --dry-run
 - no test-only files
 - no local-only demo artifacts unless intentionally shipped
 - expected entry points and type declarations are present
+- required packaged WASM assets are present for `eeg-web` and `rppg-web`
+
+`prepack` now rebuilds and verifies publishable artifacts for the web packages, but maintainers should still run the repo-level checks above before publishing.
 
 ## Safe Publish Flow
 
