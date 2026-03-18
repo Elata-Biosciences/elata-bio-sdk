@@ -29,23 +29,20 @@ function run(cmd, args, cwd, capture = false) {
 	return result.stdout ?? "";
 }
 
-function latestTgzFile(dirPath) {
-	const entries = fs.readdirSync(dirPath).filter((f) => f.endsWith(".tgz"));
-	if (entries.length === 0) return null;
-	const withTimes = entries.map((f) => ({
-		f,
-		mtime: fs.statSync(path.join(dirPath, f)).mtimeMs,
-	}));
-	withTimes.sort((a, b) => b.mtime - a.mtime);
-	return withTimes[0]?.f ?? null;
-}
-
 function packPackage() {
-	// pnpm pack produces a tarball without executing scripts.
-	run("pnpm", ["pack", "--pack-destination", tempRoot], packageRoot, true);
-	const tgzName = latestTgzFile(tempRoot);
-	if (!tgzName) throw new Error("pnpm pack produced no .tgz file");
-	return path.join(tempRoot, tgzName);
+	// Use npm pack with --ignore-scripts to avoid triggering `prepack`
+	// (which can run heavy WASM/demo verification).
+	const output = run("npm", ["pack", "--ignore-scripts"], packageRoot, true);
+	const matches = output.match(/([^\s]+\.tgz)/g);
+	const filename = matches?.at(-1);
+	if (!filename) throw new Error("Could not find tarball name in pack output.");
+	const tarballPath = path.join(packageRoot, filename);
+	if (!fs.existsSync(tarballPath)) {
+		throw new Error(`Expected tarball not found: ${tarballPath}`);
+	}
+	const destination = path.join(tempRoot, filename);
+	fs.renameSync(tarballPath, destination);
+	return destination;
 }
 
 function extractTarball(tarballPath, destinationDir) {

@@ -443,7 +443,7 @@ export class MuseFusionCalibrator {
 }
 
 export class RppgProcessor {
-	private pipeline: any;
+	private pipeline: any | null;
 	private readonly samples: Sample[] = [];
 	private readonly bpmHistory: number[] = [];
 	private readonly cameraCalibration = new MuseCalibrationModel();
@@ -457,6 +457,7 @@ export class RppgProcessor {
 	private totalSamplesReceived = 0;
 	private failedBackendError: Error | null = null;
 	private failedOperation: string | null = null;
+	private disposed = false;
 	private readonly sampleRate: number;
 	private readonly windowSec: number;
 
@@ -471,7 +472,7 @@ export class RppgProcessor {
 	}
 
 	enableTracker(minBpm = 50, maxBpm = 160, numParticles = 150) {
-		if (this.failedBackendError) return;
+		if (this.failedBackendError || this.disposed || !this.pipeline) return;
 		if (typeof this.pipeline.enable_tracker === "function") {
 			try {
 				this.pipeline.enable_tracker(minBpm, maxBpm, numParticles);
@@ -499,6 +500,15 @@ export class RppgProcessor {
 			operation: this.failedOperation,
 			message: this.failedBackendError.message,
 		};
+	}
+
+	dispose() {
+		if (this.disposed) return;
+		this.disposed = true;
+		this.releasePipeline();
+		this.samples.length = 0;
+		this.bpmHistory.length = 0;
+		this.resetCalibration();
 	}
 
 	pushSample(timestampMs: number, intensity: number) {
@@ -798,7 +808,9 @@ export class RppgProcessor {
 	}
 
 	private readBackendMetrics(): Metrics {
-		if (this.failedBackendError) return failedMetrics();
+		if (this.failedBackendError || this.disposed || !this.pipeline) {
+			return failedMetrics();
+		}
 		if (typeof this.pipeline.get_metrics === "function") {
 			try {
 				return normalizeMetrics(this.pipeline.get_metrics());
@@ -819,6 +831,11 @@ export class RppgProcessor {
 	}
 
 	private assertBackendHealthy(operation: string) {
+		if (this.disposed || !this.pipeline) {
+			throw new Error(
+				`rPPG backend has been disposed; refusing ${operation}.`,
+			);
+		}
 		if (!this.failedBackendError) return;
 		const previousOp = this.failedOperation ?? "an earlier backend call";
 		throw new Error(
@@ -831,11 +848,26 @@ export class RppgProcessor {
 		this.failedOperation = operation;
 		if (cause instanceof Error) {
 			this.failedBackendError = cause;
+			this.releasePipeline();
 			return;
 		}
 		this.failedBackendError = new Error(
 			`rPPG backend failed during ${operation}.`,
 		);
+		this.releasePipeline();
+	}
+
+	private releasePipeline() {
+		const pipeline = this.pipeline;
+		this.pipeline = null;
+		if (!pipeline) return;
+		try {
+			if (typeof pipeline.free === "function") {
+				pipeline.free();
+			}
+		} catch {
+			// Swallow teardown failures so callers still observe the original fatal error.
+		}
 	}
 
 	private pushLocalSample(

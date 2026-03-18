@@ -227,6 +227,7 @@ describe('RppgProcessor', () => {
       getMetrics: jest.fn(() => ({ bpm: null, confidence: 0.0, signal_quality: 0.0 })),
       enable_tracker: jest.fn(),
       enableTracker: jest.fn(),
+      free: jest.fn(),
       ...pipelineMethods,
     };
     return {
@@ -239,6 +240,24 @@ describe('RppgProcessor', () => {
     const backend = createMockBackend();
     const p = new RppgProcessor(backend as any, 30, 5);
     expect(backend.newPipeline).toHaveBeenCalledWith(30, 5);
+  });
+
+  test('dispose frees the backend pipeline exactly once', () => {
+    const backend = createMockBackend();
+    const p = new RppgProcessor(backend as any, 30, 5);
+
+    p.dispose();
+    p.dispose();
+
+    expect(backend.pipeline.free).toHaveBeenCalledTimes(1);
+    expect(() => p.pushSample(1000, 0.5)).toThrow('disposed');
+    expect(p.getMetrics()).toEqual(
+      expect.objectContaining({
+        bpm: null,
+        confidence: 0,
+        signal_quality: 0,
+      }),
+    );
   });
 
   test('delegates to backend and returns metrics', () => {
@@ -351,9 +370,10 @@ describe('RppgProcessor', () => {
     expect(backend.pipeline.get_metrics).not.toHaveBeenCalled();
 
     expect(() => p.pushSampleRgbMeta(1033, 0.5, 0.6, 0.7, 0.9, 0.1, 0.05)).toThrow(
-      'rPPG backend is unavailable after a fatal error',
+      'rPPG backend has been disposed',
     );
     expect(backend.pipeline.push_sample_rgb_meta).toHaveBeenCalledTimes(1);
+    expect(backend.pipeline.free).toHaveBeenCalledTimes(1);
   });
 
   test('returns safe metrics after a fatal backend metrics error and stops re-entering WASM', () => {

@@ -139,7 +139,7 @@ console.log(trace.backendFailure);
 This is the supported alternative to reaching into internal processor fields
 such as `session.processor.samples`.
 
-If you also want PulsePoker-style peak/threshold waveform debug from the public
+If you also want peak/threshold waveform debug from the public
 trace data, use `computeTraceWaveformDebug()`:
 
 ```ts

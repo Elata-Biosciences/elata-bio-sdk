@@ -11,12 +11,14 @@ jest.mock("../wasmBackend", () => ({
 		newPipeline: () => ({
 			push_sample: jest.fn(),
 			get_metrics: jest.fn(() => ({ bpm: 72, confidence: 0.8, signal_quality: 0.7 })),
+			free: jest.fn(),
 		}),
 	})),
 	createUnavailableBackend: jest.fn(() => ({
 		newPipeline: () => ({
 			push_sample: jest.fn(),
 			get_metrics: jest.fn(() => ({ bpm: null, confidence: 0, signal_quality: 0 })),
+			free: jest.fn(),
 		}),
 	})),
 }));
@@ -73,11 +75,13 @@ import { loadFaceMesh } from "../mediapipeLoader";
 import { ensureVideoPlaying } from "../videoPlayback";
 import { MediaPipeFrameSource } from "../mediaPipeFrameSource";
 import { MediaPipeFaceFrameSource } from "../mediaPipeFaceFrameSource";
+import { loadWasmBackend } from "../wasmBackend";
 
 const mockedLoadFaceMesh = loadFaceMesh as jest.MockedFunction<typeof loadFaceMesh>;
 const mockedEnsureVideoPlaying = ensureVideoPlaying as jest.MockedFunction<typeof ensureVideoPlaying>;
 const mockedMediaPipeFrameSource = MediaPipeFrameSource as unknown as jest.Mock;
 const mockedMediaPipeFaceFrameSource = MediaPipeFaceFrameSource as unknown as jest.Mock;
+const mockedLoadWasmBackend = loadWasmBackend as jest.MockedFunction<typeof loadWasmBackend>;
 
 describe("createRppgSession lifecycle", () => {
 	beforeEach(() => {
@@ -157,5 +161,26 @@ describe("createRppgSession lifecycle", () => {
 		expect(mockedLoadFaceMesh).toHaveBeenCalledTimes(1);
 		expect(mockedMediaPipeFaceFrameSource).toHaveBeenCalledTimes(1);
 		expect(session.faceTrackingMode).toBe("face_mesh");
+	});
+
+	test("dispose frees the created backend pipeline", async () => {
+		const free = jest.fn();
+		mockedLoadWasmBackend.mockResolvedValueOnce({
+			newPipeline: () => ({
+				push_sample: jest.fn(),
+				get_metrics: jest.fn(() => ({ bpm: 72, confidence: 0.8, signal_quality: 0.7 })),
+				free,
+			}),
+		} as any);
+
+		const session = await createRppgSession({
+			video: document.createElement("video"),
+			faceMesh: "off",
+			ensureVideoPlayback: false,
+		});
+
+		await session.dispose();
+
+		expect(free).toHaveBeenCalledTimes(1);
 	});
 });

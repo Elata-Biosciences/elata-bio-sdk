@@ -39,4 +39,3 @@ creates for external developers.
 
 - [implementation-plan-sdk-adoption.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-sdk-adoption.md) remains the ordered execution plan.
 - [sdk-adoption-baseline.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/sdk-adoption-baseline.md) captures the current state these issues were derived from.
-- [rppg-web-dx-roadmap.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/rppg-web-dx-roadmap.md) captures the `rppg-web`-specific roadmap derived from the PulsePoker integration work.

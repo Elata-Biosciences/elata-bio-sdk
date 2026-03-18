@@ -260,6 +260,7 @@ export class RppgSession {
 
 	async dispose(): Promise<void> {
 		await this.stop();
+		this.processor.dispose();
 	}
 
 	recordError(error: RppgSessionError) {

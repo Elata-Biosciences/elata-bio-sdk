@@ -8,6 +8,7 @@ function createMockBackend(pipelineMethods: any = {}) {
     push_sample: jest.fn(),
     push_sample_rgb_meta: jest.fn(),
     get_metrics: jest.fn(() => ({ bpm: 72, confidence: 0.8, signal_quality: 0.7 })),
+    free: jest.fn(),
     ...pipelineMethods,
   };
   return {
@@ -191,5 +192,23 @@ describe('RppgSession', () => {
       clipRatio: 0.04,
     });
     expect(trace.windowSampleCount).toBe(2);
+  });
+
+  test('dispose stops the runner and frees the processor pipeline', async () => {
+    const backend = createMockBackend();
+    const processor = new RppgProcessor(backend as any, 30, 5);
+    const runner = createRunnerStub();
+    const session = new RppgSession(
+      createSourceStub(),
+      processor,
+      runner as any,
+      'wasm',
+      'video_frame',
+    );
+
+    await session.dispose();
+
+    expect(runner.stop).toHaveBeenCalledTimes(1);
+    expect(backend.pipeline.free).toHaveBeenCalledTimes(1);
   });
 });
