@@ -36,6 +36,7 @@ npm install @elata-biosciences/rppg-web
 Recommended:
 
 - Use `createRppgSession()` for browser apps.
+- Use `createManagedRppgSession()` when you want built-in restart behavior after a terminal processor failure.
 - Use `createRppgPipeline()` from `@elata-biosciences/eeg-web` only if you intentionally need low-level sample ingestion.
 
 Advanced:
@@ -98,6 +99,29 @@ const session = await createRppgSession({
 ```
 
 Advanced apps can also provide `wasmImporter` directly.
+
+## Managed Restart Flow
+
+If you want the SDK to own restart timing after terminal processor failures,
+use the managed wrapper:
+
+```ts
+import { createManagedRppgSession } from "@elata-biosciences/rppg-web";
+
+const managed = await createManagedRppgSession({
+  video: videoEl,
+  faceMesh: "off",
+  maxRetries: 3,
+  retryDelayMs: 1500,
+  onStateChange: (state) => {
+    console.log(state.status, state.retryCount, state.lastError?.code);
+  },
+});
+```
+
+The managed wrapper exposes high-level states such as `starting`, `running`,
+`retrying`, and `failed`, while still letting apps drop down to the underlying
+`RppgSession` when needed.
 
 If you need manual control, the lower-level `RppgProcessor`, `DemoRunner`, and
 frame-source helpers are still available.

@@ -69,6 +69,7 @@ failing silently.
 Recommended:
 
 - Use `createRppgSession()` for browser apps that need camera capture, packaged WASM loading, ROI handling, diagnostics, and cleanup.
+- Use `createManagedRppgSession()` when you also want automatic restart after terminal processor failures.
 - Use `createRppgPipeline()` from `@elata-biosciences/eeg-web` only when you intentionally want low-level sample ingestion and already own the surrounding orchestration.
 
 Advanced:
@@ -86,6 +87,7 @@ and `get_metrics` or camelCase equivalents.
 ## Key Exports
 
 - `createRppgSession`
+- `createManagedRppgSession`
 - `RppgSession`
 - `RppgProcessor`
 - `DemoRunner`
@@ -139,6 +141,31 @@ If your app needs explicit asset control, `createRppgSession()` also accepts:
 
 Those options let apps bypass guessed `/pkg/*` paths when bundler or deploy
 layout needs explicit wiring.
+
+## Managed Session
+
+If your app wants a supervised lifecycle with retry-on-processor-failure, use
+`createManagedRppgSession()`:
+
+```ts
+import { createManagedRppgSession } from "@elata-biosciences/rppg-web";
+
+const managed = await createManagedRppgSession({
+  video: videoEl,
+  faceMesh: "off",
+  maxRetries: 3,
+  retryDelayMs: 1500,
+  onStateChange: (state) => {
+    console.log(state.status, state.retryCount, state.lastError?.code);
+  },
+});
+
+console.log(managed.state.status);
+console.log(managed.getMetrics());
+```
+
+The managed wrapper sits above `RppgSession`; it does not replace the lower
+level API when you want full lifecycle ownership.
 
 ## Low-Level Integration
 

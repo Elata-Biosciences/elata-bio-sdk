@@ -61,6 +61,11 @@ describe('@elata-biosciences/rppg-web exports', () => {
     expect(typeof rppgWeb.createRppgSession).toBe('function');
   });
 
+  test('exports createManagedRppgSession as a function', () => {
+    expect(rppgWeb.createManagedRppgSession).toBeDefined();
+    expect(typeof rppgWeb.createManagedRppgSession).toBe('function');
+  });
+
   test('exports computeWaveformPeriodicityProfile as a function', () => {
     expect(rppgWeb.computeWaveformPeriodicityProfile).toBeDefined();
     expect(typeof rppgWeb.computeWaveformPeriodicityProfile).toBe('function');
@@ -85,6 +90,7 @@ describe('@elata-biosciences/rppg-web exports', () => {
       'averageGreenInROI',
       'loadWasmBackend',
       'createRppgSession',
+      'createManagedRppgSession',
       'computeWaveformPeriodicityProfile',
       'replayBayesSession',
     ];

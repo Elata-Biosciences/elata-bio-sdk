@@ -58,6 +58,15 @@ export type {
 	RppgSessionStateReason,
 	RppgSessionStateStatus,
 } from "./rppgSession";
+export {
+	createManagedRppgSession,
+	ManagedRppgSession,
+} from "./managedRppgSession";
+export type {
+	CreateManagedRppgSessionOptions,
+	ManagedRppgSessionState,
+	ManagedRppgSessionStatus,
+} from "./managedRppgSession";
 export { computeWaveformPeriodicityProfile } from "./rppgDiagnostics";
 export type { WaveformPeriodicityProfile } from "./rppgDiagnostics";
 export { RppgGatingController } from "./rppgGating";
