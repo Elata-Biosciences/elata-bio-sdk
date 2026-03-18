@@ -28,6 +28,21 @@ jest.mock('../wasmBackend', () => ({
 class FakeVideo {
   videoWidth = 320;
   videoHeight = 240;
+  // Make `ensureVideoPlaying()` short-circuit by pretending the element
+  // already has current video data.
+  readyState = 2; // HTMLMediaElement.HAVE_CURRENT_DATA
+  paused = false;
+  ended = false;
+
+  play() {
+    this.readyState = 2;
+    this.paused = false;
+    return Promise.resolve();
+  }
+
+  // If the test ever hits the event-based fallback, keep these as no-ops.
+  addEventListener() {}
+  removeEventListener() {}
 }
 
 class FakeCtx {
