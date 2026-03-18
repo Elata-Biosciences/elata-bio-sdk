@@ -1,6 +1,29 @@
 import { useEffect, useRef, useState } from 'react';
 import * as Rppg from '@elata-biosciences/rppg-web';
-import type { Backend, DemoRunnerDiagnostics, Metrics, RppgDebugSnapshot } from '@elata-biosciences/rppg-web';
+import type { Backend, Metrics } from '@elata-biosciences/rppg-web';
+
+type DemoRunnerDiagnostics = {
+  framesSeen: number;
+  framesWithFaceRoi: number;
+  framesWithFallbackRoi: number;
+  framesWithMultiRoi: number;
+  samplesPushed: number;
+  droppedFrames: number;
+  lastDropReason: string | null;
+  lastTimestampMs: number | null;
+  lastIntensity: number | null;
+  lastSkinRatio: number | null;
+  lastClipRatio: number | null;
+  lastMotion: number | null;
+  lastProcessorMethod: string | null;
+  lastRoiSource: string | null;
+};
+
+type RppgDebugSnapshot = {
+  windowSampleCount: number;
+  windowDurationMs: number;
+  issues: string[];
+};
 
 export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
