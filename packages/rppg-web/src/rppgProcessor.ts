@@ -66,6 +66,7 @@ export type Metrics = {
 	bpm?: number | null;
 	confidence: number;
 	signal_quality: number;
+	agreement?: number;
 	reason_codes?: string[];
 	snr?: number;
 	skin_ratio_mean?: number;
@@ -746,6 +747,22 @@ export class RppgProcessor {
 			acf?.bpm ?? null,
 			spectral?.bpm ?? null,
 		);
+		const aliasFlag =
+			resolved.aliasFlag ||
+			(resolved.bpm != null &&
+				bayes.bpm != null &&
+				isAliasRelation(bayes.bpm, resolved.bpm) &&
+				bayes.confidence > resolved.confidence);
+		const agreement = computeAgreementScore({
+			candidates,
+			resolved,
+			resolvedChoice,
+			bayes,
+			analysis,
+			winningSources,
+			estimatorSpread,
+			aliasFlag,
+		});
 		const lowConfidenceGate =
 			(resolvedConfidence < 0.32 && bayes.confidence < 0.45) ||
 			analysis.snrDb < -4.5 ||
@@ -783,18 +800,14 @@ export class RppgProcessor {
 			confidence: lowConfidenceGate
 				? Math.min(Math.max(base.confidence || 0, resolvedConfidence || 0), 0.3)
 				: Math.max(base.confidence || 0, resolvedConfidence || 0),
+			agreement,
 			spectral_bpm: spectral?.bpm ?? null,
 			acf_bpm: acf?.bpm ?? null,
 			peaks_bpm: peaks?.bpm ?? null,
 			resolved_bpm: resolvedBpm,
 			resolved_confidence: resolvedConfidence,
 			winning_sources: winningSources,
-			alias_flag:
-				resolved.aliasFlag ||
-				(resolved.bpm != null &&
-					bayes.bpm != null &&
-					isAliasRelation(bayes.bpm, resolved.bpm) &&
-					bayes.confidence > resolved.confidence),
+			alias_flag: aliasFlag,
 			bayes_bpm: bayes.bpm,
 			bayes_confidence: bayes.confidence,
 			calibrated_bpm: calibratedBpm,
@@ -856,6 +869,7 @@ function normalizeMetrics(raw: any): Metrics {
 	const bpm = raw.bpm ?? raw.bpm_hz ?? raw.heart_bpm ?? null;
 	const confidence = raw.confidence ?? raw.conf ?? 0.0;
 	const signal_quality = raw.signal_quality ?? raw.signalQuality ?? 0.0;
+	const agreement = raw.agreement ?? raw.agreementQuality ?? undefined;
 	const reason_codes = raw.reason_codes ?? raw.reasonCodes ?? undefined;
 	const snr = raw.snr ?? undefined;
 	const skin_ratio_mean = raw.skin_ratio_mean ?? raw.skinRatioMean ?? undefined;
@@ -865,6 +879,7 @@ function normalizeMetrics(raw: any): Metrics {
 		bpm,
 		confidence,
 		signal_quality,
+		agreement,
 		reason_codes,
 		snr,
 		skin_ratio_mean,
@@ -1093,6 +1108,108 @@ function computeEstimatorSpread(
 	);
 	if (values.length < 2) return 0;
 	return Math.max(...values) - Math.min(...values);
+}
+
+function computeAgreementScore(input: {
+	candidates: BpmEvidence[];
+	resolved: BpmResolutionResult;
+	resolvedChoice: {
+		bpm: number | null;
+		confidence: number;
+		origin: "resolver" | "bayes";
+	};
+	bayes: TrackerEstimate;
+	analysis: {
+		waveformProfile: WaveformPeriodicityProfile | null;
+	};
+	winningSources: BpmEvidenceSource[];
+	estimatorSpread: number;
+	aliasFlag: boolean;
+}): number {
+	const { candidates, resolved, resolvedChoice, bayes, analysis, winningSources, estimatorSpread, aliasFlag } =
+		input;
+	const targetBpm = resolvedChoice.bpm;
+
+	if (targetBpm == null || !Number.isFinite(targetBpm)) return 0;
+
+	const directCandidates = candidates.filter(
+		(candidate) => candidate.source !== "calibrated" && candidate.source !== "backend",
+	);
+	const supportCandidates = directCandidates.length ? directCandidates : candidates;
+	let weightedSupport = 0;
+	let totalWeight = 0;
+	for (const candidate of supportCandidates) {
+		if (!Number.isFinite(candidate.bpm) || !Number.isFinite(candidate.confidence)) {
+			continue;
+		}
+		const weight = clamp(candidate.confidence, 0, 1);
+		weightedSupport += Math.exp(-Math.abs(candidate.bpm - targetBpm) / 10) * weight;
+		totalWeight += weight;
+	}
+	const candidateAgreement =
+		totalWeight > 0 ? clamp(weightedSupport / totalWeight, 0, 1) : 0;
+	const sourceCoverage =
+		supportCandidates.length > 0
+			? clamp(winningSources.length / supportCandidates.length, 0, 1)
+			: 0;
+	const trackerAgreement =
+		bayes.bpm != null && Number.isFinite(bayes.bpm)
+			? clamp(Math.exp(-Math.abs(bayes.bpm - targetBpm) / 8), 0, 1) *
+				clamp(0.4 + bayes.confidence * 0.6, 0.4, 1)
+			: 0.35;
+	const waveformAgreement = scoreWaveformAgreement(
+		analysis.waveformProfile,
+		targetBpm,
+	);
+	const spreadAgreement =
+		supportCandidates.length >= 2
+			? clamp(1 - estimatorSpread / 24, 0, 1)
+			: 0.55;
+	const aliasPenalty = aliasFlag ? 0.18 : 0;
+	const disagreementPenalty =
+		resolved.debug.winner &&
+		resolved.debug.winner.aliasSupport > resolved.debug.winner.sameSupport
+			? 0.1
+			: 0;
+
+	return clamp(
+		candidateAgreement * 0.38 +
+			sourceCoverage * 0.2 +
+			trackerAgreement * 0.22 +
+			waveformAgreement * 0.12 +
+			spreadAgreement * 0.08 -
+			aliasPenalty -
+			disagreementPenalty,
+		0,
+		1,
+	);
+}
+
+function scoreWaveformAgreement(
+	waveformProfile: WaveformPeriodicityProfile | null,
+	targetBpm: number,
+): number {
+	if (
+		!waveformProfile ||
+		!Array.isArray(waveformProfile.topCandidates) ||
+		!waveformProfile.topCandidates.length
+	) {
+		return 0.35;
+	}
+
+	let bestSupport = 0;
+	for (const candidate of waveformProfile.topCandidates.slice(0, 3)) {
+		const direct = Math.exp(-Math.abs(candidate.bpm - targetBpm) / 10);
+		const half = Math.exp(-Math.abs(candidate.bpm - targetBpm * 0.5) / 8) * 0.92;
+		const double = Math.exp(-Math.abs(candidate.bpm - targetBpm * 2) / 12) * 0.75;
+		bestSupport = Math.max(bestSupport, Math.max(direct, half, double));
+	}
+
+	return clamp(
+		bestSupport * clamp(0.35 + waveformProfile.confidence * 0.65, 0.35, 1),
+		0,
+		1,
+	);
 }
 
 function analyzeWindow(samples: Sample[]): {

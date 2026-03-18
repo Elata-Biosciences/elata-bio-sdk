@@ -33,6 +33,14 @@ export type { FrameSource, Frame, ROI } from "./frameSource";
 export { loadWasmBackend } from "./wasmBackend";
 export { computeWaveformPeriodicityProfile } from "./rppgDiagnostics";
 export type { WaveformPeriodicityProfile } from "./rppgDiagnostics";
+export { RppgGatingController } from "./rppgGating";
+export type {
+	RppgGatingInputs,
+	RppgGatingOptions,
+	RppgGatingOutput,
+	RppgGatingState,
+	RppgGuidanceCode,
+} from "./rppgGating";
 export { replayBayesSession } from "./rppgReplay";
 export type {
 	ReplayEstimatorSample,

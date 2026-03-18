@@ -20,6 +20,7 @@ const bpmEl        = getEl('bpm');
 const bpmRawEl     = getEl('bpm-raw');
 const confEl       = getEl('confidence');
 const signalEl     = getEl('signal');
+const agreementEl  = getEl('agreement');
 const backendBadge = getEl('backend-badge');
 const roiBadge     = getEl('roi-badge');
 const fpsBadge     = getEl('fps-badge');
@@ -290,6 +291,7 @@ async function startDemo() {
     const smoothed = emaBpm ? Math.round(emaBpm) : null;
     const signalQuality = metrics.signal_quality ?? 0;
     const confidence = metrics.confidence ?? 0;
+    const agreement = metrics.agreement ?? 0;
     const snr = metrics.snr as any;
 
     // --- Big BPM display ---
@@ -298,6 +300,7 @@ async function startDemo() {
     bpmRawEl.textContent  = rawBpm ? rawBpm.toFixed(1) : '--';
     confEl.textContent    = confidence.toFixed(2);
     signalEl.textContent  = signalQuality.toFixed(2);
+    agreementEl.textContent = agreement.toFixed(2);
 
     // Heart animation
     if (smoothed !== null) {
@@ -396,10 +399,12 @@ async function startDemo() {
     if (sampleCount < CALIBRATION_SAMPLES) {
       const pct = Math.round((sampleCount / CALIBRATION_SAMPLES) * 100);
       setStatusBadge(`Calibrating... ${pct}%`, 'calibrating');
-    } else if (smoothed !== null && confidence > 0.4) {
-      setStatusBadge('Active', 'running');
     } else if (signalQuality < 0.3) {
       setStatusBadge('Poor signal — face camera', 'warning');
+    } else if (agreement < 0.45) {
+      setStatusBadge('Signal present — estimators disagree', 'warning');
+    } else if (smoothed !== null && confidence > 0.4) {
+      setStatusBadge('Active', 'running');
     } else {
       setStatusBadge('Acquiring signal...', 'calibrating');
     }

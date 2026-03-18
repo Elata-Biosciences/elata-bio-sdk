@@ -243,7 +243,7 @@ describe('RppgProcessor', () => {
 
   test('delegates to backend and returns metrics', () => {
     const backend = createMockBackend({
-      get_metrics: jest.fn(() => ({ bpm: 72, confidence: 0.8, signal_quality: 0.7 })),
+      get_metrics: jest.fn(() => ({ bpm: 72, confidence: 0.8, signal_quality: 0.7, agreement: 0.6 })),
     });
     const p = new RppgProcessor(backend as any, 30, 5);
     p.pushSample(1000, 0.5);
@@ -251,6 +251,7 @@ describe('RppgProcessor', () => {
     const m = p.getMetrics();
     expect(m.bpm).toBe(72);
     expect(m.confidence).toBeGreaterThan(0.7);
+    expect(m.agreement).toBe(0.6);
   });
 
   test('enableTracker calls backend method', () => {
@@ -395,6 +396,7 @@ describe('RppgProcessor', () => {
         bpm_hz: 1.2,
         conf: 0.8,
         signalQuality: 0.7,
+        agreementQuality: 0.65,
         reasonCodes: ['test'],
       })),
     });
@@ -404,6 +406,7 @@ describe('RppgProcessor', () => {
     expect(m.bpm).toBe(1.2);
     expect(m.confidence).toBe(0.8);
     expect(m.signal_quality).toBe(0.7);
+    expect(m.agreement).toBe(0.65);
     expect(m.reason_codes).toEqual(['test']);
   });
 
@@ -451,6 +454,7 @@ describe('RppgProcessor', () => {
     expect(m.resolved_bpm).not.toBeNull();
     expect(m.bayes_bpm).not.toBeNull();
     expect((m.bayes_confidence ?? 0)).toBeGreaterThan(0);
+    expect((m.agreement ?? 0)).toBeGreaterThan(0);
     expect(m.hrv_rmssd == null || m.hrv_rmssd >= 0).toBeTruthy();
     expect(m.respiration_rate == null || m.respiration_rate >= 4).toBeTruthy();
     expect(m.fused_source).toBeDefined();
