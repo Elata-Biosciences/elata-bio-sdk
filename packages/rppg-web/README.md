@@ -95,6 +95,8 @@ and `get_metrics` or camelCase equivalents.
 - `MediaPipeFaceFrameSource`
 - `loadWasmBackend`
 - `computeWaveformPeriodicityProfile`
+- `normalizeRppgError`
+- `createRppgAppAdapter`
 - `replayBayesSession`
 
 ## Session Diagnostics
@@ -182,6 +184,60 @@ console.log(trace.backendFailure);
 
 `getTraceSnapshot()` is the supported way to read recent intensity/sample data
 for debug panels or regression tooling.
+
+## Error Normalization
+
+Use `normalizeRppgError()` to convert raw session errors or degraded
+diagnostics into stable app-facing categories and recovery guidance:
+
+```ts
+import { normalizeRppgError } from "@elata-biosciences/rppg-web";
+
+const normalized = normalizeRppgError(session.lastError, session.getDiagnostics());
+
+console.log(normalized?.code);
+console.log(normalized?.message);
+console.log(normalized?.guidance);
+```
+
+The helper covers cases such as:
+
+- `wasm_init_failed`
+- `face_tracking_init_failed`
+- `camera_not_playing`
+- `capture_failed`
+- `canvas_unavailable`
+- `processor_failed`
+- `backend_unavailable`
+
+## App Adapter
+
+If you want a single app-facing snapshot for UI state, publish gating, trace
+data, and stable messages, use `createRppgAppAdapter()`:
+
+```ts
+import {
+  createManagedRppgSession,
+  createRppgAppAdapter,
+} from "@elata-biosciences/rppg-web";
+
+const managed = await createManagedRppgSession({
+  video: videoEl,
+  faceMesh: "off",
+});
+
+const adapter = createRppgAppAdapter();
+const app = adapter.getSnapshot(managed);
+
+console.log(app.status);
+console.log(app.canPublish);
+console.log(app.publishBpm);
+console.log(app.message);
+console.log(app.trace.points);
+```
+
+This is the recommended reference-adapter path before building a custom
+`useRppg`-style state layer in your app.
 
 ## Low-Level Integration
 

@@ -139,6 +139,52 @@ console.log(trace.backendFailure);
 This is the supported alternative to reaching into internal processor fields
 such as `session.processor.samples`.
 
+## Error Normalization
+
+Use `normalizeRppgError()` instead of parsing raw message text in app code:
+
+```ts
+import { normalizeRppgError } from "@elata-biosciences/rppg-web";
+
+const normalized = normalizeRppgError(session.lastError, session.getDiagnostics());
+
+console.log(normalized?.code);
+console.log(normalized?.message);
+console.log(normalized?.guidance);
+```
+
+This gives apps stable categories such as `wasm_init_failed`,
+`backend_unavailable`, `camera_not_playing`, and `processor_failed`.
+
+## App Adapter
+
+If you want a single app-facing snapshot with restart status, publish gating,
+trace data, and stable messages, use `createRppgAppAdapter()`:
+
+```ts
+import {
+  createManagedRppgSession,
+  createRppgAppAdapter,
+} from "@elata-biosciences/rppg-web";
+
+const managed = await createManagedRppgSession({
+  video,
+  faceMesh: "off",
+});
+
+const adapter = createRppgAppAdapter();
+const app = adapter.getSnapshot(managed);
+
+if (app.canPublish) {
+  console.log(app.publishBpm);
+}
+
+console.log(app.status, app.message);
+```
+
+This is the recommended reference-adapter path if your app would otherwise
+rebuild the same `useRppg`-style state machine locally.
+
 If you need manual control, the lower-level `RppgProcessor`, `DemoRunner`, and
 frame-source helpers are still available.
 

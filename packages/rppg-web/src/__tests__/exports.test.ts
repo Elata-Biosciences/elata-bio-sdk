@@ -71,6 +71,16 @@ describe('@elata-biosciences/rppg-web exports', () => {
     expect(typeof rppgWeb.computeWaveformPeriodicityProfile).toBe('function');
   });
 
+  test('exports normalizeRppgError as a function', () => {
+    expect(rppgWeb.normalizeRppgError).toBeDefined();
+    expect(typeof rppgWeb.normalizeRppgError).toBe('function');
+  });
+
+  test('exports createRppgAppAdapter as a function', () => {
+    expect(rppgWeb.createRppgAppAdapter).toBeDefined();
+    expect(typeof rppgWeb.createRppgAppAdapter).toBe('function');
+  });
+
   test('exports replayBayesSession as a function', () => {
     expect(rppgWeb.replayBayesSession).toBeDefined();
     expect(typeof rppgWeb.replayBayesSession).toBe('function');
@@ -92,6 +102,8 @@ describe('@elata-biosciences/rppg-web exports', () => {
       'createRppgSession',
       'createManagedRppgSession',
       'computeWaveformPeriodicityProfile',
+      'normalizeRppgError',
+      'createRppgAppAdapter',
       'replayBayesSession',
     ];
     for (const key of expectedKeys) {
