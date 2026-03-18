@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import * as Rppg from '@elata-biosciences/rppg-web';
-import type { Backend, Metrics } from '@elata-biosciences/rppg-web';
+import type { Backend, DemoRunnerDiagnostics, Metrics, RppgDebugSnapshot } from '@elata-biosciences/rppg-web';
 
 export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -12,6 +12,23 @@ export default function App() {
     confidence: 0,
     signal_quality: 0,
   });
+  const [runnerDiagnostics, setRunnerDiagnostics] = useState<DemoRunnerDiagnostics>({
+    framesSeen: 0,
+    framesWithFaceRoi: 0,
+    framesWithFallbackRoi: 0,
+    framesWithMultiRoi: 0,
+    samplesPushed: 0,
+    droppedFrames: 0,
+    lastDropReason: null,
+    lastTimestampMs: null,
+    lastIntensity: null,
+    lastSkinRatio: null,
+    lastClipRatio: null,
+    lastMotion: null,
+    lastProcessorMethod: null,
+    lastRoiSource: null,
+  });
+  const [debugSnapshot, setDebugSnapshot] = useState<RppgDebugSnapshot | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,6 +87,7 @@ export default function App() {
       const runner = new DemoRunner(source, processor, {
         useSkinMask: true,
         roiSmoothingAlpha: 0.2,
+        onDiagnostics: (diagnostics: DemoRunnerDiagnostics) => setRunnerDiagnostics(diagnostics),
       });
       runnerRef.current = runner;
       await runner.start();
@@ -81,6 +99,9 @@ export default function App() {
       setStatus('Preview mode running. Update to a newer rppg-web release to enable live metrics.');
       intervalId = setInterval(() => {
         setMetrics(processor.getMetrics());
+        if (typeof processor.getDebugSnapshot === 'function') {
+          setDebugSnapshot(processor.getDebugSnapshot());
+        }
       }, 1000);
     }
 
@@ -112,6 +133,24 @@ export default function App() {
         <div>Confidence: {metrics.confidence.toFixed(2)}</div>
         <div>Signal quality: {metrics.signal_quality.toFixed(2)}</div>
       </div>
+      <section style={{ marginTop: 24, padding: 16, borderRadius: 12, border: '1px solid #d0d7de', background: '#f6f8fa' }}>
+        <h2 style={{ margin: '0 0 12px', fontSize: 18 }}>Diagnostics</h2>
+        <div>Frames seen: {runnerDiagnostics.framesSeen}</div>
+        <div>Face ROI frames: {runnerDiagnostics.framesWithFaceRoi}</div>
+        <div>Multi-ROI frames: {runnerDiagnostics.framesWithMultiRoi}</div>
+        <div>Fallback ROI frames: {runnerDiagnostics.framesWithFallbackRoi}</div>
+        <div>Samples pushed: {runnerDiagnostics.samplesPushed}</div>
+        <div>Dropped frames: {runnerDiagnostics.droppedFrames}</div>
+        <div>Last drop reason: {runnerDiagnostics.lastDropReason ?? 'none'}</div>
+        <div>Last ROI source: {runnerDiagnostics.lastRoiSource ?? 'none'}</div>
+        <div>Last processor method: {runnerDiagnostics.lastProcessorMethod ?? 'none'}</div>
+        <div>Last skin ratio: {runnerDiagnostics.lastSkinRatio != null ? runnerDiagnostics.lastSkinRatio.toFixed(2) : '--'}</div>
+        <div>Last motion: {runnerDiagnostics.lastMotion != null ? runnerDiagnostics.lastMotion.toFixed(2) : '--'}</div>
+        <div>Last clip ratio: {runnerDiagnostics.lastClipRatio != null ? runnerDiagnostics.lastClipRatio.toFixed(2) : '--'}</div>
+        <div>Window samples: {debugSnapshot?.windowSampleCount ?? 0}</div>
+        <div>Window duration ms: {debugSnapshot?.windowDurationMs ?? 0}</div>
+        <div>Issues: {debugSnapshot?.issues.length ? debugSnapshot.issues.join(', ') : 'none'}</div>
+      </section>
     </main>
   );
 }

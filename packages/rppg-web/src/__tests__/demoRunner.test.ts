@@ -180,6 +180,46 @@ describe('DemoRunner onStats callback', () => {
   });
 });
 
+describe('DemoRunner diagnostics', () => {
+  test('tracks pushed samples and ROI source counters', async () => {
+    const src = new MockFrameSource();
+    const proc = new MockProcessor();
+    const runner = new DemoRunner(src as any, proc as any);
+    await runner.start();
+
+    const frame = makeSkinFrame(20, 20);
+    frame.roi = { x: 2, y: 2, w: 10, h: 10 };
+    frame.rois = [{ x: 2, y: 2, w: 5, h: 5 }];
+    src.emit(frame);
+
+    const diagnostics = runner.getDiagnostics();
+    expect(diagnostics.framesSeen).toBe(1);
+    expect(diagnostics.framesWithMultiRoi).toBe(1);
+    expect(diagnostics.samplesPushed).toBe(1);
+    expect(diagnostics.lastRoiSource).toBe('multi_roi');
+    expect(diagnostics.lastProcessorMethod).toBe('rgb_meta');
+    await runner.stop();
+  });
+
+  test('tracks dropped invalid frames', async () => {
+    const src = new MockFrameSource();
+    const proc = new MockProcessor();
+    const runner = new DemoRunner(src as any, proc as any, {
+      roi: null,
+    });
+    await runner.start();
+
+    src.emit({ data: new Uint8ClampedArray(0), width: 0, height: 0, timestampMs: Date.now() });
+
+    const diagnostics = runner.getDiagnostics();
+    expect(diagnostics.framesSeen).toBe(1);
+    expect(diagnostics.droppedFrames).toBe(1);
+    expect(diagnostics.lastDropReason).toBe('frame_invalid');
+    expect(proc.pushSampleRgbMeta).not.toHaveBeenCalled();
+    await runner.stop();
+  });
+});
+
 describe('DemoRunner ROI smoothing', () => {
   test('slightly moving frame ROI converges rather than jumping', async () => {
     const src = new MockFrameSource();

@@ -23,7 +23,31 @@ export type DemoRunnerOptions = {
 		clipRatio: number;
 		motion: number;
 	}) => void;
+	onDiagnostics?: (diagnostics: DemoRunnerDiagnostics) => void;
 	skinRatioSmoothingAlpha?: number;
+};
+
+export type DemoRunnerDropReason =
+	| "frame_invalid"
+	| "roi_missing"
+	| "non_finite_intensity"
+	| "processor_error";
+
+export type DemoRunnerDiagnostics = {
+	framesSeen: number;
+	framesWithFaceRoi: number;
+	framesWithFallbackRoi: number;
+	framesWithMultiRoi: number;
+	samplesPushed: number;
+	droppedFrames: number;
+	lastDropReason: DemoRunnerDropReason | null;
+	lastTimestampMs: number | null;
+	lastIntensity: number | null;
+	lastSkinRatio: number | null;
+	lastClipRatio: number | null;
+	lastMotion: number | null;
+	lastProcessorMethod: "rgb_meta" | "rgb" | "intensity" | null;
+	lastRoiSource: "multi_roi" | "face_roi" | "fallback_roi" | null;
 };
 
 export class DemoRunner {
@@ -36,6 +60,22 @@ export class DemoRunner {
 	private lastFps: number | null = null;
 	private lastCenter: { x: number; y: number } | null = null;
 	private smoothedSkinRatio: number | null = null;
+	private diagnostics: DemoRunnerDiagnostics = {
+		framesSeen: 0,
+		framesWithFaceRoi: 0,
+		framesWithFallbackRoi: 0,
+		framesWithMultiRoi: 0,
+		samplesPushed: 0,
+		droppedFrames: 0,
+		lastDropReason: null,
+		lastTimestampMs: null,
+		lastIntensity: null,
+		lastSkinRatio: null,
+		lastClipRatio: null,
+		lastMotion: null,
+		lastProcessorMethod: null,
+		lastRoiSource: null,
+	};
 
 	constructor(
 		private source: FrameSource,
@@ -55,8 +95,13 @@ export class DemoRunner {
 		await this.source.stop();
 	}
 
+	getDiagnostics(): DemoRunnerDiagnostics {
+		return { ...this.diagnostics };
+	}
+
 	private onFrame(frame: Frame) {
 		if (!this.running) return;
+		this.diagnostics.framesSeen += 1;
 		const now =
 			typeof performance !== "undefined" ? performance.now() : Date.now();
 		this.frameTimes.push(now);
@@ -73,9 +118,12 @@ export class DemoRunner {
 		let clipRatio = 0;
 		let intensity = 0;
 		let motion = 0;
+		let roiSource: DemoRunnerDiagnostics["lastRoiSource"] = null;
 
 		const rois = frame.rois && frame.rois.length > 0 ? frame.rois : null;
 		if (rois) {
+			roiSource = "multi_roi";
+			this.diagnostics.framesWithMultiRoi += 1;
 			const agg = aggregateRgbFromRois(frame, rois, useSkinMask);
 			rgb = { r: agg.r, g: agg.g, b: agg.b };
 			skinRatio = agg.skinRatio;
@@ -93,13 +141,23 @@ export class DemoRunner {
 			if (typeof roi === "undefined") {
 				roi = frame.roi ?? null;
 			}
+			if (frame.roi) {
+				this.diagnostics.framesWithFaceRoi += 1;
+				roiSource = "face_roi";
+			}
 			if (!roi) {
+				if (frame.width <= 0 || frame.height <= 0 || !frame.data.length) {
+					this.recordDrop("frame_invalid");
+					return;
+				}
 				roi = {
 					x: Math.floor((frame.width - 100) / 2),
 					y: Math.floor((frame.height - 100) / 2),
 					w: 100,
 					h: 100,
 				};
+				this.diagnostics.framesWithFallbackRoi += 1;
+				roiSource = "fallback_roi";
 			}
 			const clamped = clampRoiToFrame(roi, frame.width, frame.height);
 			const smoothed = smoothRoi(
@@ -143,7 +201,10 @@ export class DemoRunner {
 				y: smoothedClamped.y + smoothedClamped.h * 0.5,
 			};
 		}
-		if (!Number.isFinite(intensity)) return;
+		if (!Number.isFinite(intensity)) {
+			this.recordDrop("non_finite_intensity");
+			return;
+		}
 		skinRatio = smooth01(
 			this.smoothedSkinRatio,
 			skinRatio,
@@ -152,23 +213,40 @@ export class DemoRunner {
 		this.smoothedSkinRatio = skinRatio;
 		const ts = frame.timestampMs ?? Date.now();
 		const proc = this.processor as any;
-		if (typeof proc.pushSampleRgbMeta === "function") {
-			proc.pushSampleRgbMeta(
-				ts,
-				rgb.r,
-				rgb.g,
-				rgb.b,
-				skinRatio,
-				motion,
-				clipRatio,
-			);
-		} else if (typeof proc.pushSampleRgb === "function") {
-			proc.pushSampleRgb(ts, rgb.r, rgb.g, rgb.b, skinRatio);
-		} else if (typeof proc.pushSample === "function") {
-			proc.pushSample(ts, intensity);
-		} else {
-			throw new TypeError("processor has no push sample API");
+		try {
+			if (typeof proc.pushSampleRgbMeta === "function") {
+				proc.pushSampleRgbMeta(
+					ts,
+					rgb.r,
+					rgb.g,
+					rgb.b,
+					skinRatio,
+					motion,
+					clipRatio,
+				);
+				this.diagnostics.lastProcessorMethod = "rgb_meta";
+			} else if (typeof proc.pushSampleRgb === "function") {
+				proc.pushSampleRgb(ts, rgb.r, rgb.g, rgb.b, skinRatio);
+				this.diagnostics.lastProcessorMethod = "rgb";
+			} else if (typeof proc.pushSample === "function") {
+				proc.pushSample(ts, intensity);
+				this.diagnostics.lastProcessorMethod = "intensity";
+			} else {
+				throw new TypeError("processor has no push sample API");
+			}
+		} catch (error) {
+			this.recordDrop("processor_error");
+			throw error;
 		}
+		this.diagnostics.samplesPushed += 1;
+		this.diagnostics.lastDropReason = null;
+		this.diagnostics.lastTimestampMs = ts;
+		this.diagnostics.lastIntensity = intensity;
+		this.diagnostics.lastSkinRatio = skinRatio;
+		this.diagnostics.lastClipRatio = clipRatio;
+		this.diagnostics.lastMotion = motion;
+		this.diagnostics.lastRoiSource = roiSource;
+		this.emitDiagnostics();
 		if (this.opts.onStats) {
 			this.opts.onStats({
 				intensity,
@@ -180,6 +258,18 @@ export class DemoRunner {
 				clipRatio,
 				motion,
 			});
+		}
+	}
+
+	private recordDrop(reason: DemoRunnerDropReason) {
+		this.diagnostics.droppedFrames += 1;
+		this.diagnostics.lastDropReason = reason;
+		this.emitDiagnostics();
+	}
+
+	private emitDiagnostics() {
+		if (this.opts.onDiagnostics) {
+			this.opts.onDiagnostics(this.getDiagnostics());
 		}
 	}
 }

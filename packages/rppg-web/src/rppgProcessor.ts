@@ -91,6 +91,35 @@ export type Metrics = {
 	respiration_rate?: number | null;
 };
 
+export type RppgDebugIssueCode =
+	| "no_samples_yet"
+	| "insufficient_window"
+	| "no_bpm_yet"
+	| "low_signal_quality"
+	| "low_confidence"
+	| "low_skin_ratio"
+	| "excessive_motion"
+	| "high_clipping";
+
+export type RppgDebugSnapshot = {
+	totalSamplesReceived: number;
+	windowSampleCount: number;
+	windowDurationMs: number;
+	lastSampleTimestampMs: number | null;
+	lastSampleAgeMs: number | null;
+	lastSample: {
+		intensity: number;
+		r: number;
+		g: number;
+		b: number;
+		skinRatio: number;
+		motion: number;
+		clipRatio: number;
+	} | null;
+	backendMetrics: Metrics;
+	issues: RppgDebugIssueCode[];
+};
+
 type Sample = {
 	timestampMs: number;
 	intensity: number;
@@ -397,6 +426,7 @@ export class RppgProcessor {
 	private baselineBpm: number | null = null;
 	private baselineDeviationStartMs: number | null = null;
 	private lastBayesUpdateMs: number | null = null;
+	private totalSamplesReceived = 0;
 
 	constructor(
 		private backend: Backend,
@@ -572,6 +602,45 @@ export class RppgProcessor {
 		return { ...backendMetrics, ...advanced };
 	}
 
+	getDebugSnapshot(nowMs = Date.now()): RppgDebugSnapshot {
+		const backendMetrics = this.getMetrics();
+		const lastSample =
+			this.samples.length > 0 ? this.samples[this.samples.length - 1] : null;
+		const firstSample = this.samples.length > 0 ? this.samples[0] : null;
+		const windowDurationMs =
+			firstSample && lastSample
+				? Math.max(0, lastSample.timestampMs - firstSample.timestampMs)
+				: 0;
+		const issues = deriveDebugIssues(
+			this.totalSamplesReceived,
+			this.samples.length,
+			windowDurationMs,
+			lastSample,
+			backendMetrics,
+		);
+		return {
+			totalSamplesReceived: this.totalSamplesReceived,
+			windowSampleCount: this.samples.length,
+			windowDurationMs,
+			lastSampleTimestampMs: lastSample?.timestampMs ?? null,
+			lastSampleAgeMs:
+				lastSample != null ? Math.max(0, nowMs - lastSample.timestampMs) : null,
+			lastSample: lastSample
+				? {
+						intensity: lastSample.intensity,
+						r: lastSample.r,
+						g: lastSample.g,
+						b: lastSample.b,
+						skinRatio: lastSample.skinRatio,
+						motion: lastSample.motion,
+						clipRatio: lastSample.clipRatio,
+					}
+				: null,
+			backendMetrics,
+			issues,
+		};
+	}
+
 	private readBackendMetrics(): Metrics {
 		if (typeof this.pipeline.get_metrics === "function") {
 			return normalizeMetrics(this.pipeline.get_metrics());
@@ -593,6 +662,7 @@ export class RppgProcessor {
 		clipRatio: number,
 	) {
 		if (!Number.isFinite(timestampMs) || !Number.isFinite(intensity)) return;
+		this.totalSamplesReceived += 1;
 		this.samples.push({
 			timestampMs,
 			intensity,
@@ -855,6 +925,42 @@ export class RppgProcessor {
 		this.baselineDeviationStartMs = null;
 		this.baselineBpm = this.baselineBpm * 0.985 + bpm * 0.015;
 	}
+}
+
+function deriveDebugIssues(
+	totalSamplesReceived: number,
+	windowSampleCount: number,
+	windowDurationMs: number,
+	lastSample: Sample | null,
+	metrics: Metrics,
+): RppgDebugIssueCode[] {
+	const issues: RppgDebugIssueCode[] = [];
+	if (totalSamplesReceived === 0) {
+		issues.push("no_samples_yet");
+		return issues;
+	}
+	if (windowSampleCount < 24 || windowDurationMs < 3000) {
+		issues.push("insufficient_window");
+	}
+	if (metrics.bpm == null) {
+		issues.push("no_bpm_yet");
+	}
+	if ((metrics.signal_quality ?? 0) < 0.35) {
+		issues.push("low_signal_quality");
+	}
+	if ((metrics.confidence ?? 0) < 0.35) {
+		issues.push("low_confidence");
+	}
+	if ((metrics.skin_ratio_mean ?? lastSample?.skinRatio ?? 1) < 0.25) {
+		issues.push("low_skin_ratio");
+	}
+	if ((metrics.motion_mean ?? lastSample?.motion ?? 0) > 0.35) {
+		issues.push("excessive_motion");
+	}
+	if ((metrics.clip_mean ?? lastSample?.clipRatio ?? 0) > 0.2) {
+		issues.push("high_clipping");
+	}
+	return Array.from(new Set(issues));
 }
 
 function normalizeMetrics(raw: any): Metrics {

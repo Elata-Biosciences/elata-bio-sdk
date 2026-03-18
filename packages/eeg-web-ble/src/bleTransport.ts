@@ -1,6 +1,7 @@
 import {
 	HEADBAND_FRAME_SCHEMA_VERSION,
 	HeadbandTransportState,
+	asElataError,
 } from "@elata-biosciences/eeg-web";
 import type {
 	HeadbandFrameV1,
@@ -236,19 +237,48 @@ export class BleTransport implements HeadbandTransport {
 
 	async connect(): Promise<void> {
 		this.emitStatus(HeadbandTransportState.Connecting);
-		await this.device.prepareSession();
-		this.emitStatus(HeadbandTransportState.Connected);
+		try {
+			await this.device.prepareSession();
+			this.emitStatus(HeadbandTransportState.Connected);
+		} catch (e) {
+			const err = asElataError(e, {
+				code: "BLE_CONNECT_FAILED",
+				message: "Failed to connect to BLE device",
+			});
+			this.emitStatus(
+				HeadbandTransportState.Error,
+				err.message,
+				err.code,
+				err.recoverable,
+			);
+			throw err;
+		}
 	}
 
 	async disconnect(): Promise<void> {
-		await this.device.releaseSession();
-		this.emitStatus(HeadbandTransportState.Disconnected);
+		try {
+			await this.device.releaseSession();
+			this.emitStatus(HeadbandTransportState.Disconnected);
+		} catch (e) {
+			const err = asElataError(e, {
+				code: "BLE_DISCONNECT_FAILED",
+				message: "Failed to disconnect BLE device",
+			});
+			this.emitStatus(
+				HeadbandTransportState.Error,
+				err.message,
+				err.code,
+				err.recoverable,
+			);
+			throw err;
+		}
 	}
 
 	async start(): Promise<void> {
 		this.emitStatus(HeadbandTransportState.Streaming);
-		await this.device.startStream(
-			(samples) => {
+		try {
+			await this.device.startStream(
+				(samples) => {
 				this.sequenceId += 1;
 				const frame: HeadbandFrameV1 = {
 					schemaVersion: HEADBAND_FRAME_SCHEMA_VERSION,
@@ -287,15 +317,42 @@ export class BleTransport implements HeadbandTransport {
 				}
 
 				if (this.onFrame && frame.eeg.samples.length > 0) this.onFrame(frame);
-			},
-			(channelName, packet) => {
-				this.handlePpg(channelName, packet as PpgInput);
-			},
-		);
+				},
+				(channelName, packet) => {
+					this.handlePpg(channelName, packet as PpgInput);
+				},
+			);
+		} catch (e) {
+			const err = asElataError(e, {
+				code: "BLE_START_FAILED",
+				message: "Failed to start BLE streaming",
+			});
+			this.emitStatus(
+				HeadbandTransportState.Error,
+				err.message,
+				err.code,
+				err.recoverable,
+			);
+			throw err;
+		}
 	}
 
 	async stop(): Promise<void> {
-		await this.device.stopStream();
-		this.emitStatus(HeadbandTransportState.Connected);
+		try {
+			await this.device.stopStream();
+			this.emitStatus(HeadbandTransportState.Connected);
+		} catch (e) {
+			const err = asElataError(e, {
+				code: "BLE_STOP_FAILED",
+				message: "Failed to stop BLE streaming",
+			});
+			this.emitStatus(
+				HeadbandTransportState.Error,
+				err.message,
+				err.code,
+				err.recoverable,
+			);
+			throw err;
+		}
 	}
 }

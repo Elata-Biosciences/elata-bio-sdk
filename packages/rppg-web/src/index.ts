@@ -11,6 +11,8 @@ export type {
 	BpmEvidenceSource,
 	BpmResolutionResult,
 	FusionSource,
+	RppgDebugIssueCode,
+	RppgDebugSnapshot,
 } from "./rppgProcessor";
 export { BpmBayesTracker } from "./bpmBayesTracker";
 export type {
@@ -24,7 +26,11 @@ export type {
 	HarmonicMode,
 } from "./bpmBayesTracker";
 export { DemoRunner } from "./demoRunner";
-export type { DemoRunnerOptions } from "./demoRunner";
+export type {
+	DemoRunnerOptions,
+	DemoRunnerDiagnostics,
+	DemoRunnerDropReason,
+} from "./demoRunner";
 export { MediaPipeFrameSource } from "./mediaPipeFrameSource";
 export { MediaPipeFaceFrameSource } from "./mediaPipeFaceFrameSource";
 export { loadFaceMesh } from "./mediapipeLoader";

@@ -1,5 +1,62 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
+
+# -----------------------------------------------------------------------------
+# Error helpers (dependency-free; usable from any command path).
+# -----------------------------------------------------------------------------
+
+RUN_SH_TASK="${RUN_SH_TASK:-}"
+
+_runsh_color() {
+    local code="$1"
+    if [[ -t 2 && -z "${NO_COLOR:-}" ]]; then
+        printf '\033[%sm' "$code"
+    fi
+}
+
+_runsh_reset() {
+    if [[ -t 2 && -z "${NO_COLOR:-}" ]]; then
+        printf '\033[0m'
+    fi
+}
+
+die() {
+    local msg="$1"
+    shift || true
+    printf "%sError:%s %s\n" "$(_runsh_color 31)" "$(_runsh_reset)" "$msg" >&2
+    if [[ $# -gt 0 ]]; then
+        printf "%sHint:%s %s\n" "$(_runsh_color 36)" "$(_runsh_reset)" "$*" >&2
+    fi
+    exit 1
+}
+
+on_err() {
+    # If errexit is disabled (e.g. doctor uses set +e), avoid noisy errors.
+    case "$-" in
+        *e*) ;;
+        *) return 0 ;;
+    esac
+
+    local rc="$1"
+    local line="$2"
+    local cmd="$3"
+
+    # Avoid recursive trap loops.
+    trap - ERR
+
+    local task_note=""
+    if [[ -n "${RUN_SH_TASK:-}" ]]; then
+        task_note=" (task: ${RUN_SH_TASK})"
+    fi
+
+    printf "%sCommand failed%s%s (exit %s)\n" "$(_runsh_color 31)" "$(_runsh_reset)" "$task_note" "$rc" >&2
+    printf "  at %s:%s\n" "${BASH_SOURCE[1]:-$0}" "$line" >&2
+    printf "  while running: %s\n" "$cmd" >&2
+    printf "%sHint:%s re-run with \`bash -x %s ...\` for a trace, or run \`./run.sh doctor\` to validate toolchain.\n" "$(_runsh_color 36)" "$(_runsh_reset)" "$0" >&2
+    exit "$rc"
+}
+
+trap 'on_err "$?" "$LINENO" "$BASH_COMMAND"' ERR
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET="wasm32-unknown-unknown"
@@ -390,8 +447,7 @@ normalize_profile() {
 
 require_cmd() {
     if ! command -v "$1" >/dev/null 2>&1; then
-        echo "Missing required command: $1" >&2
-        exit 1
+        die "Missing required command: $1" "Install '$1' and retry (try: ./run.sh doctor)."
     fi
 }
 
@@ -455,8 +511,7 @@ init_package_manager() {
         PKG_MGR="pnpm"
         return
     fi
-    echo "Missing required package manager: pnpm" >&2
-    exit 1
+    die "Missing required package manager: pnpm" "Install pnpm, then run: ./run.sh doctor"
 }
 
 require_package_manager() {
@@ -1000,25 +1055,31 @@ ensure_sccache
 cmd="${1:-doctor}"
 case "$cmd" in
     install)
+        RUN_SH_TASK="install"
         require_package_manager
         pnpm install
         ;;
     doctor)
+        RUN_SH_TASK="doctor"
         doctor
         ;;
     verify-all)
+        RUN_SH_TASK="verify-all"
         # Run publish-level verification, including packaged wasm and tarball checks.
         run_root_script "verify:all"
         ;;
     changeset)
+        RUN_SH_TASK="changeset"
         require_cmds pnpm node
         (cd "$ROOT_DIR" && pnpm changeset)
         ;;
     bump)
+        RUN_SH_TASK="bump"
         require_cmds pnpm node
         (cd "$ROOT_DIR" && pnpm run version)
         ;;
     release-check)
+        RUN_SH_TASK="release-check"
         # Usage:
         #   ./run.sh release-check [target]
         # Examples:
@@ -1028,6 +1089,7 @@ case "$cmd" in
         release_check_for_target "${2:-all}"
         ;;
     release)
+        RUN_SH_TASK="release"
         # Usage:
         #   ./run.sh release [target] [dist-tag]
         # Examples:
@@ -1037,6 +1099,7 @@ case "$cmd" in
         release_packages "${2:-all}" "${3:-next}"
         ;;
     publish)
+        RUN_SH_TASK="publish"
         # Usage:
         #   ./run.sh publish [target] [dist-tag]
         # Examples:
@@ -1045,6 +1108,7 @@ case "$cmd" in
         publish_packages "${2:-all}" "${3:-next}"
         ;;
     promote*)
+        RUN_SH_TASK="promote"
         # Usage:
         #   ./run.sh promote [target]
         # Examples:
@@ -1054,6 +1118,7 @@ case "$cmd" in
         promote_latest "${2:-all}"
         ;;
     view)
+        RUN_SH_TASK="view"
         # Usage:
         #   ./run.sh view [target]
         # Examples:
@@ -1063,6 +1128,7 @@ case "$cmd" in
         view_packages "${2:-all}"
         ;;
     tag-release)
+        RUN_SH_TASK="tag-release"
         # Usage:
         #   ./run.sh tag-release [target] [commit]
         # Tags are derived from package.json versions:
@@ -1070,26 +1136,32 @@ case "$cmd" in
         create_release_tags "${2:-all}" "${3:-HEAD}"
         ;;
     push-tags)
+        RUN_SH_TASK="push-tags"
         # Usage:
         #   ./run.sh push-tags [target]
         # Pushes existing local tags derived from package.json versions.
         push_release_tags "${2:-all}"
         ;;
     build)
+        RUN_SH_TASK="build"
         build_targets release "${2:-all}"
         ;;
     dev)
+        RUN_SH_TASK="dev"
         build_targets debug "${2:-all}"
         ;;
     demo)
+        RUN_SH_TASK="demo"
         run_demo "${2:-rppg}"
         ;;
     bindings)
+        RUN_SH_TASK="bindings"
         require_cmd wasm-bindgen
         profile="$(normalize_profile "${2:-release}")" || { usage; exit 1; }
         generate_eeg_bindings "$profile"
         ;;
     sync-to)
+        RUN_SH_TASK="sync-to"
         # Usage: ./run.sh sync-to [app-path] [profile]
         #   APP_DIR env or first arg (default: ../my-app)
         #   profile: release|debug (default: release)
@@ -1097,9 +1169,7 @@ case "$cmd" in
         PROFILE_ARG="$(normalize_profile "${3:-release}")" || exit 1
 
         if [[ ! -d "$APP_DIR_ARG" ]]; then
-            echo "Target app directory not found: $APP_DIR_ARG" >&2
-            echo "Create the target or pass a different path: ./run.sh sync-to /path/to/app" >&2
-            exit 1
+            die "Target app directory not found: $APP_DIR_ARG" "Create the target or pass a different path: ./run.sh sync-to /path/to/app"
         fi
 
         echo "Building EEG web package (profile: $PROFILE_ARG) and syncing into $APP_DIR_ARG"
@@ -1111,6 +1181,7 @@ case "$cmd" in
         echo "Sync complete: $ROOT_DIR/packages/eeg-web → $APP_DIR_ARG"
         ;;
     test)
+        RUN_SH_TASK="test"
         require_package_manager
         declare -a test_summaries=()
         declare -a test_logs=()
@@ -1129,6 +1200,12 @@ case "$cmd" in
         }
 
         trap cleanup_test_logs EXIT
+
+        if [[ "${2:-}" == "run-sh" ]]; then
+            echo "Running run.sh error-handling self-tests..."
+            bash "$ROOT_DIR/scripts/run-sh-tests.sh"
+            exit 0
+        fi
 
         if [[ "${2:-}" == "create-elata-demo" ]]; then
             if [[ ! -d "node_modules" ]]; then
@@ -1192,6 +1269,7 @@ case "$cmd" in
         printf "%s\n" "${test_summaries[@]}"
         ;;
     clean)
+        RUN_SH_TASK="clean"
         require_cmd cargo
         echo "Removing generated web bindings/bundles..."
         run_root_script "clean"
@@ -1200,17 +1278,35 @@ case "$cmd" in
         cargo clean -p eeg-wasm -p rppg-wasm
         ;;
     format)
+        RUN_SH_TASK="format"
         require_package_manager
         run_root_script "format"
         ;;
     format-check)
+        RUN_SH_TASK="format-check"
         require_package_manager
         run_root_script "format:check"
         ;;
+    __selftest_errtrap)
+        RUN_SH_TASK="__selftest_errtrap"
+        if [[ "${RUN_SH_INTERNAL_TEST:-0}" != "1" ]]; then
+            die "Internal self-test command is disabled." "Run via: RUN_SH_INTERNAL_TEST=1 ./run.sh __selftest_errtrap"
+        fi
+        false
+        ;;
+    __selftest_requirecmd)
+        RUN_SH_TASK="__selftest_requirecmd"
+        if [[ "${RUN_SH_INTERNAL_TEST:-0}" != "1" ]]; then
+            die "Internal self-test command is disabled." "Run via: RUN_SH_INTERNAL_TEST=1 ./run.sh __selftest_requirecmd"
+        fi
+        require_cmd "__definitely_missing_command__"
+        ;;
     help|-h|--help)
+        RUN_SH_TASK="help"
         usage
         ;;
     *)
+        RUN_SH_TASK="$cmd"
         echo "Unknown command: $cmd" >&2
         usage
         exit 1

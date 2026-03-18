@@ -352,4 +352,25 @@ describe('BleTransport', () => {
     expect(typeof frames[0].emittedAtMs).toBe('number');
     expect(frames[0].emittedAtMs).toBeGreaterThan(0);
   });
+
+  test('connect emits Error status with code when Web Bluetooth unavailable', async () => {
+    Object.defineProperty(navigator, 'bluetooth', {
+      value: undefined,
+      writable: true,
+      configurable: true,
+    });
+
+    const transport = new BleTransport({ sourceName: 'test-ble' });
+    const statuses: HeadbandTransportStatus[] = [];
+    transport.onStatus = (status: HeadbandTransportStatus) => statuses.push(status);
+
+    await expect(transport.connect()).rejects.toMatchObject({
+      name: 'ElataError',
+      code: 'BLE_UNAVAILABLE',
+    });
+
+    const errStatus = statuses.find((s) => s.state === 'error');
+    expect(errStatus).toBeDefined();
+    expect(errStatus).toMatchObject({ errorCode: 'BLE_UNAVAILABLE' });
+  });
 });

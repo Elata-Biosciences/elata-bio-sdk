@@ -390,6 +390,42 @@ describe('RppgProcessor', () => {
     expect(m.calibration_trained).toBe(false);
   });
 
+  test('getDebugSnapshot exposes no-sample state', () => {
+    const backend = createMockBackend();
+    const p = new RppgProcessor(backend as any, 30, 5);
+
+    const snapshot = p.getDebugSnapshot(1000);
+
+    expect(snapshot.totalSamplesReceived).toBe(0);
+    expect(snapshot.windowSampleCount).toBe(0);
+    expect(snapshot.issues).toContain('no_samples_yet');
+  });
+
+  test('getDebugSnapshot exposes sample-driven issue codes', () => {
+    const backend = createMockBackend({
+      get_metrics: jest.fn(() => ({ bpm: null, confidence: 0.1, signal_quality: 0.1 })),
+    });
+    const p = new RppgProcessor(backend as any, 30, 5);
+
+    for (let i = 0; i < 10; i++) {
+      p.pushSampleRgbMeta(1000 + i * 33, 0.4, 0.5, 0.4, 0.1, 0.6, 0.3);
+    }
+
+    const snapshot = p.getDebugSnapshot(2000);
+
+    expect(snapshot.totalSamplesReceived).toBe(10);
+    expect(snapshot.windowSampleCount).toBe(10);
+    expect(snapshot.issues).toEqual(expect.arrayContaining([
+      'insufficient_window',
+      'no_bpm_yet',
+      'low_signal_quality',
+      'low_confidence',
+      'low_skin_ratio',
+      'excessive_motion',
+      'high_clipping',
+    ]));
+  });
+
   test('getMetrics normalizes backend metrics with different field names', () => {
     const backend = createMockBackend({
       get_metrics: jest.fn(() => ({

@@ -1,3 +1,5 @@
+import { ElataError } from "@elata-biosciences/eeg-web";
+
 export type MuseProtocol = "classic" | "athena";
 export type MusePpgMode = "none" | "interleaved" | "per-channel" | "athena";
 
@@ -221,7 +223,14 @@ export class MuseBleDevice {
 
 	async prepareSession(): Promise<void> {
 		if (!navigator.bluetooth) {
-			throw new Error("Web Bluetooth not available in this browser");
+			throw new ElataError(
+				"BLE_UNAVAILABLE",
+				"Web Bluetooth not available in this browser",
+				{
+					recoverable: false,
+					details: { platform: typeof navigator !== "undefined" ? navigator.userAgent : "unknown" },
+				},
+			);
 		}
 
 		this.device = await navigator.bluetooth.requestDevice({
@@ -237,7 +246,11 @@ export class MuseBleDevice {
 		});
 
 		this.server = (await this.device.gatt?.connect()) ?? null;
-		if (!this.server) throw new Error("Failed to connect to GATT server");
+		if (!this.server) {
+			throw new ElataError("BLE_GATT_CONNECT_FAILED", "Failed to connect to GATT server", {
+				recoverable: true,
+			});
+		}
 		this.service = await this.server.getPrimaryService(this.SERVICE_UUID);
 
 		const characteristics = await this.service.getCharacteristics();

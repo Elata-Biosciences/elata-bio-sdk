@@ -2,6 +2,7 @@ import { initDemo } from '../src/demoApp';
 import { MediaPipeFaceFrameSource } from '../src/mediaPipeFaceFrameSource';
 import { computeWaveformPeriodicityProfile } from '../src/rppgDiagnostics';
 import { replayBayesSession, type ReplayBayesSessionResult, type ReplaySyncSample } from '../src/rppgReplay';
+import type { DemoRunnerDiagnostics, RppgDebugSnapshot } from '../src';
 
 // --- DOM helpers ---
 function getEl<T extends HTMLElement = HTMLElement>(id: string): T {
@@ -35,6 +36,15 @@ const trackerReferenceOriginEl = getEl('tracker-reference-origin');
 const trackerWaveformReliabilityEl = getEl('tracker-waveform-reliability');
 const waveformDominantBpmEl = getEl('waveform-dominant-bpm');
 const waveformConfidenceEl = getEl('waveform-confidence');
+const diagFramesSeenEl = getEl('diag-frames-seen');
+const diagSamplesPushedEl = getEl('diag-samples-pushed');
+const diagRoiSourceEl = getEl('diag-roi-source');
+const diagProcessorMethodEl = getEl('diag-processor-method');
+const diagDroppedFramesEl = getEl('diag-dropped-frames');
+const diagLastDropEl = getEl('diag-last-drop');
+const diagWindowSamplesEl = getEl('diag-window-samples');
+const diagWindowDurationEl = getEl('diag-window-duration');
+const diagIssuesEl = getEl('diag-issues');
 const replaySummaryEl = getEl<HTMLPreElement>('replay-summary');
 const copyReplayBtn = getEl<HTMLButtonElement>('copy-replay-btn');
 const reasonsEl    = getEl('reasons');
@@ -183,6 +193,63 @@ let rafId: number | null = null;
 let sampleCount = 0;
 const CALIBRATION_SAMPLES = 150; // ~5s at 30fps
 
+function formatIssueCodes(issues: string[] | undefined | null): string {
+  return issues && issues.length > 0 ? issues.join(', ') : '--';
+}
+
+function formatRunnerRoiSource(value: DemoRunnerDiagnostics['lastRoiSource'] | null): string {
+  switch (value) {
+    case 'multi_roi': return 'multi-roi';
+    case 'face_roi': return 'face-roi';
+    case 'fallback_roi': return 'fallback-roi';
+    default: return '--';
+  }
+}
+
+function formatProcessorPath(value: DemoRunnerDiagnostics['lastProcessorMethod'] | null): string {
+  switch (value) {
+    case 'rgb_meta': return 'rgb-meta';
+    case 'rgb': return 'rgb';
+    case 'intensity': return 'intensity';
+    default: return '--';
+  }
+}
+
+function deriveStatusFromDiagnostics(
+  debugSnapshot: RppgDebugSnapshot | null,
+  signalQuality: number,
+  agreement: number,
+  smoothed: number | null,
+  confidence: number,
+): { text: string; style: BadgeStyle } {
+  const issues = debugSnapshot?.issues ?? [];
+  if (issues.includes('no_samples_yet')) {
+    return { text: 'No samples yet', style: 'warning' };
+  }
+  if (issues.includes('insufficient_window')) {
+    return { text: 'Collecting pulse samples...', style: 'calibrating' };
+  }
+  if (issues.includes('low_skin_ratio')) {
+    return { text: 'Low skin signal — improve lighting', style: 'warning' };
+  }
+  if (issues.includes('excessive_motion')) {
+    return { text: 'Too much motion — hold still', style: 'warning' };
+  }
+  if (issues.includes('high_clipping')) {
+    return { text: 'Exposure clipping detected', style: 'warning' };
+  }
+  if (signalQuality < 0.3) {
+    return { text: 'Poor signal — face camera', style: 'warning' };
+  }
+  if (agreement < 0.45) {
+    return { text: 'Signal present — estimators disagree', style: 'warning' };
+  }
+  if (smoothed !== null && confidence > 0.4) {
+    return { text: 'Active', style: 'running' };
+  }
+  return { text: 'Acquiring signal...', style: 'calibrating' };
+}
+
 copyReplayBtn.addEventListener('click', async () => {
   if (!lastReplayResult) return;
   const text = JSON.stringify(lastReplayResult, null, 2);
@@ -240,8 +307,9 @@ async function startDemo() {
   setStatusBadge('Initializing...', 'calibrating');
 
   let lastStats = { intensity: 0, skinRatio: 0, fps: trackFps, r: 0, g: 0, b: 0, clipRatio: 0, motion: 0 };
+  let lastRunnerDiagnostics: DemoRunnerDiagnostics | null = null;
 
-  const { proc, source } = await initDemo(video, {
+  const { proc, source, runner } = await initDemo(video, {
     sampleRate: trackFps ?? 30,
     windowSec: 8,
     roiSmoothingAlpha: 0.15,
@@ -279,8 +347,14 @@ async function startDemo() {
   // --- Metrics polling ---
   setInterval(() => {
     const metrics = proc.getMetrics();
+    const debugSnapshot = typeof proc.getDebugSnapshot === 'function'
+      ? (proc.getDebugSnapshot() as RppgDebugSnapshot)
+      : null;
     const snapshot = proc.getStateSnapshot() as Record<string, any>;
     const trackerSnapshot = snapshot.bayesTracker as Record<string, any> | undefined;
+    lastRunnerDiagnostics = typeof runner.getDiagnostics === 'function'
+      ? (runner.getDiagnostics() as DemoRunnerDiagnostics)
+      : lastRunnerDiagnostics;
     const rawBpm = metrics.bpm ?? null;
 
     // Smoothed BPM (EMA)
@@ -349,6 +423,16 @@ async function startDemo() {
       ? waveformProfile.confidence.toFixed(3)
       : '--';
 
+    diagFramesSeenEl.textContent = lastRunnerDiagnostics ? String(lastRunnerDiagnostics.framesSeen) : '--';
+    diagSamplesPushedEl.textContent = lastRunnerDiagnostics ? String(lastRunnerDiagnostics.samplesPushed) : '--';
+    diagRoiSourceEl.textContent = formatRunnerRoiSource(lastRunnerDiagnostics?.lastRoiSource ?? null);
+    diagProcessorMethodEl.textContent = formatProcessorPath(lastRunnerDiagnostics?.lastProcessorMethod ?? null);
+    diagDroppedFramesEl.textContent = lastRunnerDiagnostics ? String(lastRunnerDiagnostics.droppedFrames) : '--';
+    diagLastDropEl.textContent = lastRunnerDiagnostics?.lastDropReason ?? '--';
+    diagWindowSamplesEl.textContent = debugSnapshot ? String(debugSnapshot.windowSampleCount) : '--';
+    diagWindowDurationEl.textContent = debugSnapshot ? `${(debugSnapshot.windowDurationMs / 1000).toFixed(1)}s` : '--';
+    diagIssuesEl.textContent = formatIssueCodes(debugSnapshot?.issues);
+
     if (waveformProfile && waveformValues.length >= 60) {
       const replaySample: ReplaySyncSample = {
         epochTs: Date.now(),
@@ -388,9 +472,15 @@ async function startDemo() {
 
     // Reason codes
     const reasons = metrics.reason_codes && metrics.reason_codes.length > 0 ? metrics.reason_codes : null;
-    if (reasons) {
+    const issueCodes = debugSnapshot?.issues ?? null;
+    const combinedReasons = [
+      ...(reasons ?? []),
+      ...(issueCodes ?? []),
+    ];
+    const uniqueReasons = combinedReasons.length > 0 ? Array.from(new Set(combinedReasons)) : null;
+    if (uniqueReasons) {
       reasonWrap.classList.remove('hidden');
-      reasonsEl.textContent = reasons.join(', ');
+      reasonsEl.textContent = uniqueReasons.join(', ');
     } else {
       reasonWrap.classList.add('hidden');
     }
@@ -399,14 +489,15 @@ async function startDemo() {
     if (sampleCount < CALIBRATION_SAMPLES) {
       const pct = Math.round((sampleCount / CALIBRATION_SAMPLES) * 100);
       setStatusBadge(`Calibrating... ${pct}%`, 'calibrating');
-    } else if (signalQuality < 0.3) {
-      setStatusBadge('Poor signal — face camera', 'warning');
-    } else if (agreement < 0.45) {
-      setStatusBadge('Signal present — estimators disagree', 'warning');
-    } else if (smoothed !== null && confidence > 0.4) {
-      setStatusBadge('Active', 'running');
     } else {
-      setStatusBadge('Acquiring signal...', 'calibrating');
+      const status = deriveStatusFromDiagnostics(
+        debugSnapshot,
+        signalQuality,
+        agreement,
+        smoothed,
+        confidence,
+      );
+      setStatusBadge(status.text, status.style);
     }
   }, 1000);
 }

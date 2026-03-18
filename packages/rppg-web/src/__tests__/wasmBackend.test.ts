@@ -26,3 +26,12 @@ test('loadWasmBackend returns null when no bundle present', async () => {
 
   expect(backend).toBeNull();
 });
+
+test('loadWasmBackend throws a structured error in strict mode', async () => {
+  await expect(loadWasmBackend(async () => {
+    throw new Error('missing module');
+  }, { strict: true })).rejects.toMatchObject({
+    name: 'RppgWasmLoadError',
+    code: 'RPPG_WASM_LOAD_FAILED',
+  });
+});

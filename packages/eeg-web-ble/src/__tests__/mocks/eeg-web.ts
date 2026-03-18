@@ -1,5 +1,35 @@
 export const HEADBAND_FRAME_SCHEMA_VERSION = "v1" as const;
 
+export class ElataError extends Error {
+  public readonly code: string;
+  public readonly details?: Record<string, unknown>;
+  public readonly recoverable?: boolean;
+  constructor(
+    code: string,
+    message: string,
+    options?: { recoverable?: boolean; details?: Record<string, unknown> },
+  ) {
+    super(message);
+    this.name = "ElataError";
+    this.code = code;
+    this.details = options?.details;
+    this.recoverable = options?.recoverable;
+  }
+}
+
+export function asElataError(
+  value: unknown,
+  fallback: { code: string; message: string } = { code: "UNKNOWN", message: "Unknown error" },
+): ElataError {
+  if (value instanceof ElataError) return value;
+  if (value instanceof Error) {
+    return new ElataError(fallback.code, fallback.message, {
+      details: { originalMessage: value.message },
+    });
+  }
+  return new ElataError(fallback.code, fallback.message);
+}
+
 export enum HeadbandTransportState {
   Idle = "idle",
   Connecting = "connecting",
