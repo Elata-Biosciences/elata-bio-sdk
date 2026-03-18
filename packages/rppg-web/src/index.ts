@@ -14,6 +14,8 @@ export type {
 	RppgDebugIssueCode,
 	RppgDebugSnapshot,
 	RppgProcessorBackendFailure,
+	RppgTracePoint,
+	RppgTraceSnapshot,
 } from "./rppgProcessor";
 export { BpmBayesTracker } from "./bpmBayesTracker";
 export type {

@@ -491,6 +491,36 @@ describe('RppgProcessor', () => {
     ]));
   });
 
+  test('getTraceSnapshot exposes recent public trace points without requiring internals', () => {
+    const backend = createMockBackend();
+    const p = new RppgProcessor(backend as any, 30, 5);
+
+    p.pushSampleRgbMeta(1000, 0.4, 0.5, 0.6, 0.8, 0.1, 0.05);
+    p.pushSampleRgbMeta(1033, 0.5, 0.6, 0.7, 0.7, 0.2, 0.04);
+    p.pushSampleRgbMeta(1066, 0.6, 0.7, 0.8, 0.6, 0.3, 0.03);
+
+    const trace = p.getTraceSnapshot(2);
+
+    expect(trace.sampleRate).toBe(30);
+    expect(trace.windowSec).toBe(5);
+    expect(trace.totalSamplesReceived).toBe(3);
+    expect(trace.windowSampleCount).toBe(3);
+    expect(trace.points).toHaveLength(2);
+    expect(trace.points[0]).toMatchObject({
+      timestampMs: 1033,
+      intensity: expect.any(Number),
+      skinRatio: 0.7,
+      motion: 0.2,
+      clipRatio: 0.04,
+    });
+    expect(trace.lastSample).toMatchObject({
+      skinRatio: 0.6,
+      motion: 0.3,
+      clipRatio: 0.03,
+    });
+    expect(trace.backendFailure).toBeNull();
+  });
+
   test('getMetrics normalizes backend metrics with different field names', () => {
     const backend = createMockBackend({
       get_metrics: jest.fn(() => ({

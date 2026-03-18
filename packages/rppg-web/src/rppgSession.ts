@@ -15,6 +15,7 @@ import {
 	type RppgDebugIssueCode,
 	type RppgDebugSnapshot,
 	type RppgProcessorBackendFailure,
+	type RppgTraceSnapshot,
 } from "./rppgProcessor";
 import {
 	loadWasmBackend,
@@ -143,6 +144,10 @@ export class RppgSession {
 
 	getDebugSnapshot(nowMs = Date.now()): RppgDebugSnapshot {
 		return this.processor.getDebugSnapshot(nowMs);
+	}
+
+	getTraceSnapshot(maxPoints = 300): RppgTraceSnapshot {
+		return this.processor.getTraceSnapshot(maxPoints);
 	}
 
 	getState(): RppgSessionState {

@@ -125,6 +125,29 @@ export type RppgProcessorBackendFailure = {
 	message: string;
 };
 
+export type RppgTracePoint = {
+	timestampMs: number;
+	intensity: number;
+	r: number;
+	g: number;
+	b: number;
+	skinRatio: number;
+	motion: number;
+	clipRatio: number;
+};
+
+export type RppgTraceSnapshot = {
+	sampleRate: number;
+	windowSec: number;
+	totalSamplesReceived: number;
+	windowSampleCount: number;
+	windowDurationMs: number;
+	durationSec: number;
+	points: RppgTracePoint[];
+	lastSample: RppgDebugSnapshot["lastSample"];
+	backendFailure: RppgProcessorBackendFailure | null;
+};
+
 type Sample = {
 	timestampMs: number;
 	intensity: number;
@@ -434,12 +457,16 @@ export class RppgProcessor {
 	private totalSamplesReceived = 0;
 	private failedBackendError: Error | null = null;
 	private failedOperation: string | null = null;
+	private readonly sampleRate: number;
+	private readonly windowSec: number;
 
 	constructor(
 		private backend: Backend,
 		sampleRate = 30,
 		windowSec = 5,
 	) {
+		this.sampleRate = sampleRate;
+		this.windowSec = windowSec;
 		this.pipeline = this.backend.newPipeline(sampleRate, windowSec);
 	}
 
@@ -723,6 +750,50 @@ export class RppgProcessor {
 				: null,
 			backendMetrics,
 			issues,
+		};
+	}
+
+	getTraceSnapshot(maxPoints = 300): RppgTraceSnapshot {
+		const safeMaxPoints = Math.max(1, Math.floor(maxPoints));
+		const points = this.samples
+			.slice(-safeMaxPoints)
+			.map((sample) => ({
+				timestampMs: sample.timestampMs,
+				intensity: sample.intensity,
+				r: sample.r,
+				g: sample.g,
+				b: sample.b,
+				skinRatio: sample.skinRatio,
+				motion: sample.motion,
+				clipRatio: sample.clipRatio,
+			}));
+		const firstPoint = points[0] ?? null;
+		const lastPoint = points[points.length - 1] ?? null;
+		const windowDurationMs =
+			firstPoint && lastPoint
+				? Math.max(0, lastPoint.timestampMs - firstPoint.timestampMs)
+				: 0;
+		return {
+			sampleRate: this.sampleRate,
+			windowSec: this.windowSec,
+			totalSamplesReceived: this.totalSamplesReceived,
+			windowSampleCount: this.samples.length,
+			windowDurationMs,
+			durationSec: windowDurationMs / 1000,
+			points,
+			lastSample:
+				lastPoint != null
+					? {
+							intensity: lastPoint.intensity,
+							r: lastPoint.r,
+							g: lastPoint.g,
+							b: lastPoint.b,
+							skinRatio: lastPoint.skinRatio,
+							motion: lastPoint.motion,
+							clipRatio: lastPoint.clipRatio,
+						}
+					: null,
+			backendFailure: this.getBackendFailure(),
 		};
 	}
 

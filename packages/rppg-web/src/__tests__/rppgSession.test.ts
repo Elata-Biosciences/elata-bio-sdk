@@ -165,4 +165,31 @@ describe('RppgSession', () => {
     );
     expect(backend.pipeline.get_metrics).not.toHaveBeenCalled();
   });
+
+  test('getTraceSnapshot exposes processor trace data through the public session API', () => {
+    const backend = createMockBackend();
+    const processor = new RppgProcessor(backend as any, 30, 5);
+    processor.pushSampleRgbMeta(1000, 0.4, 0.5, 0.4, 0.8, 0.1, 0.05);
+    processor.pushSampleRgbMeta(1033, 0.5, 0.6, 0.5, 0.7, 0.2, 0.04);
+
+    const runner = createRunnerStub();
+    const session = new RppgSession(
+      createSourceStub(),
+      processor,
+      runner as any,
+      'wasm',
+      'video_frame',
+    );
+
+    const trace = session.getTraceSnapshot(1);
+
+    expect(trace.points).toHaveLength(1);
+    expect(trace.points[0]).toMatchObject({
+      timestampMs: 1033,
+      skinRatio: 0.7,
+      motion: 0.2,
+      clipRatio: 0.04,
+    });
+    expect(trace.windowSampleCount).toBe(2);
+  });
 });

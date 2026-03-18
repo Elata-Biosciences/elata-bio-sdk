@@ -204,4 +204,24 @@ describe('ManagedRppgSession', () => {
     });
     expect(session.dispose).toHaveBeenCalledTimes(1);
   });
+
+  test('returns an empty public trace snapshot when no active session is attached', () => {
+    const managed = new ManagedRppgSession({
+      video: document.createElement('video'),
+      faceMesh: 'off',
+      autoStart: false,
+    });
+
+    expect(managed.getTraceSnapshot()).toEqual({
+      sampleRate: 0,
+      windowSec: 0,
+      totalSamplesReceived: 0,
+      windowSampleCount: 0,
+      windowDurationMs: 0,
+      durationSec: 0,
+      points: [],
+      lastSample: null,
+      backendFailure: null,
+    });
+  });
 });

@@ -167,6 +167,22 @@ console.log(managed.getMetrics());
 The managed wrapper sits above `RppgSession`; it does not replace the lower
 level API when you want full lifecycle ownership.
 
+## Public Trace Snapshot
+
+If you want recent waveform/debug samples without reading internal processor
+fields, use `getTraceSnapshot()`:
+
+```ts
+const trace = session.getTraceSnapshot(300);
+
+console.log(trace.sampleRate, trace.windowSec);
+console.log(trace.points);
+console.log(trace.backendFailure);
+```
+
+`getTraceSnapshot()` is the supported way to read recent intensity/sample data
+for debug panels or regression tooling.
+
 ## Low-Level Integration
 
 If you need custom capture orchestration, the lower-level APIs are still

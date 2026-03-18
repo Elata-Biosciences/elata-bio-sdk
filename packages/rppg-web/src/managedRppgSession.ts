@@ -5,7 +5,7 @@ import {
 	type RppgSessionDiagnostics,
 	type RppgSessionError,
 } from "./rppgSession";
-import type { Metrics } from "./rppgProcessor";
+import type { Metrics, RppgTraceSnapshot } from "./rppgProcessor";
 
 export type ManagedRppgSessionStatus =
 	| "idle"
@@ -51,6 +51,20 @@ function safeMetrics(): Metrics {
 	};
 }
 
+function emptyTraceSnapshot(): RppgTraceSnapshot {
+	return {
+		sampleRate: 0,
+		windowSec: 0,
+		totalSamplesReceived: 0,
+		windowSampleCount: 0,
+		windowDurationMs: 0,
+		durationSec: 0,
+		points: [],
+		lastSample: null,
+		backendFailure: null,
+	};
+}
+
 export class ManagedRppgSession {
 	private activeSession: RppgSession | null = null;
 	private retryTimer: ReturnType<typeof setTimeout> | null = null;
@@ -93,6 +107,10 @@ export class ManagedRppgSession {
 
 	getMetrics(): Metrics {
 		return this.activeSession?.getMetrics() ?? safeMetrics();
+	}
+
+	getTraceSnapshot(maxPoints = 300): RppgTraceSnapshot {
+		return this.activeSession?.getTraceSnapshot(maxPoints) ?? emptyTraceSnapshot();
 	}
 
 	async start(): Promise<void> {

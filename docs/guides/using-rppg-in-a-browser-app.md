@@ -123,6 +123,22 @@ The managed wrapper exposes high-level states such as `starting`, `running`,
 `retrying`, and `failed`, while still letting apps drop down to the underlying
 `RppgSession` when needed.
 
+## Public Trace Snapshot
+
+Use `getTraceSnapshot()` when you need recent waveform/debug points for charts,
+debug panels, or regression capture:
+
+```ts
+const trace = session.getTraceSnapshot(300);
+
+console.log(trace.points);
+console.log(trace.lastSample);
+console.log(trace.backendFailure);
+```
+
+This is the supported alternative to reaching into internal processor fields
+such as `session.processor.samples`.
+
 If you need manual control, the lower-level `RppgProcessor`, `DemoRunner`, and
 frame-source helpers are still available.
 
