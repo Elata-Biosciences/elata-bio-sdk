@@ -31,6 +31,18 @@ npm install @elata-biosciences/rppg-web
 - `loadWasmBackend()` for packaged browser backend loading
 - advanced helpers such as `DemoRunner` and frame-source helpers
 
+## Recommended Vs Advanced
+
+Recommended:
+
+- Use `createRppgSession()` for browser apps.
+- Use `createRppgPipeline()` from `@elata-biosciences/eeg-web` only if you intentionally need low-level sample ingestion.
+
+Advanced:
+
+- Use `RppgProcessor`, `DemoRunner`, custom backends, or generated WASM bindings only if you need custom orchestration and understand the runtime lifecycle already.
+- If you are not debugging the SDK itself, do not start with generated WASM exports.
+
 ## Minimal Integration
 
 ```ts
@@ -77,6 +89,9 @@ Prefer the scaffolded `rppg-web-demo` template when you want:
 ## Common Gotchas
 
 - If `session.backendMode` is `unavailable`, your app is probably not serving the packaged `pkg/` assets correctly.
+- If you see "backend pipeline has no push_sample API", you likely bypassed the safe wrapper path. Start with `createRppgSession()` for browser apps, or `initEegWasm()` plus `createRppgPipeline()` for low-level ingestion.
+- If you hit `wasmrppgpipeline_new`, initialize the WASM module before creating low-level pipelines and avoid calling generated constructors directly.
+- If you see deprecated init warnings, route startup through `initEegWasm()` instead of forwarding raw strings, URLs, or buffers to the generated init exports.
 - If camera access fails, confirm the page has permission to use `getUserMedia`.
 - If `session.lastError` is non-null, use its `code` and `message` to surface the real capture or processor failure instead of retrying blindly.
 - If you are just evaluating the SDK, the scaffolded demo is much faster than building the whole browser pipeline yourself.

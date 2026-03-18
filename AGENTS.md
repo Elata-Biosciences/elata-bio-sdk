@@ -68,10 +68,32 @@ If a package README and `run.sh` disagree, inspect `run.sh` and current
 These are easy places to get confused:
 
 - `create-elata-demo` is the preferred scaffolding path for new demo apps.
+- for browser rPPG integration, `createRppgSession()` is the preferred app entrypoint
 - `sync-to` still exists, but it is an internal EEG local-dev helper.
 - `sync-to` only builds and links `packages/eeg-web`; it is not a general repo sync command.
 - `scripts/dev-link.sh` is only a backward-compatible wrapper around `run.sh sync-to`.
 - `pnpm` is the preferred repo package manager, but workspace behavior matters.
+
+## Wrong-Path Prevention
+
+When writing docs, answering questions, or generating examples, reduce the
+chance that consumers follow an internal or legacy-looking path:
+
+- Lead with the canonical consumer path first:
+  - new app or evaluation: `@elata-biosciences/create-elata-demo`
+  - existing browser app: published packages such as `@elata-biosciences/eeg-web`, `@elata-biosciences/eeg-web-ble`, or `@elata-biosciences/rppg-web`
+- Explicitly label internal workflows as internal when they appear:
+  - `./run.sh sync-to`
+  - `scripts/dev-link.sh`
+  - in-repo demos used for SDK development
+  - historical `docs/implementation-plan-*.md` files
+- Do not present internal helpers and consumer onboarding flows as equivalent options.
+- If mentioning a non-default path, explain who it is for, why it exists, and why the default path is still preferred.
+- If a user asks "which path should I take?", answer in this shape:
+  - recommended default
+  - only use the alternative when a specific repo-maintainer or advanced-integration condition applies
+- For browser rPPG work, start with `createRppgSession()` and only drop to generated WASM bindings if you are intentionally debugging the SDK itself.
+- If a reported consumer issue might actually be workspace coupling, check the `pnpm --ignore-workspace` caveat before concluding that the scaffold or template is broken.
 
 ## Important Gotcha: Scaffolding Inside This Repo
 

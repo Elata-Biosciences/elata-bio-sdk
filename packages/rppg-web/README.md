@@ -62,6 +62,18 @@ available and you use `backend: "auto"`, the session falls back to an
 `unavailable` backend mode and reports that state through diagnostics instead of
 failing silently.
 
+## Recommended Vs Advanced
+
+Recommended:
+
+- Use `createRppgSession()` for browser apps that need camera capture, packaged WASM loading, ROI handling, diagnostics, and cleanup.
+- Use `createRppgPipeline()` from `@elata-biosciences/eeg-web` only when you intentionally want low-level sample ingestion and already own the surrounding orchestration.
+
+Advanced:
+
+- Drop to `RppgProcessor`, `DemoRunner`, frame sources, or generated WASM bindings only when you need custom orchestration that the session helper does not cover.
+- If you are debugging the SDK itself, compare against `createRppgSession()` first so you know whether the problem is in your app wiring or lower-level runtime behavior.
+
 `loadWasmBackend()` still looks for packaged WASM bundles at common paths such
 as `/pkg/rppg_wasm.js` and the legacy `/pkg/eeg_wasm.js`.
 
@@ -179,6 +191,9 @@ page can also run `replayBayesSession()` on it and render the result.
 ## Troubleshooting
 
 - If `session.backendMode` is `unavailable`, make sure your app is serving the packaged `pkg/rppg_wasm.js` and `.wasm` assets.
+- If you see "backend pipeline has no push_sample API", make sure you are using `createRppgSession()` or a backend created through the normalized wrappers rather than constructing generated bindings directly.
+- If you hit `wasmrppgpipeline_new`, make sure the underlying WASM module was initialized before creating low-level pipelines and prefer the package helpers over raw generated constructors.
+- If you see deprecated init warnings, route startup through `initEegWasm()` instead of calling generated init exports with raw strings, URLs, or buffers.
 - If camera access fails, verify that the page has permission to use `getUserMedia` and that the browser supports the required APIs.
 - If you want a known-good starting point, scaffold the `rppg-web-demo` template with `create-elata-demo` and compare your setup against it.
 

@@ -79,6 +79,12 @@ Use this quick guide if you are starting from an existing app:
 If you are trying the SDK for the first time, prefer `create-elata-demo` over
 manual package setup.
 
+Wrong turns to avoid:
+
+- Do not start with `./run.sh sync-to` unless you are modifying `packages/eeg-web` inside this monorepo.
+- Do not treat in-repo demos as the normal consumer install path; they are reference and SDK-development surfaces.
+- If you scaffold inside another `pnpm` workspace, check the `--ignore-workspace` flow before assuming the template is broken.
+
 ## Packages
 
 - `@elata-biosciences/eeg-web`: EEG WASM wrapper and re-export surface

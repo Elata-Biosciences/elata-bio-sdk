@@ -8,12 +8,19 @@ describe('packages/eeg-web — index.ts', () => {
   test('initEegWasm calls underlying init and returns a promise', async () => {
     const result = await initEegWasm('a-path');
     expect(result).toBeDefined();
+    expect(result).toEqual({
+      initializedWith: { module_or_path: 'a-path' },
+    });
   });
 
   test('initEegWasmSync delegates to initSync', () => {
     const arg = { module: 'sync-mod' } as any;
     const result = initEegWasmSync(arg);
     expect(result).toBeDefined();
+    expect(result).toEqual({
+      syncInit: true,
+      module: arg,
+    });
   });
 
   test('re-exports wasm namespace from the underlying module', () => {
@@ -36,6 +43,13 @@ describe('packages/eeg-web — index.ts', () => {
     expect(typeof pipeline.get_metrics()).toBe('string');
   });
 
+  test('initEegWasm plus createRppgPipeline yields the normalized rPPG API surface', async () => {
+    await initEegWasm('safe-path');
+    const pipeline = createRppgPipeline(30, 10);
+    expect(typeof pipeline.push_sample).toBe('function');
+    expect(typeof pipeline.get_metrics).toBe('function');
+  });
+
   // --- NEW TESTS ---
 
   test('initEegWasm returns a promise (thenable)', () => {
@@ -46,7 +60,10 @@ describe('packages/eeg-web — index.ts', () => {
   test('initEegWasmSync with raw BufferSource input (not wrapped in {module})', () => {
     const rawInput = new ArrayBuffer(8);
     const result = initEegWasmSync(rawInput as any);
-    expect(result).toBeDefined();
+    expect(result).toEqual({
+      syncInit: true,
+      module: { module: rawInput },
+    });
   });
 
   test('wasm namespace contains default and initSync exports from mock', () => {

@@ -1,5 +1,11 @@
 # Choose The Right Package
 
+## Recommended Decision Order
+
+1. If you are evaluating the SDK or starting a new app, use `@elata-biosciences/create-elata-demo` first.
+2. If you already have an app and know which capability you need, add the published package for that capability.
+3. Only drop to repo-internal workflows if you are actively modifying the SDK inside this monorepo.
+
 ## New Project Or Evaluation
 
 Use `@elata-biosciences/create-elata-demo`.
@@ -38,3 +44,9 @@ Use `./run.sh sync-to` only if you are modifying `packages/eeg-web` inside the
 monorepo and want to link the local package into another app.
 
 Do not use `sync-to` as the normal onboarding path for new SDK consumers.
+
+## Paths To Avoid Unless You Have A Specific Reason
+
+- Avoid starting from `./run.sh sync-to` for new apps. It is a local `eeg-web` development helper, not a general setup flow.
+- Avoid treating in-repo demos as the normal install path. They are useful references, but `create-elata-demo` is the cleaner consumer starting point.
+- Avoid assuming a scaffolded app is broken if `pnpm install` behaves strangely inside another workspace. Check the `pnpm --ignore-workspace` workflow first.
