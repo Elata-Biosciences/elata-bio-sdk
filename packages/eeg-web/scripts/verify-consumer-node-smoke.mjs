@@ -11,11 +11,13 @@ const __dirname = path.dirname(__filename);
 const packageRoot = path.resolve(__dirname, "..");
 const tempRoot = fs.mkdtempSync(path.join(tmpdir(), "eeg-web-consumer-node-"));
 
-function run(cmd, args, cwd, capture = false) {
+function run(cmd, args, cwd, capture = false, envOverride) {
+	const env = envOverride ? { ...process.env, ...envOverride } : process.env;
 	const result = spawnSync(cmd, args, {
 		cwd,
 		encoding: "utf8",
 		stdio: capture ? "pipe" : "inherit",
+		env,
 	});
 	if (result.error) throw result.error;
 	if (result.status !== 0) {
@@ -32,8 +34,18 @@ function run(cmd, args, cwd, capture = false) {
 function packPackage() {
 	// Use npm pack with --ignore-scripts to avoid triggering `prepack`
 	// (which can run heavy WASM/demo verification).
-	const output = run("npm", ["pack", "--ignore-scripts"], packageRoot, true);
-	const matches = output.match(/([^\s]+\.tgz)/g);
+	// When invoked from `pnpm pack --dry-run`, pnpm propagates `npm_config_dry_run=true`
+	// into nested npm commands; force real packing here.
+	const output = run(
+		"npm",
+		["pack", "--ignore-scripts"],
+		packageRoot,
+		true,
+		{ npm_config_dry_run: "false", NPM_CONFIG_DRY_RUN: "false" },
+	);
+	// `npm pack` output can become JSON-ified under some pnpm pack contexts.
+	// Extract the bare tarball filename robustly (no surrounding quotes).
+	const matches = output.match(/([A-Za-z0-9][A-Za-z0-9@._-]*\.tgz)/g);
 	const filename = matches?.at(-1);
 	if (!filename) throw new Error("Could not find tarball name in pack output.");
 	const tarballPath = path.join(packageRoot, filename);
