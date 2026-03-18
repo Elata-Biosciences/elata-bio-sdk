@@ -70,7 +70,12 @@ export type {
 	ManagedRppgSessionStatus,
 } from "./managedRppgSession";
 export { computeWaveformPeriodicityProfile } from "./rppgDiagnostics";
-export type { WaveformPeriodicityProfile } from "./rppgDiagnostics";
+export { computeTraceWaveformDebug } from "./rppgDiagnostics";
+export type {
+	WaveformPeriodicityProfile,
+	RppgTraceWaveformDebug,
+	ComputeTraceWaveformDebugOptions,
+} from "./rppgDiagnostics";
 export { normalizeRppgError } from "./rppgErrors";
 export type {
 	RppgNormalizedError,
@@ -78,16 +83,22 @@ export type {
 } from "./rppgErrors";
 export {
 	createRppgAppAdapter,
+	createRppgAppMonitor,
 	RppgAppAdapter,
+	RppgAppMonitor,
 } from "./rppgAppAdapter";
 export type {
 	CreateRppgAppAdapterOptions,
+	CreateRppgAppMonitorOptions,
 	RppgAppAdapterSource,
 	RppgAppGuidance,
 	RppgAppGuidanceCode,
 	RppgAppSnapshot,
+	RppgAppSnapshotListener,
 	RppgAppStatus,
 } from "./rppgAppAdapter";
+export { ensureVideoPlaying } from "./videoPlayback";
+export type { EnsureVideoPlayingOptions } from "./videoPlayback";
 export { RppgGatingController } from "./rppgGating";
 export type {
 	RppgGatingInputs,

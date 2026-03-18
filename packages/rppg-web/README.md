@@ -95,8 +95,11 @@ and `get_metrics` or camelCase equivalents.
 - `MediaPipeFaceFrameSource`
 - `loadWasmBackend`
 - `computeWaveformPeriodicityProfile`
+- `computeTraceWaveformDebug`
 - `normalizeRppgError`
 - `createRppgAppAdapter`
+- `createRppgAppMonitor`
+- `ensureVideoPlaying`
 - `replayBayesSession`
 
 ## Session Diagnostics
@@ -140,6 +143,8 @@ If your app needs explicit asset control, `createRppgSession()` also accepts:
 - `wasmJsUrl`
 - `wasmBinaryUrl`
 - `wasmImporter`
+- `ensureVideoPlayback`
+- `videoPlaybackTimeoutMs`
 
 Those options let apps bypass guessed `/pkg/*` paths when bundler or deploy
 layout needs explicit wiring.
@@ -184,6 +189,18 @@ console.log(trace.backendFailure);
 
 `getTraceSnapshot()` is the supported way to read recent intensity/sample data
 for debug panels or regression tooling.
+
+If you also want peak/threshold-style waveform debug without reading processor
+internals, use `computeTraceWaveformDebug()`:
+
+```ts
+import { computeTraceWaveformDebug } from "@elata-biosciences/rppg-web";
+
+const waveform = computeTraceWaveformDebug(session.getTraceSnapshot(300));
+
+console.log(waveform.peaks);
+console.log(waveform.threshold);
+```
 
 ## Error Normalization
 
@@ -238,6 +255,38 @@ console.log(app.trace.points);
 
 This is the recommended reference-adapter path before building a custom
 `useRppg`-style state layer in your app.
+
+If you want the SDK to own the polling/subscription loop too, use
+`createRppgAppMonitor()`:
+
+```ts
+import {
+  createManagedRppgSession,
+  createRppgAppMonitor,
+} from "@elata-biosciences/rppg-web";
+
+const managed = await createManagedRppgSession({ video: videoEl, faceMesh: "off" });
+const monitor = createRppgAppMonitor(managed, { intervalMs: 500 });
+
+const unsubscribe = monitor.subscribe((snapshot) => {
+  console.log(snapshot.status, snapshot.publishBpm);
+});
+
+monitor.start();
+```
+
+## Video Playback Helper
+
+If your app needs to coordinate autoplay/readiness explicitly before starting a
+session, use `ensureVideoPlaying()`:
+
+```ts
+import { ensureVideoPlaying } from "@elata-biosciences/rppg-web";
+
+await ensureVideoPlaying(videoEl, { timeoutMs: 5000 });
+```
+
+`createRppgSession()` uses the same helper internally by default.
 
 ## Low-Level Integration
 

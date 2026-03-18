@@ -139,6 +139,16 @@ console.log(trace.backendFailure);
 This is the supported alternative to reaching into internal processor fields
 such as `session.processor.samples`.
 
+If you also want PulsePoker-style peak/threshold waveform debug from the public
+trace data, use `computeTraceWaveformDebug()`:
+
+```ts
+import { computeTraceWaveformDebug } from "@elata-biosciences/rppg-web";
+
+const waveform = computeTraceWaveformDebug(session.getTraceSnapshot(300));
+console.log(waveform.peaks);
+```
+
 ## Error Normalization
 
 Use `normalizeRppgError()` instead of parsing raw message text in app code:
@@ -184,6 +194,39 @@ console.log(app.status, app.message);
 
 This is the recommended reference-adapter path if your app would otherwise
 rebuild the same `useRppg`-style state machine locally.
+
+If you want the SDK to own the recurring snapshot loop too, use
+`createRppgAppMonitor()`:
+
+```ts
+import {
+  createManagedRppgSession,
+  createRppgAppMonitor,
+} from "@elata-biosciences/rppg-web";
+
+const managed = await createManagedRppgSession({
+  video,
+  faceMesh: "off",
+});
+
+const monitor = createRppgAppMonitor(managed, { intervalMs: 500 });
+monitor.subscribe((snapshot) => {
+  console.log(snapshot.status, snapshot.publishBpm);
+});
+monitor.start();
+```
+
+## Video Playback Helper
+
+`createRppgSession()` now waits for the video element to start playing by
+default. If you need to coordinate that step yourself, you can also call
+`ensureVideoPlaying()` directly:
+
+```ts
+import { ensureVideoPlaying } from "@elata-biosciences/rppg-web";
+
+await ensureVideoPlaying(video, { timeoutMs: 5000 });
+```
 
 If you need manual control, the lower-level `RppgProcessor`, `DemoRunner`, and
 frame-source helpers are still available.

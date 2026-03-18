@@ -1,3 +1,5 @@
+import type { RppgTraceSnapshot } from "./rppgProcessor";
+
 export interface WaveformPeriodicityProfile {
 	minBpm: number;
 	maxBpm: number;
@@ -18,11 +20,98 @@ export interface WaveformPeriodicityProfile {
 	}>;
 }
 
+export interface RppgTraceWaveformDebug {
+	points: Array<{
+		time: number;
+		value: number;
+	}>;
+	peaks: Array<{
+		time: number;
+		value: number;
+	}>;
+	sampleCount: number;
+	durationSec: number;
+	threshold: number | null;
+	min: number | null;
+	max: number | null;
+	minPeakDistanceSamples: number;
+}
+
+export interface ComputeTraceWaveformDebugOptions {
+	peakThresholdFactor?: number;
+	minPeakDistanceSec?: number;
+}
+
 const BPM_MIN = 40;
 const BPM_MAX = 180;
 
 function clamp(value: number, min: number, max: number): number {
 	return Math.min(max, Math.max(min, value));
+}
+
+export function computeTraceWaveformDebug(
+	trace: RppgTraceSnapshot,
+	options: ComputeTraceWaveformDebugOptions = {},
+): RppgTraceWaveformDebug {
+	const points = trace.points.map((point) => ({
+		time: point.timestampMs,
+		value: Number(point.intensity) || 0,
+	}));
+	if (points.length < 2) {
+		return {
+			points,
+			peaks: [],
+			sampleCount: points.length,
+			durationSec: trace.durationSec ?? 0,
+			threshold: null,
+			min: points.length ? Math.min(...points.map((point) => point.value)) : null,
+			max: points.length ? Math.max(...points.map((point) => point.value)) : null,
+			minPeakDistanceSamples: Math.max(
+				2,
+				Math.round((trace.sampleRate || 1) * (options.minPeakDistanceSec ?? 0.35)),
+			),
+		};
+	}
+
+	const values = points.map((point) => point.value);
+	const max = Math.max(...values);
+	const min = Math.min(...values);
+	const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+	const threshold = mean + (max - mean) * (options.peakThresholdFactor ?? 0.35);
+	const minPeakDistanceSamples = Math.max(
+		2,
+		Math.round((trace.sampleRate || 1) * (options.minPeakDistanceSec ?? 0.35)),
+	);
+	const peaks: RppgTraceWaveformDebug["peaks"] = [];
+
+	let lastPeakIndex = -minPeakDistanceSamples;
+	for (let index = 1; index < points.length - 1; index += 1) {
+		const current = points[index].value;
+		if (
+			current > threshold &&
+			current >= points[index - 1].value &&
+			current >= points[index + 1].value &&
+			index - lastPeakIndex >= minPeakDistanceSamples
+		) {
+			peaks.push(points[index]);
+			lastPeakIndex = index;
+		}
+	}
+
+	const durationSec =
+		trace.durationSec ??
+		Math.max(0, (points[points.length - 1].time - points[0].time) / 1000);
+
+	return {
+		points,
+		peaks,
+		sampleCount: points.length,
+		durationSec,
+		threshold: Number.isFinite(threshold) ? threshold : null,
+		min,
+		max,
+		minPeakDistanceSamples,
+	};
 }
 
 export function computeWaveformPeriodicityProfile(

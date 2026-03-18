@@ -9,6 +9,7 @@ import {
 } from "./mediaPipeFaceFrameSource";
 import { MediaPipeFrameSource } from "./mediaPipeFrameSource";
 import { loadFaceMesh } from "./mediapipeLoader";
+import { ensureVideoPlaying } from "./videoPlayback";
 import {
 	RppgProcessor,
 	type Metrics,
@@ -96,6 +97,8 @@ export type CreateRppgSessionOptions = Omit<
 	windowSec?: number;
 	backend?: RppgSessionBackendPreference;
 	faceMesh?: FaceMeshLike | "auto" | "off";
+	ensureVideoPlayback?: boolean;
+	videoPlaybackTimeoutMs?: number;
 	enableTracker?:
 		| boolean
 		| {
@@ -116,6 +119,7 @@ type SessionInternals = {
 	onError?: (error: RppgSessionError) => void;
 	backendDegraded?: boolean;
 	faceTrackingDegraded?: boolean;
+	beforeStart?: () => Promise<void>;
 };
 
 export class RppgSession {
@@ -244,6 +248,7 @@ export class RppgSession {
 	}
 
 	async start(): Promise<void> {
+		await this.internals.beforeStart?.();
 		await this.runner.start();
 		this.emitDiagnostics();
 	}
@@ -338,6 +343,13 @@ export async function createRppgSession(
 			onError: options.onError,
 			backendDegraded: backendResult.mode !== "wasm",
 			faceTrackingDegraded: faceMeshResult.error != null,
+			beforeStart:
+				options.ensureVideoPlayback === false
+					? undefined
+					: () =>
+							ensureVideoPlaying(options.video, {
+								timeoutMs: options.videoPlaybackTimeoutMs,
+							}),
 		},
 	);
 

@@ -59,6 +59,13 @@ export type CreateRppgAppAdapterOptions = {
 	nowMs?: () => number;
 };
 
+export type RppgAppSnapshotListener = (snapshot: RppgAppSnapshot) => void;
+
+export type CreateRppgAppMonitorOptions = CreateRppgAppAdapterOptions & {
+	intervalMs?: number;
+	emitImmediately?: boolean;
+};
+
 export type RppgAppSnapshot = {
 	status: RppgAppStatus;
 	ready: boolean;
@@ -89,6 +96,7 @@ export type RppgAppSnapshot = {
 };
 
 const DEFAULT_MAX_TRACE_POINTS = 120;
+const DEFAULT_APP_MONITOR_INTERVAL_MS = 500;
 
 function isManagedState(
 	state: RppgSessionState | ManagedRppgSessionState,
@@ -305,4 +313,78 @@ export function createRppgAppAdapter(
 	options: CreateRppgAppAdapterOptions = {},
 ): RppgAppAdapter {
 	return new RppgAppAdapter(options);
+}
+
+type RppgAppMonitorInternals = {
+	setIntervalFn?: typeof setInterval;
+	clearIntervalFn?: typeof clearInterval;
+};
+
+export class RppgAppMonitor {
+	private readonly adapter: RppgAppAdapter;
+	private readonly intervalMs: number;
+	private readonly emitImmediately: boolean;
+	private readonly setIntervalFn: typeof setInterval;
+	private readonly clearIntervalFn: typeof clearInterval;
+	private readonly listeners = new Set<RppgAppSnapshotListener>();
+	private timer: ReturnType<typeof setInterval> | null = null;
+
+	constructor(
+		private readonly source: RppgAppAdapterSource,
+		options: CreateRppgAppMonitorOptions = {},
+		internals: RppgAppMonitorInternals = {},
+	) {
+		this.adapter = new RppgAppAdapter(options);
+		this.intervalMs = options.intervalMs ?? DEFAULT_APP_MONITOR_INTERVAL_MS;
+		this.emitImmediately = options.emitImmediately !== false;
+		this.setIntervalFn = internals.setIntervalFn ?? setInterval;
+		this.clearIntervalFn = internals.clearIntervalFn ?? clearInterval;
+	}
+
+	getSnapshot(): RppgAppSnapshot {
+		return this.adapter.getSnapshot(this.source);
+	}
+
+	subscribe(listener: RppgAppSnapshotListener): () => void {
+		this.listeners.add(listener);
+		if (this.emitImmediately) {
+			listener(this.getSnapshot());
+		}
+		return () => {
+			this.listeners.delete(listener);
+		};
+	}
+
+	start() {
+		if (this.timer) return;
+		this.timer = this.setIntervalFn(() => {
+			this.emit();
+		}, this.intervalMs);
+	}
+
+	stop() {
+		if (!this.timer) return;
+		this.clearIntervalFn(this.timer);
+		this.timer = null;
+	}
+
+	emit(): RppgAppSnapshot {
+		const snapshot = this.getSnapshot();
+		for (const listener of this.listeners) {
+			listener(snapshot);
+		}
+		return snapshot;
+	}
+
+	dispose() {
+		this.stop();
+		this.listeners.clear();
+	}
+}
+
+export function createRppgAppMonitor(
+	source: RppgAppAdapterSource,
+	options: CreateRppgAppMonitorOptions = {},
+): RppgAppMonitor {
+	return new RppgAppMonitor(source, options);
 }

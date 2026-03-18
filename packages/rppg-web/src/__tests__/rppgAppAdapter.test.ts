@@ -1,4 +1,4 @@
-import { createRppgAppAdapter } from "../rppgAppAdapter";
+import { createRppgAppAdapter, RppgAppMonitor } from "../rppgAppAdapter";
 import type { RppgAppAdapterSource } from "../rppgAppAdapter";
 import type { ManagedRppgSessionState } from "../managedRppgSession";
 import type {
@@ -228,5 +228,33 @@ describe("RppgAppAdapter", () => {
 		expect(snapshot.canPublish).toBe(false);
 		expect(snapshot.normalizedError?.code).toBe("processor_failed");
 		expect(snapshot.guidance.code).toBe("processor_failed");
+	});
+
+	test("app monitor emits subscription updates without app-owned polling glue", () => {
+		jest.useFakeTimers();
+		try {
+			const listener = jest.fn();
+			const source = createSource();
+			const monitor = new RppgAppMonitor(
+				source,
+				{ nowMs: () => 1000, intervalMs: 250 },
+				{
+					setIntervalFn: setInterval,
+					clearIntervalFn: clearInterval,
+				},
+			);
+
+			const unsubscribe = monitor.subscribe(listener);
+			monitor.start();
+			jest.advanceTimersByTime(550);
+			monitor.stop();
+			unsubscribe();
+
+			expect(listener).toHaveBeenCalled();
+			expect(listener.mock.calls[0][0].status).toBe("ready");
+			expect(listener.mock.calls.length).toBeGreaterThanOrEqual(3);
+		} finally {
+			jest.useRealTimers();
+		}
 	});
 });
