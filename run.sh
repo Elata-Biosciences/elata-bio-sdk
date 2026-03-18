@@ -173,6 +173,55 @@ package_version_for_target() {
     node -p "require('./${pkg_dir}/package.json').version"
 }
 
+sync_create_elata_demo_versions_if_needed() {
+    # create-elata-demo embeds fallback SDK versions in its own package.json.
+    # Ensure they match the repo's current package versions before publishing.
+    require_cmds node
+
+    local pkg_dir="packages/create-elata-demo"
+    if [[ ! -d "$pkg_dir" ]]; then
+        return 0
+    fi
+
+    local eeg_web_version eeg_web_ble_version rppg_web_version
+    eeg_web_version="$(package_version_for_target "eeg-web")"
+    eeg_web_ble_version="$(package_version_for_target "eeg-web-ble")"
+    rppg_web_version="$(package_version_for_target "rppg-web")"
+
+    local changed="0"
+    changed="$(node -e "
+      const fs = require('node:fs');
+      const path = require('node:path');
+      const file = path.join(process.cwd(), '$pkg_dir', 'package.json');
+      const pkg = JSON.parse(fs.readFileSync(file, 'utf8'));
+      const next = { ...(pkg.elataSdkVersions || {}) };
+      const desired = {
+        eegWeb: '$eeg_web_version',
+        eegWebBle: '$eeg_web_ble_version',
+        rppgWeb: '$rppg_web_version',
+      };
+      let didChange = false;
+      for (const [k, v] of Object.entries(desired)) {
+        if (next[k] !== v) { next[k] = v; didChange = true; }
+      }
+      if (didChange) {
+        pkg.elataSdkVersions = next;
+        fs.writeFileSync(file, JSON.stringify(pkg, null, 2) + '\\n', 'utf8');
+        process.stdout.write('1');
+      } else {
+        process.stdout.write('0');
+      }
+    ")"
+
+    if [[ "$changed" == "1" ]]; then
+        echo "Detected SDK version drift in create-elata-demo; syncing elataSdkVersions and bumping patch..."
+        (
+            cd "$ROOT_DIR/$pkg_dir"
+            pnpm version patch --no-git-tag-version
+        )
+    fi
+}
+
 validate_dist_tag() {
     case "$1" in
         next|latest) return 0 ;;
@@ -181,6 +230,23 @@ validate_dist_tag() {
             return 1
             ;;
     esac
+}
+
+resolve_release_target_and_dist_tag() {
+    local raw_target="${1:-all}"
+    local raw_dist_tag="${2:-next}"
+
+    # Support shorthand like `./run.sh release latest`.
+    if [[ -z "${2:-}" ]]; then
+        case "$raw_target" in
+            next|latest)
+                printf "all %s\n" "$raw_target"
+                return 0
+                ;;
+        esac
+    fi
+
+    printf "%s %s\n" "$raw_target" "$raw_dist_tag"
 }
 
 verify_script_for_target() {
@@ -247,6 +313,9 @@ publish_packages() {
     fi
 
     for pkg in $(release_targets_for "$target"); do
+        if [[ "$pkg" == "create-elata-demo" ]]; then
+            sync_create_elata_demo_versions_if_needed
+        fi
         pkg_dir="$(package_dir_for_target "$pkg")"
         pkg_name="$(package_name_for_target "$pkg")"
         version="$(package_version_for_target "$pkg")"
@@ -1094,9 +1163,11 @@ case "$cmd" in
         #   ./run.sh release [target] [dist-tag]
         # Examples:
         #   ./run.sh release all next
+        #   ./run.sh release latest
         #   ./run.sh release eeg-web latest
         # Runs: build -> publish -> tag-release -> push-tags
-        release_packages "${2:-all}" "${3:-next}"
+        read -r release_target release_dist_tag < <(resolve_release_target_and_dist_tag "${2:-all}" "${3:-}")
+        release_packages "$release_target" "$release_dist_tag"
         ;;
     publish)
         RUN_SH_TASK="publish"
@@ -1104,8 +1175,10 @@ case "$cmd" in
         #   ./run.sh publish [target] [dist-tag]
         # Examples:
         #   ./run.sh publish all next
+        #   ./run.sh publish latest
         #   ./run.sh publish eeg-web latest
-        publish_packages "${2:-all}" "${3:-next}"
+        read -r publish_target publish_dist_tag < <(resolve_release_target_and_dist_tag "${2:-all}" "${3:-}")
+        publish_packages "$publish_target" "$publish_dist_tag"
         ;;
     promote*)
         RUN_SH_TASK="promote"

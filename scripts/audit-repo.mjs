@@ -15,6 +15,38 @@ function exists(relPath) {
 	return fs.existsSync(path.join(repoRoot, relPath));
 }
 
+function readWorkspacePatterns() {
+	if (!exists("pnpm-workspace.yaml")) return [];
+	return readText("pnpm-workspace.yaml")
+		.split(/\r?\n/)
+		.map((line) => line.match(/^\s*-\s*"([^"]+)"\s*$/)?.[1] ?? null)
+		.filter((value) => typeof value === "string");
+}
+
+function matchesWorkspacePattern(relDir, pattern) {
+	const relParts = relDir.split("/").filter(Boolean);
+	const patternParts = pattern.split("/").filter(Boolean);
+	if (relParts.length !== patternParts.length) return false;
+	for (let i = 0; i < patternParts.length; i += 1) {
+		if (patternParts[i] === "*") continue;
+		if (patternParts[i] !== relParts[i]) return false;
+	}
+	return true;
+}
+
+function isWorkspaceDir(relDir, workspacePatterns) {
+	return workspacePatterns.some((pattern) =>
+		matchesWorkspacePattern(relDir, pattern),
+	);
+}
+
+function isAllowedStandaloneLockfile(relPath, workspacePatterns) {
+	const relDir = path.posix.dirname(relPath);
+	if (relDir === "." || relDir === "") return false;
+	if (!exists(path.posix.join(relDir, "package.json"))) return false;
+	return !isWorkspaceDir(relDir, workspacePatterns);
+}
+
 function walk(dirRel, visit) {
 	const dirAbs = path.join(repoRoot, dirRel);
 	if (!fs.existsSync(dirAbs)) {
@@ -47,6 +79,7 @@ function assert(condition, message) {
 }
 
 const rootPackage = JSON.parse(readText("package.json"));
+const workspacePatterns = readWorkspacePatterns();
 assert(
 	typeof rootPackage.packageManager === "string" &&
 		rootPackage.packageManager.startsWith("pnpm@"),
@@ -70,6 +103,9 @@ walk(".", (relPath) => {
 		relPath.endsWith("package-lock.json") ||
 		relPath.endsWith("pnpm-lock.yaml")
 	) {
+		if (isAllowedStandaloneLockfile(relPath, workspacePatterns)) {
+			return;
+		}
 		disallowedLockfiles.push(relPath);
 	}
 });
@@ -141,6 +177,38 @@ for (const member of workspaceMembers) {
 		assert(
 			exists(path.join(member, "Cargo.toml")),
 			`workspace member ${member} is missing Cargo.toml`,
+		);
+	}
+}
+
+const workspacePackagesDir = path.join(repoRoot, "packages");
+const workspacePackages = new Map();
+
+if (fs.existsSync(workspacePackagesDir)) {
+	for (const entry of fs.readdirSync(workspacePackagesDir, { withFileTypes: true })) {
+		if (!entry.isDirectory()) continue;
+		const packageJsonRel = path.posix.join("packages", entry.name, "package.json");
+		if (!exists(packageJsonRel)) continue;
+		const manifest = JSON.parse(readText(packageJsonRel));
+		if (typeof manifest.name === "string" && manifest.name.length > 0) {
+			workspacePackages.set(manifest.name, {
+				manifest,
+				relPath: packageJsonRel,
+			});
+		}
+	}
+}
+
+for (const { manifest, relPath } of workspacePackages.values()) {
+	const peerDependencies = manifest.peerDependencies ?? {};
+	const devDependencies = manifest.devDependencies ?? {};
+
+	for (const depName of Object.keys(peerDependencies)) {
+		if (!workspacePackages.has(depName)) continue;
+		const devSpecifier = devDependencies[depName];
+		assert(
+			typeof devSpecifier === "string" && devSpecifier.startsWith("workspace:"),
+			`${relPath} lists workspace peer '${depName}' but is missing a matching devDependency with a workspace: specifier`,
 		);
 	}
 }
