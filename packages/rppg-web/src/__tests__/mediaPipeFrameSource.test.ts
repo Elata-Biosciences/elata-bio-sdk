@@ -31,12 +31,14 @@ class FakeCanvas {
   width: number;
   height: number;
   private ctx: FakeCtx;
+  public lastContextOptions: unknown = null;
   constructor(w: number, h: number, fillValue = 128) {
     this.width = w;
     this.height = h;
     this.ctx = new FakeCtx(w, h, fillValue);
   }
-  getContext(_name: string) {
+  getContext(_name: string, options?: unknown) {
+    this.lastContextOptions = options ?? null;
     return this.ctx as unknown as CanvasRenderingContext2D;
   }
 }
@@ -57,9 +59,10 @@ describe('MediaPipeFrameSource', () => {
   });
 
   test('captures frames and calls onFrame with expected data', async () => {
+    const createdCanvas = new FakeCanvas(2, 1);
     // Replace document.createElement to return our FakeCanvas
     document.createElement = (tagName: string) => {
-      if (tagName === 'canvas') return new FakeCanvas(2, 1) as unknown as HTMLCanvasElement;
+      if (tagName === 'canvas') return createdCanvas as unknown as HTMLCanvasElement;
       return origCreateCanvas(tagName);
     };
 
@@ -77,11 +80,15 @@ describe('MediaPipeFrameSource', () => {
     await new Promise((r) => setTimeout(r, 20));
     await src.stop();
     expect(onFrame).toHaveBeenCalled();
+    expect(createdCanvas.lastContextOptions).toEqual(
+      expect.objectContaining({ willReadFrequently: true }),
+    );
   });
 
   test('emits capture errors instead of swallowing them silently', async () => {
     class ThrowingCanvas extends FakeCanvas {
-      override getContext(_name: string) {
+      override getContext(_name: string, options?: unknown) {
+        this.lastContextOptions = options ?? null;
         return {
           drawImage() {
             throw new Error('video not ready');

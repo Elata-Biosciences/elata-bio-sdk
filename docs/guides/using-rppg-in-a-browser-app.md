@@ -52,9 +52,11 @@ const session = await createRppgSession({
   video: videoEl,
   sampleRate: 30,
   backend: "auto",
+  faceMesh: "off",
   onDiagnostics: (diagnostics) => {
+    console.log(diagnostics.state.status, diagnostics.faceTrackingMode);
     console.log(diagnostics.framesSeen, diagnostics.totalSamplesReceived);
-    console.log(diagnostics.issues);
+    console.log(diagnostics.issues, diagnostics.processorFailure);
   },
   onError: (error) => {
     console.error(error.code, error.message);
@@ -75,6 +77,28 @@ console.log(session.getMetrics());
 `createRppgSession()` owns WASM init, FaceMesh loading, frame scheduling, ROI
 selection, diagnostics, and cleanup.
 
+Use `session.state` or `diagnostics.state` to distinguish:
+
+- normal `running`
+- startup fallback or degraded setup via `degraded`
+- terminal runtime processor failure via `failed`
+
+If you intentionally choose `faceMesh: "off"`, the session stays in supported
+`video_frame` mode and is not reported as a FaceMesh failure by default.
+
+If your app needs explicit asset paths instead of the default `/pkg/*` lookup,
+pass one or more of:
+
+```ts
+const session = await createRppgSession({
+  video: videoEl,
+  wasmJsUrl: "/assets/rppg_wasm.js",
+  wasmBinaryUrl: "/assets/rppg_wasm_bg.wasm",
+});
+```
+
+Advanced apps can also provide `wasmImporter` directly.
+
 If you need manual control, the lower-level `RppgProcessor`, `DemoRunner`, and
 frame-source helpers are still available.
 
@@ -89,6 +113,7 @@ Prefer the scaffolded `rppg-web-demo` template when you want:
 ## Common Gotchas
 
 - If `session.backendMode` is `unavailable`, your app is probably not serving the packaged `pkg/` assets correctly.
+- If `session.state.status` is `failed`, treat that processor backend as terminal and recreate the session instead of continuing to poll metrics from it.
 - If you see "backend pipeline has no push_sample API", you likely bypassed the safe wrapper path. Start with `createRppgSession()` for browser apps, or `initEegWasm()` plus `createRppgPipeline()` for low-level ingestion.
 - If you hit `wasmrppgpipeline_new`, initialize the WASM module before creating low-level pipelines and avoid calling generated constructors directly.
 - If you see deprecated init warnings, route startup through `initEegWasm()` instead of forwarding raw strings, URLs, or buffers to the generated init exports.

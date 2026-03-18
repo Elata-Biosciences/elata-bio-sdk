@@ -324,6 +324,71 @@ describe('RppgProcessor', () => {
     expect(backend.pipeline.push_sample_rgb).toHaveBeenCalled();
   });
 
+  test('quarantines the backend after a fatal sample push error', () => {
+    const backend = createMockBackend({
+      push_sample_rgb_meta: jest.fn(() => {
+        throw new Error('backend rejected sample');
+      }),
+    });
+    const p = new RppgProcessor(backend as any, 30, 5);
+
+    expect(() => p.pushSampleRgbMeta(1000, 0.5, 0.6, 0.7, 0.9, 0.1, 0.05)).toThrow(
+      'backend rejected sample',
+    );
+
+    const metrics = p.getMetrics();
+    expect(metrics).toEqual(
+      expect.objectContaining({
+        bpm: null,
+        confidence: 0,
+        signal_quality: 0,
+        agreement: 0,
+        reason_codes: ['backend_failed'],
+        fused_bpm: null,
+        fused_source: 'none',
+      }),
+    );
+    expect(backend.pipeline.get_metrics).not.toHaveBeenCalled();
+
+    expect(() => p.pushSampleRgbMeta(1033, 0.5, 0.6, 0.7, 0.9, 0.1, 0.05)).toThrow(
+      'rPPG backend is unavailable after a fatal error',
+    );
+    expect(backend.pipeline.push_sample_rgb_meta).toHaveBeenCalledTimes(1);
+  });
+
+  test('returns safe metrics after a fatal backend metrics error and stops re-entering WASM', () => {
+    const backend = createMockBackend({
+      get_metrics: jest.fn(() => {
+        throw new Error('unreachable');
+      }),
+    });
+    const p = new RppgProcessor(backend as any, 30, 5);
+
+    const firstMetrics = p.getMetrics();
+    const secondMetrics = p.getMetrics();
+
+    expect(firstMetrics.reason_codes).toEqual(['backend_failed']);
+    expect(secondMetrics.reason_codes).toEqual(['backend_failed']);
+    expect(backend.pipeline.get_metrics).toHaveBeenCalledTimes(1);
+  });
+
+  test('exposes structured backend failure details after the first fatal error', () => {
+    const backend = createMockBackend({
+      push_sample: jest.fn(() => {
+        throw new Error('unreachable');
+      }),
+    });
+    const p = new RppgProcessor(backend as any, 30, 5);
+
+    expect(() => p.pushSample(1000, 0.5)).toThrow('unreachable');
+
+    expect(p.isBackendFailed()).toBe(true);
+    expect(p.getBackendFailure()).toEqual({
+      operation: 'push_sample',
+      message: 'unreachable',
+    });
+  });
+
   test('pushSample handles BigInt timestamps for WASM backend', () => {
     const backend = createMockBackend();
     backend.pipeline.__wbg_ptr = 12345;

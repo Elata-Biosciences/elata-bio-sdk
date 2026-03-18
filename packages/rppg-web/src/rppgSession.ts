@@ -14,11 +14,13 @@ import {
 	type Metrics,
 	type RppgDebugIssueCode,
 	type RppgDebugSnapshot,
+	type RppgProcessorBackendFailure,
 } from "./rppgProcessor";
 import {
 	loadWasmBackend,
 	createUnavailableBackend,
 	type Backend,
+	type WasmImporter,
 } from "./wasmBackend";
 import {
 	DemoRunner,
@@ -33,12 +35,20 @@ export type RppgSessionFaceTrackingMode = "face_mesh" | "video_frame";
 export type RppgSessionIssueCode =
 	| RppgDebugIssueCode
 	| "backend_unavailable"
-	| "face_mesh_unavailable";
+	| "face_mesh_unavailable"
+	| "processor_failed";
 export type RppgSessionErrorCode =
 	| "backend_init_failed"
 	| "face_mesh_init_failed"
 	| "capture_error"
 	| "processor_error";
+
+export type RppgSessionStateStatus = "running" | "degraded" | "failed";
+export type RppgSessionStatePhase = "none" | "startup" | "runtime";
+export type RppgSessionStateReason =
+	| RppgSessionIssueCode
+	| RppgSessionErrorCode
+	| null;
 
 export type RppgSessionError = {
 	code: RppgSessionErrorCode;
@@ -46,6 +56,15 @@ export type RppgSessionError = {
 	message: string;
 	timestampMs: number;
 	cause?: unknown;
+};
+
+export type RppgSessionState = {
+	status: RppgSessionStateStatus;
+	phase: RppgSessionStatePhase;
+	terminal: boolean;
+	reason: RppgSessionStateReason;
+	errorCode: RppgSessionErrorCode | null;
+	errorStage: RppgSessionError["stage"] | null;
 };
 
 export type RppgSessionDiagnostics = DemoRunnerDiagnostics & {
@@ -62,6 +81,8 @@ export type RppgSessionDiagnostics = DemoRunnerDiagnostics & {
 	lastSample: RppgDebugSnapshot["lastSample"];
 	processorIssues: RppgDebugIssueCode[];
 	issues: RppgSessionIssueCode[];
+	processorFailure: RppgProcessorBackendFailure | null;
+	state: RppgSessionState;
 	lastError: RppgSessionError | null;
 };
 
@@ -82,6 +103,9 @@ export type CreateRppgSessionOptions = Omit<
 				numParticles?: number;
 		  };
 	autoStart?: boolean;
+	wasmJsUrl?: string;
+	wasmBinaryUrl?: string;
+	wasmImporter?: WasmImporter;
 	onDiagnostics?: (diagnostics: RppgSessionDiagnostics) => void;
 	onError?: (error: RppgSessionError) => void;
 };
@@ -89,6 +113,8 @@ export type CreateRppgSessionOptions = Omit<
 type SessionInternals = {
 	onDiagnostics?: (diagnostics: RppgSessionDiagnostics) => void;
 	onError?: (error: RppgSessionError) => void;
+	backendDegraded?: boolean;
+	faceTrackingDegraded?: boolean;
 };
 
 export class RppgSession {
@@ -107,6 +133,10 @@ export class RppgSession {
 		return this.lastErrorValue;
 	}
 
+	get state(): RppgSessionState {
+		return this.getState();
+	}
+
 	getMetrics(): Metrics {
 		return this.processor.getMetrics();
 	}
@@ -115,17 +145,82 @@ export class RppgSession {
 		return this.processor.getDebugSnapshot(nowMs);
 	}
 
+	getState(): RppgSessionState {
+		const processorFailure = this.processor.getBackendFailure();
+		const lastError = this.lastErrorValue;
+		const terminal = processorFailure != null || lastError?.code === "processor_error";
+		if (terminal) {
+			return {
+				status: "failed",
+				phase: "runtime",
+				terminal: true,
+				reason: lastError?.code ?? "processor_failed",
+				errorCode: lastError?.code ?? "processor_error",
+				errorStage: lastError?.stage ?? "processor",
+			};
+		}
+
+		if (lastError) {
+			const startupFailure =
+				lastError.code === "backend_init_failed" ||
+				lastError.code === "face_mesh_init_failed";
+			return {
+				status: "degraded",
+				phase: startupFailure ? "startup" : "runtime",
+				terminal: false,
+				reason: lastError.code,
+				errorCode: lastError.code,
+				errorStage: lastError.stage,
+			};
+		}
+
+		if (this.internals.backendDegraded) {
+			return {
+				status: "degraded",
+				phase: "startup",
+				terminal: false,
+				reason: "backend_unavailable",
+				errorCode: null,
+				errorStage: null,
+			};
+		}
+
+		if (this.internals.faceTrackingDegraded) {
+			return {
+				status: "degraded",
+				phase: "startup",
+				terminal: false,
+				reason: "face_mesh_unavailable",
+				errorCode: null,
+				errorStage: null,
+			};
+		}
+
+		return {
+			status: "running",
+			phase: "none",
+			terminal: false,
+			reason: null,
+			errorCode: null,
+			errorStage: null,
+		};
+	}
+
 	getDiagnostics(nowMs = Date.now()): RppgSessionDiagnostics {
 		const runnerDiagnostics = this.runner.getDiagnostics();
 		const debugSnapshot = this.processor.getDebugSnapshot(nowMs);
+		const processorFailure = this.processor.getBackendFailure();
+		const state = this.getState();
 		const issues = new Set<RppgSessionIssueCode>(debugSnapshot.issues);
-		if (this.backendMode !== "wasm") issues.add("backend_unavailable");
-		if (this.faceTrackingMode !== "face_mesh") issues.add("face_mesh_unavailable");
+		if (this.internals.backendDegraded) issues.add("backend_unavailable");
+		if (this.internals.faceTrackingDegraded) issues.add("face_mesh_unavailable");
+		if (state.status === "failed") issues.add("processor_failed");
 
 		return {
 			...runnerDiagnostics,
 			backendMode: this.backendMode,
-			estimationAvailable: this.backendMode === "wasm",
+			estimationAvailable:
+				this.backendMode === "wasm" && processorFailure == null,
 			faceTrackingMode: this.faceTrackingMode,
 			roiSource: runnerDiagnostics.lastRoiSource,
 			processorMethod: runnerDiagnostics.lastProcessorMethod,
@@ -137,6 +232,8 @@ export class RppgSession {
 			lastSample: debugSnapshot.lastSample,
 			processorIssues: debugSnapshot.issues,
 			issues: Array.from(issues),
+			processorFailure,
+			state,
 			lastError: this.lastErrorValue,
 		};
 	}
@@ -156,6 +253,9 @@ export class RppgSession {
 	}
 
 	recordError(error: RppgSessionError) {
+		if (this.lastErrorValue?.code === "processor_error") {
+			return;
+		}
 		this.lastErrorValue = error;
 		this.internals.onError?.(error);
 		this.emitDiagnostics();
@@ -189,7 +289,11 @@ export async function createRppgSession(
 			)
 		: new MediaPipeFrameSource(options.video, { fps: sampleRate });
 
-	const backendResult = await resolveBackend(backendPreference);
+	const backendResult = await resolveBackend(backendPreference, {
+		wasmJsUrl: options.wasmJsUrl,
+		wasmBinaryUrl: options.wasmBinaryUrl,
+		wasmImporter: options.wasmImporter,
+	});
 	const processor = new RppgProcessor(
 		backendResult.backend,
 		sampleRate,
@@ -227,6 +331,8 @@ export async function createRppgSession(
 		{
 			onDiagnostics: options.onDiagnostics,
 			onError: options.onError,
+			backendDegraded: backendResult.mode !== "wasm",
+			faceTrackingDegraded: faceMeshResult.error != null,
 		},
 	);
 
@@ -277,9 +383,15 @@ async function resolveFaceMesh(
 
 async function resolveBackend(
 	backendPreference: RppgSessionBackendPreference,
+	options: Pick<
+		CreateRppgSessionOptions,
+		"wasmJsUrl" | "wasmBinaryUrl" | "wasmImporter"
+	>,
 ): Promise<{ backend: Backend; mode: RppgSessionBackendMode }> {
-	const backend = await loadWasmBackend(undefined, {
+	const backend = await loadWasmBackend(options.wasmImporter, {
 		strict: backendPreference === "wasm",
+		jsUrl: options.wasmJsUrl,
+		binaryUrl: options.wasmBinaryUrl,
 	});
 	if (backend) {
 		return { backend, mode: "wasm" };

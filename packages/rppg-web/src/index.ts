@@ -13,6 +13,7 @@ export type {
 	FusionSource,
 	RppgDebugIssueCode,
 	RppgDebugSnapshot,
+	RppgProcessorBackendFailure,
 } from "./rppgProcessor";
 export { BpmBayesTracker } from "./bpmBayesTracker";
 export type {
@@ -38,6 +39,7 @@ export { averageGreenInROI } from "./frameSource";
 export type { FrameSource, Frame, ROI } from "./frameSource";
 export { loadWasmBackend } from "./wasmBackend";
 export { createUnavailableBackend } from "./wasmBackend";
+export type { LoadWasmBackendOptions, WasmImporter } from "./wasmBackend";
 export {
 	createRppgSession,
 	RppgSession,
@@ -51,6 +53,10 @@ export type {
 	RppgSessionErrorCode,
 	RppgSessionFaceTrackingMode,
 	RppgSessionIssueCode,
+	RppgSessionState,
+	RppgSessionStatePhase,
+	RppgSessionStateReason,
+	RppgSessionStateStatus,
 } from "./rppgSession";
 export { computeWaveformPeriodicityProfile } from "./rppgDiagnostics";
 export type { WaveformPeriodicityProfile } from "./rppgDiagnostics";

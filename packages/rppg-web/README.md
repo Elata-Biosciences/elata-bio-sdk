@@ -44,9 +44,11 @@ const session = await createRppgSession({
   video: videoEl,
   sampleRate: 30,
   backend: "auto",
+  faceMesh: "off",
   onDiagnostics: (diagnostics) => {
+    console.log(diagnostics.state.status, diagnostics.faceTrackingMode);
     console.log(diagnostics.framesSeen, diagnostics.totalSamplesReceived);
-    console.log(diagnostics.issues);
+    console.log(diagnostics.issues, diagnostics.processorFailure);
   },
   onError: (error) => {
     console.error(error.code, error.message);
@@ -119,7 +121,24 @@ Every session diagnostics payload includes:
 - `totalSamplesReceived`, `windowSampleCount`, and `lastSampleAgeMs`
 - processor issue codes such as `no_samples_yet`, `insufficient_window`, and `low_skin_ratio`
 - session-level issues such as `backend_unavailable`
+- `state` with `running`, `degraded`, or terminal `failed` status
+- `processorFailure` when a fatal backend exception poisons the WASM pipeline
 - `lastError` when capture, FaceMesh, or processor work fails
+
+Intentional `faceMesh: "off"` sessions use `video_frame` mode without being
+reported as a FaceMesh failure. If a fatal processor exception occurs,
+`session.state` switches to terminal `failed`, later metrics reads return safe
+null/zero values, and the runner stops instead of continuing to reuse the same
+backend instance.
+
+If your app needs explicit asset control, `createRppgSession()` also accepts:
+
+- `wasmJsUrl`
+- `wasmBinaryUrl`
+- `wasmImporter`
+
+Those options let apps bypass guessed `/pkg/*` paths when bundler or deploy
+layout needs explicit wiring.
 
 ## Low-Level Integration
 

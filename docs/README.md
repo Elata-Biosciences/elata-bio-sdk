@@ -23,6 +23,7 @@ Use this page to find the right document quickly.
 
 - [sdk-adoption-baseline.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/sdk-adoption-baseline.md): current onboarding baseline and friction summary
 - [sdk-adoption-issues.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/sdk-adoption-issues.md): grouped issue list for the remaining DX work
+- [rppg-web-dx-roadmap.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/rppg-web-dx-roadmap.md): PulsePoker-derived roadmap for reducing `rppg-web` integration friction
 
 ## Maintainers
 

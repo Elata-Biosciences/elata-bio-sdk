@@ -27,6 +27,7 @@ creates for external developers.
 - Audit user-facing errors in scaffolded apps, `eeg-web-ble`, `rppg-web`, and WASM-loading paths.
 - Replace vague failures with actionable guidance for unsupported browsers, missing secure context, missing BLE support, missing packaged WASM assets, and camera-permission failures.
 - Standardize the wording of recovery guidance so developers see the same next step in docs, examples, and runtime output.
+- For `rppg-web`, prioritize publishable Node-friendly ESM, structured runtime failure states, explicit asset configuration, and a higher-level managed session path so apps do not need vendored patches or custom restart supervisors.
 
 ## Release UX
 
@@ -38,3 +39,4 @@ creates for external developers.
 
 - [implementation-plan-sdk-adoption.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-sdk-adoption.md) remains the ordered execution plan.
 - [sdk-adoption-baseline.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/sdk-adoption-baseline.md) captures the current state these issues were derived from.
+- [rppg-web-dx-roadmap.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/rppg-web-dx-roadmap.md) captures the `rppg-web`-specific roadmap derived from the PulsePoker integration work.

@@ -245,6 +245,10 @@ describe('DemoRunner diagnostics', () => {
         code: 'processor_error',
       }),
     );
+    expect(src.stopped).toBe(true);
+
+    src.emit(makeSkinFrame(20, 20));
+    expect(proc.pushSampleRgbMeta).toHaveBeenCalledTimes(1);
     await runner.stop();
   });
 });

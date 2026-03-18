@@ -8,7 +8,14 @@ export type Backend = {
 	newPipeline: (sampleRate: number, windowSec: number) => any;
 };
 
-type WasmImporter = (url: string) => Promise<WasmModule>;
+export type WasmImporter = (url: string) => Promise<WasmModule>;
+
+export type LoadWasmBackendOptions = {
+	strict?: boolean;
+	jsUrl?: string;
+	binaryUrl?: string;
+	candidateUrls?: string[];
+};
 
 async function defaultImporter(url: string): Promise<WasmModule> {
 	return import(/* @vite-ignore */ url);
@@ -82,21 +89,29 @@ export class RppgWasmLoadError extends Error {
 // Try to dynamically import the wasm JS bundle from a few common locations
 export async function loadWasmBackend(
 	importer: WasmImporter = defaultImporter,
-	options: { strict?: boolean } = {},
+	options: LoadWasmBackendOptions = {},
 ): Promise<Backend | null> {
-	const candidates = [
-		"/pkg/rppg_wasm.js",
-		"/pkg/eeg_wasm.js",
-		"/rppg_wasm.js",
-		"/eeg_wasm.js",
-	];
+	const candidates = options.jsUrl
+		? [options.jsUrl]
+		: options.candidateUrls && options.candidateUrls.length > 0
+			? options.candidateUrls
+			: [
+					"/pkg/rppg_wasm.js",
+					"/pkg/eeg_wasm.js",
+					"/rppg_wasm.js",
+					"/eeg_wasm.js",
+				];
 	let lastError: unknown = undefined;
 	for (const url of candidates) {
 		try {
 			const mod: WasmModule = await importer(url);
 			// wasm-bindgen bundles export a default init function; call it before using constructors.
 			if (typeof mod.default === "function") {
-				await mod.default();
+				if (options.binaryUrl) {
+					await mod.default(options.binaryUrl);
+				} else {
+					await mod.default();
+				}
 			}
 			const Constructor =
 				mod.RppgPipeline ??

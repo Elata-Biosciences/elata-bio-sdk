@@ -24,7 +24,9 @@ export class MediaPipeFrameSource implements FrameSource {
 		this.canvas = document.createElement("canvas") as HTMLCanvasElement;
 		this.canvas.width = video.videoWidth || (video as any).width || 320;
 		this.canvas.height = video.videoHeight || (video as any).height || 240;
-		const ctx = this.canvas.getContext("2d");
+		const ctx = this.canvas.getContext("2d", {
+			willReadFrequently: true,
+		});
 		if (!ctx) throw new Error("2D context unavailable");
 		this.ctx = ctx;
 	}

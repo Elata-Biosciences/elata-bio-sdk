@@ -251,6 +251,8 @@ export class DemoRunner {
 			}
 		} catch (error) {
 			this.recordDrop("processor_error");
+			this.running = false;
+			void this.source.stop().catch(() => {});
 			this.recordError(error);
 			return;
 		}

@@ -120,6 +120,11 @@ export type RppgDebugSnapshot = {
 	issues: RppgDebugIssueCode[];
 };
 
+export type RppgProcessorBackendFailure = {
+	operation: string;
+	message: string;
+};
+
 type Sample = {
 	timestampMs: number;
 	intensity: number;
@@ -427,6 +432,8 @@ export class RppgProcessor {
 	private baselineDeviationStartMs: number | null = null;
 	private lastBayesUpdateMs: number | null = null;
 	private totalSamplesReceived = 0;
+	private failedBackendError: Error | null = null;
+	private failedOperation: string | null = null;
 
 	constructor(
 		private backend: Backend,
@@ -437,19 +444,54 @@ export class RppgProcessor {
 	}
 
 	enableTracker(minBpm = 50, maxBpm = 160, numParticles = 150) {
+		if (this.failedBackendError) return;
 		if (typeof this.pipeline.enable_tracker === "function") {
-			this.pipeline.enable_tracker(minBpm, maxBpm, numParticles);
+			try {
+				this.pipeline.enable_tracker(minBpm, maxBpm, numParticles);
+			} catch (error) {
+				this.failBackend("enable_tracker", error);
+				throw error;
+			}
 		} else if (typeof this.pipeline.enableTracker === "function") {
-			this.pipeline.enableTracker(minBpm, maxBpm, numParticles);
+			try {
+				this.pipeline.enableTracker(minBpm, maxBpm, numParticles);
+			} catch (error) {
+				this.failBackend("enableTracker", error);
+				throw error;
+			}
 		}
 	}
 
+	isBackendFailed(): boolean {
+		return this.failedBackendError != null;
+	}
+
+	getBackendFailure(): RppgProcessorBackendFailure | null {
+		if (!this.failedBackendError || !this.failedOperation) return null;
+		return {
+			operation: this.failedOperation,
+			message: this.failedBackendError.message,
+		};
+	}
+
 	pushSample(timestampMs: number, intensity: number) {
+		if (!Number.isFinite(timestampMs) || !Number.isFinite(intensity)) return;
+		this.assertBackendHealthy("push_sample");
 		if (typeof this.pipeline.push_sample === "function") {
 			const ts = coerceTimestamp(this.pipeline, timestampMs);
-			this.pipeline.push_sample(ts as any, intensity);
+			try {
+				this.pipeline.push_sample(ts as any, intensity);
+			} catch (error) {
+				this.failBackend("push_sample", error);
+				throw error;
+			}
 		} else if (typeof this.pipeline.pushSample === "function") {
-			this.pipeline.pushSample(timestampMs, intensity);
+			try {
+				this.pipeline.pushSample(timestampMs, intensity);
+			} catch (error) {
+				this.failBackend("pushSample", error);
+				throw error;
+			}
 		} else {
 			throw new Error("backend pipeline has no push_sample API");
 		}
@@ -472,11 +514,31 @@ export class RppgProcessor {
 		b: number,
 		skinRatio = 1.0,
 	) {
+		if (
+			!Number.isFinite(timestampMs) ||
+			!Number.isFinite(r) ||
+			!Number.isFinite(g) ||
+			!Number.isFinite(b)
+		) {
+			return;
+		}
+		const safeSkinRatio = clampFinite(skinRatio, 1, 0, 1);
+		this.assertBackendHealthy("push_sample_rgb");
 		if (typeof this.pipeline.push_sample_rgb === "function") {
 			const ts = coerceTimestamp(this.pipeline, timestampMs);
-			this.pipeline.push_sample_rgb(ts as any, r, g, b, skinRatio);
+			try {
+				this.pipeline.push_sample_rgb(ts as any, r, g, b, safeSkinRatio);
+			} catch (error) {
+				this.failBackend("push_sample_rgb", error);
+				throw error;
+			}
 		} else if (typeof this.pipeline.pushSampleRgb === "function") {
-			this.pipeline.pushSampleRgb(timestampMs, r, g, b, skinRatio);
+			try {
+				this.pipeline.pushSampleRgb(timestampMs, r, g, b, safeSkinRatio);
+			} catch (error) {
+				this.failBackend("pushSampleRgb", error);
+				throw error;
+			}
 		} else {
 			this.pushSample(timestampMs, g);
 			return;
@@ -487,7 +549,7 @@ export class RppgProcessor {
 			r,
 			g,
 			b,
-			skinRatio,
+			safeSkinRatio,
 			0,
 			0,
 		);
@@ -502,29 +564,51 @@ export class RppgProcessor {
 		motion = 0.0,
 		clipRatio = 0.0,
 	) {
+		if (
+			!Number.isFinite(timestampMs) ||
+			!Number.isFinite(r) ||
+			!Number.isFinite(g) ||
+			!Number.isFinite(b)
+		) {
+			return;
+		}
+		const safeSkinRatio = clampFinite(skinRatio, 1, 0, 1);
+		const safeMotion = clampFinite(motion, 0, 0, 1);
+		const safeClipRatio = clampFinite(clipRatio, 0, 0, 1);
+		this.assertBackendHealthy("push_sample_rgb_meta");
 		if (typeof this.pipeline.push_sample_rgb_meta === "function") {
 			const ts = coerceTimestamp(this.pipeline, timestampMs);
-			this.pipeline.push_sample_rgb_meta(
-				ts as any,
-				r,
-				g,
-				b,
-				skinRatio,
-				motion,
-				clipRatio,
-			);
+			try {
+				this.pipeline.push_sample_rgb_meta(
+					ts as any,
+					r,
+					g,
+					b,
+					safeSkinRatio,
+					safeMotion,
+					safeClipRatio,
+				);
+			} catch (error) {
+				this.failBackend("push_sample_rgb_meta", error);
+				throw error;
+			}
 		} else if (typeof this.pipeline.pushSampleRgbMeta === "function") {
-			this.pipeline.pushSampleRgbMeta(
-				timestampMs,
-				r,
-				g,
-				b,
-				skinRatio,
-				motion,
-				clipRatio,
-			);
+			try {
+				this.pipeline.pushSampleRgbMeta(
+					timestampMs,
+					r,
+					g,
+					b,
+					safeSkinRatio,
+					safeMotion,
+					safeClipRatio,
+				);
+			} catch (error) {
+				this.failBackend("pushSampleRgbMeta", error);
+				throw error;
+			}
 		} else {
-			this.pushSampleRgb(timestampMs, r, g, b, skinRatio);
+			this.pushSampleRgb(timestampMs, r, g, b, safeSkinRatio);
 			return;
 		}
 		this.pushLocalSample(
@@ -533,9 +617,9 @@ export class RppgProcessor {
 			r,
 			g,
 			b,
-			skinRatio,
-			motion,
-			clipRatio,
+			safeSkinRatio,
+			safeMotion,
+			safeClipRatio,
 		);
 	}
 
@@ -598,6 +682,7 @@ export class RppgProcessor {
 
 	getMetrics(): Metrics {
 		const backendMetrics = this.readBackendMetrics();
+		if (this.failedBackendError) return backendMetrics;
 		const advanced = this.computeAdvancedMetrics(backendMetrics);
 		return { ...backendMetrics, ...advanced };
 	}
@@ -642,13 +727,44 @@ export class RppgProcessor {
 	}
 
 	private readBackendMetrics(): Metrics {
+		if (this.failedBackendError) return failedMetrics();
 		if (typeof this.pipeline.get_metrics === "function") {
-			return normalizeMetrics(this.pipeline.get_metrics());
+			try {
+				return normalizeMetrics(this.pipeline.get_metrics());
+			} catch (error) {
+				this.failBackend("get_metrics", error);
+				return failedMetrics();
+			}
 		}
 		if (typeof this.pipeline.getMetrics === "function") {
-			return normalizeMetrics(this.pipeline.getMetrics());
+			try {
+				return normalizeMetrics(this.pipeline.getMetrics());
+			} catch (error) {
+				this.failBackend("getMetrics", error);
+				return failedMetrics();
+			}
 		}
 		return { bpm: null, confidence: 0.0, signal_quality: 0.0 };
+	}
+
+	private assertBackendHealthy(operation: string) {
+		if (!this.failedBackendError) return;
+		const previousOp = this.failedOperation ?? "an earlier backend call";
+		throw new Error(
+			`rPPG backend is unavailable after a fatal error in ${previousOp}; refusing ${operation}.`,
+		);
+	}
+
+	private failBackend(operation: string, cause: unknown) {
+		if (this.failedBackendError) return;
+		this.failedOperation = operation;
+		if (cause instanceof Error) {
+			this.failedBackendError = cause;
+			return;
+		}
+		this.failedBackendError = new Error(
+			`rPPG backend failed during ${operation}.`,
+		);
 	}
 
 	private pushLocalSample(
@@ -994,6 +1110,36 @@ function normalizeMetrics(raw: any): Metrics {
 	};
 }
 
+function failedMetrics(): Metrics {
+	return {
+		bpm: null,
+		confidence: 0.0,
+		signal_quality: 0.0,
+		agreement: 0,
+		reason_codes: ["backend_failed"],
+		skin_ratio_mean: 0,
+		motion_mean: 0,
+		clip_mean: 0,
+		spectral_bpm: null,
+		acf_bpm: null,
+		peaks_bpm: null,
+		resolved_bpm: null,
+		resolved_confidence: 0,
+		winning_sources: [],
+		alias_flag: false,
+		bayes_bpm: null,
+		bayes_confidence: 0,
+		calibrated_bpm: null,
+		fused_bpm: null,
+		fused_source: "none",
+		calibration_trained: false,
+		baseline_bpm: null,
+		baseline_delta: null,
+		hrv_rmssd: null,
+		respiration_rate: null,
+	};
+}
+
 function coerceTimestamp(pipeline: any, timestampMs: number): number | bigint {
 	if (
 		typeof BigInt === "function" &&
@@ -1007,6 +1153,16 @@ function coerceTimestamp(pipeline: any, timestampMs: number): number | bigint {
 
 function clamp(value: number, min: number, max: number): number {
 	return Math.min(max, Math.max(min, value));
+}
+
+function clampFinite(
+	value: number,
+	fallback: number,
+	min: number,
+	max: number,
+): number {
+	if (!Number.isFinite(value)) return fallback;
+	return clamp(value, min, max);
 }
 
 function isWithin(a: number, b: number, tolerance = BPM_TOLERANCE): boolean {

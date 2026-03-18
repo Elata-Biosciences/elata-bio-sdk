@@ -45,7 +45,7 @@
 		"lint": "pnpm exec biome lint src playwright.config.ts scripts/build-demo.mjs jest.config.cjs",
 		"test": "jest --config jest.config.cjs --passWithNoTests",
 		"clean": "node ./scripts/clean.mjs",
-		"build": "tsc -p .",
+		"build": "tsc -p . && node ./scripts/fix-dist-import-specifiers.mjs && node ./scripts/verify-dist-esm.mjs",
 		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
 		"verify:publish": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts pkg/rppg_wasm.js pkg/rppg_wasm_bg.wasm",
 		"prepare:publish": "pnpm run build:demo && pnpm run build",
