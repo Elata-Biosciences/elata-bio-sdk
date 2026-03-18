@@ -78,7 +78,13 @@ test('scaffolds the default template', () => {
     assert.ok(existsSync(join(tmp, 'demo-app', 'README.md')));
     assert.ok(existsSync(join(tmp, 'demo-app', 'src', 'App.tsx')));
     const pkg = readFileSync(join(tmp, 'demo-app', 'package.json'), 'utf8');
+    const app = readFileSync(join(tmp, 'demo-app', 'src', 'App.tsx'), 'utf8');
     assert.match(pkg, new RegExp(`"@elata-biosciences/rppg-web": "${rppgWebVersion}"`));
+    assert.match(app, /createRppgSession/);
+    assert.match(app, /Session diagnostics/);
+    assert.match(app, /backendMode/);
+    assert.match(app, /lastError/);
+    assert.match(app, /processorIssues/);
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }

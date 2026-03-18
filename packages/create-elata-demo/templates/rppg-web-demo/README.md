@@ -6,8 +6,9 @@ This app was generated from the `__TEMPLATE_NAME__` template in
 ## What This Demo Shows
 
 - camera-based rPPG processing in the browser
-- `@elata-biosciences/rppg-web` integration with demo helpers
+- `createRppgSession()` as the recommended `@elata-biosciences/rppg-web` app entrypoint
 - a simple metrics display for BPM, confidence, and signal quality
+- session diagnostics like `backendMode`, `issues`, and `lastError`
 
 ## Requirements
 
@@ -33,4 +34,5 @@ pnpm --dir __APP_NAME__ --ignore-workspace run dev
 ## Notes
 
 - This template is meant as a quick integration starting point, not a finished product UI.
+- It intentionally starts from `createRppgSession()` instead of lower-level `DemoRunner` or `RppgProcessor` wiring.
 - If you need a deeper reference, compare this app with the monorepo `packages/rppg-web` demo tooling.

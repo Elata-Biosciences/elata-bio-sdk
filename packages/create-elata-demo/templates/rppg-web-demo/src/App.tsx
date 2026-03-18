@@ -1,57 +1,55 @@
 import { useEffect, useRef, useState } from 'react';
-import * as Rppg from '@elata-biosciences/rppg-web';
-import type { Backend, Metrics } from '@elata-biosciences/rppg-web';
+import {
+  createRppgSession,
+  type Metrics,
+  type RppgSession,
+  type RppgSessionDiagnostics,
+} from '@elata-biosciences/rppg-web';
 
-type DemoRunnerDiagnostics = {
-  framesSeen: number;
-  framesWithFaceRoi: number;
-  framesWithFallbackRoi: number;
-  framesWithMultiRoi: number;
-  samplesPushed: number;
-  droppedFrames: number;
-  lastDropReason: string | null;
-  lastTimestampMs: number | null;
-  lastIntensity: number | null;
-  lastSkinRatio: number | null;
-  lastClipRatio: number | null;
-  lastMotion: number | null;
-  lastProcessorMethod: string | null;
-  lastRoiSource: string | null;
+const EMPTY_METRICS: Metrics = {
+  bpm: null,
+  confidence: 0,
+  signal_quality: 0,
 };
 
-type RppgDebugSnapshot = {
-  windowSampleCount: number;
-  windowDurationMs: number;
-  issues: string[];
-};
+function formatIssueList(issues: string[] | undefined): string {
+  if (!issues || issues.length === 0) {
+    return 'none';
+  }
+
+  return issues.join(', ');
+}
+
+function getStatusMessage(diagnostics: RppgSessionDiagnostics | null): string {
+  if (!diagnostics) {
+    return 'Starting...';
+  }
+
+  if (diagnostics.lastError) {
+    return `Last error: ${diagnostics.lastError.message}`;
+  }
+
+  if (diagnostics.backendMode !== 'wasm') {
+    return 'Session running without the packaged WASM backend. Serve the /pkg assets to enable live metrics.';
+  }
+
+  if (
+    diagnostics.issues.includes('no_samples_yet') ||
+    diagnostics.issues.includes('insufficient_window')
+  ) {
+    return 'Collecting samples. Keep your face centered and still for a few seconds.';
+  }
+
+  return 'Live rPPG session running.';
+}
 
 export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const runnerRef = useRef<any>(null);
-  const [status, setStatus] = useState('Starting...');
-  const [backendMode, setBackendMode] = useState<'preview' | 'live'>('preview');
-  const [metrics, setMetrics] = useState<Metrics>({
-    bpm: null,
-    confidence: 0,
-    signal_quality: 0,
-  });
-  const [runnerDiagnostics, setRunnerDiagnostics] = useState<DemoRunnerDiagnostics>({
-    framesSeen: 0,
-    framesWithFaceRoi: 0,
-    framesWithFallbackRoi: 0,
-    framesWithMultiRoi: 0,
-    samplesPushed: 0,
-    droppedFrames: 0,
-    lastDropReason: null,
-    lastTimestampMs: null,
-    lastIntensity: null,
-    lastSkinRatio: null,
-    lastClipRatio: null,
-    lastMotion: null,
-    lastProcessorMethod: null,
-    lastRoiSource: null,
-  });
-  const [debugSnapshot, setDebugSnapshot] = useState<RppgDebugSnapshot | null>(null);
+  const sessionRef = useRef<RppgSession | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [status, setStatus] = useState('Requesting camera access...');
+  const [metrics, setMetrics] = useState<Metrics>(EMPTY_METRICS);
+  const [diagnostics, setDiagnostics] = useState<RppgSessionDiagnostics | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,63 +75,60 @@ export default function App() {
         return;
       }
 
+      streamRef.current = stream;
       video.srcObject = stream;
-      const fps = stream.getVideoTracks()[0]?.getSettings().frameRate ?? 30;
+      await video.play().catch(() => undefined);
 
-      setStatus('Initializing...');
+      const sampleRate = stream.getVideoTracks()[0]?.getSettings().frameRate ?? 30;
+      setStatus('Starting rPPG session...');
 
-      const { DemoRunner, MediaPipeFaceFrameSource, MediaPipeFrameSource, RppgProcessor, loadFaceMesh } =
-        Rppg as any;
+      try {
+        const session = await createRppgSession({
+          video,
+          sampleRate,
+          backend: 'auto',
+          faceMesh: 'auto',
+          enableTracker: { minBpm: 55, maxBpm: 150, numParticles: 200 },
+          roiSmoothingAlpha: 0.25,
+          useSkinMask: true,
+        });
 
-      const faceMesh = await loadFaceMesh();
-      if (cancelled) return;
-
-      const source = faceMesh
-        ? new MediaPipeFaceFrameSource(video, faceMesh, fps)
-        : new MediaPipeFrameSource(video, { fps });
-
-      const loadBackend = (): Backend => {
-        return {
-          newPipeline: () => ({
-            push_sample: () => {},
-            get_metrics: () => ({ bpm: null, confidence: 0, signal_quality: 0 }),
-          }),
-        };
-      };
-
-      const backend = await loadBackend();
-      setBackendMode('preview');
-
-      const processor = new RppgProcessor(backend, fps, 8);
-      processor.enableTracker(55, 150, 200);
-
-      const runner = new DemoRunner(source, processor, {
-        useSkinMask: true,
-        roiSmoothingAlpha: 0.2,
-        onDiagnostics: (diagnostics: DemoRunnerDiagnostics) => setRunnerDiagnostics(diagnostics),
-      });
-      runnerRef.current = runner;
-      await runner.start();
-      if (cancelled) {
-        await runner.stop();
-        return;
-      }
-
-      setStatus('Preview mode running. Update to a newer rppg-web release to enable live metrics.');
-      intervalId = setInterval(() => {
-        setMetrics(processor.getMetrics());
-        if (typeof processor.getDebugSnapshot === 'function') {
-          setDebugSnapshot(processor.getDebugSnapshot());
+        if (cancelled) {
+          await session.dispose();
+          return;
         }
-      }, 1000);
+
+        sessionRef.current = session;
+
+        const syncSessionState = () => {
+          const nextDiagnostics = session.getDiagnostics();
+          setMetrics(session.getMetrics());
+          setDiagnostics(nextDiagnostics);
+          setStatus(getStatusMessage(nextDiagnostics));
+        };
+
+        syncSessionState();
+        intervalId = setInterval(syncSessionState, 1000);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : 'Failed to start the rPPG session.';
+        setStatus(message);
+      }
     }
 
-    init();
+    void init();
 
     return () => {
       cancelled = true;
       if (intervalId) clearInterval(intervalId);
-      runnerRef.current?.stop();
+      if (sessionRef.current) {
+        void sessionRef.current.dispose();
+        sessionRef.current = null;
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+      }
     };
   }, []);
 
@@ -141,7 +136,7 @@ export default function App() {
     <main style={{ fontFamily: 'sans-serif', maxWidth: 520, margin: '2rem auto', padding: '0 1rem' }}>
       <h1>Elata rPPG Demo</h1>
       <p>{status}</p>
-      <p>Backend: {backendMode === 'live' ? 'Live WASM pipeline' : 'Preview fallback'}</p>
+      <p>Backend mode: {diagnostics?.backendMode ?? 'starting'}</p>
       <video
         ref={videoRef}
         width={320}
@@ -157,22 +152,20 @@ export default function App() {
         <div>Signal quality: {metrics.signal_quality.toFixed(2)}</div>
       </div>
       <section style={{ marginTop: 24, padding: 16, borderRadius: 12, border: '1px solid #d0d7de', background: '#f6f8fa' }}>
-        <h2 style={{ margin: '0 0 12px', fontSize: 18 }}>Diagnostics</h2>
-        <div>Frames seen: {runnerDiagnostics.framesSeen}</div>
-        <div>Face ROI frames: {runnerDiagnostics.framesWithFaceRoi}</div>
-        <div>Multi-ROI frames: {runnerDiagnostics.framesWithMultiRoi}</div>
-        <div>Fallback ROI frames: {runnerDiagnostics.framesWithFallbackRoi}</div>
-        <div>Samples pushed: {runnerDiagnostics.samplesPushed}</div>
-        <div>Dropped frames: {runnerDiagnostics.droppedFrames}</div>
-        <div>Last drop reason: {runnerDiagnostics.lastDropReason ?? 'none'}</div>
-        <div>Last ROI source: {runnerDiagnostics.lastRoiSource ?? 'none'}</div>
-        <div>Last processor method: {runnerDiagnostics.lastProcessorMethod ?? 'none'}</div>
-        <div>Last skin ratio: {runnerDiagnostics.lastSkinRatio != null ? runnerDiagnostics.lastSkinRatio.toFixed(2) : '--'}</div>
-        <div>Last motion: {runnerDiagnostics.lastMotion != null ? runnerDiagnostics.lastMotion.toFixed(2) : '--'}</div>
-        <div>Last clip ratio: {runnerDiagnostics.lastClipRatio != null ? runnerDiagnostics.lastClipRatio.toFixed(2) : '--'}</div>
-        <div>Window samples: {debugSnapshot?.windowSampleCount ?? 0}</div>
-        <div>Window duration ms: {debugSnapshot?.windowDurationMs ?? 0}</div>
-        <div>Issues: {debugSnapshot?.issues.length ? debugSnapshot.issues.join(', ') : 'none'}</div>
+        <h2 style={{ margin: '0 0 12px', fontSize: 18 }}>Session diagnostics</h2>
+        <div>Face tracking: {diagnostics?.faceTrackingMode ?? 'starting'}</div>
+        <div>Estimation available: {diagnostics?.estimationAvailable ? 'yes' : 'no'}</div>
+        <div>Frames seen: {diagnostics?.framesSeen ?? 0}</div>
+        <div>Samples received: {diagnostics?.totalSamplesReceived ?? 0}</div>
+        <div>Dropped frames: {diagnostics?.droppedFrames ?? 0}</div>
+        <div>Last drop reason: {diagnostics?.lastDropReason ?? 'none'}</div>
+        <div>ROI source: {diagnostics?.roiSource ?? 'none'}</div>
+        <div>Processor method: {diagnostics?.processorMethod ?? 'none'}</div>
+        <div>Window samples: {diagnostics?.windowSampleCount ?? 0}</div>
+        <div>Window duration ms: {diagnostics?.windowDurationMs ?? 0}</div>
+        <div>Processor issues: {formatIssueList(diagnostics?.processorIssues)}</div>
+        <div>Session issues: {formatIssueList(diagnostics?.issues)}</div>
+        <div>Last error: {diagnostics?.lastError ? `${diagnostics.lastError.code}: ${diagnostics.lastError.message}` : 'none'}</div>
       </section>
     </main>
   );
