@@ -14,6 +14,54 @@ async function defaultImporter(url: string): Promise<WasmModule> {
 	return import(/* @vite-ignore */ url);
 }
 
+function hasPipelineMethods(value: unknown): boolean {
+	if (!value || typeof value !== "object") return false;
+	const pipeline = value as Record<string, unknown>;
+	return (
+		typeof pipeline.push_sample === "function" ||
+		typeof pipeline.pushSample === "function" ||
+		typeof pipeline.push_sample_rgb === "function" ||
+		typeof pipeline.pushSampleRgb === "function" ||
+		typeof pipeline.push_sample_rgb_meta === "function" ||
+		typeof pipeline.pushSampleRgbMeta === "function"
+	) &&
+		(typeof pipeline.get_metrics === "function" ||
+			typeof pipeline.getMetrics === "function");
+}
+
+function normalizePipelineInstance(
+	instance: unknown,
+	module: WasmModule,
+): unknown {
+	if (hasPipelineMethods(instance)) return instance;
+	if (!instance || typeof instance !== "object") return instance;
+
+	const prototypeCandidates = [
+		module.WasmRppgPipeline?.prototype,
+		module.RppgPipeline?.prototype,
+	];
+	for (const prototype of prototypeCandidates) {
+		if (
+			prototype &&
+			(hasPipelineMethods(prototype) || typeof prototype.free === "function")
+		) {
+			Object.setPrototypeOf(instance, prototype);
+			if (hasPipelineMethods(instance)) {
+				return instance;
+			}
+		}
+	}
+	return instance;
+}
+
+function createNormalizedPipelineFactory(
+	module: WasmModule,
+	Constructor: new (sampleRate: number, windowSec: number) => unknown,
+) {
+	return (sampleRate: number, windowSec: number) =>
+		normalizePipelineInstance(new Constructor(sampleRate, windowSec), module);
+}
+
 export class RppgWasmLoadError extends Error {
 	public readonly code = "RPPG_WASM_LOAD_FAILED";
 	public readonly attemptedUrls: string[];
@@ -57,7 +105,13 @@ export async function loadWasmBackend(
 				mod.default?.WasmRppgPipeline;
 			if (Constructor) {
 				return {
-					newPipeline: (sr: number, ws: number) => new Constructor(sr, ws),
+					newPipeline: createNormalizedPipelineFactory(
+						mod,
+						Constructor as new (
+							sampleRate: number,
+							windowSec: number,
+						) => unknown,
+					),
 				};
 			}
 
@@ -76,4 +130,13 @@ export async function loadWasmBackend(
 		throw new RppgWasmLoadError(candidates, lastError);
 	}
 	return null;
+}
+
+export function createUnavailableBackend(): Backend {
+	return {
+		newPipeline: () => ({
+			push_sample: () => {},
+			get_metrics: () => ({ bpm: null, confidence: 0, signal_quality: 0 }),
+		}),
+	};
 }

@@ -1,12 +1,34 @@
 import { initDemo } from '../demoApp';
 
-// This test asserts that the demo detects a real wasm backend when the actual built
-// bundle is available at demo/pkg/rppg_wasm.js. It is intentionally written to fail
-// until we implement the build-and-copy step that creates the file (TDD).
+const pushSample = jest.fn();
 
-jest.mock('../mediapipeLoader', () => ({ loadFaceMesh: jest.fn(async () => null) }));
+jest.mock('../mediapipeLoader', () => ({
+  loadFaceMesh: jest.fn(async () => null),
+}));
 
-class FakeVideo { videoWidth = 320; videoHeight = 240; }
+jest.mock('../wasmBackend', () => ({
+  loadWasmBackend: jest.fn(async () => ({
+    newPipeline: () => ({
+      push_sample: pushSample,
+      get_metrics: () => ({
+        bpm: pushSample.mock.calls.length > 0 ? 72 : null,
+        confidence: 0.9,
+        signal_quality: 0.8,
+      }),
+    }),
+  })),
+  createUnavailableBackend: jest.fn(() => ({
+    newPipeline: () => ({
+      push_sample: jest.fn(),
+      get_metrics: () => ({ bpm: null, confidence: 0, signal_quality: 0 }),
+    }),
+  })),
+}));
+
+class FakeVideo {
+  videoWidth = 320;
+  videoHeight = 240;
+}
 
 class FakeCtx {
   private data: Uint8ClampedArray;
@@ -46,16 +68,34 @@ class FakeCanvas {
 
 const origCreate = document.createElement;
 beforeAll(() => {
-  document.createElement = (tag: string) => tag === 'canvas' ? (new FakeCanvas(320, 240) as unknown as HTMLCanvasElement) : origCreate(tag);
+  document.createElement = (tag: string) =>
+    tag === 'canvas'
+      ? (new FakeCanvas(320, 240) as unknown as HTMLCanvasElement)
+      : origCreate(tag);
 });
-afterAll(() => { document.createElement = origCreate; });
 
-test('initDemo detects wasm backend when built bundle exists at demo/pkg', async () => {
-  // Expectation: demo should detect backendAvailable when bundle exists.
-  // This will fail until the build script writes `demo/pkg/rppg_wasm.js`.
+afterAll(() => {
+  document.createElement = origCreate;
+});
+
+beforeEach(() => {
+  pushSample.mockReset();
+});
+
+test('initDemo starts a live session and pushes samples when backend is available', async () => {
   const video = new FakeVideo() as unknown as HTMLVideoElement;
   const res = await initDemo(video);
+
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
   expect((window as any).__rppg_demo.backendAvailable).toBe(true);
+  expect(res.session.backendMode).toBe('wasm');
+  expect(pushSample).toHaveBeenCalled();
+
+  const diagnostics = res.session.getDiagnostics();
+  expect(diagnostics.framesSeen).toBeGreaterThan(0);
+  expect(diagnostics.totalSamplesReceived).toBeGreaterThan(0);
+  expect(diagnostics.processorIssues).not.toContain('no_samples_yet');
 
   await res.runner.stop();
 });

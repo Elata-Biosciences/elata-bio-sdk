@@ -26,33 +26,45 @@ npm install @elata-biosciences/rppg-web
 
 `@elata-biosciences/rppg-web` provides:
 
-- `RppgProcessor` for sample ingestion and metrics
+- `createRppgSession()` as the recommended browser integration API
+- `RppgProcessor` for low-level sample ingestion and metrics
 - `loadWasmBackend()` for packaged browser backend loading
-- demo helpers such as `DemoRunner` and frame-source helpers
+- advanced helpers such as `DemoRunner` and frame-source helpers
 
 ## Minimal Integration
 
 ```ts
-import { RppgProcessor, loadWasmBackend } from "@elata-biosciences/rppg-web";
+import { createRppgSession } from "@elata-biosciences/rppg-web";
 
-const backend = await loadWasmBackend();
-if (!backend) {
-  throw new Error("No packaged rPPG WASM backend found.");
-}
+const session = await createRppgSession({
+  video: videoEl,
+  sampleRate: 30,
+  backend: "auto",
+  onDiagnostics: (diagnostics) => {
+    console.log(diagnostics.framesSeen, diagnostics.totalSamplesReceived);
+    console.log(diagnostics.issues);
+  },
+  onError: (error) => {
+    console.error(error.code, error.message);
+  },
+});
 
-const processor = new RppgProcessor(backend, 30, 5);
-processor.pushSample(Date.now(), 0.42);
-
-console.log(processor.getMetrics());
+console.log(session.getMetrics());
 ```
 
 ## Typical Integration Flow
 
-1. Load the packaged WASM backend with `loadWasmBackend()`.
-2. Acquire a camera stream in the browser.
-3. Convert frames into samples through your chosen frame-source path.
-4. Feed those samples into `RppgProcessor`.
-5. Read BPM, confidence, and signal-quality metrics from `getMetrics()`.
+1. Acquire a camera stream in the browser and attach it to a `video` element.
+2. Call `createRppgSession({ video, backend: "auto" })`.
+3. Read metrics from `session.getMetrics()`.
+4. Surface diagnostics from `onDiagnostics` or `session.getDiagnostics()`.
+5. Stop the session during cleanup with `await session.stop()`.
+
+`createRppgSession()` owns WASM init, FaceMesh loading, frame scheduling, ROI
+selection, diagnostics, and cleanup.
+
+If you need manual control, the lower-level `RppgProcessor`, `DemoRunner`, and
+frame-source helpers are still available.
 
 ## When To Use The rPPG Template Instead
 
@@ -64,9 +76,16 @@ Prefer the scaffolded `rppg-web-demo` template when you want:
 
 ## Common Gotchas
 
-- If `loadWasmBackend()` returns `null`, your app is probably not serving the packaged `pkg/` assets correctly.
+- If `session.backendMode` is `unavailable`, your app is probably not serving the packaged `pkg/` assets correctly.
 - If camera access fails, confirm the page has permission to use `getUserMedia`.
+- If `session.lastError` is non-null, use its `code` and `message` to surface the real capture or processor failure instead of retrying blindly.
 - If you are just evaluating the SDK, the scaffolded demo is much faster than building the whole browser pipeline yourself.
+
+## Version Guidance
+
+If you install both `@elata-biosciences/rppg-web` and
+`@elata-biosciences/eeg-web`, prefer matching versions. They are developed and
+verified together in this repo.
 
 ## Next Steps
 

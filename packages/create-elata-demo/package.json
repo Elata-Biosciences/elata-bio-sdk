@@ -1,6 +1,6 @@
 {
   "name": "@elata-biosciences/create-elata-demo",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Scaffold Elata demo apps from multiple templates",
   "license": "MIT",
   "author": "Elata",

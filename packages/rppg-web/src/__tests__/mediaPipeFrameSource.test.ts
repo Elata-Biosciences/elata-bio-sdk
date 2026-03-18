@@ -78,4 +78,46 @@ describe('MediaPipeFrameSource', () => {
     await src.stop();
     expect(onFrame).toHaveBeenCalled();
   });
+
+  test('emits capture errors instead of swallowing them silently', async () => {
+    class ThrowingCanvas extends FakeCanvas {
+      override getContext(_name: string) {
+        return {
+          drawImage() {
+            throw new Error('video not ready');
+          },
+          getImageData() {
+            throw new Error('should not be reached');
+          },
+        } as unknown as CanvasRenderingContext2D;
+      }
+    }
+
+    document.createElement = (tagName: string) => {
+      if (tagName === 'canvas') return new ThrowingCanvas(2, 1) as unknown as HTMLCanvasElement;
+      return origCreateCanvas(tagName);
+    };
+
+    const video = new FakeVideo(2, 1) as unknown as HTMLVideoElement;
+    const src = new MediaPipeFrameSource(video, { fps: 60 });
+    const onError = jest.fn();
+    (src as any).onError = onError;
+
+    await src.start();
+    await new Promise((r) => setTimeout(r, 20));
+    await src.stop();
+
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: 'capture_failed',
+        stage: 'capture',
+        message: 'video not ready',
+      }),
+    );
+    expect((src as any).getLastError()).toEqual(
+      expect.objectContaining({
+        code: 'capture_failed',
+      }),
+    );
+  });
 });

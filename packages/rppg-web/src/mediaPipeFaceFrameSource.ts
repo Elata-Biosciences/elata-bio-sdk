@@ -1,4 +1,9 @@
-import { FrameSource, Frame, ROI } from "./frameSource";
+import {
+	FrameSource,
+	Frame,
+	ROI,
+	type FrameSourceError,
+} from "./frameSource";
 
 export type FaceMeshLike = {
 	onResults?: (results: any) => void;
@@ -7,6 +12,7 @@ export type FaceMeshLike = {
 
 export class MediaPipeFaceFrameSource implements FrameSource {
 	public onFrame: ((frame: Frame) => void) | null = null;
+	public onError: ((error: FrameSourceError) => void) | null = null;
 	private running = false;
 	private canvas: HTMLCanvasElement;
 	private ctx: CanvasRenderingContext2D;
@@ -15,6 +21,7 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 	private vfcHandle: number | null = null;
 	private callback: any = null;
 	private smoothedFaceRoi: ROI | null = null;
+	private lastError: FrameSourceError | null = null;
 
 	constructor(
 		private video: HTMLVideoElement,
@@ -58,8 +65,8 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 				if (!this.running) return;
 				try {
 					this.faceMesh.send({ image: this.video });
-				} catch (e) {
-					// faceMesh may be mocked in tests
+				} catch (error) {
+					this.reportError("face_mesh_failed", "face_mesh", error);
 				}
 				this.captureAndEmitFrame(this.lastResults, now, metadata);
 				this.vfcHandle = (this.video as any).requestVideoFrameCallback(cb);
@@ -70,8 +77,8 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 				if (!this.running) return;
 				try {
 					this.faceMesh.send({ image: this.video });
-				} catch (e) {
-					// faceMesh may be mocked in tests
+				} catch (error) {
+					this.reportError("face_mesh_failed", "face_mesh", error);
 				}
 				setTimeout(tick, interval);
 			};
@@ -87,6 +94,10 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 			cancel.call(this.video, this.vfcHandle);
 			this.vfcHandle = null;
 		}
+	}
+
+	getLastError(): FrameSourceError | null {
+		return this.lastError;
 	}
 
 	private captureAndEmitFrame(results?: any, now?: number, metadata?: any) {
@@ -124,8 +135,8 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 				frame.rois = this.subRoisFromFace(roi);
 			}
 			if (this.onFrame) this.onFrame(frame);
-		} catch (e) {
-			// swallow capture errors
+		} catch (error) {
+			this.reportError("capture_failed", "capture", error);
 		}
 	}
 
@@ -228,6 +239,28 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 			w: Math.max(1, Math.floor(r.w)),
 			h: Math.max(1, Math.floor(r.h)),
 		}));
+	}
+
+	private reportError(
+		code: FrameSourceError["code"],
+		stage: FrameSourceError["stage"],
+		cause: unknown,
+	) {
+		const message =
+			cause instanceof Error
+				? cause.message
+				: stage === "face_mesh"
+					? "FaceMesh failed while processing a browser video frame."
+					: "Failed to capture a browser video frame.";
+		const error: FrameSourceError = {
+			code,
+			stage,
+			message,
+			timestampMs: Date.now(),
+			cause,
+		};
+		this.lastError = error;
+		this.onError?.(error);
 	}
 }
 

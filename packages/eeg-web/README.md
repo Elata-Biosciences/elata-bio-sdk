@@ -45,9 +45,22 @@ const powers = band_powers(eegData, 256);
 console.log(powers.alpha);
 ```
 
+If you need the raw rPPG WASM pipeline from this package, prefer the stable
+helper instead of instantiating generated wrappers directly:
+
+```ts
+import { initEegWasm, createRppgPipeline } from "@elata-biosciences/eeg-web";
+
+await initEegWasm();
+const pipeline = createRppgPipeline(30, 10);
+pipeline.push_sample(1000, 0.42);
+console.log(pipeline.get_metrics());
+```
+
 ## Key Exports
 
 - `initEegWasm` and `initEegWasmSync`
+- `createRppgPipeline`
 - `band_powers`
 - `WasmAlphaBumpDetector`
 - `WasmAlphaPeakModel`

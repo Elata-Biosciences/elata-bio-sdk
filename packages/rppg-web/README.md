@@ -6,9 +6,10 @@ TypeScript wrapper for the Elata rPPG pipeline.
 
 This package provides:
 
-- `RppgProcessor` for ingesting samples and computing metrics
+- `createRppgSession()` as the recommended browser integration entrypoint
+- `RppgProcessor` for lower-level sample ingestion and metrics work
 - packaged browser WASM backend loading from `/pkg`
-- demo-oriented helpers such as `DemoRunner` and frame sources
+- advanced helpers such as `DemoRunner` and frame sources
 
 ## When To Use It
 
@@ -37,20 +38,32 @@ npm install @elata-biosciences/rppg-web
 ## Usage
 
 ```ts
-import { RppgProcessor, loadWasmBackend } from "@elata-biosciences/rppg-web";
+import { createRppgSession } from "@elata-biosciences/rppg-web";
 
-const backend = await loadWasmBackend();
-if (!backend) {
-  throw new Error("No packaged rPPG WASM backend found.");
-}
+const session = await createRppgSession({
+  video: videoEl,
+  sampleRate: 30,
+  backend: "auto",
+  onDiagnostics: (diagnostics) => {
+    console.log(diagnostics.framesSeen, diagnostics.totalSamplesReceived);
+    console.log(diagnostics.issues);
+  },
+  onError: (error) => {
+    console.error(error.code, error.message);
+  },
+});
 
-const processor = new RppgProcessor(backend, 30, 5);
-processor.pushSample(Date.now(), 0.42);
-console.log(processor.getMetrics());
+console.log(session.getMetrics());
 ```
 
-`loadWasmBackend()` looks for packaged WASM bundles at common paths such as
-`/pkg/rppg_wasm.js` and the legacy `/pkg/eeg_wasm.js`.
+`createRppgSession()` owns the packaged WASM init, FaceMesh loading, frame
+capture loop, ROI handling, diagnostics emission, and cleanup. If WASM is not
+available and you use `backend: "auto"`, the session falls back to an
+`unavailable` backend mode and reports that state through diagnostics instead of
+failing silently.
+
+`loadWasmBackend()` still looks for packaged WASM bundles at common paths such
+as `/pkg/rppg_wasm.js` and the legacy `/pkg/eeg_wasm.js`.
 
 If you want to inject your own backend, it must expose
 `newPipeline(sampleRate, windowSec)` and return an object with `push_sample`
@@ -58,6 +71,8 @@ and `get_metrics` or camelCase equivalents.
 
 ## Key Exports
 
+- `createRppgSession`
+- `RppgSession`
 - `RppgProcessor`
 - `DemoRunner`
 - `MediaPipeFrameSource`
@@ -66,29 +81,51 @@ and `get_metrics` or camelCase equivalents.
 - `computeWaveformPeriodicityProfile`
 - `replayBayesSession`
 
-## MediaPipe Face ROI
+## Session Diagnostics
 
 ```ts
 import {
-  RppgProcessor,
-  DemoRunner,
-  MediaPipeFaceFrameSource,
-  MediaPipeFrameSource,
-  loadFaceMesh,
-  loadWasmBackend
+  createRppgSession,
+  type RppgSessionDiagnostics,
 } from "@elata-biosciences/rppg-web";
-const backend = await loadWasmBackend();
-if (!backend) throw new Error("No packaged rPPG WASM backend found.");
-const processor = new RppgProcessor(backend, 30, 6);
 
-const faceMesh = await loadFaceMesh();
-const source = faceMesh
-  ? new MediaPipeFaceFrameSource(videoEl, faceMesh, 30)
-  : new MediaPipeFrameSource(videoEl, { fps: 30 });
+const session = await createRppgSession({
+  video: videoEl,
+  onDiagnostics: (diagnostics: RppgSessionDiagnostics) => {
+    console.log(diagnostics.roiSource, diagnostics.processorMethod);
+    console.log(diagnostics.lastSampleAgeMs, diagnostics.issues);
+  },
+});
 
-const runner = new DemoRunner(source, processor);
-await runner.start();
+console.log(session.lastError);
 ```
+
+Every session diagnostics payload includes:
+
+- `framesSeen`, `droppedFrames`, and `lastDropReason`
+- `roiSource` and `processorMethod`
+- `totalSamplesReceived`, `windowSampleCount`, and `lastSampleAgeMs`
+- processor issue codes such as `no_samples_yet`, `insufficient_window`, and `low_skin_ratio`
+- session-level issues such as `backend_unavailable`
+- `lastError` when capture, FaceMesh, or processor work fails
+
+## Low-Level Integration
+
+If you need custom capture orchestration, the lower-level APIs are still
+available:
+
+- `loadWasmBackend()` for manual backend loading
+- `RppgProcessor` for direct sample ingestion
+- `DemoRunner`, `MediaPipeFrameSource`, and `MediaPipeFaceFrameSource` for advanced browser control
+
+For most browser apps, prefer `createRppgSession()` and only drop lower if you
+need custom lifecycle or rendering behavior.
+
+## Version Compatibility
+
+`@elata-biosciences/rppg-web` and `@elata-biosciences/eeg-web` are tested in
+lockstep in this repo. Prefer matching package versions unless release notes
+say otherwise.
 
 ## Build And Dev Notes
 
@@ -141,7 +178,7 @@ page can also run `replayBayesSession()` on it and render the result.
 
 ## Troubleshooting
 
-- If `loadWasmBackend()` returns `null`, make sure your app is serving the packaged `pkg/rppg_wasm.js` and `.wasm` assets.
+- If `session.backendMode` is `unavailable`, make sure your app is serving the packaged `pkg/rppg_wasm.js` and `.wasm` assets.
 - If camera access fails, verify that the page has permission to use `getUserMedia` and that the browser supports the required APIs.
 - If you want a known-good starting point, scaffold the `rppg-web-demo` template with `create-elata-demo` and compare your setup against it.
 

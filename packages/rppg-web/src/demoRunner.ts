@@ -24,6 +24,7 @@ export type DemoRunnerOptions = {
 		motion: number;
 	}) => void;
 	onDiagnostics?: (diagnostics: DemoRunnerDiagnostics) => void;
+	onError?: (error: DemoRunnerError) => void;
 	skinRatioSmoothingAlpha?: number;
 };
 
@@ -48,6 +49,15 @@ export type DemoRunnerDiagnostics = {
 	lastMotion: number | null;
 	lastProcessorMethod: "rgb_meta" | "rgb" | "intensity" | null;
 	lastRoiSource: "multi_roi" | "face_roi" | "fallback_roi" | null;
+};
+
+export type DemoRunnerError = {
+	code: "processor_error";
+	stage: "processor";
+	message: string;
+	timestampMs: number;
+	diagnostics: DemoRunnerDiagnostics;
+	cause?: unknown;
 };
 
 export class DemoRunner {
@@ -76,6 +86,7 @@ export class DemoRunner {
 		lastProcessorMethod: null,
 		lastRoiSource: null,
 	};
+	private lastError: DemoRunnerError | null = null;
 
 	constructor(
 		private source: FrameSource,
@@ -97,6 +108,10 @@ export class DemoRunner {
 
 	getDiagnostics(): DemoRunnerDiagnostics {
 		return { ...this.diagnostics };
+	}
+
+	getLastError(): DemoRunnerError | null {
+		return this.lastError;
 	}
 
 	private onFrame(frame: Frame) {
@@ -236,7 +251,8 @@ export class DemoRunner {
 			}
 		} catch (error) {
 			this.recordDrop("processor_error");
-			throw error;
+			this.recordError(error);
+			return;
 		}
 		this.diagnostics.samplesPushed += 1;
 		this.diagnostics.lastDropReason = null;
@@ -265,6 +281,22 @@ export class DemoRunner {
 		this.diagnostics.droppedFrames += 1;
 		this.diagnostics.lastDropReason = reason;
 		this.emitDiagnostics();
+	}
+
+	private recordError(cause: unknown) {
+		const error: DemoRunnerError = {
+			code: "processor_error",
+			stage: "processor",
+			message:
+				cause instanceof Error
+					? cause.message
+					: "The rPPG processor rejected a frame sample.",
+			timestampMs: Date.now(),
+			diagnostics: this.getDiagnostics(),
+			cause,
+		};
+		this.lastError = error;
+		this.opts.onError?.(error);
 	}
 
 	private emitDiagnostics() {

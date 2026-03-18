@@ -16,6 +16,21 @@ export interface FrameSource {
 	stop(): Promise<void>;
 }
 
+export type FrameSourceErrorCode = "capture_failed" | "face_mesh_failed";
+
+export type FrameSourceError = {
+	code: FrameSourceErrorCode;
+	stage: "capture" | "face_mesh";
+	message: string;
+	timestampMs: number;
+	cause?: unknown;
+};
+
+export interface FrameSourceWithErrors extends FrameSource {
+	onError: ((error: FrameSourceError) => void) | null;
+	getLastError(): FrameSourceError | null;
+}
+
 // A small helper to compute average green channel in a rectangular ROI
 export function averageGreenInROI(
 	frame: Frame,

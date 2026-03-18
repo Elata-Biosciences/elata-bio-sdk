@@ -1,14 +1,20 @@
-import { FrameSource, Frame } from "./frameSource";
+import {
+	FrameSource,
+	Frame,
+	type FrameSourceError,
+} from "./frameSource";
 
 type Options = { fps?: number };
 
 export class MediaPipeFrameSource implements FrameSource {
 	public onFrame: ((frame: Frame) => void) | null = null;
+	public onError: ((error: FrameSourceError) => void) | null = null;
 	private running = false;
 	private timer: any = null;
 	private vfcHandle: number | null = null;
 	private canvas: HTMLCanvasElement;
 	private ctx: CanvasRenderingContext2D;
+	private lastError: FrameSourceError | null = null;
 
 	constructor(
 		private video: HTMLVideoElement,
@@ -57,6 +63,10 @@ export class MediaPipeFrameSource implements FrameSource {
 		}
 	}
 
+	getLastError(): FrameSourceError | null {
+		return this.lastError;
+	}
+
 	private captureFrame(now?: number, metadata?: any) {
 		try {
 			this.ctx.drawImage(
@@ -83,8 +93,28 @@ export class MediaPipeFrameSource implements FrameSource {
 				timestampMs: ts,
 			};
 			if (this.onFrame) this.onFrame(frame);
-		} catch (e) {
-			// swallow errors during capture (video not ready, etc.)
+		} catch (error) {
+			this.reportError("capture_failed", "capture", error);
 		}
+	}
+
+	private reportError(
+		code: FrameSourceError["code"],
+		stage: FrameSourceError["stage"],
+		cause: unknown,
+	) {
+		const message =
+			cause instanceof Error
+				? cause.message
+				: "Failed to capture a browser video frame.";
+		const error: FrameSourceError = {
+			code,
+			stage,
+			message,
+			timestampMs: Date.now(),
+			cause,
+		};
+		this.lastError = error;
+		this.onError?.(error);
 	}
 }

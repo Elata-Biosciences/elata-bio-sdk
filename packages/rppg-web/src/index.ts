@@ -37,6 +37,21 @@ export { loadFaceMesh } from "./mediapipeLoader";
 export { averageGreenInROI } from "./frameSource";
 export type { FrameSource, Frame, ROI } from "./frameSource";
 export { loadWasmBackend } from "./wasmBackend";
+export { createUnavailableBackend } from "./wasmBackend";
+export {
+	createRppgSession,
+	RppgSession,
+} from "./rppgSession";
+export type {
+	CreateRppgSessionOptions,
+	RppgSessionBackendMode,
+	RppgSessionBackendPreference,
+	RppgSessionDiagnostics,
+	RppgSessionError,
+	RppgSessionErrorCode,
+	RppgSessionFaceTrackingMode,
+	RppgSessionIssueCode,
+} from "./rppgSession";
 export { computeWaveformPeriodicityProfile } from "./rppgDiagnostics";
 export type { WaveformPeriodicityProfile } from "./rppgDiagnostics";
 export { RppgGatingController } from "./rppgGating";

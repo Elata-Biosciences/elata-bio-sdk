@@ -7,6 +7,12 @@ jest.mock('../mediapipeLoader', () => ({
 
 jest.mock('../wasmBackend', () => ({
   loadWasmBackend: jest.fn(async () => null),
+  createUnavailableBackend: jest.fn(() => ({
+    newPipeline: () => ({
+      push_sample: jest.fn(),
+      get_metrics: () => ({ bpm: null, confidence: 0, signal_quality: 0 }),
+    }),
+  })),
 }));
 
 const mockedLoadFaceMesh = loadFaceMesh as jest.MockedFunction<typeof loadFaceMesh>;

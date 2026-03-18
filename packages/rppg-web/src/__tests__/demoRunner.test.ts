@@ -218,6 +218,35 @@ describe('DemoRunner diagnostics', () => {
     expect(proc.pushSampleRgbMeta).not.toHaveBeenCalled();
     await runner.stop();
   });
+
+  test('emits processor errors without throwing them away inside the frame source', async () => {
+    const src = new MockFrameSource();
+    const proc = new MockProcessor();
+    proc.pushSampleRgbMeta.mockImplementationOnce(() => {
+      throw new Error('backend rejected sample');
+    });
+    const onError = jest.fn();
+    const runner = new DemoRunner(src as any, proc as any, {
+      roi: { x: 0, y: 0, w: 20, h: 20 },
+      onError,
+    });
+    await runner.start();
+
+    expect(() => src.emit(makeSkinFrame(20, 20))).not.toThrow();
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: 'processor_error',
+        stage: 'processor',
+        message: 'backend rejected sample',
+      }),
+    );
+    expect(runner.getLastError()).toEqual(
+      expect.objectContaining({
+        code: 'processor_error',
+      }),
+    );
+    await runner.stop();
+  });
 });
 
 describe('DemoRunner ROI smoothing', () => {
