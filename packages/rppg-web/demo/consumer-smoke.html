@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>rPPG Consumer Smoke</title>
+  </head>
+  <body>
+    <h1>rPPG Consumer Smoke</h1>
+    <script type="module">
+      (async () => {
+        try {
+          const mod = await import("/dist/index.js");
+          const backend = await mod.loadWasmBackend(undefined, {
+            strict: true,
+            jsUrl: "/pkg/rppg_wasm.js",
+            binaryUrl: "/pkg/rppg_wasm_bg.wasm",
+          });
+          const processor = new mod.RppgProcessor(backend, 30, 5);
+          const metrics = processor.getMetrics();
+          const adapter = mod.createRppgAppAdapter({ nowMs: () => 1000 });
+          const diagnostics = {
+            backendMode: "wasm",
+            estimationAvailable: true,
+            faceTrackingMode: "video_frame",
+            roiSource: "fallback_roi",
+            processorMethod: "rgb_meta",
+            totalSamplesReceived: 0,
+            windowSampleCount: 0,
+            windowDurationMs: 0,
+            lastSampleTimestampMs: null,
+            lastSampleAgeMs: null,
+            lastSample: null,
+            processorIssues: [],
+            issues: [],
+            processorFailure: null,
+            state: {
+              status: "running",
+              phase: "none",
+              terminal: false,
+              reason: null,
+              errorCode: null,
+              errorStage: null,
+            },
+            lastError: null,
+            framesSeen: 0,
+            framesWithFaceRoi: 0,
+            framesWithFallbackRoi: 0,
+            framesWithMultiRoi: 0,
+            samplesPushed: 0,
+            droppedFrames: 0,
+            lastDropReason: null,
+            lastTimestampMs: null,
+            lastIntensity: null,
+            lastSkinRatio: null,
+            lastClipRatio: null,
+            lastMotion: null,
+            lastProcessorMethod: null,
+            lastRoiSource: null,
+          };
+          const snapshot = adapter.getSnapshot({
+            state: diagnostics.state,
+            lastError: null,
+            getMetrics: () => metrics,
+            getDiagnostics: () => diagnostics,
+            getTraceSnapshot: () => processor.getTraceSnapshot(8),
+          });
+          window.__rppg_consumer_smoke = {
+            importOk: true,
+            backendLoaded: true,
+            metrics,
+            snapshotStatus: snapshot.status,
+            canPublish: snapshot.canPublish,
+            availableExports: [
+              typeof mod.createRppgSession,
+              typeof mod.createManagedRppgSession,
+              typeof mod.createRppgAppAdapter,
+              typeof mod.normalizeRppgError,
+            ],
+          };
+        } catch (error) {
+          window.__rppg_consumer_smoke = {
+            importOk: false,
+            backendLoaded: false,
+            error: error instanceof Error ? error.message : String(error),
+          };
+        }
+      })();
+    </script>
+  </body>
+</html>
