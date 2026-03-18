@@ -1,6 +1,6 @@
 {
 	"name": "@elata-biosciences/rppg-web",
-	"version": "0.1.8",
+	"version": "0.1.9",
 	"description": "TypeScript wrapper for the Elata rPPG pipeline",
 	"license": "MIT",
 	"author": "Elata",
