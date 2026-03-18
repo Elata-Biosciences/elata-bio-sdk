@@ -18,7 +18,7 @@ Build & Demo:
   dev          Build debug artifacts for 'eeg', 'rppg', or 'all' (default: all)
   build        Build release artifacts for 'eeg', 'rppg', or 'all' (default: all)
   bindings     Generate bindings from an existing build (default: release)
-  demo         Run the demo - specify 'rppg' (default), 'rppg-tmp', 'hal', or 'eeg' (example: 'run.sh demo eeg')
+  demo         Run the demo - specify 'rppg' (default; temp-served), 'hal', or 'eeg' (example: 'run.sh demo eeg')
   sync-to      Build eeg-web and install it into a local app (default app: ../my-app)
 
 Quality:
@@ -738,13 +738,6 @@ build_targets() {
 }
 
 run_rppg_demo() {
-    require_package_manager
-    run_pkg_script "packages/rppg-web" "start-demo"
-
-    # open "http://localhost:$port"
-}
-
-run_rppg_demo_tmp() {
     require_cmds node
     require_package_manager
 
@@ -757,7 +750,7 @@ run_rppg_demo_tmp() {
     if port_in_use "$requested_port"; then
         if [[ -n "${PORT:-}" ]]; then
             echo "PORT $requested_port is already in use." >&2
-            echo "Stop the existing server or choose another port (example: PORT=$((requested_port + 1)) ./run.sh demo rppg-tmp)." >&2
+            echo "Stop the existing server or choose another port (example: PORT=$((requested_port + 1)) ./run.sh demo rppg)." >&2
             exit 1
         fi
         port="$(find_available_port "$requested_port" 30)" || {
@@ -844,7 +837,6 @@ run_demo() {
     local demo="$1"
     case "$demo" in
         rppg) run_rppg_demo ;;
-        rppg-tmp) run_rppg_demo_tmp ;;
         eeg) run_eeg_demo ;;
         hal) run_hal_demo ;;
         *) echo "Unknown demo: $demo" >&2; usage; exit 1 ;;
