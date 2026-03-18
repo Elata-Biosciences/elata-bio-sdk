@@ -39,6 +39,10 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
+        <a
+          href="./replay.html"
+          class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition-colors"
+        >Replay</a>
         <span id="backend-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">--</span>
         <button
           id="start-btn"
@@ -198,6 +202,52 @@
                 <div class="text-[9px] uppercase tracking-wider text-slate-500 mb-0.5">Clipping</div>
                 <div id="clipping" class="text-[11px] font-mono text-slate-300">--</div>
               </div>
+            </div>
+            <div class="mt-3 border-t border-slate-700/40 pt-3">
+              <p class="text-[9px] uppercase tracking-widest text-slate-500 mb-2">Tracker State</p>
+              <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                <div>
+                  <div class="text-[9px] uppercase tracking-wider text-slate-500 mb-0.5">Reference BPM</div>
+                  <div id="tracker-reference-bpm" class="text-[11px] font-mono text-slate-300">--</div>
+                </div>
+                <div>
+                  <div class="text-[9px] uppercase tracking-wider text-slate-500 mb-0.5">Reference Weight</div>
+                  <div id="tracker-reference-weight" class="text-[11px] font-mono text-slate-300">--</div>
+                </div>
+                <div>
+                  <div class="text-[9px] uppercase tracking-wider text-slate-500 mb-0.5">Reference Origin</div>
+                  <div id="tracker-reference-origin" class="text-[11px] font-mono text-slate-300">--</div>
+                </div>
+                <div>
+                  <div class="text-[9px] uppercase tracking-wider text-slate-500 mb-0.5">Waveform Reliability</div>
+                  <div id="tracker-waveform-reliability" class="text-[11px] font-mono text-slate-300">--</div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3 border-t border-slate-700/40 pt-3">
+              <p class="text-[9px] uppercase tracking-widest text-slate-500 mb-2">Waveform Profile</p>
+              <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                <div>
+                  <div class="text-[9px] uppercase tracking-wider text-slate-500 mb-0.5">Dominant BPM</div>
+                  <div id="waveform-dominant-bpm" class="text-[11px] font-mono text-slate-300">--</div>
+                </div>
+                <div>
+                  <div class="text-[9px] uppercase tracking-wider text-slate-500 mb-0.5">Waveform Confidence</div>
+                  <div id="waveform-confidence" class="text-[11px] font-mono text-slate-300">--</div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3 border-t border-slate-700/40 pt-3 space-y-2">
+              <div class="flex items-center justify-between gap-3">
+                <p class="text-[9px] uppercase tracking-widest text-slate-500">Replay Output</p>
+                <button
+                  id="copy-replay-btn"
+                  class="px-2 py-1 rounded-md bg-slate-800 text-[10px] font-semibold uppercase tracking-wider text-slate-300 border border-slate-700 hover:bg-slate-700 transition-colors"
+                >
+                  Copy Replay JSON
+                </button>
+              </div>
+              <pre id="replay-summary" class="min-h-[72px] rounded-lg bg-slate-900/70 border border-slate-800 p-3 text-[10px] leading-relaxed text-slate-400 overflow-x-auto">Waiting for enough windows...</pre>
             </div>
           </div>
         </div>

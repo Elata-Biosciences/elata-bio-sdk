@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pkgDir = path.resolve(__dirname, "..");
 
 const dirs = ["dist", "demo/pkg", "pkg"];
-const files = ["demo/demo.js", "tsconfig.tsbuildinfo"];
+const files = ["demo/demo.js", "demo/replay.js", "tsconfig.tsbuildinfo"];
 
 for (const dir of dirs) {
 	const full = path.join(pkgDir, dir);

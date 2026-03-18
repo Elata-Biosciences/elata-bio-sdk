@@ -18,7 +18,7 @@ Build & Demo:
   dev          Build debug artifacts for 'eeg', 'rppg', or 'all' (default: all)
   build        Build release artifacts for 'eeg', 'rppg', or 'all' (default: all)
   bindings     Generate bindings from an existing build (default: release)
-  demo         Run the demo - specify 'rppg' (default), 'hal', or 'eeg' (example: 'run.sh demo eeg')
+  demo         Run the demo - specify 'rppg' (default), 'rppg-tmp', 'hal', or 'eeg' (example: 'run.sh demo eeg')
   sync-to      Build eeg-web and install it into a local app (default app: ../my-app)
 
 Quality:
@@ -744,6 +744,54 @@ run_rppg_demo() {
     # open "http://localhost:$port"
 }
 
+run_rppg_demo_tmp() {
+    require_cmds node
+    require_package_manager
+
+    # Build demo assets inside the repo (demo/*.js + demo/pkg/*), then serve from a temp dir so
+    # you're not depending on the repo layout or existing generated files.
+    run_pkg_script "packages/rppg-web" "build:demo"
+
+    local requested_port="${PORT:-8080}"
+    local port="$requested_port"
+    if port_in_use "$requested_port"; then
+        if [[ -n "${PORT:-}" ]]; then
+            echo "PORT $requested_port is already in use." >&2
+            echo "Stop the existing server or choose another port (example: PORT=$((requested_port + 1)) ./run.sh demo rppg-tmp)." >&2
+            exit 1
+        fi
+        port="$(find_available_port "$requested_port" 30)" || {
+            echo "No free port found in range $requested_port-$((requested_port + 29)). Set PORT explicitly and retry." >&2
+            exit 1
+        }
+        echo "Port $requested_port is in use; using http://127.0.0.1:$port"
+    fi
+
+    local tmp_root="${TMP_DIR:-}"
+    local tmp_dir=""
+    if [[ -n "$tmp_root" ]]; then
+        mkdir -p "$tmp_root"
+        tmp_dir="$(mktemp -d "$tmp_root/elata-rppg-demo.XXXXXX")"
+    else
+        tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/elata-rppg-demo.XXXXXX")"
+    fi
+
+    if [[ "${KEEP_TMP:-0}" != "1" ]]; then
+        trap 'rm -rf "$tmp_dir"' EXIT
+    fi
+
+    mkdir -p "$tmp_dir/demo"
+    cp -R "$ROOT_DIR/packages/rppg-web/demo/." "$tmp_dir/demo/"
+
+    echo "Serving rppg-web demo from temp dir: $tmp_dir"
+    echo "  http://127.0.0.1:$port/index.html"
+    echo "  http://127.0.0.1:$port/replay.html"
+    echo "Tip: set KEEP_TMP=1 to keep the temp dir after exit."
+
+    # Serve the copied demo directory. It contains pkg/ with the wasm bundle, so /pkg/* works.
+    pnpm dlx http-server "$tmp_dir/demo" -p "$port" --silent
+}
+
 run_eeg_demo() {
     require_cmds cargo wasm-bindgen node
     require_package_manager
@@ -796,6 +844,7 @@ run_demo() {
     local demo="$1"
     case "$demo" in
         rppg) run_rppg_demo ;;
+        rppg-tmp) run_rppg_demo_tmp ;;
         eeg) run_eeg_demo ;;
         hal) run_hal_demo ;;
         *) echo "Unknown demo: $demo" >&2; usage; exit 1 ;;

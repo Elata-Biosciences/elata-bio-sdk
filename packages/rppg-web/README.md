@@ -63,6 +63,8 @@ and `get_metrics` or camelCase equivalents.
 - `MediaPipeFrameSource`
 - `MediaPipeFaceFrameSource`
 - `loadWasmBackend`
+- `computeWaveformPeriodicityProfile`
+- `replayBayesSession`
 
 ## MediaPipe Face ROI
 
@@ -111,6 +113,23 @@ pnpm --dir packages/rppg-web run build:wasm
 pnpm --dir packages/rppg-web run bundle:demo
 pnpm --dir packages/rppg-web run start-demo:quick
 ```
+
+Demo entry points after `start-demo` / `start-demo:quick`:
+
+- `/index.html`: live camera demo with tracker and replay debug panels
+- `/replay.html`: import a copied replay JSON blob or a raw replay session and inspect the summary offline
+
+## Replay Workflow
+
+The live demo can copy a replay JSON payload from its debug panel. That payload
+is already a serialized `ReplayBayesSessionResult`, so it can be:
+
+- pasted into the `/replay.html` page in the in-package demo
+- stored with bug reports for tracker regressions
+- compared across SDK versions to spot replay output changes
+
+If you have a raw session payload shaped like `ReplayDebugSession`, the replay
+page can also run `replayBayesSession()` on it and render the result.
 
 ## Package Layout
 

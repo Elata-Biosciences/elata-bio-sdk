@@ -16,6 +16,8 @@ export { BpmBayesTracker } from "./bpmBayesTracker";
 export type {
 	BpmBayesSnapshot,
 	EstimatorMeasurement,
+	TrackerReferenceOrigin,
+	TrackerReferenceState,
 	TrackerEstimate,
 	TrackerContext,
 	TrackerSource,
@@ -29,3 +31,15 @@ export { loadFaceMesh } from "./mediapipeLoader";
 export { averageGreenInROI } from "./frameSource";
 export type { FrameSource, Frame, ROI } from "./frameSource";
 export { loadWasmBackend } from "./wasmBackend";
+export { computeWaveformPeriodicityProfile } from "./rppgDiagnostics";
+export type { WaveformPeriodicityProfile } from "./rppgDiagnostics";
+export { replayBayesSession } from "./rppgReplay";
+export type {
+	ReplayEstimatorSample,
+	ReplaySyncSample,
+	ReplayPairEvent,
+	ReplayDebugSession,
+	ReplayPoint,
+	ReplayWindowSummary,
+	ReplayBayesSessionResult,
+} from "./rppgReplay";

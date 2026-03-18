@@ -4,6 +4,10 @@ import {
 	type TrackerEstimate,
 } from "./bpmBayesTracker";
 import {
+	computeWaveformPeriodicityProfile,
+	type WaveformPeriodicityProfile,
+} from "./rppgDiagnostics";
+import {
 	ChannelGainController,
 	ChromPulseModel,
 	computeSignalSnrDb,
@@ -706,9 +710,16 @@ export class RppgProcessor {
 			quality: analysis.quality,
 			referenceBpm: reference?.bpm,
 			referenceStrength: reference?.strength,
+			waveformProfile: analysis.waveformProfile,
 		});
 		if (reference && trackerMeasurements.length > 0) {
-			this.bayesTracker.updateReliability(reference.bpm, trackerMeasurements);
+			this.bayesTracker.reinforceReference(
+				reference.bpm,
+				trackerMeasurements,
+				reference.strength,
+				analysis.nowMs,
+				analysis.waveformProfile,
+			);
 		}
 		const resolvedChoice = chooseResolvedBpm(resolved, bayes);
 		const resolvedBpm = resolvedChoice.bpm;
@@ -1088,6 +1099,7 @@ function analyzeWindow(samples: Sample[]): {
 	spectral: { bpm: number; confidence: number } | null;
 	acf: BpmEvidence | null;
 	peaks: { bpm: number; confidence: number } | null;
+	waveformProfile: WaveformPeriodicityProfile | null;
 	respiration: number | null;
 	hrvRmssd: number | null;
 	quality: number;
@@ -1110,6 +1122,7 @@ function analyzeWindow(samples: Sample[]): {
 
 	const spectral = estimateDominantBpm(norm, fs, 0.7, 3.3);
 	const acf = calculateBpmViaAutocorrelation(norm, fs, spectral?.bpm ?? null);
+	const waveformProfile = computeWaveformPeriodicityProfile(norm, fs);
 
 	const peaksDetected = detectPeaks(
 		samples.map((s, idx) => ({ value: norm[idx], time: s.timestampMs })),
@@ -1143,6 +1156,7 @@ function analyzeWindow(samples: Sample[]): {
 		spectral,
 		acf,
 		peaks: peakBpm,
+		waveformProfile,
 		respiration,
 		hrvRmssd,
 		quality,

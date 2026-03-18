@@ -1,5 +1,8 @@
+import type { WaveformPeriodicityProfile } from "./rppgDiagnostics";
+
 export type TrackerSource = "peaks" | "acf" | "spectral";
 export type HarmonicMode = "half" | "fundamental" | "double";
+export type TrackerReferenceOrigin = "none" | "session_pair" | "snapshot_restore";
 
 export interface EstimatorMeasurement {
 	source: TrackerSource;
@@ -13,6 +16,8 @@ export interface TrackerContext {
 	quality: number;
 	referenceBpm?: number;
 	referenceStrength?: number;
+	referenceAgeSec?: number;
+	waveformProfile?: WaveformPeriodicityProfile | null;
 }
 
 export interface TrackerEstimate {
@@ -29,6 +34,21 @@ export interface BpmBayesSnapshot {
 	posterior: number[];
 	sourceReliability: Record<TrackerSource, number>;
 	sourceHarmonicConfusion: Record<TrackerSource, number>;
+	referencePriorBpm?: number | null;
+	referencePriorWeight?: number;
+	harmonicPrior?: Record<HarmonicMode, number>;
+	referencePriorOrigin?: TrackerReferenceOrigin;
+	referencePriorLastUpdatedTs?: number | null;
+	waveformReliability?: number;
+}
+
+export interface TrackerReferenceState {
+	bpm: number | null;
+	weight: number;
+	harmonicPrior: Record<HarmonicMode, number>;
+	origin: TrackerReferenceOrigin;
+	lastUpdatedTs: number | null;
+	waveformReliability: number;
 }
 
 const MODES: HarmonicMode[] = ["half", "fundamental", "double"];
@@ -72,6 +92,16 @@ export class BpmBayesTracker {
 		acf: 0.2,
 		spectral: 0.25,
 	};
+	private referencePriorBpm: number | null = null;
+	private referencePriorWeight = 0;
+	private harmonicPrior: Record<HarmonicMode, number> = {
+		half: 1,
+		fundamental: 1,
+		double: 1,
+	};
+	private referencePriorOrigin: TrackerReferenceOrigin = "none";
+	private referencePriorLastUpdatedTs: number | null = null;
+	private waveformReliability = 0.22;
 
 	constructor(minBpm = 40, maxBpm = 180, stepBpm = 1) {
 		this.minBpm = minBpm;
@@ -90,6 +120,16 @@ export class BpmBayesTracker {
 		for (let i = 0; i < this.posterior.length; i++) {
 			this.posterior[i] = uniform;
 		}
+		this.referencePriorBpm = null;
+		this.referencePriorWeight = 0;
+		this.harmonicPrior = {
+			half: 1,
+			fundamental: 1,
+			double: 1,
+		};
+		this.referencePriorOrigin = "none";
+		this.referencePriorLastUpdatedTs = null;
+		this.waveformReliability = 0.22;
 	}
 
 	update(
@@ -98,6 +138,7 @@ export class BpmBayesTracker {
 		context: TrackerContext,
 	): TrackerEstimate {
 		this.applyTemporalPrior(dtSec, context);
+		this.applyPersistentReferencePrior(dtSec);
 
 		const motion = clamp(context.motion, 0, 1);
 		const quality = clamp(context.quality, 0, 1);
@@ -152,6 +193,15 @@ export class BpmBayesTracker {
 			}
 		}
 
+		this.applyWaveformEvidence(
+			context.waveformProfile ?? null,
+			motion,
+			quality,
+			snrPenalty,
+			measurements,
+			context.referenceBpm,
+		);
+
 		if (
 			context.referenceBpm != null &&
 			Number.isFinite(context.referenceBpm)
@@ -166,7 +216,11 @@ export class BpmBayesTracker {
 		return this.estimate();
 	}
 
-	observeReference(referenceBpm: number, strength = 1) {
+	observeReference(
+		referenceBpm: number,
+		strength = 1,
+		_measurements: EstimatorMeasurement[] = [],
+	) {
 		if (!Number.isFinite(referenceBpm)) return;
 		const s = clamp(strength, 0, 1);
 		const sigma = clamp(1.5 + (1 - s) * 4, 1.5, 6);
@@ -184,6 +238,79 @@ export class BpmBayesTracker {
 			}
 		}
 		this.normalize();
+	}
+
+	reinforceReference(
+		referenceBpm: number,
+		measurements: EstimatorMeasurement[],
+		strength = 1,
+		updatedAtTs = Date.now(),
+		waveformProfile: WaveformPeriodicityProfile | null = null,
+	) {
+		if (!Number.isFinite(referenceBpm)) return;
+		const s = clamp(strength, 0, 1);
+		this.updateReliability(referenceBpm, measurements);
+
+		const modeWeights = this.inferReferenceModeWeights(referenceBpm, measurements);
+		for (const mode of MODES) {
+			this.harmonicPrior[mode] = clamp(
+				this.harmonicPrior[mode] * (1 - s * 0.45) +
+					modeWeights[mode] * (s * 0.45),
+				0.65,
+				1.9,
+			);
+		}
+
+		if (this.referencePriorBpm == null || !Number.isFinite(this.referencePriorBpm)) {
+			this.referencePriorBpm = referenceBpm;
+		} else {
+			const blend = clamp(0.2 + s * 0.35, 0.2, 0.55);
+			this.referencePriorBpm =
+				this.referencePriorBpm * (1 - blend) + referenceBpm * blend;
+		}
+		this.referencePriorWeight = clamp(
+			Math.max(this.referencePriorWeight * 0.9, 0.18) + s * 0.45,
+			0,
+			1,
+		);
+		this.referencePriorOrigin = "session_pair";
+		this.referencePriorLastUpdatedTs = Number.isFinite(updatedAtTs)
+			? updatedAtTs
+			: Date.now();
+		this.updateWaveformReliability(referenceBpm, waveformProfile);
+
+		this.observeReference(
+			referenceBpm,
+			clamp(0.25 + s * 0.2, 0.25, 0.5),
+			measurements,
+		);
+	}
+
+	reinforceHarmonicReference(
+		referenceBpm: number,
+		measurements: EstimatorMeasurement[],
+		strength = 1,
+		updatedAtTs = Date.now(),
+		waveformProfile: WaveformPeriodicityProfile | null = null,
+	) {
+		if (!Number.isFinite(referenceBpm)) return;
+		const s = clamp(strength, 0, 1);
+		this.updateReliability(referenceBpm, measurements);
+
+		const modeWeights = this.inferReferenceModeWeights(referenceBpm, measurements);
+		for (const mode of MODES) {
+			this.harmonicPrior[mode] = clamp(
+				this.harmonicPrior[mode] * (1 - s * 0.55) +
+					modeWeights[mode] * (s * 0.55),
+				0.65,
+				1.9,
+			);
+		}
+
+		this.referencePriorLastUpdatedTs = Number.isFinite(updatedAtTs)
+			? updatedAtTs
+			: Date.now();
+		this.updateWaveformReliability(referenceBpm, waveformProfile);
 	}
 
 	updateReliability(
@@ -229,6 +356,23 @@ export class BpmBayesTracker {
 			posterior: Array.from(this.posterior),
 			sourceReliability: { ...this.sourceReliability },
 			sourceHarmonicConfusion: { ...this.sourceHarmonicConfusion },
+			referencePriorBpm: this.referencePriorBpm,
+			referencePriorWeight: this.referencePriorWeight,
+			harmonicPrior: { ...this.harmonicPrior },
+			referencePriorOrigin: this.referencePriorOrigin,
+			referencePriorLastUpdatedTs: this.referencePriorLastUpdatedTs,
+			waveformReliability: this.waveformReliability,
+		};
+	}
+
+	getReferenceState(): TrackerReferenceState {
+		return {
+			bpm: this.referencePriorBpm,
+			weight: this.referencePriorWeight,
+			harmonicPrior: { ...this.harmonicPrior },
+			origin: this.referencePriorOrigin,
+			lastUpdatedTs: this.referencePriorLastUpdatedTs,
+			waveformReliability: this.waveformReliability,
 		};
 	}
 
@@ -266,6 +410,61 @@ export class BpmBayesTracker {
 				if (Number.isFinite(value)) {
 					this.sourceHarmonicConfusion[source] = clamp(value, 0.05, 0.9);
 				}
+			}
+		}
+
+		if ("referencePriorBpm" in raw) {
+			const value = Number(raw.referencePriorBpm);
+			this.referencePriorBpm = Number.isFinite(value)
+				? clamp(value, this.minBpm, this.maxBpm)
+				: null;
+		}
+
+		if ("referencePriorWeight" in raw) {
+			const value = Number(raw.referencePriorWeight);
+			if (Number.isFinite(value)) {
+				this.referencePriorWeight = clamp(value, 0, 1);
+			}
+		}
+
+		if (raw.harmonicPrior) {
+			for (const mode of MODES) {
+				const value = Number(raw.harmonicPrior[mode]);
+				if (Number.isFinite(value)) {
+					this.harmonicPrior[mode] = clamp(value, 0.65, 1.9);
+				}
+			}
+		}
+
+		if (
+			raw.referencePriorOrigin === "session_pair" ||
+			raw.referencePriorOrigin === "snapshot_restore" ||
+			raw.referencePriorOrigin === "none"
+		) {
+			this.referencePriorOrigin = raw.referencePriorOrigin;
+		} else if (
+			this.referencePriorBpm != null &&
+			this.referencePriorWeight > 0.01
+		) {
+			this.referencePriorOrigin = "snapshot_restore";
+		} else {
+			this.referencePriorOrigin = "none";
+		}
+
+		if ("referencePriorLastUpdatedTs" in raw) {
+			const value = Number(raw.referencePriorLastUpdatedTs);
+			this.referencePriorLastUpdatedTs = Number.isFinite(value) ? value : null;
+		} else if (
+			this.referencePriorOrigin === "snapshot_restore" ||
+			this.referencePriorOrigin === "none"
+		) {
+			this.referencePriorLastUpdatedTs = null;
+		}
+
+		if ("waveformReliability" in raw) {
+			const value = Number(raw.waveformReliability);
+			if (Number.isFinite(value)) {
+				this.waveformReliability = clamp(value, 0.05, 0.9);
 			}
 		}
 	}
@@ -339,8 +538,8 @@ export class BpmBayesTracker {
 			};
 		}
 
-		const bestBpm = this.bpmGrid[bestIndex];
 		let localMass = 0;
+		const bestBpm = this.bpmGrid[bestIndex];
 		for (let bpmIndex = 0; bpmIndex < this.bpmGrid.length; bpmIndex++) {
 			if (Math.abs(this.bpmGrid[bpmIndex] - bestBpm) <= 3) {
 				localMass += bpmMarginal[bpmIndex];
@@ -354,10 +553,11 @@ export class BpmBayesTracker {
 		}
 		const maxEntropy = Math.log(this.posterior.length);
 		const normalizedEntropy = maxEntropy > 0 ? entropy / maxEntropy : 1;
+		const confidence = clamp(localMass * (1 - normalizedEntropy * 0.35), 0, 1);
 
 		return {
 			bpm: bestBpm,
-			confidence: clamp(localMass * (1 - normalizedEntropy * 0.35), 0, 1),
+			confidence,
 			modeProbabilities: modeMass,
 			entropy: normalizedEntropy,
 		};
@@ -369,16 +569,255 @@ export class BpmBayesTracker {
 			const value = this.posterior[i];
 			if (Number.isFinite(value) && value > 0) sum += value;
 		}
-
 		if (!Number.isFinite(sum) || sum <= 0) {
 			this.reset();
 			return;
 		}
-
 		for (let i = 0; i < this.posterior.length; i++) {
 			const value = this.posterior[i];
-			this.posterior[i] =
-				Number.isFinite(value) && value > 0 ? value / sum : 1e-12;
+			this.posterior[i] = Number.isFinite(value) && value > 0 ? value / sum : 1e-12;
 		}
+	}
+
+	private applyWaveformEvidence(
+		waveformProfile: WaveformPeriodicityProfile | null,
+		motion: number,
+		quality: number,
+		snrPenalty: number,
+		measurements: EstimatorMeasurement[],
+		referenceBpm: number | undefined | null,
+	) {
+		if (
+			!waveformProfile ||
+			!Array.isArray(waveformProfile.scores) ||
+			!waveformProfile.scores.length ||
+			!Number.isFinite(waveformProfile.confidence) ||
+			waveformProfile.confidence <= 0.02 ||
+			waveformProfile.stepBpm <= 0
+		) {
+			return;
+		}
+
+		const agreement = this.estimateWaveformAgreement(
+			waveformProfile,
+			measurements,
+			referenceBpm,
+		);
+		const gain = clamp(
+			(0.015 +
+				waveformProfile.confidence * 0.11 +
+				quality * 0.03 -
+				motion * 0.03 -
+				snrPenalty * 0.02) *
+				this.waveformReliability *
+				agreement,
+			0,
+			0.12,
+		);
+		if (gain <= 0.01) return;
+
+		const scoreAtObservedBpm = (observedBpm: number) => {
+			if (
+				!Number.isFinite(observedBpm) ||
+				observedBpm < waveformProfile.minBpm ||
+				observedBpm > waveformProfile.maxBpm
+			) {
+				return 0.03;
+			}
+			const index = Math.round(
+				(observedBpm - waveformProfile.minBpm) / waveformProfile.stepBpm,
+			);
+			const clampedIndex = clamp(index, 0, waveformProfile.scores.length - 1);
+			const raw = waveformProfile.scores[clampedIndex];
+			return Number.isFinite(raw) ? clamp(raw, 0.03, 1) : 0.03;
+		};
+
+		for (let bpmIndex = 0; bpmIndex < this.bpmGrid.length; bpmIndex++) {
+			const fundamental = this.bpmGrid[bpmIndex];
+			for (let modeIndex = 0; modeIndex < MODES.length; modeIndex++) {
+				const observedBpm = fundamental * modeFactor(MODES[modeIndex]);
+				const waveformScore = scoreAtObservedBpm(observedBpm);
+				const posteriorIndex = this.toIndex(bpmIndex, modeIndex);
+				this.posterior[posteriorIndex] *= waveformScore ** gain;
+			}
+		}
+	}
+
+	private updateWaveformReliability(
+		referenceBpm: number,
+		waveformProfile: WaveformPeriodicityProfile | null,
+	) {
+		if (
+			!waveformProfile ||
+			!Array.isArray(waveformProfile.scores) ||
+			!waveformProfile.scores.length ||
+			!Number.isFinite(waveformProfile.confidence) ||
+			waveformProfile.confidence <= 0.05
+		) {
+			return;
+		}
+
+		const scoreAt = (bpm: number) => {
+			if (
+				!Number.isFinite(bpm) ||
+				bpm < waveformProfile.minBpm ||
+				bpm > waveformProfile.maxBpm
+			) {
+				return 0.01;
+			}
+			const index = clamp(
+				Math.round((bpm - waveformProfile.minBpm) / waveformProfile.stepBpm),
+				0,
+				waveformProfile.scores.length - 1,
+			);
+			const score = waveformProfile.scores[index];
+			return Number.isFinite(score) ? clamp(score, 0.01, 1) : 0.01;
+		};
+
+		const harmonicSupport = Math.max(
+			scoreAt(referenceBpm),
+			scoreAt(referenceBpm * 0.5) * 0.95,
+			scoreAt(referenceBpm * 2) * 0.7,
+		);
+		const topCandidate = waveformProfile.topCandidates?.[0] ?? null;
+		const topErr = topCandidate
+			? Math.min(
+					Math.abs(topCandidate.bpm - referenceBpm),
+					Math.abs(topCandidate.bpm - referenceBpm * 0.5),
+					Math.abs(topCandidate.bpm - referenceBpm * 2),
+				)
+			: 999;
+		const offTargetPenalty =
+			topCandidate && topErr > 14 ? clamp(topCandidate.posterior, 0, 1) : 0;
+		const targetReliability = clamp(
+			harmonicSupport * 1.35 - offTargetPenalty * 0.7,
+			0.05,
+			0.85,
+		);
+		const learningRate = clamp(
+			0.08 + waveformProfile.confidence * 0.12,
+			0.08,
+			0.2,
+		);
+		this.waveformReliability = clamp(
+			this.waveformReliability * (1 - learningRate) +
+				targetReliability * learningRate,
+			0.05,
+			0.9,
+		);
+	}
+
+	private estimateWaveformAgreement(
+		waveformProfile: WaveformPeriodicityProfile | null,
+		measurements: EstimatorMeasurement[],
+		referenceBpm: number | undefined | null,
+	) {
+		const candidates = [
+			waveformProfile?.dominantBpm ?? null,
+			waveformProfile?.secondaryBpm ?? null,
+		].filter((value): value is number => value != null && Number.isFinite(value));
+		if (!candidates.length) return 0.2;
+
+		const targets: number[] = [];
+		for (const measurement of measurements) {
+			if (measurement.bpm != null && Number.isFinite(measurement.bpm)) {
+				targets.push(measurement.bpm);
+			}
+		}
+		if (referenceBpm != null && Number.isFinite(referenceBpm)) {
+			targets.push(referenceBpm, referenceBpm * 0.5, referenceBpm * 2);
+		}
+		if (!targets.length) return 0.45;
+
+		let bestAgreement = 0;
+		for (const candidate of candidates) {
+			for (const target of targets) {
+				const err = Math.abs(candidate - target);
+				bestAgreement = Math.max(bestAgreement, Math.exp(-err / 10));
+			}
+		}
+		return clamp(bestAgreement, 0.12, 1);
+	}
+
+	private applyPersistentReferencePrior(dtSec: number) {
+		if (
+			this.referencePriorBpm == null ||
+			!Number.isFinite(this.referencePriorBpm) ||
+			this.referencePriorWeight <= 0.01
+		) {
+			return;
+		}
+
+		const sigma = clamp(8 + (1 - this.referencePriorWeight) * 6, 8, 14);
+		const gain = clamp(0.08 + this.referencePriorWeight * 0.22, 0.08, 0.3);
+		for (let bpmIndex = 0; bpmIndex < this.bpmGrid.length; bpmIndex++) {
+			const fundamental = this.bpmGrid[bpmIndex];
+			const referenceLikelihood = gaussian(
+				this.referencePriorBpm,
+				fundamental,
+				sigma,
+			);
+			for (let modeIndex = 0; modeIndex < MODES.length; modeIndex++) {
+				const mode = MODES[modeIndex];
+				const posteriorIndex = this.toIndex(bpmIndex, modeIndex);
+				this.posterior[posteriorIndex] *=
+					referenceLikelihood ** (gain * this.harmonicPrior[mode]);
+			}
+		}
+
+		const refDecay = Math.exp(-dtSec / 180);
+		this.referencePriorWeight = clamp(this.referencePriorWeight * refDecay, 0, 1);
+		const modeDecay = Math.exp(-dtSec / 300);
+		for (const mode of MODES) {
+			this.harmonicPrior[mode] = 1 + (this.harmonicPrior[mode] - 1) * modeDecay;
+		}
+	}
+
+	private inferReferenceModeWeights(
+		referenceBpm: number,
+		measurements: EstimatorMeasurement[],
+	): Record<HarmonicMode, number> {
+		const weights: Record<HarmonicMode, number> = {
+			half: 1,
+			fundamental: 1,
+			double: 1,
+		};
+		const valid = measurements.filter(
+			(measurement) =>
+				measurement.bpm != null &&
+				Number.isFinite(measurement.bpm) &&
+				measurement.confidence > 0,
+		);
+		if (!valid.length) {
+			return {
+				half: 0.95,
+				fundamental: 1.15,
+				double: 0.95,
+			};
+		}
+
+		for (const measurement of valid) {
+			const confidence = clamp(measurement.confidence, 0, 1);
+			const expectedByMode: Record<HarmonicMode, number> = {
+				half: referenceBpm * 0.5,
+				fundamental: referenceBpm,
+				double: referenceBpm * 2,
+			};
+			const modeScores = MODES.map((mode) => {
+				const err = Math.abs((measurement.bpm ?? 0) - expectedByMode[mode]);
+				return { mode, score: Math.exp(-err / 12) * confidence };
+			});
+			modeScores.sort((a, b) => b.score - a.score);
+			const best = modeScores[0];
+			const second = modeScores[1];
+			weights[best.mode] += 0.45 * best.score;
+			weights[second.mode] += 0.12 * second.score;
+		}
+
+		return {
+			half: clamp(weights.half, 0.75, 1.6),
+			fundamental: clamp(weights.fundamental, 0.75, 1.6),
+			double: clamp(weights.double, 0.75, 1.6),
+		};
 	}
 }

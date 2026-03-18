@@ -56,6 +56,16 @@ describe('@elata-biosciences/rppg-web exports', () => {
     expect(typeof rppgWeb.loadWasmBackend).toBe('function');
   });
 
+  test('exports computeWaveformPeriodicityProfile as a function', () => {
+    expect(rppgWeb.computeWaveformPeriodicityProfile).toBeDefined();
+    expect(typeof rppgWeb.computeWaveformPeriodicityProfile).toBe('function');
+  });
+
+  test('exports replayBayesSession as a function', () => {
+    expect(rppgWeb.replayBayesSession).toBeDefined();
+    expect(typeof rppgWeb.replayBayesSession).toBe('function');
+  });
+
   test('has no unexpected undefined exports', () => {
     const expectedKeys = [
       'RppgProcessor',
@@ -69,6 +79,8 @@ describe('@elata-biosciences/rppg-web exports', () => {
       'loadFaceMesh',
       'averageGreenInROI',
       'loadWasmBackend',
+      'computeWaveformPeriodicityProfile',
+      'replayBayesSession',
     ];
     for (const key of expectedKeys) {
       expect((rppgWeb as Record<string, unknown>)[key]).toBeDefined();

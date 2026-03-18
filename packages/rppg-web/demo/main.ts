@@ -1,5 +1,7 @@
 import { initDemo } from '../src/demoApp';
 import { MediaPipeFaceFrameSource } from '../src/mediaPipeFaceFrameSource';
+import { computeWaveformPeriodicityProfile } from '../src/rppgDiagnostics';
+import { replayBayesSession, type ReplayBayesSessionResult, type ReplaySyncSample } from '../src/rppgReplay';
 
 // --- DOM helpers ---
 function getEl<T extends HTMLElement = HTMLElement>(id: string): T {
@@ -26,6 +28,14 @@ const intensityEl  = getEl('intensity');
 const skinEl       = getEl('skin');
 const motionEl     = getEl('motion');
 const clippingEl   = getEl('clipping');
+const trackerReferenceBpmEl = getEl('tracker-reference-bpm');
+const trackerReferenceWeightEl = getEl('tracker-reference-weight');
+const trackerReferenceOriginEl = getEl('tracker-reference-origin');
+const trackerWaveformReliabilityEl = getEl('tracker-waveform-reliability');
+const waveformDominantBpmEl = getEl('waveform-dominant-bpm');
+const waveformConfidenceEl = getEl('waveform-confidence');
+const replaySummaryEl = getEl<HTMLPreElement>('replay-summary');
+const copyReplayBtn = getEl<HTMLButtonElement>('copy-replay-btn');
 const reasonsEl    = getEl('reasons');
 const reasonWrap   = getEl('reason-wrap');
 const statusBadge  = getEl('status-badge');
@@ -50,6 +60,9 @@ debugToggle.addEventListener('click', () => {
 type SignalPoint = { time: number; value: number };
 const signalBuffer: SignalPoint[] = [];
 const SIGNAL_WINDOW_MS = 10_000;
+const replaySamples: ReplaySyncSample[] = [];
+const MAX_REPLAY_SAMPLES = 24;
+let lastReplayResult: ReplayBayesSessionResult | null = null;
 
 function pushSignalPoint(value: number) {
   const now = performance.now();
@@ -123,6 +136,30 @@ function drawWaveform() {
   ctx.stroke();
 }
 
+function getSignalSampleRate(): number | null {
+  if (signalBuffer.length < 2) return null;
+  const spanMs = signalBuffer[signalBuffer.length - 1].time - signalBuffer[0].time;
+  if (spanMs <= 0) return null;
+  return ((signalBuffer.length - 1) / spanMs) * 1000;
+}
+
+function formatReplaySummary(result: ReplayBayesSessionResult | null): string {
+  if (!result) return 'Waiting for enough windows...';
+  const lastPoint = result.points[result.points.length - 1] ?? null;
+  const latestSummary = result.pairSummaries[result.pairSummaries.length - 1] ?? null;
+  const lines = [
+    `schema: ${result.schema}`,
+    `points: ${result.points.length}`,
+    `latest replay bpm: ${lastPoint?.replayBayesBpm != null ? lastPoint.replayBayesBpm.toFixed(2) : '--'}`,
+    `latest replay conf: ${lastPoint ? lastPoint.replayBayesConfidence.toFixed(3) : '--'}`,
+  ];
+  if (latestSummary) {
+    lines.push(`pair replay mae: ${latestSummary.replayBayesMae != null ? latestSummary.replayBayesMae.toFixed(3) : '--'}`);
+    lines.push(`pair recorded mae: ${latestSummary.recordedBayesMae != null ? latestSummary.recordedBayesMae.toFixed(3) : '--'}`);
+  }
+  return lines.join('\n');
+}
+
 // --- Status badge helpers ---
 type BadgeStyle = 'running' | 'calibrating' | 'warning' | 'idle';
 
@@ -144,6 +181,23 @@ const emaAlpha = 0.2;
 let rafId: number | null = null;
 let sampleCount = 0;
 const CALIBRATION_SAMPLES = 150; // ~5s at 30fps
+
+copyReplayBtn.addEventListener('click', async () => {
+  if (!lastReplayResult) return;
+  const text = JSON.stringify(lastReplayResult, null, 2);
+  try {
+    await navigator.clipboard.writeText(text);
+    copyReplayBtn.textContent = 'Copied';
+    setTimeout(() => {
+      copyReplayBtn.textContent = 'Copy Replay JSON';
+    }, 1200);
+  } catch {
+    copyReplayBtn.textContent = 'Copy Failed';
+    setTimeout(() => {
+      copyReplayBtn.textContent = 'Copy Replay JSON';
+    }, 1200);
+  }
+});
 
 // --- Main start/stop ---
 startBtn.addEventListener('click', async () => {
@@ -224,6 +278,8 @@ async function startDemo() {
   // --- Metrics polling ---
   setInterval(() => {
     const metrics = proc.getMetrics();
+    const snapshot = proc.getStateSnapshot() as Record<string, any>;
+    const trackerSnapshot = snapshot.bayesTracker as Record<string, any> | undefined;
     const rawBpm = metrics.bpm ?? null;
 
     // Smoothed BPM (EMA)
@@ -264,6 +320,68 @@ async function startDemo() {
     skinEl.textContent      = Number.isFinite(lastStats.skinRatio) ? `${(lastStats.skinRatio * 100).toFixed(0)}%` : '--';
     motionEl.textContent    = Number.isFinite(lastStats.motion) ? lastStats.motion.toFixed(3) : '--';
     clippingEl.textContent  = Number.isFinite(lastStats.clipRatio) ? `${(lastStats.clipRatio * 100).toFixed(1)}%` : '--';
+
+    trackerReferenceBpmEl.textContent = Number.isFinite(trackerSnapshot?.referencePriorBpm)
+      ? Number(trackerSnapshot?.referencePriorBpm).toFixed(2)
+      : '--';
+    trackerReferenceWeightEl.textContent = Number.isFinite(trackerSnapshot?.referencePriorWeight)
+      ? Number(trackerSnapshot?.referencePriorWeight).toFixed(3)
+      : '--';
+    trackerReferenceOriginEl.textContent = typeof trackerSnapshot?.referencePriorOrigin === 'string'
+      ? trackerSnapshot.referencePriorOrigin
+      : '--';
+    trackerWaveformReliabilityEl.textContent = Number.isFinite(trackerSnapshot?.waveformReliability)
+      ? Number(trackerSnapshot?.waveformReliability).toFixed(3)
+      : '--';
+
+    const waveformValues = signalBuffer.map((point) => point.value);
+    const waveformSampleRate = getSignalSampleRate();
+    const waveformProfile = waveformSampleRate
+      ? computeWaveformPeriodicityProfile(waveformValues, waveformSampleRate)
+      : null;
+    waveformDominantBpmEl.textContent = waveformProfile?.dominantBpm != null
+      ? waveformProfile.dominantBpm.toFixed(2)
+      : '--';
+    waveformConfidenceEl.textContent = waveformProfile != null
+      ? waveformProfile.confidence.toFixed(3)
+      : '--';
+
+    if (waveformProfile && waveformValues.length >= 60) {
+      const replaySample: ReplaySyncSample = {
+        epochTs: Date.now(),
+        sampleRate: waveformSampleRate,
+        stage: sampleCount < CALIBRATION_SAMPLES ? 'calibrating' : 'tracked',
+        filteredWindow: { values: waveformValues.slice() },
+        estimators: {
+          instantBpm: metrics.peaks_bpm ?? null,
+          acfBpm: metrics.acf_bpm ?? null,
+          spectralBpm: metrics.spectral_bpm ?? null,
+          bayesBpm: metrics.bayes_bpm ?? null,
+          bayesConfidence: metrics.bayes_confidence ?? null,
+          finalBpm: metrics.fused_bpm ?? metrics.bpm ?? null,
+          cameraConfidence: metrics.confidence ?? null,
+          snrDb: typeof metrics.snr === 'number' ? metrics.snr : null,
+          motion: typeof metrics.motion_mean === 'number' ? metrics.motion_mean : lastStats.motion,
+        },
+        outputs: {
+          signalQuality: typeof metrics.signal_quality === 'number' ? metrics.signal_quality * 100 : null,
+        },
+      };
+      replaySamples.push(replaySample);
+      while (replaySamples.length > MAX_REPLAY_SAMPLES) replaySamples.shift();
+      const pairEvents = Number.isFinite(trackerSnapshot?.referencePriorBpm) && Number.isFinite(trackerSnapshot?.referencePriorLastUpdatedTs)
+        ? [{
+            ts: Number(trackerSnapshot.referencePriorLastUpdatedTs),
+            referenceBpm: Number(trackerSnapshot.referencePriorBpm),
+          }]
+        : [];
+      lastReplayResult = replayBayesSession({
+        syncSamples: replaySamples.slice(),
+        pairEvents,
+      });
+      replaySummaryEl.textContent = formatReplaySummary(lastReplayResult);
+      (window as any).__rppg_demo.replayResult = lastReplayResult;
+    }
 
     // Reason codes
     const reasons = metrics.reason_codes && metrics.reason_codes.length > 0 ? metrics.reason_codes : null;

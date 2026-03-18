@@ -73,13 +73,17 @@ async function bundleDemo() {
 			`Missing 'esbuild' dependency. Run 'pnpm install --frozen-lockfile' from the repo root and retry. Error: ${reason}`,
 		);
 	}
-	console.log("[rppg-web] esbuild demo/main.ts -> demo/demo.js");
+	console.log("[rppg-web] esbuild demo/main.ts + demo/replay.ts -> demo/*.js");
 	await esbuild.build({
 		absWorkingDir: packageRoot,
-		entryPoints: ["demo/main.ts"],
+		entryPoints: {
+			demo: "demo/main.ts",
+			replay: "demo/replay.ts",
+		},
 		bundle: true,
 		format: "esm",
-		outfile: "demo/demo.js",
+		outdir: "demo",
+		entryNames: "[name]",
 		sourcemap: false,
 	});
 }
