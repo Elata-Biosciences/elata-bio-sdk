@@ -1,0 +1,81 @@
+---
+title: eeg-web
+description: Browser EEG WASM helpers, signal-processing exports, and shared Elata web contracts.
+---
+
+## What This Package Is
+
+`@elata-biosciences/eeg-web` is intentionally a thin wrapper around generated
+EEG WASM bindings.
+
+It provides:
+
+- stable init helpers
+- wrapper utilities and compatibility re-exports
+- packaged generated WASM assets in `wasm/`
+
+This package does not implement Bluetooth device connection logic by itself.
+
+## Install
+
+```bash
+pnpm add @elata-biosciences/eeg-web
+npm install @elata-biosciences/eeg-web
+```
+
+## Requirements
+
+- Node.js `>= 20` for server-side usage and local repo tooling
+- a modern browser with WebAssembly support for in-browser usage
+
+## Usage
+
+```ts
+import { initEegWasm, band_powers } from "@elata-biosciences/eeg-web";
+
+await initEegWasm();
+const powers = band_powers(eegData, 256);
+console.log(powers.alpha);
+```
+
+## Recommended Vs Advanced
+
+Recommended:
+
+- Use the package helpers when they exist.
+- Add `@elata-biosciences/eeg-web-ble` if you also need browser BLE transport.
+
+Advanced:
+
+- Generated `wasm-bindgen` exports are still re-exported for compatibility and
+  SDK debugging.
+- Avoid instantiating generated wrappers directly unless you are intentionally
+  debugging the SDK itself.
+
+## Key Exports
+
+- `initEegWasm`
+- `initEegWasmSync`
+- `createRppgPipeline`
+- `band_powers`
+- `WasmAlphaBumpDetector`
+- `WasmAlphaPeakModel`
+- `WasmCalmnessModel`
+- `AthenaWasmDecoder`
+
+## Build And Dev Notes
+
+From the repo root:
+
+```bash
+./run.sh build eeg
+```
+
+For local iteration against an existing app:
+
+```bash
+./run.sh sync-to ../my-app
+```
+
+`sync-to` is a local repo-development helper for `eeg-web`. It is not the
+recommended path for starting a new app.

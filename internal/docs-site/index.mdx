@@ -1,0 +1,103 @@
+---
+title: Elata SDK
+description: Build EEG, Muse BLE, and browser rPPG apps with the Elata SDK.
+---
+
+Elata SDK is a mixed Rust and TypeScript monorepo for biosignal products.
+The published packages focus on helping app developers add supported sensors to
+their browser apps with minimal integration work.
+
+This site is organized around supported sensor workflows (what you want to
+build), not internal repo structure.
+
+If you are evaluating the SDK or starting a new app, begin with
+`@elata-biosciences/create-elata-demo` instead of cloning this repo or starting
+from internal demos.
+
+## What EEG And rPPG Are
+
+- **EEG** measures electrical activity from the brain using a wearable headset.
+  In apps, that usually means streaming headset data, computing features such as
+  band powers, and turning those signals into app state. Concrete examples
+  include meditation and focus training, neurofeedback, adaptive gameplay, and
+  simulated athletic-performance experiences where the app reacts to calm,
+  focus, or cognitive-load-style signals.
+- **rPPG** stands for remote photoplethysmography. It estimates pulse-related
+  changes from camera video, usually from a face region, without a wearable
+  sensor. In apps, that usually means reading heart-rate-like metrics and
+  diagnostics from a live camera session. Concrete examples include deception
+  or bluffing games that react to pulse changes, stress and arousal feedback,
+  and biofeedback-oriented health or wellness experiences.
+
+## How Apps Typically Use Them
+
+| Signal | Typical app pattern |
+| --- | --- |
+| EEG | connect to a headset, stream samples, compute features, then adapt a meditation flow, focus trainer, neurofeedback loop, or simulated performance experience |
+| rPPG | open the camera, run a session on video frames, then use pulse metrics in deception games, biofeedback loops, stress-aware UX, or wellness diagnostics |
+
+## Supported Sensors (App Store)
+
+The SDK supports two sensor workflows in the browser:
+
+- **Muse-compatible EEG via Web Bluetooth (Chrome/Edge, secure contexts)**:
+  Muse 2, Muse S classic BLE, Muse S Athena protocol v2. Safari and iOS BLE
+  are not supported for this workflow.
+- **Camera-based rPPG (modern browsers + camera permissions)**:
+  run rPPG processing on video frames via WebAssembly.
+
+## From Sensor To Package
+
+| What you integrate | Install | Typical app entrypoint |
+| --- | --- | --- |
+| Muse EEG over BLE | `@elata-biosciences/eeg-web` + `@elata-biosciences/eeg-web-ble` | `new BleTransport(...)` + `connect()` + `start()` |
+| EEG analysis without a headset connection | `@elata-biosciences/eeg-web` | `await initEegWasm()` + analysis functions (e.g. `band_powers`) |
+| Camera-based rPPG | `@elata-biosciences/rppg-web` | `await createRppgSession({ video, ... })` |
+
+## Choose By App Need
+
+If your app needs a wearable brain-signal input, start with the EEG pages.
+If your app needs camera-based pulse estimation without extra hardware, start
+with the rPPG pages.
+
+## Start Here
+
+| Goal | Start with | Why |
+| --- | --- | --- |
+| Try the SDK quickly | `/quickstart` | Fastest path to a working demo app |
+| Pick the right package | `/package-selection` | Helps you choose the lowest-friction integration path |
+| Add EEG to an existing app | `/guides/eeg-browser` | Covers WASM setup and package boundaries |
+| Stream from a Muse-compatible device | `/guides/web-bluetooth` | Covers browser BLE requirements and transport setup |
+| Add camera-based rPPG | `/guides/rppg-browser` | Starts with `createRppgSession()` and diagnostics |
+
+## Published Packages
+
+| Package | Use it for | One-line summary |
+| --- | --- | --- |
+| `@elata-biosciences/create-elata-demo` | scaffolding demo apps | fastest way to get a working integration |
+| `@elata-biosciences/eeg-web` | browser EEG WASM APIs | EEG processing + model exports (no Bluetooth transport) |
+| `@elata-biosciences/eeg-web-ble` | browser BLE streaming | Web Bluetooth transport for Muse-compatible headsets |
+| `@elata-biosciences/rppg-web` | browser rPPG processing | camera-driven rPPG with `createRppgSession()` |
+
+## Use The Right Workflow
+
+The repo has a few internal flows that are helpful for SDK maintainers but are
+not the normal consumer onboarding path.
+
+- Use `create-elata-demo` for new apps and evaluation.
+- Use published packages for existing browser apps.
+- Use `./run.sh sync-to` only when you are editing `packages/eeg-web` inside
+  this monorepo and want to link it into another local app.
+- Treat in-repo demos as SDK-development surfaces, not the default install path.
+
+## Repo Surfaces
+
+The source repo also contains:
+
+- Rust crates for EEG, rPPG, protocol support, and FFI
+- generated WASM packaging flows
+- demo templates and reference apps
+- release tooling, changesets, and publish verification
+
+If you are working on the SDK itself rather than consuming it, jump to the
+maintainer pages.

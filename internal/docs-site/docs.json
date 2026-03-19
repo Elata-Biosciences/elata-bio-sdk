@@ -1,0 +1,55 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Elata SDK",
+  "description": "Developer documentation for Elata EEG, browser BLE, and rPPG packages.",
+  "colors": {
+    "primary": "#7D66D9",
+    "light": "#7D66D9",
+    "dark": "#607274"
+  },
+  "background": {
+    "light": "#F8F5EE",
+    "dark": "#171717"
+  },
+  "logo": {
+    "light": "/images/logo-light.svg",
+    "dark": "/images/logo-dark.svg"
+  },
+  "favicon": "/images/favicon.svg",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Start Here",
+        "pages": ["index", "quickstart", "package-selection"]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "guides/eeg-browser",
+          "guides/web-bluetooth",
+          "guides/rppg-browser",
+          "operations/compatibility",
+          "operations/troubleshooting"
+        ]
+      },
+      {
+        "group": "Reference",
+        "pages": [
+          "reference/create-elata-demo",
+          "reference/eeg-web",
+          "reference/eeg-web-ble",
+          "reference/rppg-web"
+        ]
+      },
+      {
+        "group": "Maintainers",
+        "pages": [
+          "maintainers/repo-workflows",
+          "maintainers/related-repos",
+          "maintainers/releasing"
+        ]
+      }
+    ]
+  }
+}

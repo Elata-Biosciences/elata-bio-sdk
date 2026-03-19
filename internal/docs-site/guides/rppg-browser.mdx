@@ -1,0 +1,136 @@
+---
+title: rPPG In A Browser App
+description: Add browser-based camera rPPG with the supported Elata session helpers.
+---
+
+rPPG stands for remote photoplethysmography. It estimates pulse-related changes
+from camera video, usually from a face region, without requiring a wearable
+sensor.
+
+In browser apps, developers usually use rPPG to turn a live camera stream into
+heart-rate-style metrics, diagnostics, and wellness-oriented feedback.
+
+Concrete app examples include:
+
+- deception or bluffing games that react to pulse changes during key moments
+- stress or arousal feedback in training and social experiences
+- breathing and relaxation flows that show physiological response over time
+- biofeedback-oriented health or wellness apps that want camera-based pulse
+  signals without extra hardware
+
+## Start With The Fastest Path
+
+If you want a working reference app before integrating manually, scaffold the
+rPPG demo:
+
+```bash
+npm create @elata-biosciences/elata-demo my-app
+cd my-app
+pnpm install
+pnpm run dev
+```
+
+Use this guide when you want to add browser-side rPPG processing to an existing
+app.
+
+## Install
+
+```bash
+pnpm add @elata-biosciences/rppg-web
+npm install @elata-biosciences/rppg-web
+```
+
+## Recommended Entry Point
+
+`@elata-biosciences/rppg-web` provides `createRppgSession()` as the recommended
+browser integration API.
+
+Start there unless you intentionally need lower-level sample ingestion or custom
+runtime orchestration.
+
+## How Apps Usually Use rPPG
+
+1. Ask for camera access and attach the stream to a `video` element.
+2. Start `createRppgSession()` on that video.
+3. Read metrics and diagnostics from the session.
+4. Show pulse-related feedback, readiness UI, or monitoring outputs in the app.
+
+That last step can be as simple as showing a pulse estimate, or as game-like as
+changing dialogue, pressure, or scoring when the user's physiology changes.
+
+## Minimal Integration
+
+```ts
+import { createRppgSession } from "@elata-biosciences/rppg-web";
+
+const session = await createRppgSession({
+  video: videoEl,
+  sampleRate: 30,
+  backend: "auto",
+  faceMesh: "off",
+  onDiagnostics: (diagnostics) => {
+    console.log(diagnostics.state.status, diagnostics.faceTrackingMode);
+    console.log(diagnostics.framesSeen, diagnostics.totalSamplesReceived);
+    console.log(diagnostics.issues, diagnostics.processorFailure);
+  },
+  onError: (error) => {
+    console.error(error.code, error.message);
+  },
+});
+
+console.log(session.getMetrics());
+```
+
+## Typical Flow
+
+1. Acquire a camera stream and attach it to a `video` element.
+2. Call `createRppgSession({ video, backend: "auto" })`.
+3. Read metrics from `session.getMetrics()`.
+4. Surface diagnostics through `onDiagnostics` or `session.getDiagnostics()`.
+5. Stop the session during cleanup with `await session.stop()`.
+
+## Managed Restart Flow
+
+If your app wants the SDK to own restart timing after terminal processor
+failures, use `createManagedRppgSession()`:
+
+```ts
+import { createManagedRppgSession } from "@elata-biosciences/rppg-web";
+
+const managed = await createManagedRppgSession({
+  video: videoEl,
+  faceMesh: "off",
+  maxRetries: 3,
+  retryDelayMs: 1500,
+  onStateChange: (state) => {
+    console.log(state.status, state.retryCount, state.lastError?.code);
+  },
+});
+```
+
+## Public Diagnostics And Debug Data
+
+Useful public APIs for app-side diagnostics:
+
+- `session.getDiagnostics()`
+- `session.getTraceSnapshot()`
+- `computeTraceWaveformDebug()`
+- `normalizeRppgError()`
+- `createRppgAppAdapter()`
+- `createRppgAppMonitor()`
+
+## Common Gotchas
+
+- If `session.backendMode` is `unavailable`, your app is probably not serving
+  the packaged `pkg/` assets correctly.
+- If `session.state.status` is `failed`, recreate the session instead of
+  continuing to use the same poisoned processor.
+- If camera access fails, verify that the page can call `getUserMedia`.
+- If you are just evaluating the SDK, the scaffolded demo is much faster than
+  wiring the whole camera pipeline yourself.
+
+## Next Steps
+
+- Package reference: `/reference/rppg-web`
+- Compatibility details: `/operations/compatibility`
+- Troubleshooting: `/operations/troubleshooting`

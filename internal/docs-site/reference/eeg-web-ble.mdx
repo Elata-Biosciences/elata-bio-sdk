@@ -1,0 +1,67 @@
+---
+title: eeg-web-ble
+description: Browser BLE transport for Muse-compatible EEG devices.
+---
+
+## What This Package Is
+
+This package owns:
+
+- browser-side Web Bluetooth device and session lifecycle
+- classic and Athena packet handling
+- emission of normalized `HeadbandFrameV1` frames
+
+It intentionally depends on `@elata-biosciences/eeg-web` for shared transport
+and frame contracts.
+
+## Install
+
+```bash
+pnpm add @elata-biosciences/eeg-web-ble @elata-biosciences/eeg-web
+npm install @elata-biosciences/eeg-web-ble @elata-biosciences/eeg-web
+```
+
+## Requirements
+
+- Node.js `>= 20` for build and tests
+- a browser with Web Bluetooth support, typically Chrome or Edge
+- a secure context such as `https://` or `localhost`
+
+## Usage
+
+```ts
+import { BleTransport } from "@elata-biosciences/eeg-web-ble";
+import { AthenaWasmDecoder } from "@elata-biosciences/eeg-web";
+
+const transport = new BleTransport({
+  deviceOptions: {
+    athenaDecoderFactory: () => new AthenaWasmDecoder()
+  }
+});
+
+transport.onFrame = (frame) => {
+  console.log(frame.eeg.samples.length);
+};
+
+transport.onStatus = (status) => {
+  console.log(status.state, status.reason);
+};
+
+await transport.connect();
+await transport.start();
+```
+
+## Key Exports
+
+- `BleTransport`
+- transport and frame types
+
+## Platform Caveats
+
+- Safari and iOS do not provide usable Web Bluetooth support for this workflow.
+- Athena startup requires an `athenaDecoderFactory`.
+- Firmware variants may differ in command behavior.
+
+For Safari and iOS, prefer a native BLE shell, companion bridge, or hybrid
+WebView strategy with `@elata-biosciences/eeg-web` frame contracts as the
+boundary.

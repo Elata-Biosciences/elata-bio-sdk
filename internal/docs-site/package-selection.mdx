@@ -1,0 +1,80 @@
+---
+title: Package Selection
+description: Choose the right Elata package and avoid internal-only workflows.
+---
+
+## Recommended Default
+
+If you are starting fresh, use `@elata-biosciences/create-elata-demo`.
+
+That is the shortest path to a running app and the best starting point for
+evaluation, onboarding, and comparison debugging.
+
+## What These Packages Help You Build
+
+- **EEG packages** are for apps that use brain-signal data from a headset.
+  Typical use cases include meditation or focus UX, neurofeedback, adaptive
+  gameplay, dashboards, and simulated athletic-performance or training
+  experiences that react to live headset input or EEG-derived features.
+- **rPPG packages** are for apps that use a regular camera to estimate
+  pulse-related signals. Typical use cases include wellness flows, readiness
+  checks, deception or bluffing mechanics, biofeedback-style experiences, and
+  camera-based vitals prototypes.
+
+## Choose By Outcome
+
+| You want to... | Use this | Notes |
+| --- | --- | --- |
+| Scaffold a new demo app | `@elata-biosciences/create-elata-demo` | recommended first step |
+| Run EEG WASM APIs in the browser | `@elata-biosciences/eeg-web` | signal processing, models, and WASM helpers |
+| Connect to Muse-compatible devices in the browser | `@elata-biosciences/eeg-web-ble` | install alongside `eeg-web` |
+| Run camera-based rPPG in a browser app | `@elata-biosciences/rppg-web` | start with `createRppgSession()` |
+
+## Browser EEG
+
+Use `@elata-biosciences/eeg-web` when you need:
+
+- browser-side EEG WASM APIs
+- signal processing and model functions
+- shared types used by higher-level browser integrations
+
+In app terms, this is the package you use when your product logic needs EEG
+features or analyses in the browser for things like meditation state, focus
+feedback, neurofeedback, or performance-style training loops.
+
+## Browser BLE For Muse-Compatible Devices
+
+Use `@elata-biosciences/eeg-web-ble` when you need:
+
+- browser BLE discovery and streaming
+- normalized headband frames
+- a transport layer that plugs into the Elata EEG web stack
+
+You should generally install `@elata-biosciences/eeg-web` alongside it.
+
+In app terms, this is the package that gets real headset data into the browser.
+
+## Camera-Based rPPG
+
+Use `@elata-biosciences/rppg-web` when you need:
+
+- browser-side rPPG processing
+- packaged WASM backend loading
+- demo helpers for camera-driven prototypes
+
+In app terms, this is the package you use when the camera itself is the sensor
+and your app wants pulse-style metrics without extra hardware for things like
+stress-aware UX, deception mechanics, or biofeedback-oriented health flows.
+
+## Internal Paths To Avoid Unless You Mean It
+
+- Do not start new apps with `./run.sh sync-to`.
+- Do not treat in-repo demos as the primary consumer onboarding path.
+- Do not assume a scaffolded app is broken until you check whether `pnpm`
+  attached to a parent workspace.
+
+## When The Alternative Path Is Correct
+
+Only use `./run.sh sync-to` when you are actively modifying
+`packages/eeg-web` inside this monorepo and want to install the local package
+into another app for iteration.

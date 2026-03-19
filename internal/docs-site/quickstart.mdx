@@ -1,0 +1,75 @@
+---
+title: Quickstart
+description: Get to a working Elata app quickly with the supported developer entrypoints.
+---
+
+## Fastest Path
+
+If you are evaluating the SDK for the first time, scaffold a demo app:
+
+```bash
+npm create @elata-biosciences/elata-demo my-app
+cd my-app
+pnpm install
+pnpm run dev
+```
+
+Available templates:
+
+- `rppg-web-demo`: camera-based rPPG demo
+- `eeg-web-demo`: browser EEG WASM demo with synthetic data
+- `eeg-web-ble-demo`: Muse-compatible browser BLE demo
+
+## What You Are Choosing Between
+
+- **EEG**: brain-signal data from a headset. Choose this when your app needs
+  live headset input, brain-signal analysis, or EEG-driven gameplay, feedback,
+  or training flows.
+- **rPPG**: pulse estimation from a camera stream. Choose this when your app
+  needs camera-based wellness or readiness signals without requiring a wearable.
+
+## Existing App Path
+
+If you already have an app and know which capability you need, install the
+published package directly:
+
+```bash
+pnpm add @elata-biosciences/eeg-web
+pnpm add @elata-biosciences/eeg-web-ble
+pnpm add @elata-biosciences/rppg-web
+```
+
+Use only the packages your app actually needs.
+
+## App-Level Rule Of Thumb
+
+- Start with `eeg-web-demo` if you want to understand what EEG data and EEG
+  analysis feel like in an app.
+- Start with `eeg-web-ble-demo` if you need real browser headset transport.
+- Start with `rppg-web-demo` if you want a camera-based signal that works
+  without external hardware.
+
+## Recommended Decision Order
+
+1. Start with `@elata-biosciences/create-elata-demo` for evaluation or a new app.
+2. Install a published package directly when integrating into an existing app.
+3. Use repo-internal workflows only if you are modifying the SDK itself.
+
+## Workspace Caveat
+
+If you scaffold an app inside another `pnpm` workspace and the new app is not
+part of that workspace, install and run it from the parent directory:
+
+```bash
+pnpm --dir my-app --ignore-workspace install
+pnpm --dir my-app --ignore-workspace run dev
+```
+
+Or use `npm install` and `npm run dev` inside the generated app.
+
+## Next Steps
+
+- Need help choosing packages: `/package-selection`
+- Building browser EEG features: `/guides/eeg-browser`
+- Building browser BLE flows: `/guides/web-bluetooth`
+- Building browser rPPG flows: `/guides/rppg-browser`

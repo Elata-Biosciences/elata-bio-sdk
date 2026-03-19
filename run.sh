@@ -75,6 +75,7 @@ Build & Demo:
   dev          Build debug artifacts for 'eeg', 'rppg', or 'all' (default: all)
   build        Build release artifacts for 'eeg', 'rppg', or 'all' (default: all)
   bindings     Generate bindings from an existing build (default: release)
+  docs         Run internal Mintlify docs tooling (default: 'mint dev --no-open')
   demo         Run the demo - specify 'rppg' (default; temp-served), 'hal', or 'eeg' (example: 'run.sh demo eeg')
   sync-to      Build eeg-web and install it into a local app (default app: ../my-app)
 
@@ -967,6 +968,52 @@ run_demo() {
     esac
 }
 
+run_docs_site() {
+    local docs_dir="$ROOT_DIR/internal/docs-site"
+    local node_version="${ELATA_DOCS_NODE_VERSION:-22.22.1}"
+    local -a mint_args=()
+
+    require_package_manager
+
+    if [[ ! -d "$docs_dir" ]]; then
+        die "Docs site directory not found: $docs_dir" "Expected Mintlify project at internal/docs-site"
+    fi
+
+    if [[ $# -eq 0 ]]; then
+        mint_args=(dev --no-open)
+    else
+        case "$1" in
+            open)
+                shift
+                mint_args=(dev --open "$@")
+                ;;
+            dev)
+                shift
+                mint_args=(dev "$@")
+                ;;
+            *)
+                mint_args=("$@")
+                ;;
+        esac
+    fi
+
+    if command -v volta >/dev/null 2>&1; then
+        echo "Running Mintlify from $docs_dir with Volta Node $node_version..."
+        (
+            cd "$docs_dir"
+            volta run --node "$node_version" pnpm dlx mint "${mint_args[@]}"
+        )
+        return
+    fi
+
+    echo "Running Mintlify from $docs_dir..."
+    echo "Tip: if Mintlify rejects your Node version, install Volta or switch to an LTS Node release."
+    (
+        cd "$docs_dir"
+        pnpm dlx mint "${mint_args[@]}"
+    )
+}
+
 doctor() {
     set +e
     local toolchain_err=0
@@ -1218,6 +1265,10 @@ case "$cmd" in
     build)
         RUN_SH_TASK="build"
         build_targets release "${2:-all}"
+        ;;
+    docs)
+        RUN_SH_TASK="docs"
+        run_docs_site "${@:2}"
         ;;
     dev)
         RUN_SH_TASK="dev"

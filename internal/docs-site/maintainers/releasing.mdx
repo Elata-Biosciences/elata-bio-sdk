@@ -1,0 +1,57 @@
+---
+title: Releasing
+description: Release, changeset, and recovery workflow for published Elata packages.
+---
+
+## Published Packages
+
+This repository currently publishes:
+
+- `@elata-biosciences/eeg-web`
+- `@elata-biosciences/eeg-web-ble`
+- `@elata-biosciences/rppg-web`
+- `@elata-biosciences/create-elata-demo`
+
+## Quick Reference
+
+| Step | Command |
+| --- | --- |
+| Add a changeset | `./run.sh changeset` |
+| Apply changesets and update changelogs | `./run.sh bump` |
+| Run the release preflight | `./run.sh release-check all` |
+| Build, publish, tag, and push | `./run.sh release all next` or `./run.sh release all latest` |
+
+## Maintainer Workflow
+
+1. Apply changesets with `./run.sh bump`.
+2. Review the version and changelog diff, then commit it.
+3. Run `./run.sh release-check all`.
+4. Publish with `./run.sh release all next` or `latest`.
+
+Release order is fixed in `run.sh`:
+
+`eeg-web` -> `eeg-web-ble` -> `rppg-web` -> `create-elata-demo`
+
+## Contributor Expectation
+
+If a user-facing package change should ship, include a changeset in the PR.
+
+## Safe Publish Flow
+
+Publish to a non-`latest` channel first:
+
+```bash
+./run.sh release all next
+```
+
+After verification, promote or publish as `latest`.
+
+## If A Bad Version Is Published
+
+You cannot overwrite an existing version number. Instead:
+
+1. Deprecate the bad version.
+2. Publish a fixed patch version.
+3. Move the `latest` dist-tag to the fixed version.
+
+`npm unpublish` is restricted and should not be part of normal recovery.
