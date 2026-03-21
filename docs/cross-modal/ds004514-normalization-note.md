@@ -83,6 +83,15 @@ Derived branch:
 - log the exact conversion path and parameters
 - retain a mapping from each derived channel back to the source-detector pair and wavelength inputs
 
+Observed raw variants:
+
+- some subjects expose `28` raw channels at about `7.8125 Hz`
+- some subjects expose `22` raw channels at about `8.928571 Hz`
+
+Normalization implication:
+
+- do not assume a single fixed fNIRS tensor shape before subject-level geometry handling
+
 Do not:
 
 - discard wavelength-resolved amplitudes after HbO/HbR derivation
@@ -163,4 +172,5 @@ Every canonical window record should include:
 
 - the canonical alignment transform is implemented and tested on at least one real subject
 - the raw-preserving and derived branches both exist
+- variable fNIRS montage handling is implemented explicitly
 - the emitted window metadata include the fields above

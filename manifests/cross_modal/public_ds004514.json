@@ -23,7 +23,15 @@
     "fnirs": {
       "present": true,
       "feature_dim": 28,
-      "sampling_rate_hz": 7.8125,
+      "feature_dim_variants": [
+        22,
+        28
+      ],
+      "sampling_rate_hz": null,
+      "sampling_rate_variants_hz": [
+        7.8125,
+        8.928571
+      ],
       "geometry_available": true
     },
     "ppg": {
@@ -74,7 +82,9 @@
   "quality": {
     "quality_fields": [
       "channels.status",
-      "channels.status_description"
+      "channels.status_description",
+      "fnirs_waveform.sci_median",
+      "fnirs_waveform.low_sci_channel_count"
     ],
     "artifact_fields": []
   },
@@ -82,20 +92,24 @@
     "verification_status": "source_tree_and_sidecars_verified_payload_not_annexed",
     "accepted_for": [
       "candidate_eeg_fnirs_alignment",
-      "candidate_eeg_to_fnirs_baseline"
+      "candidate_eeg_to_fnirs_baseline",
+      "candidate_fnirs_waveform_target_preparation"
     ],
     "blocked_on": [
       "fetch annexed raw payloads before running signal-level baselines",
       "implement and validate the event-based alignment and drift-handling procedure on real payloads",
-      "validate the SNIRF-to-HbO/HbR derivation path on real payloads"
+      "integrate the validated SNIRF-to-HbO/HbR derivation path into canonical waveform ingest",
+      "define how variable fNIRS montages and sampling rates will be normalized across subjects"
     ]
   },
   "notes": [
     "Candidate public paired dataset for EEG-fNIRS latent alignment.",
     "Based on verified DOI 10.18112/openneuro.ds004514.v1.1.2 checked on March 21, 2026.",
     "Source-backed intake confirmed 12 subject folders at the frozen 1.1.2 snapshot with no session subdirectories.",
-    "Dataset README and BIDS sidecars confirm 64 EEG channels at 2048 Hz plus auxiliary channels, and 28 continuous-wave fNIRS amplitude channels at 7.8125 Hz.",
+    "Dataset README and BIDS sidecars confirm 64 EEG channels at 2048 Hz plus auxiliary channels.",
     "Sub-01 inspection shows matched EEG and fNIRS event sequences with non-identical absolute onsets, so downstream pairing should be event-aligned rather than naive timestamp-matched.",
-    "The subject split policy and canonical normalization/alignment rules are documented in docs/cross-modal/ds004514-split-plan.md and docs/cross-modal/ds004514-normalization-note.md."
+    "The subject split policy and canonical normalization/alignment rules are documented in docs/cross-modal/ds004514-split-plan.md and docs/cross-modal/ds004514-normalization-note.md.",
+    "Waveform-level fNIRS smoke processing on real SNIRF payloads found subject-specific raw variants with 22 or 28 channels and sampling rates of 7.8125 Hz or 8.928571 Hz.",
+    "SNIRF loading, optical-density conversion, HbO/HbR derivation, and scalp-coupling scoring have been validated on the raw fNIRS payloads."
   ]
 }

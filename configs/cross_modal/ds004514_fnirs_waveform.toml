@@ -1,0 +1,18 @@
+[dataset]
+dataset_id = "ds004514"
+dataset_version = "1.1.2"
+dataset_name = "ds004514-simultaneous-eeg-fnirs-semantic-decoding"
+
+[paths]
+dataset_root = ".tmp/ds004514_smoke/source"
+metrics = "reports/cross_modal/ds004514/ds004514_fnirs_waveform_metrics.json"
+summary = "reports/cross_modal/ds004514/ds004514_fnirs_waveform_summary.md"
+
+[window]
+event_trial_types = ["animal_image", "tool_image"]
+tmin_seconds = 0.0
+tmax_seconds = 10.0
+
+[quality]
+sci_threshold = 0.75
+low_median_sci_threshold = 0.75

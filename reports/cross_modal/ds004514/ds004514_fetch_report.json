@@ -23,9 +23,9 @@
   "raw_head_sizes": {
     "fnirs": 8151472
   },
-  "downloaded_file_count": 12,
-  "skipped_file_count": 139,
-  "downloaded_bytes": 93089936,
+  "downloaded_file_count": 0,
+  "skipped_file_count": 151,
+  "downloaded_bytes": 0,
   "files": [
     {
       "relative_path": "CHANGES",
@@ -138,7 +138,7 @@
     {
       "relative_path": "sub-01/nirs/sub-01_task-nirs_nirs.snirf",
       "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-01/nirs/sub-01_task-nirs_nirs.snirf",
-      "status": "downloaded",
+      "status": "skipped_existing",
       "bytes": 8151472
     },
     {
@@ -210,7 +210,7 @@
     {
       "relative_path": "sub-02/nirs/sub-02_task-nirs_nirs.snirf",
       "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-02/nirs/sub-02_task-nirs_nirs.snirf",
-      "status": "downloaded",
+      "status": "skipped_existing",
       "bytes": 7963128
     },
     {
@@ -282,7 +282,7 @@
     {
       "relative_path": "sub-05/nirs/sub-05_task-nirs_nirs.snirf",
       "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-05/nirs/sub-05_task-nirs_nirs.snirf",
-      "status": "downloaded",
+      "status": "skipped_existing",
       "bytes": 8351032
     },
     {
@@ -354,7 +354,7 @@
     {
       "relative_path": "sub-06/nirs/sub-06_task-nirs_nirs.snirf",
       "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-06/nirs/sub-06_task-nirs_nirs.snirf",
-      "status": "downloaded",
+      "status": "skipped_existing",
       "bytes": 7891208
     },
     {
@@ -426,7 +426,7 @@
     {
       "relative_path": "sub-07/nirs/sub-07_task-nirs_nirs.snirf",
       "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-07/nirs/sub-07_task-nirs_nirs.snirf",
-      "status": "downloaded",
+      "status": "skipped_existing",
       "bytes": 7247592
     },
     {
@@ -498,7 +498,7 @@
     {
       "relative_path": "sub-08/nirs/sub-08_task-nirs_nirs.snirf",
       "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-08/nirs/sub-08_task-nirs_nirs.snirf",
-      "status": "downloaded",
+      "status": "skipped_existing",
       "bytes": 7183008
     },
     {
@@ -570,7 +570,7 @@
     {
       "relative_path": "sub-09/nirs/sub-09_task-nirs_nirs.snirf",
       "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-09/nirs/sub-09_task-nirs_nirs.snirf",
-      "status": "downloaded",
+      "status": "skipped_existing",
       "bytes": 8185992
     },
     {
@@ -642,7 +642,7 @@
     {
       "relative_path": "sub-10/nirs/sub-10_task-nirs_nirs.snirf",
       "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-10/nirs/sub-10_task-nirs_nirs.snirf",
-      "status": "downloaded",
+      "status": "skipped_existing",
       "bytes": 7275192
     },
     {
@@ -714,7 +714,7 @@
     {
       "relative_path": "sub-12/nirs/sub-12_task-nirs_nirs.snirf",
       "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-12/nirs/sub-12_task-nirs_nirs.snirf",
-      "status": "downloaded",
+      "status": "skipped_existing",
       "bytes": 7323216
     },
     {
@@ -786,7 +786,7 @@
     {
       "relative_path": "sub-03/nirs/sub-03_task-nirs_nirs.snirf",
       "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-03/nirs/sub-03_task-nirs_nirs.snirf",
-      "status": "downloaded",
+      "status": "skipped_existing",
       "bytes": 8029248
     },
     {
@@ -858,7 +858,7 @@
     {
       "relative_path": "sub-04/nirs/sub-04_task-nirs_nirs.snirf",
       "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-04/nirs/sub-04_task-nirs_nirs.snirf",
-      "status": "downloaded",
+      "status": "skipped_existing",
       "bytes": 7879144
     },
     {
@@ -930,7 +930,7 @@
     {
       "relative_path": "sub-11/nirs/sub-11_task-nirs_nirs.snirf",
       "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-11/nirs/sub-11_task-nirs_nirs.snirf",
-      "status": "downloaded",
+      "status": "skipped_existing",
       "bytes": 7609704
     }
   ]

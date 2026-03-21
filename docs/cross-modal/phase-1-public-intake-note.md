@@ -17,9 +17,11 @@ This note summarizes the current state of the public candidate manifests and wha
   - frozen `1.1.2` source tree and BIDS sidecars confirm 12 subjects, no session folders, EEG `.bdf`, and fNIRS `.snirf`
   - split-plan and normalization-note docs now exist for this dataset
   - executable smoke ingest path exists and validates event-aligned canonical windows across all 12 subjects
+  - executable raw fNIRS waveform smoke path validates SNIRF loading and HbO/HbR derivation on real payloads
 - What remains:
   - fetch raw signal payloads for waveform-level smoke tests
-  - validate the SNIRF-to-HbO/HbR derivation path
+  - add laptop-viable EEG waveform access
+  - normalize the observed fNIRS montage and sampling-rate variants
 
 ### DS003838
 

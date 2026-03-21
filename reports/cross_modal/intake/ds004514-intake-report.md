@@ -11,6 +11,7 @@ Status: Source-Backed Candidate
 - Split plan: [../../../docs/cross-modal/ds004514-split-plan.md](../../../docs/cross-modal/ds004514-split-plan.md)
 - Normalization note: [../../../docs/cross-modal/ds004514-normalization-note.md](../../../docs/cross-modal/ds004514-normalization-note.md)
 - Smoke ingest path: [../../../docs/cross-modal/ds004514-smoke-ingest.md](../../../docs/cross-modal/ds004514-smoke-ingest.md)
+- fNIRS waveform smoke: [../../../docs/cross-modal/ds004514-fnirs-waveform-smoke.md](../../../docs/cross-modal/ds004514-fnirs-waveform-smoke.md)
 - Intake owner: unassigned
 - Intake date: 2026-03-21
 - Source version: `v1.1.2`
@@ -51,9 +52,9 @@ The current pass inspects the official snapshot metadata and the Git mirror of t
 
 - Confirmed present: yes
 - Confirmed raw format: `.snirf`
-- Confirmed sampling rate: `7.8125` Hz
-- Source-detector geometry notes: 8 sources and 4 detectors produce 14 source-detector pairs and 28 amplitude channels across 785 nm and 830 nm wavelengths; geometry is available via `optodes.tsv` and `coordsystem.json`
-- HbO/HbR conversion notes: raw data are stored as continuous-wave amplitudes, so HbO/HbR are not precomputed; conversion should be feasible through the SNIRF metadata path but still needs implementation validation
+- Confirmed sampling rate: subject-dependent, observed at `7.8125` Hz and `8.928571` Hz in the waveform smoke pass
+- Source-detector geometry notes: sidecars show geometry via `optodes.tsv` and `coordsystem.json`, but the effective raw channel count varies by subject between `22` and `28`
+- HbO/HbR conversion notes: raw data are stored as continuous-wave amplitudes; waveform smoke processing has now validated SNIRF loading, optical-density conversion, and HbO/HbR derivation on the raw payloads
 
 ### PPG
 
@@ -80,7 +81,7 @@ The current pass inspects the official snapshot metadata and the Git mirror of t
 
 - Known quality fields: `status` and `status_description` in channel tables
 - Known artifact fields: no dedicated artifact summary fields observed in the inspected sidecars
-- Candidate exclusion rules: hold pending full-payload inspection; likely exclude subjects or windows with non-`good` channels once the annexed payloads are available
+- Candidate exclusion rules: waveform smoke indicates `sub-05` and `sub-12` have very poor median scalp-coupling and should be treated as likely exclusion or stress-test candidates unless a downstream correction path justifies keeping them
 - Distribution shift notes: participant metadata show 12 subjects, ages `20-57`, sex distribution `9F/3M`, and all recorded handedness values are `R`; this is useful for split stratification and shift diagnostics but not broad population coverage
 
 ## Manifest updates required
@@ -106,9 +107,9 @@ Decision rationale:
 ## Next actions
 
 1. Fetch the annexed `.bdf` and `.snirf` payloads needed for signal-level smoke tests.
-2. Fetch the raw `.snirf` and selected `.bdf` payloads for the first waveform-level smoke test on the fixed development split.
-3. Reuse the existing smoke ingest path to emit waveform-backed windows instead of sidecar-only event windows.
-4. Validate an HbO/HbR derivation path from the raw SNIRF payload before moving the manifest to `ready`.
+2. Add EEG waveform access for one or two development subjects without making laptop iteration unusable.
+3. Reuse the existing smoke ingest path to emit waveform-backed cross-modal windows instead of sidecar-only event windows.
+4. Define explicit normalization handling for the observed fNIRS montage and sampling-rate variants before moving the manifest to `ready`.
 
 ## Commands
 
