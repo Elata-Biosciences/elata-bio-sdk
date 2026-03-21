@@ -39,37 +39,63 @@
     "heldout_subjects": []
   },
   "coverage": {
-    "subject_ids": [],
+    "subject_ids": [
+      "sub-01",
+      "sub-02",
+      "sub-03",
+      "sub-04",
+      "sub-05",
+      "sub-06",
+      "sub-07",
+      "sub-08",
+      "sub-09",
+      "sub-10",
+      "sub-11",
+      "sub-12"
+    ],
     "session_ids": [],
     "protocols": [
       "silent_naming",
-      "imagery"
+      "visual_imagery",
+      "auditory_imagery",
+      "tactile_imagery"
     ],
-    "shift_metadata_keys": []
+    "shift_metadata_keys": [
+      "age",
+      "sex",
+      "hand"
+    ]
   },
   "labels": {
-    "event_labels_present": false,
+    "event_labels_present": true,
     "ppg_morphology_targets_present": false,
     "task_labels_present": true
   },
   "quality": {
-    "quality_fields": [],
+    "quality_fields": [
+      "channels.status",
+      "channels.status_description"
+    ],
     "artifact_fields": []
   },
   "intake_review": {
-    "verification_status": "official_doi_verified_partial_metadata",
+    "verification_status": "source_tree_and_sidecars_verified_payload_not_annexed",
     "accepted_for": [
       "candidate_eeg_fnirs_alignment",
       "candidate_eeg_to_fnirs_baseline"
     ],
     "blocked_on": [
-      "confirm exact subject and session counts during ingest",
-      "confirm EEG and fNIRS preprocessing expectations from the raw files"
+      "fetch annexed raw payloads before running signal-level baselines",
+      "implement and validate the event-based alignment and drift-handling procedure on real payloads",
+      "validate the SNIRF-to-HbO/HbR derivation path on real payloads"
     ]
   },
   "notes": [
     "Candidate public paired dataset for EEG-fNIRS latent alignment.",
     "Based on verified DOI 10.18112/openneuro.ds004514.v1.1.2 checked on March 21, 2026.",
-    "Sampling-rate and channel-count details should be re-confirmed during real ingest."
+    "Source-backed intake confirmed 12 subject folders at the frozen 1.1.2 snapshot with no session subdirectories.",
+    "Dataset README and BIDS sidecars confirm 64 EEG channels at 2048 Hz plus auxiliary channels, and 28 continuous-wave fNIRS amplitude channels at 7.8125 Hz.",
+    "Sub-01 inspection shows matched EEG and fNIRS event sequences with non-identical absolute onsets, so downstream pairing should be event-aligned rather than naive timestamp-matched.",
+    "The subject split policy and canonical normalization/alignment rules are documented in docs/cross-modal/ds004514-split-plan.md and docs/cross-modal/ds004514-normalization-note.md."
   ]
 }

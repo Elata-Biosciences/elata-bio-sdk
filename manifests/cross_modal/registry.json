@@ -12,6 +12,11 @@
     {
       "id": "public_ds004514",
       "manifest_path": "manifests/cross_modal/public_ds004514.json",
+      "worksheet_path": "docs/cross-modal/ds004514-intake-worksheet.md",
+      "ingest_note_path": "docs/cross-modal/ds004514-ingest-note.md",
+      "split_plan_path": "docs/cross-modal/ds004514-split-plan.md",
+      "normalization_note_path": "docs/cross-modal/ds004514-normalization-note.md",
+      "intake_report_path": "reports/cross_modal/intake/ds004514-intake-report.md",
       "status": "candidate",
       "priority": "highest",
       "role": "paired_eeg_fnirs"

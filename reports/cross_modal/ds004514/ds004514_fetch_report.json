@@ -1,0 +1,937 @@
+{
+  "kind": "ds004514_fetch_report",
+  "config_path": "configs/cross_modal/ds004514_smoke.toml",
+  "dataset_root": ".tmp/ds004514_smoke/source",
+  "subject_count": 12,
+  "subjects": [
+    "sub-01",
+    "sub-02",
+    "sub-05",
+    "sub-06",
+    "sub-07",
+    "sub-08",
+    "sub-09",
+    "sub-10",
+    "sub-12",
+    "sub-03",
+    "sub-04",
+    "sub-11"
+  ],
+  "raw_modalities": [
+    "fnirs"
+  ],
+  "raw_head_sizes": {
+    "fnirs": 8151472
+  },
+  "downloaded_file_count": 12,
+  "skipped_file_count": 139,
+  "downloaded_bytes": 93089936,
+  "files": [
+    {
+      "relative_path": "CHANGES",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/CHANGES",
+      "status": "skipped_existing",
+      "bytes": 202
+    },
+    {
+      "relative_path": "README",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/README",
+      "status": "skipped_existing",
+      "bytes": 3379
+    },
+    {
+      "relative_path": "dataset_description.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/dataset_description.json",
+      "status": "skipped_existing",
+      "bytes": 336
+    },
+    {
+      "relative_path": "participants.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/participants.json",
+      "status": "skipped_existing",
+      "bytes": 553
+    },
+    {
+      "relative_path": "participants.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/participants.tsv",
+      "status": "skipped_existing",
+      "bytes": 199
+    },
+    {
+      "relative_path": "code/read_eeg.py",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/code/read_eeg.py",
+      "status": "skipped_existing",
+      "bytes": 2381
+    },
+    {
+      "relative_path": "code/read_fnirs.py",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/code/read_fnirs.py",
+      "status": "skipped_existing",
+      "bytes": 1851
+    },
+    {
+      "relative_path": "sub-01/sub-01_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-01/sub-01_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 122
+    },
+    {
+      "relative_path": "sub-01/eeg/sub-01_task-eeg_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-01/eeg/sub-01_task-eeg_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1083
+    },
+    {
+      "relative_path": "sub-01/eeg/sub-01_task-eeg_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-01/eeg/sub-01_task-eeg_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 4787
+    },
+    {
+      "relative_path": "sub-01/eeg/sub-01_task-eeg_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-01/eeg/sub-01_task-eeg_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-01/eeg/sub-01_task-eeg_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-01/eeg/sub-01_task-eeg_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 125774
+    },
+    {
+      "relative_path": "sub-01/nirs/sub-01_task-nirs_nirs.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-01/nirs/sub-01_task-nirs_nirs.json",
+      "status": "skipped_existing",
+      "bytes": 1182
+    },
+    {
+      "relative_path": "sub-01/nirs/sub-01_task-nirs_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-01/nirs/sub-01_task-nirs_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3477
+    },
+    {
+      "relative_path": "sub-01/nirs/sub-01_task-nirs_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-01/nirs/sub-01_task-nirs_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-01/nirs/sub-01_task-nirs_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-01/nirs/sub-01_task-nirs_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 104921
+    },
+    {
+      "relative_path": "sub-01/nirs/sub-01_optodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-01/nirs/sub-01_optodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 881
+    },
+    {
+      "relative_path": "sub-01/nirs/sub-01_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-01/nirs/sub-01_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 1871
+    },
+    {
+      "relative_path": "sub-01/nirs/sub-01_task-nirs_nirs.snirf",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-01/nirs/sub-01_task-nirs_nirs.snirf",
+      "status": "downloaded",
+      "bytes": 8151472
+    },
+    {
+      "relative_path": "sub-02/sub-02_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-02/sub-02_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 122
+    },
+    {
+      "relative_path": "sub-02/eeg/sub-02_task-eeg_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-02/eeg/sub-02_task-eeg_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1083
+    },
+    {
+      "relative_path": "sub-02/eeg/sub-02_task-eeg_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-02/eeg/sub-02_task-eeg_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 4787
+    },
+    {
+      "relative_path": "sub-02/eeg/sub-02_task-eeg_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-02/eeg/sub-02_task-eeg_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-02/eeg/sub-02_task-eeg_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-02/eeg/sub-02_task-eeg_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 125728
+    },
+    {
+      "relative_path": "sub-02/nirs/sub-02_task-nirs_nirs.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-02/nirs/sub-02_task-nirs_nirs.json",
+      "status": "skipped_existing",
+      "bytes": 1183
+    },
+    {
+      "relative_path": "sub-02/nirs/sub-02_task-nirs_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-02/nirs/sub-02_task-nirs_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3477
+    },
+    {
+      "relative_path": "sub-02/nirs/sub-02_task-nirs_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-02/nirs/sub-02_task-nirs_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-02/nirs/sub-02_task-nirs_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-02/nirs/sub-02_task-nirs_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 104788
+    },
+    {
+      "relative_path": "sub-02/nirs/sub-02_optodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-02/nirs/sub-02_optodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 881
+    },
+    {
+      "relative_path": "sub-02/nirs/sub-02_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-02/nirs/sub-02_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 1871
+    },
+    {
+      "relative_path": "sub-02/nirs/sub-02_task-nirs_nirs.snirf",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-02/nirs/sub-02_task-nirs_nirs.snirf",
+      "status": "downloaded",
+      "bytes": 7963128
+    },
+    {
+      "relative_path": "sub-05/sub-05_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-05/sub-05_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 122
+    },
+    {
+      "relative_path": "sub-05/eeg/sub-05_task-eeg_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-05/eeg/sub-05_task-eeg_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1083
+    },
+    {
+      "relative_path": "sub-05/eeg/sub-05_task-eeg_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-05/eeg/sub-05_task-eeg_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 4787
+    },
+    {
+      "relative_path": "sub-05/eeg/sub-05_task-eeg_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-05/eeg/sub-05_task-eeg_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-05/eeg/sub-05_task-eeg_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-05/eeg/sub-05_task-eeg_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 125728
+    },
+    {
+      "relative_path": "sub-05/nirs/sub-05_task-nirs_nirs.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-05/nirs/sub-05_task-nirs_nirs.json",
+      "status": "skipped_existing",
+      "bytes": 1183
+    },
+    {
+      "relative_path": "sub-05/nirs/sub-05_task-nirs_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-05/nirs/sub-05_task-nirs_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3477
+    },
+    {
+      "relative_path": "sub-05/nirs/sub-05_task-nirs_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-05/nirs/sub-05_task-nirs_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-05/nirs/sub-05_task-nirs_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-05/nirs/sub-05_task-nirs_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 104727
+    },
+    {
+      "relative_path": "sub-05/nirs/sub-05_optodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-05/nirs/sub-05_optodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 881
+    },
+    {
+      "relative_path": "sub-05/nirs/sub-05_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-05/nirs/sub-05_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 1871
+    },
+    {
+      "relative_path": "sub-05/nirs/sub-05_task-nirs_nirs.snirf",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-05/nirs/sub-05_task-nirs_nirs.snirf",
+      "status": "downloaded",
+      "bytes": 8351032
+    },
+    {
+      "relative_path": "sub-06/sub-06_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-06/sub-06_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 122
+    },
+    {
+      "relative_path": "sub-06/eeg/sub-06_task-eeg_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-06/eeg/sub-06_task-eeg_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1083
+    },
+    {
+      "relative_path": "sub-06/eeg/sub-06_task-eeg_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-06/eeg/sub-06_task-eeg_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 4787
+    },
+    {
+      "relative_path": "sub-06/eeg/sub-06_task-eeg_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-06/eeg/sub-06_task-eeg_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-06/eeg/sub-06_task-eeg_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-06/eeg/sub-06_task-eeg_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 125712
+    },
+    {
+      "relative_path": "sub-06/nirs/sub-06_task-nirs_nirs.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-06/nirs/sub-06_task-nirs_nirs.json",
+      "status": "skipped_existing",
+      "bytes": 1183
+    },
+    {
+      "relative_path": "sub-06/nirs/sub-06_task-nirs_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-06/nirs/sub-06_task-nirs_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3477
+    },
+    {
+      "relative_path": "sub-06/nirs/sub-06_task-nirs_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-06/nirs/sub-06_task-nirs_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-06/nirs/sub-06_task-nirs_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-06/nirs/sub-06_task-nirs_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 104730
+    },
+    {
+      "relative_path": "sub-06/nirs/sub-06_optodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-06/nirs/sub-06_optodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 881
+    },
+    {
+      "relative_path": "sub-06/nirs/sub-06_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-06/nirs/sub-06_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 1871
+    },
+    {
+      "relative_path": "sub-06/nirs/sub-06_task-nirs_nirs.snirf",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-06/nirs/sub-06_task-nirs_nirs.snirf",
+      "status": "downloaded",
+      "bytes": 7891208
+    },
+    {
+      "relative_path": "sub-07/sub-07_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-07/sub-07_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 122
+    },
+    {
+      "relative_path": "sub-07/eeg/sub-07_task-eeg_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-07/eeg/sub-07_task-eeg_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1083
+    },
+    {
+      "relative_path": "sub-07/eeg/sub-07_task-eeg_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-07/eeg/sub-07_task-eeg_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 4787
+    },
+    {
+      "relative_path": "sub-07/eeg/sub-07_task-eeg_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-07/eeg/sub-07_task-eeg_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-07/eeg/sub-07_task-eeg_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-07/eeg/sub-07_task-eeg_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 125720
+    },
+    {
+      "relative_path": "sub-07/nirs/sub-07_task-nirs_nirs.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-07/nirs/sub-07_task-nirs_nirs.json",
+      "status": "skipped_existing",
+      "bytes": 1203
+    },
+    {
+      "relative_path": "sub-07/nirs/sub-07_task-nirs_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-07/nirs/sub-07_task-nirs_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3225
+    },
+    {
+      "relative_path": "sub-07/nirs/sub-07_task-nirs_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-07/nirs/sub-07_task-nirs_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-07/nirs/sub-07_task-nirs_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-07/nirs/sub-07_task-nirs_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 109434
+    },
+    {
+      "relative_path": "sub-07/nirs/sub-07_optodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-07/nirs/sub-07_optodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 827
+    },
+    {
+      "relative_path": "sub-07/nirs/sub-07_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-07/nirs/sub-07_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 1871
+    },
+    {
+      "relative_path": "sub-07/nirs/sub-07_task-nirs_nirs.snirf",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-07/nirs/sub-07_task-nirs_nirs.snirf",
+      "status": "downloaded",
+      "bytes": 7247592
+    },
+    {
+      "relative_path": "sub-08/sub-08_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-08/sub-08_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 122
+    },
+    {
+      "relative_path": "sub-08/eeg/sub-08_task-eeg_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-08/eeg/sub-08_task-eeg_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1083
+    },
+    {
+      "relative_path": "sub-08/eeg/sub-08_task-eeg_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-08/eeg/sub-08_task-eeg_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 4787
+    },
+    {
+      "relative_path": "sub-08/eeg/sub-08_task-eeg_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-08/eeg/sub-08_task-eeg_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-08/eeg/sub-08_task-eeg_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-08/eeg/sub-08_task-eeg_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 125716
+    },
+    {
+      "relative_path": "sub-08/nirs/sub-08_task-nirs_nirs.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-08/nirs/sub-08_task-nirs_nirs.json",
+      "status": "skipped_existing",
+      "bytes": 1194
+    },
+    {
+      "relative_path": "sub-08/nirs/sub-08_task-nirs_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-08/nirs/sub-08_task-nirs_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3225
+    },
+    {
+      "relative_path": "sub-08/nirs/sub-08_task-nirs_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-08/nirs/sub-08_task-nirs_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-08/nirs/sub-08_task-nirs_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-08/nirs/sub-08_task-nirs_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 109313
+    },
+    {
+      "relative_path": "sub-08/nirs/sub-08_optodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-08/nirs/sub-08_optodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 827
+    },
+    {
+      "relative_path": "sub-08/nirs/sub-08_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-08/nirs/sub-08_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 1871
+    },
+    {
+      "relative_path": "sub-08/nirs/sub-08_task-nirs_nirs.snirf",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-08/nirs/sub-08_task-nirs_nirs.snirf",
+      "status": "downloaded",
+      "bytes": 7183008
+    },
+    {
+      "relative_path": "sub-09/sub-09_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-09/sub-09_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 122
+    },
+    {
+      "relative_path": "sub-09/eeg/sub-09_task-eeg_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-09/eeg/sub-09_task-eeg_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1083
+    },
+    {
+      "relative_path": "sub-09/eeg/sub-09_task-eeg_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-09/eeg/sub-09_task-eeg_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 4787
+    },
+    {
+      "relative_path": "sub-09/eeg/sub-09_task-eeg_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-09/eeg/sub-09_task-eeg_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-09/eeg/sub-09_task-eeg_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-09/eeg/sub-09_task-eeg_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 125768
+    },
+    {
+      "relative_path": "sub-09/nirs/sub-09_task-nirs_nirs.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-09/nirs/sub-09_task-nirs_nirs.json",
+      "status": "skipped_existing",
+      "bytes": 1192
+    },
+    {
+      "relative_path": "sub-09/nirs/sub-09_task-nirs_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-09/nirs/sub-09_task-nirs_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3225
+    },
+    {
+      "relative_path": "sub-09/nirs/sub-09_task-nirs_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-09/nirs/sub-09_task-nirs_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-09/nirs/sub-09_task-nirs_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-09/nirs/sub-09_task-nirs_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 109091
+    },
+    {
+      "relative_path": "sub-09/nirs/sub-09_optodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-09/nirs/sub-09_optodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 827
+    },
+    {
+      "relative_path": "sub-09/nirs/sub-09_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-09/nirs/sub-09_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 1871
+    },
+    {
+      "relative_path": "sub-09/nirs/sub-09_task-nirs_nirs.snirf",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-09/nirs/sub-09_task-nirs_nirs.snirf",
+      "status": "downloaded",
+      "bytes": 8185992
+    },
+    {
+      "relative_path": "sub-10/sub-10_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-10/sub-10_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 122
+    },
+    {
+      "relative_path": "sub-10/eeg/sub-10_task-eeg_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-10/eeg/sub-10_task-eeg_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1083
+    },
+    {
+      "relative_path": "sub-10/eeg/sub-10_task-eeg_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-10/eeg/sub-10_task-eeg_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 4787
+    },
+    {
+      "relative_path": "sub-10/eeg/sub-10_task-eeg_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-10/eeg/sub-10_task-eeg_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-10/eeg/sub-10_task-eeg_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-10/eeg/sub-10_task-eeg_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 125676
+    },
+    {
+      "relative_path": "sub-10/nirs/sub-10_task-nirs_nirs.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-10/nirs/sub-10_task-nirs_nirs.json",
+      "status": "skipped_existing",
+      "bytes": 1192
+    },
+    {
+      "relative_path": "sub-10/nirs/sub-10_task-nirs_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-10/nirs/sub-10_task-nirs_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3225
+    },
+    {
+      "relative_path": "sub-10/nirs/sub-10_task-nirs_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-10/nirs/sub-10_task-nirs_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-10/nirs/sub-10_task-nirs_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-10/nirs/sub-10_task-nirs_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 109386
+    },
+    {
+      "relative_path": "sub-10/nirs/sub-10_optodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-10/nirs/sub-10_optodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 827
+    },
+    {
+      "relative_path": "sub-10/nirs/sub-10_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-10/nirs/sub-10_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 1871
+    },
+    {
+      "relative_path": "sub-10/nirs/sub-10_task-nirs_nirs.snirf",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-10/nirs/sub-10_task-nirs_nirs.snirf",
+      "status": "downloaded",
+      "bytes": 7275192
+    },
+    {
+      "relative_path": "sub-12/sub-12_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-12/sub-12_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 122
+    },
+    {
+      "relative_path": "sub-12/eeg/sub-12_task-eeg_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-12/eeg/sub-12_task-eeg_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1084
+    },
+    {
+      "relative_path": "sub-12/eeg/sub-12_task-eeg_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-12/eeg/sub-12_task-eeg_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 4787
+    },
+    {
+      "relative_path": "sub-12/eeg/sub-12_task-eeg_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-12/eeg/sub-12_task-eeg_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-12/eeg/sub-12_task-eeg_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-12/eeg/sub-12_task-eeg_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 125785
+    },
+    {
+      "relative_path": "sub-12/nirs/sub-12_task-nirs_nirs.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-12/nirs/sub-12_task-nirs_nirs.json",
+      "status": "skipped_existing",
+      "bytes": 1194
+    },
+    {
+      "relative_path": "sub-12/nirs/sub-12_task-nirs_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-12/nirs/sub-12_task-nirs_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3225
+    },
+    {
+      "relative_path": "sub-12/nirs/sub-12_task-nirs_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-12/nirs/sub-12_task-nirs_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-12/nirs/sub-12_task-nirs_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-12/nirs/sub-12_task-nirs_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 109589
+    },
+    {
+      "relative_path": "sub-12/nirs/sub-12_optodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-12/nirs/sub-12_optodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 827
+    },
+    {
+      "relative_path": "sub-12/nirs/sub-12_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-12/nirs/sub-12_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 1871
+    },
+    {
+      "relative_path": "sub-12/nirs/sub-12_task-nirs_nirs.snirf",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-12/nirs/sub-12_task-nirs_nirs.snirf",
+      "status": "downloaded",
+      "bytes": 7323216
+    },
+    {
+      "relative_path": "sub-03/sub-03_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-03/sub-03_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 122
+    },
+    {
+      "relative_path": "sub-03/eeg/sub-03_task-eeg_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-03/eeg/sub-03_task-eeg_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1083
+    },
+    {
+      "relative_path": "sub-03/eeg/sub-03_task-eeg_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-03/eeg/sub-03_task-eeg_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 4787
+    },
+    {
+      "relative_path": "sub-03/eeg/sub-03_task-eeg_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-03/eeg/sub-03_task-eeg_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-03/eeg/sub-03_task-eeg_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-03/eeg/sub-03_task-eeg_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 125575
+    },
+    {
+      "relative_path": "sub-03/nirs/sub-03_task-nirs_nirs.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-03/nirs/sub-03_task-nirs_nirs.json",
+      "status": "skipped_existing",
+      "bytes": 1183
+    },
+    {
+      "relative_path": "sub-03/nirs/sub-03_task-nirs_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-03/nirs/sub-03_task-nirs_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3477
+    },
+    {
+      "relative_path": "sub-03/nirs/sub-03_task-nirs_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-03/nirs/sub-03_task-nirs_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-03/nirs/sub-03_task-nirs_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-03/nirs/sub-03_task-nirs_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 104819
+    },
+    {
+      "relative_path": "sub-03/nirs/sub-03_optodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-03/nirs/sub-03_optodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 881
+    },
+    {
+      "relative_path": "sub-03/nirs/sub-03_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-03/nirs/sub-03_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 1871
+    },
+    {
+      "relative_path": "sub-03/nirs/sub-03_task-nirs_nirs.snirf",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-03/nirs/sub-03_task-nirs_nirs.snirf",
+      "status": "downloaded",
+      "bytes": 8029248
+    },
+    {
+      "relative_path": "sub-04/sub-04_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-04/sub-04_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 122
+    },
+    {
+      "relative_path": "sub-04/eeg/sub-04_task-eeg_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-04/eeg/sub-04_task-eeg_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1083
+    },
+    {
+      "relative_path": "sub-04/eeg/sub-04_task-eeg_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-04/eeg/sub-04_task-eeg_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 4787
+    },
+    {
+      "relative_path": "sub-04/eeg/sub-04_task-eeg_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-04/eeg/sub-04_task-eeg_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-04/eeg/sub-04_task-eeg_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-04/eeg/sub-04_task-eeg_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 125689
+    },
+    {
+      "relative_path": "sub-04/nirs/sub-04_task-nirs_nirs.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-04/nirs/sub-04_task-nirs_nirs.json",
+      "status": "skipped_existing",
+      "bytes": 1183
+    },
+    {
+      "relative_path": "sub-04/nirs/sub-04_task-nirs_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-04/nirs/sub-04_task-nirs_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3477
+    },
+    {
+      "relative_path": "sub-04/nirs/sub-04_task-nirs_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-04/nirs/sub-04_task-nirs_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-04/nirs/sub-04_task-nirs_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-04/nirs/sub-04_task-nirs_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 104724
+    },
+    {
+      "relative_path": "sub-04/nirs/sub-04_optodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-04/nirs/sub-04_optodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 881
+    },
+    {
+      "relative_path": "sub-04/nirs/sub-04_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-04/nirs/sub-04_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 1871
+    },
+    {
+      "relative_path": "sub-04/nirs/sub-04_task-nirs_nirs.snirf",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-04/nirs/sub-04_task-nirs_nirs.snirf",
+      "status": "downloaded",
+      "bytes": 7879144
+    },
+    {
+      "relative_path": "sub-11/sub-11_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-11/sub-11_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 122
+    },
+    {
+      "relative_path": "sub-11/eeg/sub-11_task-eeg_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-11/eeg/sub-11_task-eeg_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1083
+    },
+    {
+      "relative_path": "sub-11/eeg/sub-11_task-eeg_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-11/eeg/sub-11_task-eeg_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 4787
+    },
+    {
+      "relative_path": "sub-11/eeg/sub-11_task-eeg_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-11/eeg/sub-11_task-eeg_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-11/eeg/sub-11_task-eeg_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-11/eeg/sub-11_task-eeg_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 125874
+    },
+    {
+      "relative_path": "sub-11/nirs/sub-11_task-nirs_nirs.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-11/nirs/sub-11_task-nirs_nirs.json",
+      "status": "skipped_existing",
+      "bytes": 1194
+    },
+    {
+      "relative_path": "sub-11/nirs/sub-11_task-nirs_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-11/nirs/sub-11_task-nirs_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3225
+    },
+    {
+      "relative_path": "sub-11/nirs/sub-11_task-nirs_events.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-11/nirs/sub-11_task-nirs_events.json",
+      "status": "skipped_existing",
+      "bytes": 682
+    },
+    {
+      "relative_path": "sub-11/nirs/sub-11_task-nirs_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-11/nirs/sub-11_task-nirs_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 108967
+    },
+    {
+      "relative_path": "sub-11/nirs/sub-11_optodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-11/nirs/sub-11_optodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 827
+    },
+    {
+      "relative_path": "sub-11/nirs/sub-11_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-11/nirs/sub-11_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 1871
+    },
+    {
+      "relative_path": "sub-11/nirs/sub-11_task-nirs_nirs.snirf",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds004514/sub-11/nirs/sub-11_task-nirs_nirs.snirf",
+      "status": "downloaded",
+      "bytes": 7609704
+    }
+  ]
+}
