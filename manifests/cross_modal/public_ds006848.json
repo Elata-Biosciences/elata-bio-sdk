@@ -1,0 +1,64 @@
+{
+  "kind": "cross_modal_dataset_manifest",
+  "schema_version": "0.2",
+  "identity": {
+    "dataset_name": "ds006848-eeg-ppg-rest-working-memory",
+    "dataset_version": "1.0.0",
+    "source_type": "public",
+    "intake_status": "candidate",
+    "source_uri": "https://doi.org/10.18112/openneuro.ds006848.v1.0.0",
+    "license": "CC0"
+  },
+  "storage": {
+    "dataset_path": "external://openneuro/ds006848",
+    "manifest_path": "manifests/cross_modal/public_ds006848.json"
+  },
+  "modalities": {
+    "eeg": {
+      "present": true,
+      "feature_dim": 64,
+      "sampling_rate_hz": 1000.0,
+      "geometry_available": true
+    },
+    "fnirs": {
+      "present": false,
+      "feature_dim": 0,
+      "sampling_rate_hz": null,
+      "geometry_available": false
+    },
+    "ppg": {
+      "present": true,
+      "feature_dim": 1,
+      "sampling_rate_hz": 1000.0,
+      "geometry_available": false
+    }
+  },
+  "split_summary": {
+    "train_windows": 0,
+    "eval_windows": 0,
+    "heldout_subjects": []
+  },
+  "coverage": {
+    "subject_ids": [],
+    "session_ids": [],
+    "protocols": [
+      "rest",
+      "working_memory"
+    ],
+    "shift_metadata_keys": []
+  },
+  "labels": {
+    "event_labels_present": false,
+    "ppg_morphology_targets_present": true,
+    "task_labels_present": true
+  },
+  "quality": {
+    "quality_fields": [],
+    "artifact_fields": []
+  },
+  "notes": [
+    "Candidate public EEG-PPG dataset for working-memory and resting-state experiments.",
+    "Based on verified DOI 10.18112/openneuro.ds006848.v1.0.0 checked on March 21, 2026.",
+    "Exact modality channel counts may vary by recording and should be normalized during ingest."
+  ]
+}

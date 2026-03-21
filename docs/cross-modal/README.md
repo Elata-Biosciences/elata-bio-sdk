@@ -11,6 +11,7 @@
 - [Dataset Manifest Contract](dataset-manifest-contract.md)
 - [Dataset Manifest Template](dataset-manifest-template.json)
 - [Phase 1 Dataset Registry](phase-1-dataset-registry.md)
+- [Athena Intake Note](athena-intake-note.md)
 
 Primary plan:
 

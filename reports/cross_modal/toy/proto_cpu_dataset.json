@@ -1,0 +1,7321 @@
+{
+  "metadata": {
+    "kind": "synthetic_cross_modal_toy_subset",
+    "schema_version": "0.1",
+    "seed": 7,
+    "subject_count": 4,
+    "sessions_per_subject": 2,
+    "windows_per_session": 24,
+    "latent_dim": 4,
+    "eeg_dim": 8,
+    "fnirs_dim": 4,
+    "ppg_dim": 4,
+    "heldout_subjects": [
+      "sub-04"
+    ],
+    "protocols": [
+      "rest_open",
+      "rest_closed",
+      "working_memory",
+      "mental_arithmetic"
+    ]
+  },
+  "windows": [
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 0,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9975,
+      "artifact_score": 0.0146,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.666302,
+        0.753945,
+        0.428876,
+        0.06591,
+        -0.310214,
+        0.59511,
+        0.397724,
+        0.476512
+      ],
+      "fnirs_targets": [
+        -0.084588,
+        -0.100919,
+        0.074338,
+        -0.010911
+      ],
+      "ppg_morphology_targets": [
+        -0.208426,
+        -0.276013,
+        0.731165,
+        -0.268458
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 1,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.978,
+      "artifact_score": 0.0981,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.376972,
+        0.170515,
+        -1.043746,
+        0.131474,
+        -0.723817,
+        0.834109,
+        -0.478962,
+        0.628279
+      ],
+      "fnirs_targets": [
+        -0.271422,
+        -0.353404,
+        -0.3508,
+        -6.3e-05
+      ],
+      "ppg_morphology_targets": [
+        -0.23741,
+        0.347079,
+        -0.019855,
+        0.01779
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 2,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9945,
+      "artifact_score": 0.0469,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.411303,
+        -0.155129,
+        -0.91204,
+        1.001824,
+        -0.13055,
+        0.824664,
+        0.277891,
+        0.397751
+      ],
+      "fnirs_targets": [
+        -0.195968,
+        -0.278691,
+        -0.413371,
+        -0.020018
+      ],
+      "ppg_morphology_targets": [
+        -0.246082,
+        -0.371934,
+        0.216668,
+        -0.775146
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 3,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9775,
+      "artifact_score": 0.0864,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.303096,
+        -0.388665,
+        -1.309096,
+        1.367061,
+        -0.215887,
+        1.252961,
+        0.210936,
+        0.650415
+      ],
+      "fnirs_targets": [
+        -0.093342,
+        -0.055004,
+        -0.58867,
+        -0.186725
+      ],
+      "ppg_morphology_targets": [
+        -0.356595,
+        -0.438214,
+        0.095664,
+        -0.826589
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 4,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.8445,
+      "artifact_score": 0.2081,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.654488,
+        -0.123224,
+        -2.158373,
+        1.498399,
+        -0.440898,
+        1.417937,
+        -0.370303,
+        0.933727
+      ],
+      "fnirs_targets": [
+        -0.104913,
+        0.005413,
+        -1.059177,
+        -0.313442
+      ],
+      "ppg_morphology_targets": [
+        -0.406743,
+        0.238833,
+        -0.2556,
+        -0.155923
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 5,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9399,
+      "artifact_score": 0.0967,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.713542,
+        -0.085451,
+        -0.833029,
+        2.31483,
+        -0.566535,
+        1.975739,
+        0.103955,
+        1.067614
+      ],
+      "fnirs_targets": [
+        0.017207,
+        0.21424,
+        -1.189896,
+        -0.499167
+      ],
+      "ppg_morphology_targets": [
+        -0.865518,
+        -0.616144,
+        0.570052,
+        -0.668628
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 6,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9157,
+      "artifact_score": 0.1064,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.61344,
+        -0.19935,
+        -1.299849,
+        2.612006,
+        -0.065363,
+        2.004475,
+        0.42301,
+        0.923743
+      ],
+      "fnirs_targets": [
+        0.027301,
+        0.379069,
+        -1.516931,
+        -0.57703
+      ],
+      "ppg_morphology_targets": [
+        -0.85026,
+        -0.593825,
+        0.29525,
+        -0.621263
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 7,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9198,
+      "artifact_score": 0.0911,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.545127,
+        -0.363157,
+        -1.353459,
+        2.790964,
+        -0.101636,
+        2.130595,
+        0.270446,
+        0.929911
+      ],
+      "fnirs_targets": [
+        0.131337,
+        0.64844,
+        -1.746569,
+        -0.57431
+      ],
+      "ppg_morphology_targets": [
+        -0.900689,
+        -0.596634,
+        0.293268,
+        -0.379854
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 8,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.8687,
+      "artifact_score": 0.1584,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.53857,
+        -0.797166,
+        -2.566059,
+        2.797849,
+        -0.715941,
+        2.09053,
+        -0.397941,
+        1.269201
+      ],
+      "fnirs_targets": [
+        0.132592,
+        0.676767,
+        -2.070519,
+        -0.625713
+      ],
+      "ppg_morphology_targets": [
+        -0.956074,
+        -0.014407,
+        -0.412993,
+        -0.003579
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 9,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9086,
+      "artifact_score": 0.1643,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.833043,
+        -0.326316,
+        -1.642712,
+        3.259427,
+        0.175939,
+        2.416114,
+        0.42782,
+        1.206627
+      ],
+      "fnirs_targets": [
+        0.232932,
+        0.899553,
+        -2.150994,
+        -0.742415
+      ],
+      "ppg_morphology_targets": [
+        -0.861297,
+        -0.596387,
+        0.118116,
+        -0.294816
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 10,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9151,
+      "artifact_score": 0.0952,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.70852,
+        -0.626381,
+        -2.026434,
+        3.779278,
+        0.040369,
+        2.580749,
+        0.561529,
+        1.125122
+      ],
+      "fnirs_targets": [
+        0.356732,
+        1.026756,
+        -2.249814,
+        -0.794151
+      ],
+      "ppg_morphology_targets": [
+        -0.834085,
+        -0.762554,
+        -0.012701,
+        -0.35853
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 11,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9557,
+      "artifact_score": 0.0528,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.659548,
+        -0.763114,
+        -2.192443,
+        3.98146,
+        0.10365,
+        2.63167,
+        0.468207,
+        1.260105
+      ],
+      "fnirs_targets": [
+        0.478293,
+        1.243229,
+        -2.429434,
+        -0.818987
+      ],
+      "ppg_morphology_targets": [
+        -0.892813,
+        -0.794248,
+        -0.06759,
+        -0.494095
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 12,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.8684,
+      "artifact_score": 0.1853,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.964046,
+        -0.348437,
+        -2.129754,
+        4.172996,
+        -0.209612,
+        3.077389,
+        0.548798,
+        1.557741
+      ],
+      "fnirs_targets": [
+        0.529112,
+        1.413331,
+        -2.60092,
+        -0.922945
+      ],
+      "ppg_morphology_targets": [
+        -1.15778,
+        -0.992142,
+        0.372137,
+        -0.409365
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 13,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9996,
+      "artifact_score": 0.0215,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        1.462689,
+        -0.075349,
+        -2.004981,
+        4.63893,
+        -0.531758,
+        3.628158,
+        0.68929,
+        1.987526
+      ],
+      "fnirs_targets": [
+        0.523144,
+        1.440168,
+        -2.892166,
+        -1.109623
+      ],
+      "ppg_morphology_targets": [
+        -1.431983,
+        -1.088384,
+        0.756249,
+        -0.517755
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 14,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.864,
+      "artifact_score": 0.201,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.871405,
+        -0.909351,
+        -3.69724,
+        4.47965,
+        -0.868517,
+        3.209045,
+        -0.291608,
+        1.652266
+      ],
+      "fnirs_targets": [
+        0.319203,
+        1.434102,
+        -3.372863,
+        -1.110455
+      ],
+      "ppg_morphology_targets": [
+        -1.309827,
+        -0.431859,
+        -0.351869,
+        -0.079988
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 15,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.8739,
+      "artifact_score": 0.1264,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.365334,
+        -1.42796,
+        -3.808914,
+        4.752873,
+        -0.73932,
+        3.011518,
+        -0.617608,
+        1.513415
+      ],
+      "fnirs_targets": [
+        0.305225,
+        1.471822,
+        -3.625704,
+        -1.172481
+      ],
+      "ppg_morphology_targets": [
+        -1.314416,
+        -0.383058,
+        -0.776711,
+        0.119651
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 16,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9401,
+      "artifact_score": 0.0802,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        1.021806,
+        -0.646796,
+        -2.665492,
+        4.592108,
+        -0.126587,
+        3.313649,
+        0.618448,
+        1.692906
+      ],
+      "fnirs_targets": [
+        0.53972,
+        1.719547,
+        -3.585318,
+        -1.218368
+      ],
+      "ppg_morphology_targets": [
+        -1.479799,
+        -1.068747,
+        0.208862,
+        -0.169384
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 17,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9434,
+      "artifact_score": 0.1341,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        1.126908,
+        -0.530586,
+        -2.48055,
+        4.704175,
+        -0.137879,
+        3.449397,
+        0.759656,
+        1.549601
+      ],
+      "fnirs_targets": [
+        0.583117,
+        1.820744,
+        -3.505934,
+        -1.261725
+      ],
+      "ppg_morphology_targets": [
+        -1.230531,
+        -0.9751,
+        0.274424,
+        -0.216514
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 18,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9788,
+      "artifact_score": 0.0487,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.882743,
+        -0.860528,
+        -3.124423,
+        4.965051,
+        -0.031769,
+        3.53714,
+        0.430148,
+        1.676214
+      ],
+      "fnirs_targets": [
+        0.61442,
+        1.79306,
+        -3.523689,
+        -1.349217
+      ],
+      "ppg_morphology_targets": [
+        -1.390118,
+        -1.087353,
+        0.116522,
+        -0.252892
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 19,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9152,
+      "artifact_score": 0.1597,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.63594,
+        -0.877679,
+        -2.988116,
+        5.004207,
+        -0.275114,
+        3.30612,
+        0.645436,
+        1.417038
+      ],
+      "fnirs_targets": [
+        0.753891,
+        1.824231,
+        -3.666172,
+        -1.469042
+      ],
+      "ppg_morphology_targets": [
+        -1.40179,
+        -1.044662,
+        0.163207,
+        -0.136346
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 20,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9055,
+      "artifact_score": 0.122,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        1.034481,
+        -0.972616,
+        -2.950035,
+        5.004171,
+        -0.293428,
+        3.393418,
+        0.424904,
+        1.834783
+      ],
+      "fnirs_targets": [
+        0.808441,
+        1.933521,
+        -3.809047,
+        -1.509354
+      ],
+      "ppg_morphology_targets": [
+        -1.649848,
+        -1.23111,
+        0.519588,
+        -0.163844
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 21,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9408,
+      "artifact_score": 0.0665,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        1.111929,
+        -0.654279,
+        -2.820424,
+        4.55875,
+        -0.622061,
+        3.397198,
+        0.74805,
+        2.073887
+      ],
+      "fnirs_targets": [
+        0.711253,
+        1.959117,
+        -3.817487,
+        -1.547245
+      ],
+      "ppg_morphology_targets": [
+        -1.739896,
+        -1.32127,
+        0.714508,
+        -0.108265
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 22,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.7193,
+      "artifact_score": 0.3486,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.824711,
+        -0.875332,
+        -3.468667,
+        5.059235,
+        -0.620927,
+        3.534401,
+        0.677396,
+        2.271888
+      ],
+      "fnirs_targets": [
+        0.626393,
+        1.858283,
+        -3.97748,
+        -1.739589
+      ],
+      "ppg_morphology_targets": [
+        -1.810208,
+        -1.422376,
+        0.577484,
+        -0.31672
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-01",
+      "window_index": 23,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.8295,
+      "artifact_score": 0.2317,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.616398,
+        -1.158191,
+        -3.607917,
+        5.13334,
+        -0.50468,
+        3.511984,
+        0.671383,
+        2.129854
+      ],
+      "fnirs_targets": [
+        0.453322,
+        1.848597,
+        -4.093528,
+        -1.829762
+      ],
+      "ppg_morphology_targets": [
+        -1.75394,
+        -1.596962,
+        0.330776,
+        -0.399874
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 0,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9711,
+      "artifact_score": 0.0307,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.373559,
+        -0.965574,
+        -2.10752,
+        0.414731,
+        -1.25605,
+        0.192622,
+        -0.851967,
+        0.57089
+      ],
+      "fnirs_targets": [
+        -0.298872,
+        -0.088965,
+        -0.452786,
+        -0.159701
+      ],
+      "ppg_morphology_targets": [
+        -0.233784,
+        -0.07648,
+        -0.623455,
+        -0.0245
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 1,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9157,
+      "artifact_score": 0.1451,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.62679,
+        -1.164573,
+        -1.455719,
+        1.055162,
+        -0.862666,
+        -0.165561,
+        -0.156548,
+        0.568454
+      ],
+      "fnirs_targets": [
+        -0.195195,
+        0.032835,
+        -0.639812,
+        -0.367733
+      ],
+      "ppg_morphology_targets": [
+        -0.268651,
+        -0.859297,
+        -0.000635,
+        -0.681631
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 2,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9633,
+      "artifact_score": 0.1116,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.253377,
+        -1.732036,
+        -1.89663,
+        1.279711,
+        -0.826185,
+        -0.257734,
+        -0.307009,
+        0.382828
+      ],
+      "fnirs_targets": [
+        -0.187455,
+        0.170663,
+        -0.882053,
+        -0.529161
+      ],
+      "ppg_morphology_targets": [
+        -0.271563,
+        -0.950127,
+        -0.331405,
+        -0.636389
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 3,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9808,
+      "artifact_score": 0.0928,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.010227,
+        -1.802448,
+        -2.278065,
+        1.538471,
+        -1.090892,
+        -0.194582,
+        -0.044546,
+        0.871824
+      ],
+      "fnirs_targets": [
+        -0.083491,
+        0.383509,
+        -0.920597,
+        -0.704023
+      ],
+      "ppg_morphology_targets": [
+        -0.542536,
+        -1.217695,
+        -0.283191,
+        -0.803415
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 4,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9983,
+      "artifact_score": 0.0621,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.017261,
+        -2.063615,
+        -2.36036,
+        1.950239,
+        -1.413177,
+        0.305471,
+        -0.325322,
+        1.190719
+      ],
+      "fnirs_targets": [
+        -0.131179,
+        0.453163,
+        -1.174765,
+        -0.872517
+      ],
+      "ppg_morphology_targets": [
+        -0.779807,
+        -1.486392,
+        -0.114609,
+        -1.058546
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 5,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.907,
+      "artifact_score": 0.1219,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.386704,
+        -2.477946,
+        -2.439966,
+        1.970588,
+        -1.608779,
+        -0.091006,
+        -0.404562,
+        0.716
+      ],
+      "fnirs_targets": [
+        -0.195692,
+        0.586493,
+        -1.436548,
+        -1.188054
+      ],
+      "ppg_morphology_targets": [
+        -0.836192,
+        -1.508275,
+        -0.352392,
+        -0.849187
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 6,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9086,
+      "artifact_score": 0.1592,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.568143,
+        -2.61156,
+        -3.098323,
+        2.160006,
+        -1.416522,
+        -0.144998,
+        -0.402926,
+        0.943082
+      ],
+      "fnirs_targets": [
+        -0.214868,
+        0.685515,
+        -1.698323,
+        -1.378734
+      ],
+      "ppg_morphology_targets": [
+        -0.828597,
+        -1.67318,
+        -0.481058,
+        -0.831739
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 7,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.6977,
+      "artifact_score": 0.3105,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.279654,
+        -2.6142,
+        -2.919061,
+        2.609765,
+        -1.931412,
+        0.341942,
+        -0.404509,
+        1.407353
+      ],
+      "fnirs_targets": [
+        -0.296537,
+        0.78351,
+        -1.825146,
+        -1.53733
+      ],
+      "ppg_morphology_targets": [
+        -1.036742,
+        -1.946005,
+        -0.06616,
+        -1.232523
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 8,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.955,
+      "artifact_score": 0.0613,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.142838,
+        -2.183391,
+        -2.886859,
+        2.687243,
+        -1.818566,
+        0.373598,
+        -0.374568,
+        1.368839
+      ],
+      "fnirs_targets": [
+        -0.352977,
+        0.875681,
+        -2.128894,
+        -1.882463
+      ],
+      "ppg_morphology_targets": [
+        -1.016253,
+        -1.871702,
+        -0.091507,
+        -0.891267
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 9,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.8839,
+      "artifact_score": 0.1387,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.417363,
+        -2.647277,
+        -3.090973,
+        2.613711,
+        -1.608716,
+        0.28379,
+        -0.256928,
+        1.132993
+      ],
+      "fnirs_targets": [
+        -0.347762,
+        0.948331,
+        -2.270208,
+        -2.017044
+      ],
+      "ppg_morphology_targets": [
+        -1.070752,
+        -1.937743,
+        -0.236011,
+        -0.831883
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 10,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.8372,
+      "artifact_score": 0.2355,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.801999,
+        -2.803404,
+        -3.489337,
+        2.626336,
+        -1.620544,
+        0.1647,
+        -0.413117,
+        1.12532
+      ],
+      "fnirs_targets": [
+        -0.288778,
+        0.982812,
+        -2.355407,
+        -2.105063
+      ],
+      "ppg_morphology_targets": [
+        -0.97783,
+        -2.068537,
+        -0.375356,
+        -0.779883
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 11,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.8317,
+      "artifact_score": 0.2179,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.695309,
+        -3.155166,
+        -4.530612,
+        2.410869,
+        -2.209705,
+        -0.086475,
+        -1.216368,
+        1.247889
+      ],
+      "fnirs_targets": [
+        -0.457158,
+        1.02934,
+        -2.547474,
+        -2.076552
+      ],
+      "ppg_morphology_targets": [
+        -0.923749,
+        -1.358972,
+        -1.031913,
+        -0.37392
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 12,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.8801,
+      "artifact_score": 0.1639,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.833443,
+        -3.330833,
+        -3.957619,
+        2.742995,
+        -1.885199,
+        -0.085209,
+        -0.477618,
+        1.192542
+      ],
+      "fnirs_targets": [
+        -0.425539,
+        1.195264,
+        -2.517733,
+        -2.188206
+      ],
+      "ppg_morphology_targets": [
+        -1.109831,
+        -2.312419,
+        -0.458503,
+        -0.792404
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 13,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9778,
+      "artifact_score": 0.0576,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.013689,
+        -3.425437,
+        -4.456683,
+        2.928484,
+        -1.462811,
+        -0.183128,
+        -0.428005,
+        1.068131
+      ],
+      "fnirs_targets": [
+        -0.350196,
+        1.235273,
+        -2.637122,
+        -2.290498
+      ],
+      "ppg_morphology_targets": [
+        -0.868832,
+        -2.199846,
+        -0.754815,
+        -0.763797
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 14,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.8925,
+      "artifact_score": 0.182,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.32176,
+        -3.984412,
+        -4.593587,
+        3.264966,
+        -1.519812,
+        -0.183865,
+        -0.448267,
+        1.013922
+      ],
+      "fnirs_targets": [
+        -0.270917,
+        1.335414,
+        -2.649268,
+        -2.423413
+      ],
+      "ppg_morphology_targets": [
+        -0.688895,
+        -2.231218,
+        -1.025046,
+        -0.734726
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 15,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9554,
+      "artifact_score": 0.1074,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.335557,
+        -4.297472,
+        -5.593236,
+        3.071471,
+        -1.444989,
+        -0.401333,
+        -1.446649,
+        0.67936
+      ],
+      "fnirs_targets": [
+        -0.33856,
+        1.39113,
+        -2.835973,
+        -2.433563
+      ],
+      "ppg_morphology_targets": [
+        -0.409719,
+        -1.376865,
+        -2.134733,
+        0.048512
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 16,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.788,
+      "artifact_score": 0.2323,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.890882,
+        -4.625024,
+        -5.595393,
+        2.953248,
+        -1.804196,
+        -0.699397,
+        -1.798638,
+        0.804109
+      ],
+      "fnirs_targets": [
+        -0.40245,
+        1.671253,
+        -2.867031,
+        -2.420997
+      ],
+      "ppg_morphology_targets": [
+        -0.406605,
+        -1.6901,
+        -2.206365,
+        0.132432
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 17,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9331,
+      "artifact_score": 0.1135,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.120095,
+        -4.737892,
+        -5.313829,
+        3.435331,
+        -1.254872,
+        -1.01463,
+        -0.77498,
+        0.6718
+      ],
+      "fnirs_targets": [
+        -0.317482,
+        1.831009,
+        -2.591188,
+        -2.446011
+      ],
+      "ppg_morphology_targets": [
+        -0.320505,
+        -2.449691,
+        -1.916934,
+        -0.575821
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 18,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9906,
+      "artifact_score": 0.0817,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.284043,
+        -5.127368,
+        -5.512377,
+        3.498165,
+        -1.721741,
+        -1.217143,
+        -0.935561,
+        0.624833
+      ],
+      "fnirs_targets": [
+        -0.273575,
+        1.965611,
+        -2.59609,
+        -2.608365
+      ],
+      "ppg_morphology_targets": [
+        -0.358536,
+        -2.555692,
+        -2.154499,
+        -0.553182
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 19,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.8656,
+      "artifact_score": 0.1916,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.17279,
+        -5.149569,
+        -6.312893,
+        3.032002,
+        -2.147691,
+        -0.897577,
+        -1.716307,
+        0.697284
+      ],
+      "fnirs_targets": [
+        -0.4458,
+        1.891577,
+        -2.874423,
+        -2.670529
+      ],
+      "ppg_morphology_targets": [
+        -0.258316,
+        -1.967901,
+        -2.540006,
+        0.018895
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 20,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.8048,
+      "artifact_score": 0.2125,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.412819,
+        -5.203223,
+        -6.411267,
+        2.895767,
+        -1.775508,
+        -1.279781,
+        -1.708383,
+        0.429216
+      ],
+      "fnirs_targets": [
+        -0.463612,
+        1.846613,
+        -2.944599,
+        -2.638547
+      ],
+      "ppg_morphology_targets": [
+        -0.315285,
+        -1.827403,
+        -2.709711,
+        0.128982
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 21,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.8996,
+      "artifact_score": 0.1584,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.340046,
+        -5.151721,
+        -5.608579,
+        3.477904,
+        -1.557038,
+        -1.186824,
+        -0.999818,
+        0.789617
+      ],
+      "fnirs_targets": [
+        -0.434129,
+        1.95645,
+        -2.733422,
+        -2.655231
+      ],
+      "ppg_morphology_targets": [
+        -0.383623,
+        -2.646231,
+        -2.174357,
+        -0.630749
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 22,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9085,
+      "artifact_score": 0.1628,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.534421,
+        -5.444754,
+        -5.698816,
+        3.637979,
+        -1.744253,
+        -1.228935,
+        -1.063335,
+        0.765113
+      ],
+      "fnirs_targets": [
+        -0.29161,
+        2.103532,
+        -2.758942,
+        -2.822351
+      ],
+      "ppg_morphology_targets": [
+        -0.357274,
+        -2.808248,
+        -2.16315,
+        -0.641054
+      ]
+    },
+    {
+      "subject_id": "sub-01",
+      "session_id": "sub-01-ses-02",
+      "window_index": 23,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9886,
+      "artifact_score": 0.0319,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.786331,
+        -5.81721,
+        -6.565945,
+        3.504164,
+        -2.912491,
+        -1.216965,
+        -2.204793,
+        1.091207
+      ],
+      "fnirs_targets": [
+        -0.488065,
+        2.067063,
+        -2.938115,
+        -2.812295
+      ],
+      "ppg_morphology_targets": [
+        -0.415888,
+        -2.399205,
+        -2.539011,
+        -0.337352
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 0,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.908,
+      "artifact_score": 0.1092,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.044351,
+        -0.170337,
+        0.657981,
+        0.363858,
+        -0.438653,
+        0.239321,
+        -0.465117,
+        0.056138
+      ],
+      "fnirs_targets": [
+        -0.013721,
+        0.004171,
+        -0.056383,
+        0.03049
+      ],
+      "ppg_morphology_targets": [
+        -0.071927,
+        -0.033748,
+        0.036093,
+        -0.173613
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 1,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9991,
+      "artifact_score": 0.0716,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.108533,
+        -0.155394,
+        0.227135,
+        0.400516,
+        -0.544075,
+        0.136218,
+        -0.234428,
+        0.021113
+      ],
+      "fnirs_targets": [
+        0.130097,
+        0.143908,
+        -0.029621,
+        0.136262
+      ],
+      "ppg_morphology_targets": [
+        0.022835,
+        -0.100731,
+        0.144953,
+        -0.156539
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 2,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9405,
+      "artifact_score": 0.127,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.345618,
+        -0.6199,
+        -0.308589,
+        0.717529,
+        -0.386953,
+        0.040258,
+        -0.269189,
+        0.171711
+      ],
+      "fnirs_targets": [
+        0.050614,
+        0.16485,
+        -0.136303,
+        0.095908
+      ],
+      "ppg_morphology_targets": [
+        -0.110712,
+        -0.253002,
+        -0.16673,
+        -0.248174
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 3,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9565,
+      "artifact_score": 0.06,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.980057,
+        -1.684473,
+        -2.248603,
+        0.64084,
+        -0.254459,
+        -0.548493,
+        -1.228578,
+        -0.135901
+      ],
+      "fnirs_targets": [
+        -0.088735,
+        -0.006369,
+        -0.373739,
+        0.036288
+      ],
+      "ppg_morphology_targets": [
+        0.3058,
+        0.352721,
+        -1.515042,
+        0.244038
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 4,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9276,
+      "artifact_score": 0.1268,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.910078,
+        -1.214564,
+        -1.837276,
+        0.703959,
+        0.247921,
+        -0.490302,
+        0.015141,
+        -0.311249
+      ],
+      "fnirs_targets": [
+        -0.065058,
+        0.324979,
+        -0.261489,
+        -0.185187
+      ],
+      "ppg_morphology_targets": [
+        0.418489,
+        -0.365164,
+        -0.830761,
+        -0.179466
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 5,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9104,
+      "artifact_score": 0.1676,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.625353,
+        -1.161211,
+        -1.51228,
+        0.836109,
+        0.017346,
+        -0.14121,
+        0.108505,
+        -0.064417
+      ],
+      "fnirs_targets": [
+        -0.031061,
+        0.386424,
+        -0.228354,
+        -0.324802
+      ],
+      "ppg_morphology_targets": [
+        0.314882,
+        -0.589344,
+        -0.803718,
+        -0.235535
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 6,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.8881,
+      "artifact_score": 0.1165,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.057655,
+        -1.852117,
+        -3.548755,
+        0.79212,
+        -0.043326,
+        -0.528988,
+        -0.853968,
+        -0.216383
+      ],
+      "fnirs_targets": [
+        -0.211742,
+        0.346571,
+        -0.491707,
+        -0.411297
+      ],
+      "ppg_morphology_targets": [
+        0.586853,
+        -0.048848,
+        -1.848555,
+        0.264878
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 7,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.8991,
+      "artifact_score": 0.1459,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.172191,
+        -1.921297,
+        -2.975333,
+        1.159174,
+        0.695548,
+        -0.651532,
+        -0.099836,
+        -0.30842
+      ],
+      "fnirs_targets": [
+        -0.137457,
+        0.606261,
+        -0.483095,
+        -0.584422
+      ],
+      "ppg_morphology_targets": [
+        0.660541,
+        -0.70592,
+        -1.576785,
+        -0.128944
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 8,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9968,
+      "artifact_score": 0.0416,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.989585,
+        -1.680044,
+        -3.123388,
+        0.923145,
+        0.773206,
+        -0.542807,
+        0.269255,
+        -0.022992
+      ],
+      "fnirs_targets": [
+        -0.090965,
+        0.835027,
+        -0.463407,
+        -0.687765
+      ],
+      "ppg_morphology_targets": [
+        0.67468,
+        -0.875088,
+        -1.344804,
+        0.035002
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 9,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9316,
+      "artifact_score": 0.1305,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.678441,
+        -1.286142,
+        -3.200201,
+        0.670899,
+        0.628773,
+        -0.590465,
+        0.550718,
+        -0.042959
+      ],
+      "fnirs_targets": [
+        -0.193054,
+        0.848772,
+        -0.456927,
+        -0.802558
+      ],
+      "ppg_morphology_targets": [
+        0.644195,
+        -0.964577,
+        -1.182958,
+        0.150405
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 10,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9104,
+      "artifact_score": 0.0943,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.316483,
+        -2.121989,
+        -3.869187,
+        0.691867,
+        0.832112,
+        -1.109046,
+        0.458594,
+        -0.241013
+      ],
+      "fnirs_targets": [
+        -0.264249,
+        0.730227,
+        -0.448106,
+        -1.019836
+      ],
+      "ppg_morphology_targets": [
+        0.799712,
+        -1.196144,
+        -1.56735,
+        -0.034425
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 11,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.8844,
+      "artifact_score": 0.1901,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.534592,
+        -2.286213,
+        -4.335516,
+        1.047422,
+        0.840068,
+        -1.190293,
+        0.432227,
+        -0.222076
+      ],
+      "fnirs_targets": [
+        -0.340586,
+        0.702269,
+        -0.398322,
+        -1.150992
+      ],
+      "ppg_morphology_targets": [
+        0.91019,
+        -1.234664,
+        -1.814299,
+        -0.227356
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 12,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.8832,
+      "artifact_score": 0.1386,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.461867,
+        -2.163708,
+        -4.250268,
+        0.504431,
+        0.747814,
+        -1.381229,
+        0.385744,
+        -0.215579
+      ],
+      "fnirs_targets": [
+        -0.336033,
+        0.825256,
+        -0.483012,
+        -1.317818
+      ],
+      "ppg_morphology_targets": [
+        0.702001,
+        -1.372032,
+        -1.645982,
+        0.115808
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 13,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.8891,
+      "artifact_score": 0.1741,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.771915,
+        -2.376282,
+        -4.289987,
+        0.532526,
+        0.432538,
+        -1.357285,
+        0.41327,
+        -0.160303
+      ],
+      "fnirs_targets": [
+        -0.502432,
+        0.823371,
+        -0.454453,
+        -1.468055
+      ],
+      "ppg_morphology_targets": [
+        0.77319,
+        -1.505577,
+        -1.527598,
+        -0.226001
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 14,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9949,
+      "artifact_score": 0.0389,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.82696,
+        -2.465681,
+        -4.306388,
+        0.815398,
+        0.320587,
+        -1.306975,
+        0.435041,
+        -0.090925
+      ],
+      "fnirs_targets": [
+        -0.45465,
+        0.856588,
+        -0.427202,
+        -1.655083
+      ],
+      "ppg_morphology_targets": [
+        0.721015,
+        -1.512996,
+        -1.627992,
+        -0.218
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 15,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.8968,
+      "artifact_score": 0.1202,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.940119,
+        -2.695782,
+        -4.454154,
+        0.956209,
+        0.903928,
+        -1.665393,
+        0.208521,
+        -0.413216
+      ],
+      "fnirs_targets": [
+        -0.493066,
+        0.823047,
+        -0.440052,
+        -1.614385
+      ],
+      "ppg_morphology_targets": [
+        0.921344,
+        -1.481015,
+        -2.002091,
+        -0.001747
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 16,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9662,
+      "artifact_score": 0.1084,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.034261,
+        -3.039426,
+        -5.565752,
+        0.513722,
+        0.412483,
+        -1.606352,
+        -0.537156,
+        -0.24027
+      ],
+      "fnirs_targets": [
+        -0.591642,
+        0.84607,
+        -0.583925,
+        -1.686604
+      ],
+      "ppg_morphology_targets": [
+        1.192887,
+        -0.947991,
+        -2.669785,
+        0.51479
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 17,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.891,
+      "artifact_score": 0.1606,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.087755,
+        -2.949983,
+        -4.746345,
+        0.934929,
+        0.445293,
+        -1.588521,
+        0.179054,
+        -0.154204
+      ],
+      "fnirs_targets": [
+        -0.57818,
+        1.033461,
+        -0.424978,
+        -1.781087
+      ],
+      "ppg_morphology_targets": [
+        0.926109,
+        -1.762752,
+        -2.045636,
+        -0.158923
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 18,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9352,
+      "artifact_score": 0.1365,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.00513,
+        -3.011643,
+        -5.009004,
+        1.164161,
+        0.664798,
+        -1.433511,
+        0.393061,
+        -0.207966
+      ],
+      "fnirs_targets": [
+        -0.665544,
+        0.979376,
+        -0.446211,
+        -1.908388
+      ],
+      "ppg_morphology_targets": [
+        0.930511,
+        -1.800272,
+        -2.034847,
+        -0.3631
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 19,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9224,
+      "artifact_score": 0.1414,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.129933,
+        -3.296774,
+        -4.965322,
+        1.365801,
+        0.332205,
+        -1.371878,
+        0.008017,
+        -0.074086
+      ],
+      "fnirs_targets": [
+        -0.661029,
+        1.056604,
+        -0.469691,
+        -1.962669
+      ],
+      "ppg_morphology_targets": [
+        0.876014,
+        -1.848498,
+        -2.21283,
+        -0.309632
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 20,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9342,
+      "artifact_score": 0.0812,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.980997,
+        -2.876417,
+        -4.303091,
+        1.270971,
+        0.555632,
+        -1.432009,
+        0.104379,
+        -0.253973
+      ],
+      "fnirs_targets": [
+        -0.551024,
+        1.091124,
+        -0.594084,
+        -1.94641
+      ],
+      "ppg_morphology_targets": [
+        1.027548,
+        -1.690494,
+        -2.09984,
+        -0.092161
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 21,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9855,
+      "artifact_score": 0.0534,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.75882,
+        -2.557474,
+        -4.29985,
+        1.328562,
+        0.451468,
+        -1.167359,
+        0.319731,
+        -0.151444
+      ],
+      "fnirs_targets": [
+        -0.521595,
+        1.2041,
+        -0.540735,
+        -1.903933
+      ],
+      "ppg_morphology_targets": [
+        0.919387,
+        -1.736109,
+        -1.810043,
+        0.010326
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 22,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9515,
+      "artifact_score": 0.1252,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.447281,
+        -3.462893,
+        -4.458927,
+        1.046184,
+        -0.084609,
+        -1.734753,
+        -0.120981,
+        -0.080821
+      ],
+      "fnirs_targets": [
+        -0.437401,
+        1.17809,
+        -0.586204,
+        -1.931901
+      ],
+      "ppg_morphology_targets": [
+        0.925541,
+        -1.916925,
+        -1.928379,
+        -0.167327
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-01",
+      "window_index": 23,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.8324,
+      "artifact_score": 0.2464,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.662629,
+        -3.56947,
+        -4.304218,
+        1.212112,
+        0.263594,
+        -1.856513,
+        -0.306173,
+        -0.310526
+      ],
+      "fnirs_targets": [
+        -0.460906,
+        1.119719,
+        -0.564319,
+        -1.905584
+      ],
+      "ppg_morphology_targets": [
+        0.893915,
+        -1.593582,
+        -2.218962,
+        -0.118155
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 0,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.7921,
+      "artifact_score": 0.2582,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.446714,
+        -0.808133,
+        -0.533528,
+        0.33041,
+        -0.543592,
+        -0.106977,
+        -1.387815,
+        -0.134578
+      ],
+      "fnirs_targets": [
+        -0.051118,
+        -0.076743,
+        0.016853,
+        0.099706
+      ],
+      "ppg_morphology_targets": [
+        0.413875,
+        0.685379,
+        -1.092511,
+        0.404598
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 1,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9941,
+      "artifact_score": 0.0782,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.299099,
+        -0.610911,
+        0.407545,
+        1.13059,
+        0.00441,
+        0.201199,
+        -0.593398,
+        -0.114746
+      ],
+      "fnirs_targets": [
+        0.063283,
+        0.104573,
+        0.104413,
+        0.154192
+      ],
+      "ppg_morphology_targets": [
+        0.437623,
+        0.101041,
+        -0.539994,
+        -0.220729
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 2,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.7834,
+      "artifact_score": 0.2438,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.799363,
+        -1.478051,
+        -0.953951,
+        1.240873,
+        -0.515785,
+        0.10273,
+        -1.419319,
+        -0.284494
+      ],
+      "fnirs_targets": [
+        0.112927,
+        0.18703,
+        -0.196852,
+        0.372739
+      ],
+      "ppg_morphology_targets": [
+        0.616343,
+        0.859578,
+        -1.700608,
+        0.508011
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 3,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.841,
+      "artifact_score": 0.2156,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.085629,
+        -2.056728,
+        -1.09744,
+        1.325067,
+        -0.810396,
+        -0.054773,
+        -1.794053,
+        -0.110858
+      ],
+      "fnirs_targets": [
+        0.110974,
+        0.426196,
+        -0.304977,
+        0.455898
+      ],
+      "ppg_morphology_targets": [
+        0.514519,
+        0.564185,
+        -1.748549,
+        0.307584
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 4,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9402,
+      "artifact_score": 0.1074,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.942712,
+        -1.426299,
+        0.417509,
+        1.938379,
+        -0.59471,
+        0.420833,
+        -1.054206,
+        -0.148153
+      ],
+      "fnirs_targets": [
+        0.399026,
+        0.712216,
+        -0.378251,
+        0.341977
+      ],
+      "ppg_morphology_targets": [
+        0.262052,
+        0.111983,
+        -0.932095,
+        -0.109688
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 5,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9593,
+      "artifact_score": 0.0586,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.337236,
+        -2.339084,
+        -1.110541,
+        1.804652,
+        -0.934561,
+        -0.110252,
+        -2.25551,
+        -0.298475
+      ],
+      "fnirs_targets": [
+        0.385787,
+        0.858523,
+        -0.714977,
+        0.31501
+      ],
+      "ppg_morphology_targets": [
+        0.536571,
+        0.698226,
+        -2.054423,
+        0.807797
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 6,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9118,
+      "artifact_score": 0.0991,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.404707,
+        -2.283184,
+        -0.085409,
+        2.232246,
+        -0.649396,
+        -0.217388,
+        -1.61636,
+        -0.323467
+      ],
+      "fnirs_targets": [
+        0.657127,
+        1.177368,
+        -0.530805,
+        0.307837
+      ],
+      "ppg_morphology_targets": [
+        0.573861,
+        0.106351,
+        -1.602496,
+        0.199512
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 7,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9745,
+      "artifact_score": 0.0985,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.19775,
+        -1.830815,
+        0.219064,
+        2.18697,
+        -0.852066,
+        0.035085,
+        -1.238005,
+        -0.083261
+      ],
+      "fnirs_targets": [
+        0.756354,
+        1.421699,
+        -0.531353,
+        0.275011
+      ],
+      "ppg_morphology_targets": [
+        0.445601,
+        -0.126431,
+        -1.157941,
+        0.348965
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 8,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.8136,
+      "artifact_score": 0.1892,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.992897,
+        -1.710799,
+        0.453641,
+        1.906052,
+        -1.42942,
+        0.278937,
+        -1.324132,
+        0.267253
+      ],
+      "fnirs_targets": [
+        0.764452,
+        1.399615,
+        -0.519752,
+        0.327819
+      ],
+      "ppg_morphology_targets": [
+        0.186277,
+        -0.325821,
+        -0.872975,
+        0.09366
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 9,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9689,
+      "artifact_score": 0.0429,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.979185,
+        -1.820164,
+        0.680601,
+        2.508273,
+        -1.43604,
+        0.364845,
+        -1.567939,
+        0.306426
+      ],
+      "fnirs_targets": [
+        0.76354,
+        1.253563,
+        -0.661298,
+        0.153198
+      ],
+      "ppg_morphology_targets": [
+        -0.079611,
+        -0.212732,
+        -0.792829,
+        -0.136021
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 10,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.8824,
+      "artifact_score": 0.1645,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.800199,
+        -2.91183,
+        -0.681633,
+        2.25623,
+        -2.290496,
+        -0.103338,
+        -2.884231,
+        0.114118
+      ],
+      "fnirs_targets": [
+        0.655705,
+        1.116523,
+        -1.099155,
+        0.194155
+      ],
+      "ppg_morphology_targets": [
+        -0.017393,
+        0.489205,
+        -1.726162,
+        0.486112
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 11,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.7,
+      "artifact_score": 0.3591,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "high"
+      },
+      "eeg_features": [
+        -1.503472,
+        -2.859994,
+        -0.35795,
+        2.577393,
+        -1.884661,
+        0.211239,
+        -2.865294,
+        0.195641
+      ],
+      "fnirs_targets": [
+        0.648357,
+        1.172588,
+        -1.206026,
+        0.168979
+      ],
+      "ppg_morphology_targets": [
+        0.135823,
+        0.641779,
+        -1.846806,
+        0.595827
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 12,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.8479,
+      "artifact_score": 0.1855,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.637112,
+        -3.035213,
+        -0.731296,
+        2.429019,
+        -2.124562,
+        -0.041003,
+        -2.942237,
+        0.195778
+      ],
+      "fnirs_targets": [
+        0.648429,
+        1.179601,
+        -1.185195,
+        0.344735
+      ],
+      "ppg_morphology_targets": [
+        0.11743,
+        0.515667,
+        -1.837249,
+        0.412111
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 13,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9277,
+      "artifact_score": 0.0793,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.858918,
+        -3.077752,
+        0.250974,
+        2.775598,
+        -1.773063,
+        -0.11331,
+        -2.114694,
+        0.127574
+      ],
+      "fnirs_targets": [
+        0.839819,
+        1.406286,
+        -1.143692,
+        0.236209
+      ],
+      "ppg_morphology_targets": [
+        -0.099922,
+        -0.250097,
+        -1.153802,
+        -0.100865
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 14,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9076,
+      "artifact_score": 0.1682,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.7786,
+        -2.905295,
+        0.025059,
+        3.238736,
+        -1.963902,
+        0.361034,
+        -2.22644,
+        0.46496
+      ],
+      "fnirs_targets": [
+        0.880109,
+        1.454315,
+        -1.105078,
+        0.147889
+      ],
+      "ppg_morphology_targets": [
+        -0.281794,
+        -0.434496,
+        -1.145414,
+        -0.253347
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 15,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.8722,
+      "artifact_score": 0.1366,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.320005,
+        -2.549209,
+        0.531301,
+        3.290582,
+        -2.419421,
+        0.620611,
+        -1.961062,
+        0.491695
+      ],
+      "fnirs_targets": [
+        0.786321,
+        1.545752,
+        -1.256977,
+        0.028197
+      ],
+      "ppg_morphology_targets": [
+        -0.453173,
+        -0.551846,
+        -0.551601,
+        -0.213937
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 16,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9961,
+      "artifact_score": 0.0282,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.926824,
+        -1.952661,
+        1.095875,
+        3.506616,
+        -2.177272,
+        1.282661,
+        -1.861795,
+        0.855984
+      ],
+      "fnirs_targets": [
+        0.790656,
+        1.51628,
+        -1.388539,
+        -0.024811
+      ],
+      "ppg_morphology_targets": [
+        -0.488485,
+        -0.295122,
+        -0.447941,
+        -0.253586
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 17,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.8518,
+      "artifact_score": 0.2127,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.04178,
+        -2.271833,
+        1.282484,
+        3.316086,
+        -2.362759,
+        1.169197,
+        -2.14253,
+        0.628953
+      ],
+      "fnirs_targets": [
+        0.919195,
+        1.582689,
+        -1.510378,
+        0.068463
+      ],
+      "ppg_morphology_targets": [
+        -0.562148,
+        -0.179494,
+        -0.45178,
+        -0.045858
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 18,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.7332,
+      "artifact_score": 0.3352,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.974538,
+        -3.287056,
+        -0.019472,
+        3.148876,
+        -2.635016,
+        0.27408,
+        -3.410878,
+        0.387785
+      ],
+      "fnirs_targets": [
+        0.850272,
+        1.48902,
+        -1.759107,
+        0.144728
+      ],
+      "ppg_morphology_targets": [
+        -0.247278,
+        0.510427,
+        -1.726218,
+        0.506191
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 19,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.7049,
+      "artifact_score": 0.3183,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.630372,
+        -2.718548,
+        0.925447,
+        3.201645,
+        -2.561489,
+        0.327054,
+        -2.283052,
+        0.560931
+      ],
+      "fnirs_targets": [
+        1.03477,
+        1.717106,
+        -1.62834,
+        0.207456
+      ],
+      "ppg_morphology_targets": [
+        -0.596302,
+        -0.258978,
+        -0.685171,
+        0.091269
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 20,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9098,
+      "artifact_score": 0.1571,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.725261,
+        -2.771259,
+        1.179062,
+        2.963006,
+        -2.778015,
+        0.427372,
+        -2.459214,
+        0.671587
+      ],
+      "fnirs_targets": [
+        1.096528,
+        1.704277,
+        -1.65211,
+        0.184509
+      ],
+      "ppg_morphology_targets": [
+        -0.668104,
+        -0.322266,
+        -0.58262,
+        0.148797
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 21,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.7632,
+      "artifact_score": 0.2466,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.992927,
+        -2.999018,
+        0.95664,
+        3.381775,
+        -2.748511,
+        0.371341,
+        -2.450077,
+        0.642078
+      ],
+      "fnirs_targets": [
+        1.102853,
+        1.632461,
+        -1.556553,
+        0.106705
+      ],
+      "ppg_morphology_targets": [
+        -0.597395,
+        -0.29797,
+        -0.68137,
+        -0.042225
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 22,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9908,
+      "artifact_score": 0.0665,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.858289,
+        -3.057021,
+        1.073379,
+        3.527965,
+        -2.818893,
+        0.597592,
+        -2.515272,
+        0.627672
+      ],
+      "fnirs_targets": [
+        1.074734,
+        1.648462,
+        -1.654397,
+        0.073998
+      ],
+      "ppg_morphology_targets": [
+        -0.742798,
+        -0.344955,
+        -0.587549,
+        -0.124541
+      ]
+    },
+    {
+      "subject_id": "sub-02",
+      "session_id": "sub-02-ses-02",
+      "window_index": 23,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.946,
+      "artifact_score": 0.127,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "young",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.526583,
+        -2.435198,
+        1.560485,
+        3.440416,
+        -2.582696,
+        0.885916,
+        -2.545777,
+        0.607205
+      ],
+      "fnirs_targets": [
+        1.118288,
+        1.63792,
+        -1.803103,
+        0.069833
+      ],
+      "ppg_morphology_targets": [
+        -0.663503,
+        -0.162095,
+        -0.349006,
+        0.056782
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 0,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.8416,
+      "artifact_score": 0.1899,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.774977,
+        0.908836,
+        0.501565,
+        -0.240643,
+        -0.392315,
+        0.616726,
+        0.579345,
+        0.618827
+      ],
+      "fnirs_targets": [
+        0.008713,
+        -0.043313,
+        -0.135115,
+        0.0405
+      ],
+      "ppg_morphology_targets": [
+        -0.352517,
+        -0.299124,
+        0.977421,
+        -0.188608
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 1,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9493,
+      "artifact_score": 0.1151,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.663236,
+        0.724123,
+        0.148374,
+        -0.878775,
+        -0.752841,
+        0.235478,
+        0.398441,
+        0.570885
+      ],
+      "fnirs_targets": [
+        -0.095998,
+        -0.253684,
+        -0.319539,
+        -0.158658
+      ],
+      "ppg_morphology_targets": [
+        -0.601787,
+        -0.361335,
+        1.223975,
+        -0.050003
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 2,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9503,
+      "artifact_score": 0.0948,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.692626,
+        1.107419,
+        -0.205266,
+        -0.949303,
+        -0.895088,
+        0.316544,
+        0.775102,
+        0.969231
+      ],
+      "fnirs_targets": [
+        -0.304242,
+        -0.518056,
+        -0.341058,
+        -0.21829
+      ],
+      "ppg_morphology_targets": [
+        -1.001552,
+        -0.627636,
+        1.498668,
+        -0.409123
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 3,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9307,
+      "artifact_score": 0.1068,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.306138,
+        0.753978,
+        -0.784073,
+        -1.537197,
+        -1.091439,
+        -0.218131,
+        0.718935,
+        0.889133
+      ],
+      "fnirs_targets": [
+        -0.47246,
+        -0.752517,
+        -0.439357,
+        -0.433902
+      ],
+      "ppg_morphology_targets": [
+        -1.004927,
+        -0.937449,
+        1.57547,
+        -0.547835
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 4,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9992,
+      "artifact_score": 0.0119,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.695627,
+        1.114926,
+        -0.999031,
+        -1.602726,
+        -0.896942,
+        0.030673,
+        1.004126,
+        1.013242
+      ],
+      "fnirs_targets": [
+        -0.714128,
+        -0.920143,
+        -0.40318,
+        -0.6949
+      ],
+      "ppg_morphology_targets": [
+        -1.120169,
+        -1.115584,
+        1.838803,
+        -0.776777
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 5,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9226,
+      "artifact_score": 0.0807,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.373863,
+        0.645614,
+        -2.595235,
+        -2.345826,
+        -1.515073,
+        -0.600658,
+        0.251503,
+        1.006198
+      ],
+      "fnirs_targets": [
+        -1.101421,
+        -1.191271,
+        -0.647321,
+        -0.889281
+      ],
+      "ppg_morphology_targets": [
+        -1.041671,
+        -0.750534,
+        1.202916,
+        -0.252365
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 6,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.77,
+      "artifact_score": 0.2984,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.689629,
+        1.255545,
+        -1.928879,
+        -2.314406,
+        -0.788455,
+        -0.448047,
+        1.708211,
+        1.102456
+      ],
+      "fnirs_targets": [
+        -1.288081,
+        -1.339213,
+        -0.544225,
+        -1.178189
+      ],
+      "ppg_morphology_targets": [
+        -1.218797,
+        -1.486742,
+        2.072536,
+        -0.823964
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 7,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9214,
+      "artifact_score": 0.1513,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.415746,
+        1.136081,
+        -2.22335,
+        -2.585786,
+        -0.560907,
+        -0.675186,
+        1.56838,
+        1.009729
+      ],
+      "fnirs_targets": [
+        -1.461724,
+        -1.61821,
+        -0.544737,
+        -1.444911
+      ],
+      "ppg_morphology_targets": [
+        -1.273684,
+        -1.545827,
+        2.073926,
+        -1.161463
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 8,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9383,
+      "artifact_score": 0.1082,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.834901,
+        1.709926,
+        -2.696826,
+        -3.283291,
+        -0.587819,
+        -1.061835,
+        2.089354,
+        1.032159
+      ],
+      "fnirs_targets": [
+        -1.659538,
+        -1.707527,
+        -0.526072,
+        -1.657492
+      ],
+      "ppg_morphology_targets": [
+        -1.306412,
+        -1.706758,
+        2.303755,
+        -0.910015
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 9,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9868,
+      "artifact_score": 0.0196,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        1.096468,
+        2.188026,
+        -2.243358,
+        -3.447031,
+        -0.550181,
+        -0.68003,
+        2.323009,
+        1.294794
+      ],
+      "fnirs_targets": [
+        -1.88091,
+        -1.975943,
+        -0.405867,
+        -1.915037
+      ],
+      "ppg_morphology_targets": [
+        -1.526348,
+        -1.940042,
+        2.712038,
+        -1.209336
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 10,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9854,
+      "artifact_score": 0.0621,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.778008,
+        1.656211,
+        -2.919747,
+        -3.270557,
+        -0.350052,
+        -1.048576,
+        2.521728,
+        1.051608
+      ],
+      "fnirs_targets": [
+        -2.038329,
+        -2.136765,
+        -0.50632,
+        -2.088252
+      ],
+      "ppg_morphology_targets": [
+        -1.433824,
+        -1.972733,
+        2.581656,
+        -1.220424
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 11,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9384,
+      "artifact_score": 0.0651,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        1.047751,
+        1.804019,
+        -3.558877,
+        -3.542344,
+        -0.154541,
+        -0.840844,
+        2.691179,
+        1.146777
+      ],
+      "fnirs_targets": [
+        -2.279823,
+        -2.304063,
+        -0.555363,
+        -2.251307
+      ],
+      "ppg_morphology_targets": [
+        -1.555167,
+        -2.208304,
+        2.623548,
+        -1.295277
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 12,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.849,
+      "artifact_score": 0.1941,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        1.134979,
+        2.023218,
+        -3.626566,
+        -3.651462,
+        -0.365038,
+        -0.923463,
+        2.863306,
+        1.256185
+      ],
+      "fnirs_targets": [
+        -2.383183,
+        -2.409364,
+        -0.532329,
+        -2.439212
+      ],
+      "ppg_morphology_targets": [
+        -1.686102,
+        -2.348982,
+        2.775292,
+        -1.505278
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 13,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9694,
+      "artifact_score": 0.0569,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.772437,
+        2.031657,
+        -3.640018,
+        -4.167704,
+        -0.657848,
+        -1.408186,
+        2.879862,
+        1.353547
+      ],
+      "fnirs_targets": [
+        -2.62346,
+        -2.616986,
+        -0.511891,
+        -2.558583
+      ],
+      "ppg_morphology_targets": [
+        -1.695711,
+        -2.635262,
+        3.037102,
+        -1.587206
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 14,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9064,
+      "artifact_score": 0.1391,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.561443,
+        1.842615,
+        -4.03687,
+        -4.233272,
+        -0.233803,
+        -1.601051,
+        2.806849,
+        1.06273
+      ],
+      "fnirs_targets": [
+        -2.765825,
+        -2.815029,
+        -0.470876,
+        -2.760334
+      ],
+      "ppg_morphology_targets": [
+        -1.609019,
+        -2.43613,
+        2.729362,
+        -1.570942
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 15,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9905,
+      "artifact_score": 0.0376,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.061121,
+        1.01161,
+        -4.519756,
+        -4.161236,
+        -1.057069,
+        -2.192149,
+        2.456075,
+        1.195352
+      ],
+      "fnirs_targets": [
+        -2.794445,
+        -2.802011,
+        -0.475114,
+        -2.888726
+      ],
+      "ppg_morphology_targets": [
+        -1.817126,
+        -2.849442,
+        2.540403,
+        -1.948976
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 16,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9306,
+      "artifact_score": 0.1135,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.267665,
+        1.352623,
+        -4.107347,
+        -4.340652,
+        -1.069545,
+        -1.91305,
+        2.617331,
+        1.364285
+      ],
+      "fnirs_targets": [
+        -2.932851,
+        -2.903273,
+        -0.531736,
+        -3.076841
+      ],
+      "ppg_morphology_targets": [
+        -1.965397,
+        -2.900945,
+        3.014867,
+        -1.888306
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 17,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.8139,
+      "artifact_score": 0.2036,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.521875,
+        1.803181,
+        -4.053468,
+        -4.367041,
+        -0.533971,
+        -1.75345,
+        2.84164,
+        1.271951
+      ],
+      "fnirs_targets": [
+        -3.103837,
+        -3.119484,
+        -0.516771,
+        -3.216892
+      ],
+      "ppg_morphology_targets": [
+        -1.855785,
+        -2.789621,
+        3.016771,
+        -1.901256
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 18,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9993,
+      "artifact_score": 0.0332,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.333452,
+        1.529246,
+        -4.561406,
+        -4.31608,
+        -0.495278,
+        -1.837755,
+        2.973611,
+        1.255547
+      ],
+      "fnirs_targets": [
+        -3.16065,
+        -3.133738,
+        -0.56075,
+        -3.281928
+      ],
+      "ppg_morphology_targets": [
+        -1.996819,
+        -3.102826,
+        2.890961,
+        -2.003237
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 19,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9613,
+      "artifact_score": 0.0502,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.307104,
+        1.328672,
+        -4.588813,
+        -4.271391,
+        -0.777914,
+        -1.816275,
+        2.925758,
+        1.562305
+      ],
+      "fnirs_targets": [
+        -3.238374,
+        -3.259412,
+        -0.610896,
+        -3.338517
+      ],
+      "ppg_morphology_targets": [
+        -2.020104,
+        -3.04168,
+        2.930618,
+        -2.168645
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 20,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9405,
+      "artifact_score": 0.0602,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.116537,
+        1.364316,
+        -4.718437,
+        -4.695108,
+        -0.995295,
+        -1.988904,
+        2.907892,
+        1.53779
+      ],
+      "fnirs_targets": [
+        -3.279326,
+        -3.285291,
+        -0.658057,
+        -3.356256
+      ],
+      "ppg_morphology_targets": [
+        -2.074727,
+        -3.149463,
+        3.12047,
+        -2.077403
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 21,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9662,
+      "artifact_score": 0.0361,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.928316,
+        2.139391,
+        -4.367098,
+        -4.915309,
+        -0.916312,
+        -1.75404,
+        3.305778,
+        1.542501
+      ],
+      "fnirs_targets": [
+        -3.396634,
+        -3.264876,
+        -0.522152,
+        -3.520977
+      ],
+      "ppg_morphology_targets": [
+        -2.177531,
+        -3.256857,
+        3.613523,
+        -2.127699
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 22,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9404,
+      "artifact_score": 0.0798,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.03114,
+        1.446647,
+        -5.086715,
+        -4.8759,
+        -1.427761,
+        -2.341068,
+        2.982967,
+        1.669305
+      ],
+      "fnirs_targets": [
+        -3.570422,
+        -3.47703,
+        -0.570047,
+        -3.647727
+      ],
+      "ppg_morphology_targets": [
+        -2.405159,
+        -3.624906,
+        3.518711,
+        -2.576693
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-01",
+      "window_index": 23,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9549,
+      "artifact_score": 0.0997,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.191778,
+        1.26808,
+        -4.894029,
+        -4.708189,
+        -1.305139,
+        -2.303912,
+        2.886853,
+        1.687924
+      ],
+      "fnirs_targets": [
+        -3.789032,
+        -3.555422,
+        -0.586386,
+        -3.837752
+      ],
+      "ppg_morphology_targets": [
+        -2.339875,
+        -3.608354,
+        3.335155,
+        -2.520682
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 0,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9141,
+      "artifact_score": 0.1493,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.715794,
+        -0.767419,
+        -0.70594,
+        -0.248999,
+        -0.843664,
+        -0.721493,
+        -0.219471,
+        0.215376
+      ],
+      "fnirs_targets": [
+        0.008304,
+        0.063398,
+        -0.076492,
+        -0.0454
+      ],
+      "ppg_morphology_targets": [
+        -0.013276,
+        -0.629247,
+        0.149044,
+        -0.358418
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 1,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9273,
+      "artifact_score": 0.1124,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.231135,
+        -1.36368,
+        -1.421378,
+        -0.336281,
+        -0.905515,
+        -1.272195,
+        -0.305009,
+        0.068522
+      ],
+      "fnirs_targets": [
+        -0.15252,
+        -0.052397,
+        -0.145183,
+        -0.28448
+      ],
+      "ppg_morphology_targets": [
+        -0.074851,
+        -0.799825,
+        -0.296362,
+        -0.2939
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 2,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.7572,
+      "artifact_score": 0.3002,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.542481,
+        -1.739689,
+        -2.020785,
+        -0.293961,
+        -0.678124,
+        -1.501892,
+        -0.267403,
+        0.020717
+      ],
+      "fnirs_targets": [
+        -0.360391,
+        -0.086002,
+        -0.086755,
+        -0.534156
+      ],
+      "ppg_morphology_targets": [
+        0.068434,
+        -1.047142,
+        -0.600303,
+        -0.467946
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 3,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.7435,
+      "artifact_score": 0.2605,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.539582,
+        -1.617801,
+        -2.012926,
+        -0.51433,
+        -0.461704,
+        -1.573955,
+        -0.09074,
+        0.054282
+      ],
+      "fnirs_targets": [
+        -0.489039,
+        -0.077913,
+        -0.147366,
+        -0.774212
+      ],
+      "ppg_morphology_targets": [
+        0.124132,
+        -1.012585,
+        -0.350751,
+        -0.31594
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 4,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.926,
+      "artifact_score": 0.1174,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.63534,
+        -1.567171,
+        -2.433095,
+        -1.252357,
+        -1.154205,
+        -1.95168,
+        0.09972,
+        0.201577
+      ],
+      "fnirs_targets": [
+        -0.657201,
+        -0.159749,
+        -0.162005,
+        -0.893771
+      ],
+      "ppg_morphology_targets": [
+        -0.148917,
+        -1.382053,
+        -0.247506,
+        -0.562243
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 5,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.8262,
+      "artifact_score": 0.2453,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.213549,
+        -2.080735,
+        -2.987224,
+        -1.475492,
+        -0.723588,
+        -2.534911,
+        0.106108,
+        -0.281609
+      ],
+      "fnirs_targets": [
+        -0.85172,
+        -0.359041,
+        -0.182083,
+        -1.163982
+      ],
+      "ppg_morphology_targets": [
+        0.122142,
+        -1.394819,
+        -0.608903,
+        -0.479165
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 6,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.8934,
+      "artifact_score": 0.136,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.210888,
+        -2.13399,
+        -3.636717,
+        -1.496824,
+        -0.508301,
+        -2.724352,
+        0.154046,
+        -0.254384
+      ],
+      "fnirs_targets": [
+        -0.941121,
+        -0.332562,
+        0.066661,
+        -1.350938
+      ],
+      "ppg_morphology_targets": [
+        0.294047,
+        -1.600526,
+        -0.775,
+        -0.548241
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 7,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9012,
+      "artifact_score": 0.1482,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.059947,
+        -1.896704,
+        -3.863707,
+        -1.886153,
+        -0.231414,
+        -2.875268,
+        0.608616,
+        -0.274506
+      ],
+      "fnirs_targets": [
+        -1.052696,
+        -0.330011,
+        0.255019,
+        -1.514684
+      ],
+      "ppg_morphology_targets": [
+        0.539326,
+        -1.715393,
+        -0.828687,
+        -0.506702
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 8,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.8935,
+      "artifact_score": 0.1462,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.400911,
+        -1.995672,
+        -4.050531,
+        -2.443202,
+        -0.447116,
+        -3.31419,
+        0.298523,
+        -0.398152
+      ],
+      "fnirs_targets": [
+        -1.176241,
+        -0.276238,
+        0.315624,
+        -1.760354
+      ],
+      "ppg_morphology_targets": [
+        0.518502,
+        -1.979861,
+        -0.720321,
+        -0.301654
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 9,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9318,
+      "artifact_score": 0.1298,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.640577,
+        -2.450238,
+        -4.494854,
+        -2.540829,
+        -0.129889,
+        -3.618228,
+        0.524986,
+        -0.530517
+      ],
+      "fnirs_targets": [
+        -1.373252,
+        -0.404083,
+        0.368973,
+        -1.921894
+      ],
+      "ppg_morphology_targets": [
+        0.602404,
+        -1.983706,
+        -0.994887,
+        -0.508164
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 10,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.9869,
+      "artifact_score": 0.0922,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.07749,
+        -3.132437,
+        -6.134684,
+        -2.731905,
+        -0.606597,
+        -4.340916,
+        -0.422172,
+        -0.632362
+      ],
+      "fnirs_targets": [
+        -1.703451,
+        -0.668095,
+        0.169245,
+        -2.136054
+      ],
+      "ppg_morphology_targets": [
+        0.904965,
+        -1.647344,
+        -2.021799,
+        0.012806
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 11,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.989,
+      "artifact_score": 0.0402,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.762122,
+        -2.729437,
+        -5.212653,
+        -2.682936,
+        0.111608,
+        -4.192317,
+        0.82396,
+        -0.586378
+      ],
+      "fnirs_targets": [
+        -1.851568,
+        -0.567057,
+        0.532834,
+        -2.233915
+      ],
+      "ppg_morphology_targets": [
+        0.910787,
+        -2.367509,
+        -1.361419,
+        -0.661794
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 12,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.8433,
+      "artifact_score": 0.1606,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.147675,
+        -2.693154,
+        -5.626963,
+        -2.850579,
+        -0.233267,
+        -4.340222,
+        0.744222,
+        -0.56013
+      ],
+      "fnirs_targets": [
+        -1.913456,
+        -0.665744,
+        0.651453,
+        -2.390793
+      ],
+      "ppg_morphology_targets": [
+        0.873303,
+        -2.615691,
+        -1.273801,
+        -0.776041
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 13,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.9623,
+      "artifact_score": 0.0904,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.414631,
+        -3.479138,
+        -5.902597,
+        -2.923317,
+        -0.209439,
+        -4.809738,
+        0.450984,
+        -0.633034
+      ],
+      "fnirs_targets": [
+        -1.938541,
+        -0.648885,
+        0.814371,
+        -2.577926
+      ],
+      "ppg_morphology_targets": [
+        1.064885,
+        -2.598015,
+        -1.619002,
+        -0.751924
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 14,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.8852,
+      "artifact_score": 0.1661,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.70955,
+        -3.459743,
+        -5.994606,
+        -3.035549,
+        0.120105,
+        -4.928758,
+        0.513248,
+        -0.802147
+      ],
+      "fnirs_targets": [
+        -1.967753,
+        -0.535273,
+        0.8353,
+        -2.64425
+      ],
+      "ppg_morphology_targets": [
+        1.318224,
+        -2.552677,
+        -1.88024,
+        -0.605091
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 15,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.9238,
+      "artifact_score": 0.1453,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.209941,
+        -2.954814,
+        -5.958463,
+        -3.141612,
+        0.224544,
+        -4.621643,
+        1.043795,
+        -0.486365
+      ],
+      "fnirs_targets": [
+        -2.044304,
+        -0.567451,
+        0.987822,
+        -2.794019
+      ],
+      "ppg_morphology_targets": [
+        1.277346,
+        -2.913073,
+        -1.574253,
+        -0.596107
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 16,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.9763,
+      "artifact_score": 0.0293,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.058475,
+        -2.851248,
+        -5.761787,
+        -3.106043,
+        0.100242,
+        -4.669952,
+        0.943071,
+        -0.637274
+      ],
+      "fnirs_targets": [
+        -2.095044,
+        -0.694063,
+        1.084323,
+        -2.875654
+      ],
+      "ppg_morphology_targets": [
+        1.103916,
+        -2.787029,
+        -1.446892,
+        -0.785907
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 17,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.7959,
+      "artifact_score": 0.2425,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.611591,
+        -3.214702,
+        -6.036714,
+        -3.108117,
+        -0.188049,
+        -4.884143,
+        0.660134,
+        -0.686381
+      ],
+      "fnirs_targets": [
+        -2.214948,
+        -0.826809,
+        1.146448,
+        -2.908774
+      ],
+      "ppg_morphology_targets": [
+        1.170573,
+        -2.875274,
+        -1.641397,
+        -0.942016
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 18,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.8698,
+      "artifact_score": 0.1935,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -4.322948,
+        -4.308746,
+        -7.773016,
+        -3.311127,
+        -0.453949,
+        -5.611139,
+        -0.383893,
+        -0.970973
+      ],
+      "fnirs_targets": [
+        -2.437321,
+        -0.903439,
+        0.927874,
+        -2.927101
+      ],
+      "ppg_morphology_targets": [
+        1.57462,
+        -2.324956,
+        -2.952855,
+        -0.423237
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 19,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.8002,
+      "artifact_score": 0.2031,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.95361,
+        -3.56123,
+        -6.479217,
+        -3.45695,
+        0.099057,
+        -5.470194,
+        0.850938,
+        -0.796387
+      ],
+      "fnirs_targets": [
+        -2.357162,
+        -0.686421,
+        1.209503,
+        -3.020598
+      ],
+      "ppg_morphology_targets": [
+        1.337626,
+        -2.98849,
+        -2.02253,
+        -0.971697
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 20,
+      "protocol": "rest_closed",
+      "split": "train",
+      "quality_score": 0.5921,
+      "artifact_score": 0.4713,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "high"
+      },
+      "eeg_features": [
+        -3.958464,
+        -3.265082,
+        -5.768643,
+        -3.611287,
+        -0.129633,
+        -5.374472,
+        0.662521,
+        -0.878595
+      ],
+      "fnirs_targets": [
+        -2.400307,
+        -0.767591,
+        1.287624,
+        -3.063453
+      ],
+      "ppg_morphology_targets": [
+        1.404736,
+        -2.916205,
+        -1.843641,
+        -0.736721
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 21,
+      "protocol": "working_memory",
+      "split": "train",
+      "quality_score": 0.8999,
+      "artifact_score": 0.1597,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -4.029217,
+        -3.550355,
+        -5.868511,
+        -3.646167,
+        -0.0698,
+        -5.537465,
+        0.399124,
+        -1.103277
+      ],
+      "fnirs_targets": [
+        -2.458032,
+        -0.743303,
+        1.476692,
+        -3.085808
+      ],
+      "ppg_morphology_targets": [
+        1.517444,
+        -2.816042,
+        -2.064411,
+        -0.662734
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 22,
+      "protocol": "mental_arithmetic",
+      "split": "train",
+      "quality_score": 0.8471,
+      "artifact_score": 0.2097,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -4.117758,
+        -3.790924,
+        -5.904503,
+        -3.633819,
+        -0.170789,
+        -5.912347,
+        0.531301,
+        -1.063929
+      ],
+      "fnirs_targets": [
+        -2.391293,
+        -0.768406,
+        1.576188,
+        -3.029845
+      ],
+      "ppg_morphology_targets": [
+        1.69733,
+        -2.784364,
+        -2.193512,
+        -0.616384
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "session_id": "sub-03-ses-02",
+      "window_index": 23,
+      "protocol": "rest_open",
+      "split": "train",
+      "quality_score": 0.92,
+      "artifact_score": 0.1166,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.984097,
+        -3.130418,
+        -5.81487,
+        -3.985449,
+        -0.30063,
+        -5.595308,
+        0.535545,
+        -0.963227
+      ],
+      "fnirs_targets": [
+        -2.434835,
+        -0.776348,
+        1.695626,
+        -2.971497
+      ],
+      "ppg_morphology_targets": [
+        1.473248,
+        -2.988445,
+        -1.675886,
+        -0.921447
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 0,
+      "protocol": "rest_open",
+      "split": "eval",
+      "quality_score": 0.9255,
+      "artifact_score": 0.1501,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.45759,
+        -0.371556,
+        -0.640094,
+        -0.469557,
+        -0.064987,
+        -0.612285,
+        -1.105352,
+        -0.544366
+      ],
+      "fnirs_targets": [
+        -0.201191,
+        -0.037661,
+        -0.234937,
+        0.109192
+      ],
+      "ppg_morphology_targets": [
+        0.529185,
+        0.960938,
+        -1.069375,
+        0.918804
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 1,
+      "protocol": "rest_closed",
+      "split": "eval",
+      "quality_score": 0.8974,
+      "artifact_score": 0.1567,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.377878,
+        -0.32649,
+        0.630914,
+        -0.750898,
+        0.258052,
+        -0.605108,
+        -0.437397,
+        -0.613206
+      ],
+      "fnirs_targets": [
+        -0.062653,
+        0.033487,
+        0.115248,
+        0.277542
+      ],
+      "ppg_morphology_targets": [
+        0.448295,
+        0.259555,
+        -0.458716,
+        0.409808
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 2,
+      "protocol": "working_memory",
+      "split": "eval",
+      "quality_score": 0.8854,
+      "artifact_score": 0.1744,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.628211,
+        -0.590143,
+        0.862771,
+        -0.633007,
+        0.195569,
+        -1.136586,
+        -0.688647,
+        -0.901491
+      ],
+      "fnirs_targets": [
+        0.052859,
+        0.021257,
+        0.490969,
+        0.474314
+      ],
+      "ppg_morphology_targets": [
+        0.739858,
+        0.421527,
+        -0.746995,
+        0.390004
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 3,
+      "protocol": "mental_arithmetic",
+      "split": "eval",
+      "quality_score": 0.946,
+      "artifact_score": 0.0952,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.71469,
+        -0.820488,
+        1.159599,
+        -0.647064,
+        0.356474,
+        -1.135067,
+        -0.857013,
+        -0.90006
+      ],
+      "fnirs_targets": [
+        0.121981,
+        0.046416,
+        0.688664,
+        0.616323
+      ],
+      "ppg_morphology_targets": [
+        1.048793,
+        0.689282,
+        -1.092073,
+        0.527045
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 4,
+      "protocol": "rest_open",
+      "split": "eval",
+      "quality_score": 0.9914,
+      "artifact_score": 0.0813,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.891321,
+        -0.649113,
+        1.168289,
+        -0.690897,
+        0.269915,
+        -1.343158,
+        -1.008291,
+        -0.861246
+      ],
+      "fnirs_targets": [
+        0.259347,
+        0.18215,
+        0.932151,
+        0.767569
+      ],
+      "ppg_morphology_targets": [
+        1.097928,
+        0.705383,
+        -1.129866,
+        0.729706
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 5,
+      "protocol": "rest_closed",
+      "split": "eval",
+      "quality_score": 0.9423,
+      "artifact_score": 0.103,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.066219,
+        -0.477075,
+        1.728765,
+        -1.360726,
+        0.031943,
+        -1.62265,
+        -1.112498,
+        -1.059915
+      ],
+      "fnirs_targets": [
+        0.355067,
+        0.228909,
+        1.12813,
+        0.858429
+      ],
+      "ppg_morphology_targets": [
+        1.223135,
+        0.656785,
+        -0.806228,
+        0.846339
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 6,
+      "protocol": "working_memory",
+      "split": "eval",
+      "quality_score": 0.8304,
+      "artifact_score": 0.1976,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.451419,
+        -0.92902,
+        1.663245,
+        -1.377892,
+        0.184444,
+        -1.941124,
+        -1.262514,
+        -1.235045
+      ],
+      "fnirs_targets": [
+        0.393412,
+        0.102515,
+        1.31766,
+        0.872779
+      ],
+      "ppg_morphology_targets": [
+        1.25648,
+        0.920782,
+        -1.205144,
+        0.752082
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 7,
+      "protocol": "mental_arithmetic",
+      "split": "eval",
+      "quality_score": 0.9416,
+      "artifact_score": 0.1121,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.525712,
+        -0.985666,
+        1.43222,
+        -1.581929,
+        0.19372,
+        -2.295522,
+        -1.143614,
+        -1.336179
+      ],
+      "fnirs_targets": [
+        0.343149,
+        0.055546,
+        1.570739,
+        0.996985
+      ],
+      "ppg_morphology_targets": [
+        1.489446,
+        0.825852,
+        -1.42355,
+        0.761854
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 8,
+      "protocol": "rest_open",
+      "split": "eval",
+      "quality_score": 0.7867,
+      "artifact_score": 0.2421,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.952147,
+        -0.582351,
+        2.147832,
+        -1.432631,
+        -0.068496,
+        -1.744461,
+        -1.208591,
+        -1.196146
+      ],
+      "fnirs_targets": [
+        0.379744,
+        0.065396,
+        1.821108,
+        1.033924
+      ],
+      "ppg_morphology_targets": [
+        1.458004,
+        0.827057,
+        -0.948137,
+        0.656318
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 9,
+      "protocol": "rest_closed",
+      "split": "eval",
+      "quality_score": 0.9649,
+      "artifact_score": 0.0986,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.085585,
+        -0.57612,
+        2.169343,
+        -1.46969,
+        -0.232616,
+        -1.800114,
+        -1.21589,
+        -1.088287
+      ],
+      "fnirs_targets": [
+        0.361771,
+        0.004746,
+        1.854066,
+        1.168402
+      ],
+      "ppg_morphology_targets": [
+        1.448163,
+        0.732836,
+        -0.912184,
+        0.475759
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 10,
+      "protocol": "working_memory",
+      "split": "eval",
+      "quality_score": 0.8318,
+      "artifact_score": 0.1739,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.233512,
+        -0.650346,
+        2.263005,
+        -1.669167,
+        0.236535,
+        -1.956999,
+        -1.350977,
+        -1.56177
+      ],
+      "fnirs_targets": [
+        0.297085,
+        -0.035935,
+        1.85202,
+        1.211549
+      ],
+      "ppg_morphology_targets": [
+        1.694161,
+        0.857392,
+        -1.181402,
+        0.60936
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 11,
+      "protocol": "mental_arithmetic",
+      "split": "eval",
+      "quality_score": 0.6925,
+      "artifact_score": 0.3673,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "high"
+      },
+      "eeg_features": [
+        -1.671601,
+        -1.057577,
+        1.920228,
+        -1.710033,
+        0.520701,
+        -2.39629,
+        -1.287443,
+        -1.72338
+      ],
+      "fnirs_targets": [
+        0.292946,
+        -0.087106,
+        2.064871,
+        1.353192
+      ],
+      "ppg_morphology_targets": [
+        1.82457,
+        1.050386,
+        -1.575044,
+        0.717454
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 12,
+      "protocol": "rest_open",
+      "split": "eval",
+      "quality_score": 0.9465,
+      "artifact_score": 0.062,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.26734,
+        -0.526512,
+        2.365959,
+        -2.186627,
+        0.536841,
+        -2.365095,
+        -1.239817,
+        -1.717243
+      ],
+      "fnirs_targets": [
+        0.251674,
+        -0.139894,
+        2.279895,
+        1.452903
+      ],
+      "ppg_morphology_targets": [
+        1.961825,
+        1.211448,
+        -1.424272,
+        0.789954
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 13,
+      "protocol": "rest_closed",
+      "split": "eval",
+      "quality_score": 0.9246,
+      "artifact_score": 0.1061,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.8962,
+        -1.314052,
+        1.463663,
+        -2.497601,
+        -0.249039,
+        -2.811049,
+        -2.442219,
+        -1.994087
+      ],
+      "fnirs_targets": [
+        0.169632,
+        -0.264707,
+        2.313518,
+        1.675299
+      ],
+      "ppg_morphology_targets": [
+        2.114975,
+        2.032823,
+        -2.489926,
+        1.264362
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 14,
+      "protocol": "working_memory",
+      "split": "eval",
+      "quality_score": 0.9892,
+      "artifact_score": 0.0414,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.026485,
+        -1.288718,
+        2.544549,
+        -2.163323,
+        0.65853,
+        -3.091682,
+        -1.524172,
+        -2.15816
+      ],
+      "fnirs_targets": [
+        0.261949,
+        -0.176596,
+        2.651722,
+        1.820555
+      ],
+      "ppg_morphology_targets": [
+        2.391216,
+        1.340535,
+        -2.178952,
+        0.862179
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 15,
+      "protocol": "mental_arithmetic",
+      "split": "eval",
+      "quality_score": 0.9883,
+      "artifact_score": 0.0845,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.536554,
+        -2.242407,
+        0.96496,
+        -2.637846,
+        0.427532,
+        -3.617247,
+        -2.672706,
+        -2.562813
+      ],
+      "fnirs_targets": [
+        0.259955,
+        -0.245368,
+        2.773545,
+        1.935409
+      ],
+      "ppg_morphology_targets": [
+        2.858296,
+        2.134548,
+        -3.519749,
+        1.556668
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 16,
+      "protocol": "rest_open",
+      "split": "eval",
+      "quality_score": 0.8266,
+      "artifact_score": 0.1944,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.402698,
+        -1.449456,
+        2.226547,
+        -2.550651,
+        1.048299,
+        -3.542517,
+        -1.553908,
+        -2.475454
+      ],
+      "fnirs_targets": [
+        0.417202,
+        -0.004319,
+        3.286006,
+        2.01448
+      ],
+      "ppg_morphology_targets": [
+        3.02888,
+        1.498552,
+        -2.833723,
+        0.990308
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 17,
+      "protocol": "rest_closed",
+      "split": "eval",
+      "quality_score": 0.8897,
+      "artifact_score": 0.1742,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.685485,
+        -2.365669,
+        1.423479,
+        -2.494705,
+        -0.098387,
+        -3.808929,
+        -3.086132,
+        -2.487802
+      ],
+      "fnirs_targets": [
+        0.260161,
+        -0.028988,
+        3.322299,
+        2.150567
+      ],
+      "ppg_morphology_targets": [
+        3.059137,
+        2.056484,
+        -3.688017,
+        1.320395
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 18,
+      "protocol": "working_memory",
+      "split": "eval",
+      "quality_score": 0.8633,
+      "artifact_score": 0.1448,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.334528,
+        -3.058457,
+        1.111453,
+        -2.580196,
+        0.361959,
+        -4.563492,
+        -3.190179,
+        -2.913211
+      ],
+      "fnirs_targets": [
+        0.294672,
+        0.071948,
+        3.466301,
+        2.288184
+      ],
+      "ppg_morphology_targets": [
+        3.503915,
+        2.129655,
+        -4.270259,
+        1.622046
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 19,
+      "protocol": "mental_arithmetic",
+      "split": "eval",
+      "quality_score": 0.7462,
+      "artifact_score": 0.3208,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -3.248425,
+        -2.67322,
+        2.248974,
+        -1.950747,
+        0.840002,
+        -4.114691,
+        -2.496259,
+        -3.114174
+      ],
+      "fnirs_targets": [
+        0.4422,
+        0.274524,
+        3.841403,
+        2.211924
+      ],
+      "ppg_morphology_targets": [
+        3.579277,
+        1.630192,
+        -3.891819,
+        1.069593
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 20,
+      "protocol": "rest_open",
+      "split": "eval",
+      "quality_score": 0.7995,
+      "artifact_score": 0.2224,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.948815,
+        -2.371708,
+        2.308106,
+        -2.310873,
+        0.983375,
+        -4.122022,
+        -2.276361,
+        -2.87924
+      ],
+      "fnirs_targets": [
+        0.638578,
+        0.512572,
+        3.866396,
+        2.341403
+      ],
+      "ppg_morphology_targets": [
+        3.609126,
+        1.469157,
+        -3.658522,
+        1.177165
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 21,
+      "protocol": "rest_closed",
+      "split": "eval",
+      "quality_score": 0.8748,
+      "artifact_score": 0.1772,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.566064,
+        -1.943349,
+        2.640507,
+        -2.336203,
+        0.659657,
+        -3.722705,
+        -2.343848,
+        -2.841096
+      ],
+      "fnirs_targets": [
+        0.718665,
+        0.575751,
+        3.975119,
+        2.323774
+      ],
+      "ppg_morphology_targets": [
+        3.585676,
+        1.434636,
+        -3.444766,
+        1.339003
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 22,
+      "protocol": "working_memory",
+      "split": "eval",
+      "quality_score": 0.9987,
+      "artifact_score": 0.0566,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.695972,
+        -2.071045,
+        2.477893,
+        -2.162804,
+        1.143864,
+        -3.825179,
+        -2.187998,
+        -2.811902
+      ],
+      "fnirs_targets": [
+        0.80053,
+        0.531735,
+        3.983376,
+        2.406994
+      ],
+      "ppg_morphology_targets": [
+        3.70524,
+        1.633688,
+        -3.579817,
+        1.317481
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-01",
+      "window_index": 23,
+      "protocol": "mental_arithmetic",
+      "split": "eval",
+      "quality_score": 0.9254,
+      "artifact_score": 0.0826,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": true,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.691203,
+        -2.100054,
+        2.33052,
+        -1.934676,
+        1.279752,
+        -3.546447,
+        -2.130446,
+        -2.883497
+      ],
+      "fnirs_targets": [
+        0.861799,
+        0.579438,
+        4.107381,
+        2.323387
+      ],
+      "ppg_morphology_targets": [
+        3.890382,
+        1.747679,
+        -3.757107,
+        1.344806
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 0,
+      "protocol": "rest_closed",
+      "split": "eval",
+      "quality_score": 0.9227,
+      "artifact_score": 0.0825,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        0.150185,
+        -0.010848,
+        0.600926,
+        0.164195,
+        0.937708,
+        0.217169,
+        -0.079184,
+        -0.483386
+      ],
+      "fnirs_targets": [
+        0.032807,
+        0.037655,
+        0.116815,
+        0.144735
+      ],
+      "ppg_morphology_targets": [
+        0.720516,
+        0.577422,
+        -0.576499,
+        0.45759
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 1,
+      "protocol": "working_memory",
+      "split": "eval",
+      "quality_score": 0.8841,
+      "artifact_score": 0.1452,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.702434,
+        -1.065322,
+        -0.323586,
+        0.204135,
+        0.166604,
+        -0.531355,
+        -1.525277,
+        -0.830388
+      ],
+      "fnirs_targets": [
+        0.086609,
+        0.059388,
+        0.084353,
+        0.34811
+      ],
+      "ppg_morphology_targets": [
+        1.016098,
+        1.292942,
+        -1.732593,
+        0.964022
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 2,
+      "protocol": "mental_arithmetic",
+      "split": "eval",
+      "quality_score": 0.7234,
+      "artifact_score": 0.321,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.76195,
+        -1.152822,
+        1.195701,
+        0.982517,
+        0.658774,
+        -0.249224,
+        -1.143459,
+        -1.008959
+      ],
+      "fnirs_targets": [
+        0.377005,
+        0.401419,
+        0.456802,
+        0.599068
+      ],
+      "ppg_morphology_targets": [
+        1.058021,
+        0.80084,
+        -1.41904,
+        0.471982
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 3,
+      "protocol": "rest_open",
+      "split": "eval",
+      "quality_score": 0.9406,
+      "artifact_score": 0.0849,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.802853,
+        -1.137486,
+        0.020171,
+        0.92983,
+        0.564312,
+        -0.2988,
+        -1.895276,
+        -0.991437
+      ],
+      "fnirs_targets": [
+        0.574827,
+        0.563674,
+        0.433047,
+        0.860627
+      ],
+      "ppg_morphology_targets": [
+        1.572424,
+        1.54216,
+        -2.315676,
+        1.257627
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 4,
+      "protocol": "rest_closed",
+      "split": "eval",
+      "quality_score": 0.9857,
+      "artifact_score": 0.0437,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.762499,
+        -1.079242,
+        1.937976,
+        1.320157,
+        0.946506,
+        -0.106533,
+        -1.541723,
+        -1.266713
+      ],
+      "fnirs_targets": [
+        0.767064,
+        0.843747,
+        0.622063,
+        1.035422
+      ],
+      "ppg_morphology_targets": [
+        1.486506,
+        1.25116,
+        -1.86758,
+        0.757775
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 5,
+      "protocol": "working_memory",
+      "split": "eval",
+      "quality_score": 0.9794,
+      "artifact_score": 0.0965,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -0.770203,
+        -1.082802,
+        1.952192,
+        1.704671,
+        0.75121,
+        0.162734,
+        -1.467361,
+        -1.13336
+      ],
+      "fnirs_targets": [
+        0.988295,
+        1.134174,
+        0.812044,
+        1.32952
+      ],
+      "ppg_morphology_targets": [
+        1.597511,
+        1.290376,
+        -2.012557,
+        0.7736
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 6,
+      "protocol": "mental_arithmetic",
+      "split": "eval",
+      "quality_score": 0.8522,
+      "artifact_score": 0.2048,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.142474,
+        -1.438481,
+        2.097158,
+        1.672766,
+        0.874287,
+        -0.399068,
+        -2.033641,
+        -1.499779
+      ],
+      "fnirs_targets": [
+        1.211546,
+        1.294931,
+        0.837486,
+        1.532933
+      ],
+      "ppg_morphology_targets": [
+        1.880253,
+        1.539398,
+        -2.532185,
+        1.103845
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 7,
+      "protocol": "rest_open",
+      "split": "eval",
+      "quality_score": 0.7156,
+      "artifact_score": 0.317,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.385585,
+        -2.024076,
+        1.446748,
+        1.256977,
+        0.226086,
+        -0.415033,
+        -2.937752,
+        -1.554399
+      ],
+      "fnirs_targets": [
+        1.358546,
+        1.353215,
+        0.855264,
+        1.85253
+      ],
+      "ppg_morphology_targets": [
+        2.08916,
+        2.447475,
+        -3.411599,
+        1.752749
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 8,
+      "protocol": "rest_closed",
+      "split": "eval",
+      "quality_score": 0.9832,
+      "artifact_score": 0.0886,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.578266,
+        -2.050306,
+        1.427801,
+        1.332004,
+        0.427058,
+        -0.685977,
+        -2.999819,
+        -1.959911
+      ],
+      "fnirs_targets": [
+        1.408247,
+        1.485452,
+        0.953597,
+        2.124583
+      ],
+      "ppg_morphology_targets": [
+        2.31359,
+        2.479058,
+        -3.548629,
+        1.847449
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 9,
+      "protocol": "working_memory",
+      "split": "eval",
+      "quality_score": 0.7259,
+      "artifact_score": 0.337,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.712804,
+        -2.463543,
+        2.25965,
+        1.883941,
+        1.173981,
+        -0.816815,
+        -2.482488,
+        -2.174299
+      ],
+      "fnirs_targets": [
+        1.664134,
+        1.75024,
+        1.301393,
+        2.178396
+      ],
+      "ppg_morphology_targets": [
+        2.619447,
+        1.932369,
+        -3.518953,
+        1.562361
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 10,
+      "protocol": "mental_arithmetic",
+      "split": "eval",
+      "quality_score": 0.7508,
+      "artifact_score": 0.2953,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.841327,
+        -2.762107,
+        2.6627,
+        2.349645,
+        0.490216,
+        -0.669789,
+        -2.808918,
+        -1.942424
+      ],
+      "fnirs_targets": [
+        1.873315,
+        2.027155,
+        1.511928,
+        2.321397
+      ],
+      "ppg_morphology_targets": [
+        2.684595,
+        1.920501,
+        -3.535899,
+        1.417248
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 11,
+      "protocol": "rest_open",
+      "split": "eval",
+      "quality_score": 0.7773,
+      "artifact_score": 0.2707,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.640168,
+        -2.169166,
+        3.308365,
+        2.029594,
+        0.303072,
+        -0.428088,
+        -2.871532,
+        -1.666637
+      ],
+      "fnirs_targets": [
+        1.980742,
+        2.156358,
+        1.505838,
+        2.453138
+      ],
+      "ppg_morphology_targets": [
+        2.484159,
+        1.919068,
+        -3.190373,
+        1.509139
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 12,
+      "protocol": "rest_closed",
+      "split": "eval",
+      "quality_score": 0.9355,
+      "artifact_score": 0.1063,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.635201,
+        -2.012601,
+        3.584556,
+        1.847072,
+        0.4664,
+        -0.476667,
+        -2.76577,
+        -1.803551
+      ],
+      "fnirs_targets": [
+        2.093601,
+        2.219007,
+        1.505218,
+        2.417803
+      ],
+      "ppg_morphology_targets": [
+        2.566131,
+        2.066888,
+        -2.905362,
+        1.679382
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 13,
+      "protocol": "working_memory",
+      "split": "eval",
+      "quality_score": 0.8483,
+      "artifact_score": 0.1826,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.616102,
+        -2.120743,
+        3.651236,
+        2.013696,
+        0.675593,
+        -0.59794,
+        -2.937181,
+        -1.953637
+      ],
+      "fnirs_targets": [
+        2.102193,
+        2.158862,
+        1.647916,
+        2.642227
+      ],
+      "ppg_morphology_targets": [
+        2.831669,
+        2.217695,
+        -3.321369,
+        1.784489
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 14,
+      "protocol": "mental_arithmetic",
+      "split": "eval",
+      "quality_score": 0.8687,
+      "artifact_score": 0.1893,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.97601,
+        -2.553022,
+        3.364788,
+        1.904072,
+        0.337518,
+        -0.793389,
+        -2.928332,
+        -1.846718
+      ],
+      "fnirs_targets": [
+        2.211337,
+        2.206171,
+        1.781137,
+        2.863281
+      ],
+      "ppg_morphology_targets": [
+        2.802108,
+        2.195749,
+        -3.440495,
+        1.627447
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 15,
+      "protocol": "rest_open",
+      "split": "eval",
+      "quality_score": 0.9028,
+      "artifact_score": 0.1549,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.872324,
+        -2.744212,
+        2.405445,
+        1.573122,
+        -0.115353,
+        -0.939046,
+        -3.738003,
+        -1.980577
+      ],
+      "fnirs_targets": [
+        2.169905,
+        2.16426,
+        1.675525,
+        2.956159
+      ],
+      "ppg_morphology_targets": [
+        2.834748,
+        2.965215,
+        -4.134898,
+        2.222988
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 16,
+      "protocol": "rest_closed",
+      "split": "eval",
+      "quality_score": 0.9971,
+      "artifact_score": 0.0207,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.961057,
+        -2.690824,
+        2.595898,
+        1.600734,
+        0.140549,
+        -0.898307,
+        -4.028298,
+        -2.14767
+      ],
+      "fnirs_targets": [
+        2.055428,
+        2.177048,
+        1.569031,
+        2.988791
+      ],
+      "ppg_morphology_targets": [
+        3.004949,
+        2.976002,
+        -4.38397,
+        2.335379
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 17,
+      "protocol": "working_memory",
+      "split": "eval",
+      "quality_score": 0.957,
+      "artifact_score": 0.1031,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.247344,
+        -2.882702,
+        3.45557,
+        1.886657,
+        1.084774,
+        -1.144484,
+        -3.02346,
+        -2.576696
+      ],
+      "fnirs_targets": [
+        2.197555,
+        2.444105,
+        1.859422,
+        3.059034
+      ],
+      "ppg_morphology_targets": [
+        3.268849,
+        2.421764,
+        -4.118925,
+        2.087686
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 18,
+      "protocol": "mental_arithmetic",
+      "split": "eval",
+      "quality_score": 0.9856,
+      "artifact_score": 0.0238,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.309936,
+        -2.916002,
+        3.505775,
+        2.028845,
+        0.827569,
+        -1.228892,
+        -3.24131,
+        -2.439182
+      ],
+      "fnirs_targets": [
+        2.269276,
+        2.497115,
+        2.133696,
+        3.182579
+      ],
+      "ppg_morphology_targets": [
+        3.369487,
+        2.373243,
+        -4.229689,
+        1.971975
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 19,
+      "protocol": "rest_open",
+      "split": "eval",
+      "quality_score": 0.9296,
+      "artifact_score": 0.0823,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": true,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.404842,
+        -2.61464,
+        3.670059,
+        1.265878,
+        0.866287,
+        -1.612062,
+        -3.349653,
+        -2.507396
+      ],
+      "fnirs_targets": [
+        2.432055,
+        2.581176,
+        2.251014,
+        3.24651
+      ],
+      "ppg_morphology_targets": [
+        3.391948,
+        2.496797,
+        -4.046532,
+        2.054751
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 20,
+      "protocol": "rest_closed",
+      "split": "eval",
+      "quality_score": 0.9295,
+      "artifact_score": 0.0793,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -1.949805,
+        -2.252317,
+        3.978108,
+        1.231217,
+        0.521629,
+        -1.161891,
+        -3.082104,
+        -2.345566
+      ],
+      "fnirs_targets": [
+        2.546336,
+        2.433209,
+        2.39957,
+        3.365022
+      ],
+      "ppg_morphology_targets": [
+        3.264249,
+        2.435012,
+        -3.718116,
+        2.041548
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 21,
+      "protocol": "working_memory",
+      "split": "eval",
+      "quality_score": 0.8095,
+      "artifact_score": 0.2181,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.29661,
+        -2.548309,
+        3.528129,
+        1.486613,
+        0.444857,
+        -1.210274,
+        -3.097926,
+        -2.250708
+      ],
+      "fnirs_targets": [
+        2.412517,
+        2.340426,
+        2.487065,
+        3.263867
+      ],
+      "ppg_morphology_targets": [
+        3.367703,
+        2.385989,
+        -3.75255,
+        1.805922
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 22,
+      "protocol": "mental_arithmetic",
+      "split": "eval",
+      "quality_score": 0.7887,
+      "artifact_score": 0.2295,
+      "event_flag": 0,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.313803,
+        -2.875658,
+        3.905535,
+        1.565191,
+        0.952742,
+        -1.476217,
+        -3.409631,
+        -2.589298
+      ],
+      "fnirs_targets": [
+        2.405726,
+        2.213156,
+        2.492237,
+        3.186497
+      ],
+      "ppg_morphology_targets": [
+        3.450168,
+        2.688089,
+        -4.073139,
+        2.012727
+      ]
+    },
+    {
+      "subject_id": "sub-04",
+      "session_id": "sub-04-ses-02",
+      "window_index": 23,
+      "protocol": "rest_open",
+      "split": "eval",
+      "quality_score": 0.8725,
+      "artifact_score": 0.1662,
+      "event_flag": 1,
+      "shift": {
+        "age_band": "older",
+        "recent_caffeine": false,
+        "recent_exercise": false,
+        "artifact_burden": "low"
+      },
+      "eeg_features": [
+        -2.449259,
+        -3.355599,
+        2.834756,
+        1.450972,
+        0.125731,
+        -1.624117,
+        -4.383924,
+        -2.654187
+      ],
+      "fnirs_targets": [
+        2.382968,
+        2.211267,
+        2.364048,
+        3.399128
+      ],
+      "ppg_morphology_targets": [
+        3.494765,
+        3.26491,
+        -4.771972,
+        2.430137
+      ]
+    }
+  ]
+}

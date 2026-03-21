@@ -1,0 +1,112 @@
+{
+  "kind": "cross_modal_dataset_manifest",
+  "schema_version": "0.2",
+  "identity": {
+    "dataset_name": "athena-internal",
+    "dataset_version": "draft",
+    "source_type": "internal",
+    "intake_status": "template",
+    "source_uri": "internal://athena",
+    "license": "internal-review-required"
+  },
+  "storage": {
+    "dataset_path": "replace-with-internal-storage-path",
+    "manifest_path": "manifests/cross_modal/athena_internal.template.json"
+  },
+  "modalities": {
+    "eeg": {
+      "present": true,
+      "feature_dim": 8,
+      "sampling_rate_hz": 256.0,
+      "geometry_available": true,
+      "channel_names": [
+        "TP9",
+        "AF7",
+        "AF8",
+        "TP10",
+        "AUX1",
+        "AUX2",
+        "AUX3",
+        "AUX4"
+      ],
+      "verification_status": "confirmed_from_local_code"
+    },
+    "fnirs": {
+      "present": true,
+      "feature_dim": 0,
+      "sampling_rate_hz": null,
+      "geometry_available": true,
+      "transport_signal": "optics",
+      "optics_sample_rate_hz": 64.0,
+      "optics_channel_count_default": 8,
+      "optics_channel_count_variants": [
+        4,
+        8,
+        16
+      ],
+      "verification_status": "transport_confirmed_local_code_fnirs_mapping_pending"
+    },
+    "ppg": {
+      "present": true,
+      "feature_dim": 0,
+      "sampling_rate_hz": null,
+      "geometry_available": false,
+      "verification_status": "pending_device_verification"
+    },
+    "imu": {
+      "present": true,
+      "feature_dim": 6,
+      "sampling_rate_hz": 52.0,
+      "geometry_available": false,
+      "channel_names": [
+        "acc_x",
+        "acc_y",
+        "acc_z",
+        "gyro_x",
+        "gyro_y",
+        "gyro_z"
+      ],
+      "verification_status": "confirmed_from_local_code"
+    }
+  },
+  "split_summary": {
+    "train_windows": 0,
+    "eval_windows": 0,
+    "heldout_subjects": []
+  },
+  "coverage": {
+    "subject_ids": [],
+    "session_ids": [],
+    "protocols": [],
+    "shift_metadata_keys": [
+      "age_band",
+      "recent_caffeine",
+      "recent_nicotine",
+      "recent_exercise",
+      "artifact_burden"
+    ]
+  },
+  "labels": {
+    "event_labels_present": false,
+    "ppg_morphology_targets_present": false,
+    "task_labels_present": false
+  },
+  "quality": {
+    "quality_fields": [],
+    "artifact_fields": []
+  },
+  "repo_confirmed_transport": {
+    "athena_protocol": true,
+    "athena_ble_characteristics": [
+      "273e0013-4c4d-454d-96be-f03bac821358",
+      "273e0014-4c4d-454d-96be-f03bac821358"
+    ],
+    "battery_stream_present": true
+  },
+  "notes": [
+    "Template for internal Athena intake.",
+    "Repo-local code confirms Athena EEG transport at 256 Hz with 8 channels, optics transport at 64 Hz with 4/8/16-channel packet variants, and 6-channel acc/gyro transport at 52 Hz.",
+    "Repo-local code does not yet confirm the exact internal fNIRS conversion pipeline, HbO/HbR derivation, or internal PPG channel mapping for Athena recordings.",
+    "Fill exact storage paths, split summary, fNIRS processing details, and PPG acquisition details during Phase 1."
+  ]
+}

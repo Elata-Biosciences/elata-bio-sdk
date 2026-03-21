@@ -1,0 +1,27 @@
+{
+  "config": "configs\\cross_modal\\proto_cpu.toml",
+  "manifest": "reports\\cross_modal\\toy\\proto_cpu_manifest.json",
+  "dataset": "reports\\cross_modal\\toy\\proto_cpu_dataset.json",
+  "runtime_sec": 2.2421687999740243,
+  "peak_memory_mb": 0.21291351318359375,
+  "eeg_to_fnirs": {
+    "model_mse": 0.15438481107634064,
+    "null_mse": 6.087261250805072,
+    "model_corr": 0.9503011929220926,
+    "null_corr": -0.3623422098699237
+  },
+  "fusion_to_ppg": {
+    "model_mae": 0.11943865778712659,
+    "null_mae": 2.379576295138889,
+    "model_corr": 0.9981528338808887,
+    "null_corr": -0.22868199226132926
+  },
+  "toy_mode": {
+    "single_command_success": true,
+    "train_windows": 144,
+    "eval_windows": 48,
+    "heldout_subjects": [
+      "sub-04"
+    ]
+  }
+}

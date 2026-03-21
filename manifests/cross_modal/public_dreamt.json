@@ -1,0 +1,67 @@
+{
+  "kind": "cross_modal_dataset_manifest",
+  "schema_version": "0.2",
+  "identity": {
+    "dataset_name": "dreamt-wearable-ppg-psg-eeg",
+    "dataset_version": "2.1.0",
+    "source_type": "public",
+    "intake_status": "candidate",
+    "source_uri": "https://doi.org/10.13026/7r9r-7r24",
+    "license": "PhysioNet credentialed access and citation terms apply"
+  },
+  "storage": {
+    "dataset_path": "external://physionet/dreamt",
+    "manifest_path": "manifests/cross_modal/public_dreamt.json"
+  },
+  "modalities": {
+    "eeg": {
+      "present": true,
+      "feature_dim": 0,
+      "sampling_rate_hz": 100.0,
+      "geometry_available": false
+    },
+    "fnirs": {
+      "present": false,
+      "feature_dim": 0,
+      "sampling_rate_hz": null,
+      "geometry_available": false
+    },
+    "ppg": {
+      "present": true,
+      "feature_dim": 1,
+      "sampling_rate_hz": 64.0,
+      "geometry_available": false
+    }
+  },
+  "split_summary": {
+    "train_windows": 0,
+    "eval_windows": 0,
+    "heldout_subjects": []
+  },
+  "coverage": {
+    "subject_ids": [],
+    "session_ids": [],
+    "protocols": [
+      "sleep"
+    ],
+    "shift_metadata_keys": [
+      "age",
+      "bmi",
+      "sleep_disorder_metadata"
+    ]
+  },
+  "labels": {
+    "event_labels_present": true,
+    "ppg_morphology_targets_present": true,
+    "task_labels_present": true
+  },
+  "quality": {
+    "quality_fields": [],
+    "artifact_fields": []
+  },
+  "notes": [
+    "Candidate public EEG-PPG aligned resource through PSG and wearable BVP.",
+    "Based on verified PhysioNet DREAMT version 2.1.0 checked on March 21, 2026.",
+    "Access constraints and exact usable EEG subset should be reviewed during ingest."
+  ]
+}

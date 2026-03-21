@@ -1,0 +1,41 @@
+{
+  "schema_version": "0.1",
+  "generated_for": "phase-1-intake",
+  "entries": [
+    {
+      "id": "athena_internal",
+      "manifest_path": "manifests/cross_modal/athena_internal.template.json",
+      "status": "template",
+      "priority": "highest",
+      "role": "internal_tri_modal"
+    },
+    {
+      "id": "public_ds004514",
+      "manifest_path": "manifests/cross_modal/public_ds004514.json",
+      "status": "candidate",
+      "priority": "highest",
+      "role": "paired_eeg_fnirs"
+    },
+    {
+      "id": "public_ds003838",
+      "manifest_path": "manifests/cross_modal/public_ds003838.json",
+      "status": "candidate",
+      "priority": "high",
+      "role": "paired_eeg_ppg"
+    },
+    {
+      "id": "public_ds006848",
+      "manifest_path": "manifests/cross_modal/public_ds006848.json",
+      "status": "candidate",
+      "priority": "high",
+      "role": "paired_eeg_ppg"
+    },
+    {
+      "id": "public_dreamt",
+      "manifest_path": "manifests/cross_modal/public_dreamt.json",
+      "status": "candidate",
+      "priority": "medium",
+      "role": "sleep_eeg_ppg"
+    }
+  ]
+}
