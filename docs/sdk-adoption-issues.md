@@ -37,5 +37,5 @@ creates for external developers.
 
 ## Tracking Notes
 
-- [implementation-plan-sdk-adoption.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-sdk-adoption.md) remains the ordered execution plan.
-- [sdk-adoption-baseline.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/sdk-adoption-baseline.md) captures the current state these issues were derived from.
+- [implementation-plan-sdk-adoption.md](implementation-plan-sdk-adoption.md) remains the ordered execution plan.
+- [sdk-adoption-baseline.md](sdk-adoption-baseline.md) captures the current state these issues were derived from.

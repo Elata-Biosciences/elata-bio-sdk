@@ -57,8 +57,8 @@ pnpm --dir my-app --ignore-workspace run dev
 
 ## Related Guides
 
-- [getting-started.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/getting-started.md)
-- [using-eeg-in-a-browser-app.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-eeg-in-a-browser-app.md)
-- [using-web-bluetooth-with-supported-devices.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-web-bluetooth-with-supported-devices.md)
-- [using-rppg-in-a-browser-app.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-rppg-in-a-browser-app.md)
-- [troubleshooting.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/troubleshooting.md)
+- [getting-started.md](getting-started.md)
+- [using-eeg-in-a-browser-app.md](using-eeg-in-a-browser-app.md)
+- [using-web-bluetooth-with-supported-devices.md](using-web-bluetooth-with-supported-devices.md)
+- [using-rppg-in-a-browser-app.md](using-rppg-in-a-browser-app.md)
+- [troubleshooting.md](troubleshooting.md)

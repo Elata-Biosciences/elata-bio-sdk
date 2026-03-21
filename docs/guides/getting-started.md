@@ -25,14 +25,14 @@ If you already have an app, install only what you need:
 - `@elata-biosciences/eeg-web-ble`: browser BLE transport
 - `@elata-biosciences/rppg-web`: browser rPPG processing and demo helpers
 
-See [choose-the-right-package.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/choose-the-right-package.md) for the decision guide.
+See [choose-the-right-package.md](choose-the-right-package.md) for the decision guide.
 
 Follow-up guides:
 
-- [using-eeg-in-a-browser-app.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-eeg-in-a-browser-app.md)
-- [using-web-bluetooth-with-supported-devices.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-web-bluetooth-with-supported-devices.md)
-- [using-rppg-in-a-browser-app.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-rppg-in-a-browser-app.md)
-- [compatibility.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/compatibility.md)
+- [using-eeg-in-a-browser-app.md](using-eeg-in-a-browser-app.md)
+- [using-web-bluetooth-with-supported-devices.md](using-web-bluetooth-with-supported-devices.md)
+- [using-rppg-in-a-browser-app.md](using-rppg-in-a-browser-app.md)
+- [compatibility.md](compatibility.md)
 
 ## Workspace Caveat
 

@@ -28,6 +28,6 @@ If you are unsure, compare your app with the scaffolded `rppg-web-demo`.
 
 ## I am not sure which package I need
 
-Start with [choose-the-right-package.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/choose-the-right-package.md).
+Start with [choose-the-right-package.md](choose-the-right-package.md).
 
 If you still just want the fastest path, use `create-elata-demo`.

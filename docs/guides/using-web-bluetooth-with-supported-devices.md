@@ -86,6 +86,6 @@ Prefer the scaffolded `eeg-web-ble-demo` template when you want:
 
 ## Next Steps
 
-- For raw EEG browser APIs, read [using-eeg-in-a-browser-app.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-eeg-in-a-browser-app.md).
-- For setup failures, read [troubleshooting.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/troubleshooting.md).
-- For package details, see [packages/eeg-web-ble/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/eeg-web-ble/README.md).
+- For raw EEG browser APIs, read [using-eeg-in-a-browser-app.md](using-eeg-in-a-browser-app.md).
+- For setup failures, read [troubleshooting.md](troubleshooting.md).
+- For package details, see [packages/eeg-web-ble/README.md](../../packages/eeg-web-ble/README.md).

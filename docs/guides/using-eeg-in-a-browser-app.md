@@ -30,7 +30,7 @@ npm install @elata-biosciences/eeg-web
 
 This package does not handle Bluetooth device connection by itself. If you also
 need browser BLE transport, add
-[`@elata-biosciences/eeg-web-ble`](/Users/khan/Documents/Projects/elata-bio-sdk/packages/eeg-web-ble/README.md).
+[`@elata-biosciences/eeg-web-ble`](../../packages/eeg-web-ble/README.md).
 
 ## Minimal Integration
 
@@ -67,6 +67,6 @@ Prefer the scaffolded `eeg-web-demo` template when you want:
 
 ## Next Steps
 
-- For live device transport, read [using-web-bluetooth-with-supported-devices.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-web-bluetooth-with-supported-devices.md).
-- For general setup issues, read [troubleshooting.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/troubleshooting.md).
-- For package-specific details, see [packages/eeg-web/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/eeg-web/README.md).
+- For live device transport, read [using-web-bluetooth-with-supported-devices.md](using-web-bluetooth-with-supported-devices.md).
+- For general setup issues, read [troubleshooting.md](troubleshooting.md).
+- For package-specific details, see [packages/eeg-web/README.md](../../packages/eeg-web/README.md).

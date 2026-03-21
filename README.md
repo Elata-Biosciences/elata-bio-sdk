@@ -52,7 +52,7 @@ pnpm --dir my-app --ignore-workspace install
 pnpm --dir my-app --ignore-workspace run dev
 ```
 
-Full details: [docs/create-elata-demo.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/create-elata-demo.md)
+Full details: [docs/create-elata-demo.md](docs/create-elata-demo.md)
 
 ### Add packages to an existing app
 
@@ -109,10 +109,10 @@ Browser caveats:
 
 Package docs:
 
-- [packages/eeg-web/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/eeg-web/README.md)
-- [packages/eeg-web-ble/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/eeg-web-ble/README.md)
-- [packages/rppg-web/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/rppg-web/README.md)
-- [packages/create-elata-demo/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/create-elata-demo/README.md)
+- [packages/eeg-web/README.md](packages/eeg-web/README.md)
+- [packages/eeg-web-ble/README.md](packages/eeg-web-ble/README.md)
+- [packages/rppg-web/README.md](packages/rppg-web/README.md)
+- [packages/create-elata-demo/README.md](packages/create-elata-demo/README.md)
 
 ## Common Repo Workflows
 
@@ -127,6 +127,18 @@ Use `run.sh` as the canonical task runner:
 ./run.sh test
 ./run.sh verify-all
 ```
+
+## Contributing
+
+If you want to contribute, start with
+[CONTRIBUTING.md](CONTRIBUTING.md).
+It covers setup, PR flow, testing expectations, and changesets.
+
+If you want a quick repo walkthrough first, see the contributor video:
+[Elata SDK contributor walkthrough](https://www.youtube.com/watch?v=I6Bgu2QV1D4)
+
+If you are working with AI coding agents in this repo, also read
+[AGENTS.md](AGENTS.md).
 
 ### Local EEG package linking
 
@@ -145,34 +157,34 @@ local EEG package against an app you already have.
 
 ## Docs Map
 
-- [docs/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/README.md): docs index
-- [internal/docs-site/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/internal/docs-site/README.md): Mintlify docs site source for the next `docs.elata.bio`
-- [docs/repo-map.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/repo-map.md): package ownership and repo layout
-- [docs/create-elata-demo.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/create-elata-demo.md): scaffolding workflow
-- [docs/dev_setup.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/dev_setup.md): local setup and iteration tips
-- [docs/guides/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/README.md): consumer guide index
-- [docs/guides/getting-started.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/getting-started.md): fastest path to a running app
-- [docs/guides/choose-the-right-package.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/choose-the-right-package.md): package selection help
-- [docs/guides/using-eeg-in-a-browser-app.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
-- [docs/guides/using-web-bluetooth-with-supported-devices.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-web-bluetooth-with-supported-devices.md): supported browser BLE flow
-- [docs/guides/using-rppg-in-a-browser-app.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/using-rppg-in-a-browser-app.md): browser rPPG integration guide
-- [docs/guides/compatibility.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/compatibility.md): browser, device, and tooling expectations
-- [docs/guides/troubleshooting.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/troubleshooting.md): common setup and runtime failures
-- [docs/sdk-adoption-baseline.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/sdk-adoption-baseline.md): current onboarding baseline and friction summary
-- [docs/sdk-adoption-issues.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/sdk-adoption-issues.md): grouped issue list for remaining SDK DX work
-- [docs/maintainers.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/maintainers.md): maintainer-focused workflow guide
-- [docs/releasing.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/releasing.md): release and publish flow
+- [docs/README.md](docs/README.md): docs index
+- [internal/docs-site/README.md](internal/docs-site/README.md): Mintlify docs site source for the next `docs.elata.bio`
+- [docs/repo-map.md](docs/repo-map.md): package ownership and repo layout
+- [docs/create-elata-demo.md](docs/create-elata-demo.md): scaffolding workflow
+- [docs/dev_setup.md](docs/dev_setup.md): local setup and iteration tips
+- [docs/guides/README.md](docs/guides/README.md): consumer guide index
+- [docs/guides/getting-started.md](docs/guides/getting-started.md): fastest path to a running app
+- [docs/guides/choose-the-right-package.md](docs/guides/choose-the-right-package.md): package selection help
+- [docs/guides/using-eeg-in-a-browser-app.md](docs/guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
+- [docs/guides/using-web-bluetooth-with-supported-devices.md](docs/guides/using-web-bluetooth-with-supported-devices.md): supported browser BLE flow
+- [docs/guides/using-rppg-in-a-browser-app.md](docs/guides/using-rppg-in-a-browser-app.md): browser rPPG integration guide
+- [docs/guides/compatibility.md](docs/guides/compatibility.md): browser, device, and tooling expectations
+- [docs/guides/troubleshooting.md](docs/guides/troubleshooting.md): common setup and runtime failures
+- [docs/sdk-adoption-baseline.md](docs/sdk-adoption-baseline.md): current onboarding baseline and friction summary
+- [docs/sdk-adoption-issues.md](docs/sdk-adoption-issues.md): grouped issue list for remaining SDK DX work
+- [docs/maintainers.md](docs/maintainers.md): maintainer-focused workflow guide
+- [docs/releasing.md](docs/releasing.md): release and publish flow
 
 Architecture and planning notes:
 
-- [docs/architecture-rppg.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/architecture-rppg.md)
-- [docs/architecture-sentiment.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/architecture-sentiment.md)
-- [docs/implementation-plan-rppg.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-rppg.md)
-- [docs/implementation-plan-sentiment.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-sentiment.md)
-- [docs/implementation-plan-demo-scaffolding.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-demo-scaffolding.md)
-- [docs/implementation-plan-sdk-adoption.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-sdk-adoption.md)
-- [docs/implementation-plan-ios-safari-ble-bridge.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-ios-safari-ble-bridge.md)
-- [docs/implementation-plan-harmonic-selection.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-harmonic-selection.md)
+- [docs/architecture-rppg.md](docs/architecture-rppg.md)
+- [docs/architecture-sentiment.md](docs/architecture-sentiment.md)
+- [docs/implementation-plan-rppg.md](docs/implementation-plan-rppg.md)
+- [docs/implementation-plan-sentiment.md](docs/implementation-plan-sentiment.md)
+- [docs/implementation-plan-demo-scaffolding.md](docs/implementation-plan-demo-scaffolding.md)
+- [docs/implementation-plan-sdk-adoption.md](docs/implementation-plan-sdk-adoption.md)
+- [docs/implementation-plan-ios-safari-ble-bridge.md](docs/implementation-plan-ios-safari-ble-bridge.md)
+- [docs/implementation-plan-harmonic-selection.md](docs/implementation-plan-harmonic-selection.md)
 
 Some implementation-plan docs are historical or exploratory snapshots. Treat
 `run.sh`, package READMEs, and the maintainer/scaffolding docs above as the
@@ -180,10 +192,10 @@ current operational source of truth.
 
 ## Contributor And Agent Guides
 
-- [CONTRIBUTING.md](/Users/khan/Documents/Projects/elata-bio-sdk/CONTRIBUTING.md): contributor workflow
-- [AGENTS.md](/Users/khan/Documents/Projects/elata-bio-sdk/AGENTS.md): repo-specific instructions for AI coding agents
-- [CODE_OF_CONDUCT.md](/Users/khan/Documents/Projects/elata-bio-sdk/CODE_OF_CONDUCT.md)
-- [SECURITY.md](/Users/khan/Documents/Projects/elata-bio-sdk/SECURITY.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md): contributor workflow
+- [AGENTS.md](AGENTS.md): repo-specific instructions for AI coding agents
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [SECURITY.md](SECURITY.md)
 
 ## License
 

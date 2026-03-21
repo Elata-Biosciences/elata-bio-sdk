@@ -21,11 +21,11 @@ TypeScript wrappers, demo apps, and release tooling.
 
 When starting work, orient with these files first:
 
-- [README.md](/Users/khan/Documents/Projects/elata-bio-sdk/README.md): repo overview, package list, build/demo commands
-- [run.sh](/Users/khan/Documents/Projects/elata-bio-sdk/run.sh): canonical task runner for build, test, release, and local package workflows
-- [CONTRIBUTING.md](/Users/khan/Documents/Projects/elata-bio-sdk/CONTRIBUTING.md): contribution and verification expectations
-- [docs/releasing.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/releasing.md): release flow and publish rules
-- [docs/create-elata-demo.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/create-elata-demo.md): canonical scaffolding workflow
+- [README.md](README.md): repo overview, package list, build/demo commands
+- [run.sh](run.sh): canonical task runner for build, test, release, and local package workflows
+- [CONTRIBUTING.md](CONTRIBUTING.md): contribution and verification expectations
+- [docs/releasing.md](docs/releasing.md): release flow and publish rules
+- [docs/create-elata-demo.md](docs/create-elata-demo.md): canonical scaffolding workflow
 
 For package-specific work, read the nearest package README and `package.json`
 before changing code.
@@ -99,7 +99,7 @@ chance that consumers follow an internal or legacy-looking path:
 
 If a scaffolded app is created inside this repository, `pnpm install` from that
 app directory may still bind to the parent workspace defined in
-[pnpm-workspace.yaml](/Users/khan/Documents/Projects/elata-bio-sdk/pnpm-workspace.yaml).
+[pnpm-workspace.yaml](pnpm-workspace.yaml).
 
 That means the app may not get its own `node_modules` if it is not included in
 the workspace globs.
@@ -120,8 +120,8 @@ whether `pnpm` attached to the parent workspace.
 
 When asked whether something is still relevant, supported, or canonical:
 
-1. Check [README.md](/Users/khan/Documents/Projects/elata-bio-sdk/README.md).
-2. Check [run.sh](/Users/khan/Documents/Projects/elata-bio-sdk/run.sh) for the real command behavior.
+1. Check [README.md](README.md).
+2. Check [run.sh](run.sh) for the real command behavior.
 3. Check the relevant package `package.json` scripts.
 4. Check the nearest package README or docs page.
 5. Search the repo for usage with `rg`.
@@ -150,10 +150,10 @@ verify more broadly than the edited file suggests.
 
 ## When To Edit Which Doc
 
-- Edit [README.md](/Users/khan/Documents/Projects/elata-bio-sdk/README.md) for repo entry points, package inventory, and high-level workflows.
+- Edit [README.md](README.md) for repo entry points, package inventory, and high-level workflows.
 - Edit package READMEs for package-specific install/usage/build details.
-- Edit [docs/create-elata-demo.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/create-elata-demo.md) for scaffolder workflows and caveats.
-- Edit [docs/releasing.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/releasing.md) for release policy and maintainer flow.
+- Edit [docs/create-elata-demo.md](docs/create-elata-demo.md) for scaffolder workflows and caveats.
+- Edit [docs/releasing.md](docs/releasing.md) for release policy and maintainer flow.
 
 If a workflow changed in code, update the nearest doc in the same task when practical.
 
@@ -170,7 +170,7 @@ Published packages currently include:
 - `@elata-biosciences/create-elata-demo`
 
 Before making release-related claims, inspect current `package.json` files and
-[docs/releasing.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/releasing.md).
+[docs/releasing.md](docs/releasing.md).
 
 ## Editing Guidance
 

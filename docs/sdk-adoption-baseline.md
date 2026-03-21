@@ -7,20 +7,20 @@ Date: 2026-03-17
 This baseline captures the current external-developer experience for the Elata
 SDK after the first documentation and smoke-test improvements. It is meant to
 anchor the remaining work in
-[implementation-plan-sdk-adoption.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/implementation-plan-sdk-adoption.md)
+[implementation-plan-sdk-adoption.md](implementation-plan-sdk-adoption.md)
 to concrete flows, current strengths, and the biggest remaining gaps.
 
 ## Current Public Surfaces
 
 Primary consumer entry points:
 
-- [README.md](/Users/khan/Documents/Projects/elata-bio-sdk/README.md)
-- [docs/guides/getting-started.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/getting-started.md)
-- [docs/guides/choose-the-right-package.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/choose-the-right-package.md)
-- [packages/create-elata-demo/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/create-elata-demo/README.md)
-- [packages/eeg-web/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/eeg-web/README.md)
-- [packages/eeg-web-ble/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/eeg-web-ble/README.md)
-- [packages/rppg-web/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/rppg-web/README.md)
+- [README.md](../README.md)
+- [docs/guides/getting-started.md](guides/getting-started.md)
+- [docs/guides/choose-the-right-package.md](guides/choose-the-right-package.md)
+- [packages/create-elata-demo/README.md](../packages/create-elata-demo/README.md)
+- [packages/eeg-web/README.md](../packages/eeg-web/README.md)
+- [packages/eeg-web-ble/README.md](../packages/eeg-web-ble/README.md)
+- [packages/rppg-web/README.md](../packages/rppg-web/README.md)
 
 Primary public packages:
 
@@ -44,9 +44,9 @@ Consumer templates:
 
 Maintainer-oriented surfaces that are still easy to encounter:
 
-- [docs/maintainers.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/maintainers.md)
-- [docs/releasing.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/releasing.md)
-- [run.sh](/Users/khan/Documents/Projects/elata-bio-sdk/run.sh)
+- [docs/maintainers.md](maintainers.md)
+- [docs/releasing.md](releasing.md)
+- [run.sh](../run.sh)
 
 ## Current New-Developer Flows
 

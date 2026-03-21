@@ -258,6 +258,6 @@ verified together in this repo.
 
 ## Next Steps
 
-- For package details, see [packages/rppg-web/README.md](/Users/khan/Documents/Projects/elata-bio-sdk/packages/rppg-web/README.md).
-- For setup failures, read [troubleshooting.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/troubleshooting.md).
-- For platform support details, read [compatibility.md](/Users/khan/Documents/Projects/elata-bio-sdk/docs/guides/compatibility.md).
+- For package details, see [packages/rppg-web/README.md](../../packages/rppg-web/README.md).
+- For setup failures, read [troubleshooting.md](troubleshooting.md).
+- For platform support details, read [compatibility.md](compatibility.md).
