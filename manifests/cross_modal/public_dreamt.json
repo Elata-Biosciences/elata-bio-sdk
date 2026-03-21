@@ -59,6 +59,17 @@
     "quality_fields": [],
     "artifact_fields": []
   },
+  "intake_review": {
+    "verification_status": "official_physionet_page_verified_partial_metadata",
+    "accepted_for": [
+      "candidate_sleep_state_alignment",
+      "candidate_ppg_event_baseline"
+    ],
+    "blocked_on": [
+      "credentialed access review",
+      "select usable EEG subset from PSG channels for the planned benchmark"
+    ]
+  },
   "notes": [
     "Candidate public EEG-PPG aligned resource through PSG and wearable BVP.",
     "Based on verified PhysioNet DREAMT version 2.1.0 checked on March 21, 2026.",

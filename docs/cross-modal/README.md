@@ -11,6 +11,8 @@
 - [Dataset Manifest Contract](dataset-manifest-contract.md)
 - [Dataset Manifest Template](dataset-manifest-template.json)
 - [Phase 1 Dataset Registry](phase-1-dataset-registry.md)
+- [Phase 1 Public Intake Note](phase-1-public-intake-note.md)
+- [DS004514 Intake Worksheet](ds004514-intake-worksheet.md)
 - [Athena Intake Note](athena-intake-note.md)
 
 Primary plan:

@@ -56,6 +56,17 @@
     "quality_fields": [],
     "artifact_fields": []
   },
+  "intake_review": {
+    "verification_status": "official_doi_verified_partial_metadata",
+    "accepted_for": [
+      "candidate_paired_alignment",
+      "candidate_rest_working_memory_benchmark"
+    ],
+    "blocked_on": [
+      "confirm exact EEG and PPG recording layout during ingest",
+      "confirm whether the protocol labels map cleanly into the planned benchmark taxonomy"
+    ]
+  },
   "notes": [
     "Candidate public EEG-PPG dataset for working-memory and resting-state experiments.",
     "Based on verified DOI 10.18112/openneuro.ds006848.v1.0.0 checked on March 21, 2026.",

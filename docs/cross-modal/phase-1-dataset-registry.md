@@ -32,6 +32,7 @@ Registry file:
   Status: candidate
   Priority: highest
   Verified source: `https://doi.org/10.18112/openneuro.ds004514.v1.1.2`
+  Worksheet: [ds004514-intake-worksheet.md](ds004514-intake-worksheet.md)
 
 ### Public EEG-PPG
 

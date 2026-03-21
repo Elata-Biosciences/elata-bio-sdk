@@ -56,6 +56,17 @@
     "quality_fields": [],
     "artifact_fields": []
   },
+  "intake_review": {
+    "verification_status": "official_doi_verified_partial_metadata",
+    "accepted_for": [
+      "candidate_paired_alignment",
+      "candidate_ppg_morphology_benchmark"
+    ],
+    "blocked_on": [
+      "confirm exact channel counts and sampling rates during ingest",
+      "confirm whether raw waveform quality is sufficient for morphology retention work"
+    ]
+  },
   "notes": [
     "Candidate public paired dataset for EEG-PPG alignment and morphology experiments.",
     "Based on verified DOI 10.18112/openneuro.ds003838.v1.0.6 checked on March 21, 2026.",
