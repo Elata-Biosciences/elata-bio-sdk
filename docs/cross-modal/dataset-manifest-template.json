@@ -1,0 +1,57 @@
+{
+  "kind": "cross_modal_dataset_manifest",
+  "schema_version": "0.2",
+  "identity": {
+    "dataset_name": "replace-me",
+    "dataset_version": "0.0.0",
+    "source_type": "public",
+    "intake_status": "candidate",
+    "source_uri": "replace-me",
+    "license": "review-required"
+  },
+  "storage": {
+    "dataset_path": "replace-me",
+    "manifest_path": "replace-me"
+  },
+  "modalities": {
+    "eeg": {
+      "present": true,
+      "feature_dim": 0,
+      "sampling_rate_hz": null,
+      "geometry_available": false
+    },
+    "fnirs": {
+      "present": true,
+      "feature_dim": 0,
+      "sampling_rate_hz": null,
+      "geometry_available": false
+    },
+    "ppg": {
+      "present": true,
+      "feature_dim": 0,
+      "sampling_rate_hz": null,
+      "geometry_available": false
+    }
+  },
+  "split_summary": {
+    "train_windows": 0,
+    "eval_windows": 0,
+    "heldout_subjects": []
+  },
+  "coverage": {
+    "subject_ids": [],
+    "session_ids": [],
+    "protocols": [],
+    "shift_metadata_keys": []
+  },
+  "labels": {
+    "event_labels_present": false,
+    "ppg_morphology_targets_present": false,
+    "task_labels_present": false
+  },
+  "quality": {
+    "quality_fields": [],
+    "artifact_fields": []
+  },
+  "notes": []
+}
