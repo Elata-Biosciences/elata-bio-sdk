@@ -13,7 +13,17 @@
 - [Phase 1 Dataset Registry](phase-1-dataset-registry.md)
 - [Phase 1 Public Intake Note](phase-1-public-intake-note.md)
 - [DS004514 Intake Worksheet](ds004514-intake-worksheet.md)
+- [DS004514 Ingest Note](ds004514-ingest-note.md)
+- [DS004514 Split Plan](ds004514-split-plan.md)
+- [DS004514 Normalization Note](ds004514-normalization-note.md)
+- [DS004514 Smoke Ingest Path](ds004514-smoke-ingest.md)
+- [Intake Report Template](intake-report-template.md)
 - [Athena Intake Note](athena-intake-note.md)
+
+Phase 1 reports:
+
+- [../../reports/cross_modal/intake/README.md](../../reports/cross_modal/intake/README.md)
+- [../../reports/cross_modal/intake/ds004514-intake-report.md](../../reports/cross_modal/intake/ds004514-intake-report.md)
 
 Primary plan:
 

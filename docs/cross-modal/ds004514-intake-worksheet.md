@@ -15,6 +15,15 @@ Primary intended role:
 - paired EEG-fNIRS latent alignment
 - EEG-to-fNIRS baseline and translation experiments
 
+Linked artifacts:
+
+- [../../reports/cross_modal/intake/ds004514-intake-report.md](../../reports/cross_modal/intake/ds004514-intake-report.md)
+- [ds004514-ingest-note.md](ds004514-ingest-note.md)
+- [ds004514-split-plan.md](ds004514-split-plan.md)
+- [ds004514-normalization-note.md](ds004514-normalization-note.md)
+- [ds004514-smoke-ingest.md](ds004514-smoke-ingest.md)
+- [intake-report-template.md](intake-report-template.md)
+
 ## Current manifest status
 
 Manifest status:
@@ -24,61 +33,61 @@ Manifest status:
 What is already recorded:
 
 - official DOI
-- provisional modality presence
-- provisional feature dimensions and sample rates
+- source-backed modality presence
+- source-backed feature dimensions and sample rates
+- source-backed subject count and no-session layout
 - intended benchmark role
 
 What is still provisional:
 
-- exact subject count
-- exact session count
-- exact raw file layout
-- exact ingest path into canonical windows
+- exact signal-level ingest path into canonical windows
+- final held-out-subject split
+- finalized event-alignment policy
 
 ## Intake checklist
 
 ### Access and source verification
 
-- [ ] confirm the dataset can be downloaded from the official OpenNeuro source
-- [ ] confirm snapshot `v1.1.2` is the intended frozen version for experiments
-- [ ] capture the dataset README and dataset description into intake notes
+- [x] confirm the dataset can be downloaded from the official OpenNeuro source
+- [x] confirm snapshot `v1.1.2` is the intended frozen version for experiments
+- [x] capture the dataset README and dataset description into intake notes
 
 ### Raw structure review
 
-- [ ] record top-level directory layout
-- [ ] record participant and session naming pattern
-- [ ] record whether data are already BIDS-clean for EEG and fNIRS
-- [ ] record whether any task metadata must be normalized
+- [x] record top-level directory layout
+- [x] record participant and session naming pattern
+- [x] record whether data are already BIDS-clean for EEG and fNIRS
+- [x] record whether any task metadata must be normalized
 
 ### EEG review
 
-- [ ] confirm EEG channel count from raw files
-- [ ] confirm EEG sampling rate from raw metadata
-- [ ] confirm channel-name convention and montage
-- [ ] note any missing or auxiliary channels
+- [x] confirm EEG channel count from raw files
+- [x] confirm EEG sampling rate from raw metadata
+- [x] confirm channel-name convention and montage
+- [x] note any missing or auxiliary channels
 
 ### fNIRS review
 
-- [ ] confirm fNIRS source-detector layout
-- [ ] confirm raw file format for fNIRS
-- [ ] confirm whether channel geometry is directly available
-- [ ] confirm whether a standard HbO/HbR conversion path is straightforward
+- [x] confirm fNIRS source-detector layout
+- [x] confirm raw file format for fNIRS
+- [x] confirm whether channel geometry is directly available
+- [x] confirm whether a standard HbO/HbR conversion path is straightforward
 
 ### Pairing and timing review
 
 - [ ] confirm EEG and fNIRS are truly simultaneous in the raw data
-- [ ] confirm timestamp or trigger alignment fields
-- [ ] note any drift or resynchronization concerns
+- [x] confirm timestamp or trigger alignment fields
+- [x] note any drift or resynchronization concerns
 
 ### Labels and benchmark fit
 
-- [ ] confirm task labels present in the raw dataset
-- [ ] map task labels into the internal benchmark taxonomy
-- [ ] decide whether this dataset is suitable for alignment only or also translation baselines
+- [x] confirm task labels present in the raw dataset
+- [x] map task labels into the internal benchmark taxonomy
+- [x] decide whether this dataset is suitable for alignment only or also translation baselines
 
 ### Quality and exclusions
 
-- [ ] record any known quality issues from dataset docs
+- [x] record any known quality issues from dataset docs
 - [ ] define exclusion rules for unusable subjects or sessions
 - [ ] record whether any sessions should be evaluation-only
 
@@ -86,10 +95,11 @@ What is still provisional:
 
 Before this manifest can move from `candidate` to `ready`, the following should exist:
 
-- [ ] completed manifest with confirmed counts and modality metadata
-- [ ] one short ingest note summarizing file layout
-- [ ] one split plan for held-out-subject evaluation
-- [ ] one normalization note describing how EEG and fNIRS will be converted into canonical windows
+- [x] completed manifest with confirmed counts and modality metadata
+- [x] one dataset-specific intake report with raw-file findings
+- [x] one short ingest note summarizing file layout
+- [x] one split plan for held-out-subject evaluation
+- [x] one normalization note describing how EEG and fNIRS will be converted into canonical windows
 
 ## Recommended first ingest decision
 

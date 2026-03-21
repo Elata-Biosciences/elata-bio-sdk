@@ -14,9 +14,12 @@ This note summarizes the current state of the public candidate manifests and wha
 - Intended role: paired EEG-fNIRS alignment and EEG-to-fNIRS baseline work
 - What is verified:
   - official OpenNeuro DOI `10.18112/openneuro.ds004514.v1.1.2`
+  - frozen `1.1.2` source tree and BIDS sidecars confirm 12 subjects, no session folders, EEG `.bdf`, and fNIRS `.snirf`
+  - split-plan and normalization-note docs now exist for this dataset
+  - executable smoke ingest path exists and validates event-aligned canonical windows across all 12 subjects
 - What remains:
-  - confirm exact subject and session counts
-  - confirm raw-file layout and preprocessing expectations
+  - fetch raw signal payloads for waveform-level smoke tests
+  - validate the SNIRF-to-HbO/HbR derivation path
 
 ### DS003838
 

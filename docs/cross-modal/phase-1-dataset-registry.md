@@ -33,6 +33,10 @@ Registry file:
   Priority: highest
   Verified source: `https://doi.org/10.18112/openneuro.ds004514.v1.1.2`
   Worksheet: [ds004514-intake-worksheet.md](ds004514-intake-worksheet.md)
+  Ingest note: [ds004514-ingest-note.md](ds004514-ingest-note.md)
+  Split plan: [ds004514-split-plan.md](ds004514-split-plan.md)
+  Normalization note: [ds004514-normalization-note.md](ds004514-normalization-note.md)
+  Intake report: [../../reports/cross_modal/intake/ds004514-intake-report.md](../../reports/cross_modal/intake/ds004514-intake-report.md)
 
 ### Public EEG-PPG
 
@@ -63,7 +67,8 @@ For each entry:
 1. validate the manifest against the shared contract
 2. complete missing split and coverage metadata
 3. complete license and access review
-4. decide whether the dataset is accepted for pretraining, paired alignment, held-out evaluation, or rejected
+4. create or update the dataset-specific intake report under `reports/cross_modal/intake/`
+5. decide whether the dataset is accepted for pretraining, paired alignment, held-out evaluation, or rejected
 
 Validation command:
 
