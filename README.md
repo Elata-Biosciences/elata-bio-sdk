@@ -73,6 +73,7 @@ Full details: **`docs/releasing.md`** and **`.changeset/README.md`**.
 - `docs/implementation-plan-rppg.md` - rPPG implementation plan.
 - `docs/architecture-sentiment.md` - Facial sentiment architecture.
 - `docs/implementation-plan-sentiment.md` - Sentiment implementation plan.
+- `docs/implementation-plan-cross-modal-biosignals.md` - Small-data implementation plan for EEG, fNIRS, and PPG cross-modal modeling.
 - `docs/releasing.md` - npm release flow, Changesets workflow, tagging, and bad-release recovery.
 
 ## Community

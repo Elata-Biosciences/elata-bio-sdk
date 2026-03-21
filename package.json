@@ -9,6 +9,11 @@
 	"scripts": {
 		"audit:repo": "node scripts/audit-repo.mjs",
 		"build": "pnpm -r --if-present build",
+		"cross-modal:toy:subset": "python scripts/cross_modal/make_toy_subset.py --config configs/cross_modal/proto_cpu.toml",
+		"cross-modal:toy:smoke": "python scripts/cross_modal/train_proto.py --config configs/cross_modal/proto_cpu.toml",
+		"cross-modal:toy:validate": "python scripts/cross_modal/validate_toy_run.py --config configs/cross_modal/proto_cpu.toml",
+		"cross-modal:toy:all": "python scripts/cross_modal/make_toy_subset.py --config configs/cross_modal/proto_cpu.toml && python scripts/cross_modal/train_proto.py --config configs/cross_modal/proto_cpu.toml && python scripts/cross_modal/validate_toy_run.py --config configs/cross_modal/proto_cpu.toml",
+		"cross-modal:manifest:validate": "python scripts/cross_modal/validate_manifest_file.py manifests/cross_modal/public_ds004514.json",
 		"test": "pnpm -r --if-present test",
 		"clean": "pnpm -r --if-present clean",
 		"lint:web": "pnpm -r --if-present lint",

@@ -1,0 +1,23 @@
+[toy_subset]
+seed = 11
+subject_count = 6
+sessions_per_subject = 2
+windows_per_session = 32
+latent_dim = 5
+eeg_dim = 12
+fnirs_dim = 6
+ppg_dim = 4
+heldout_subjects = 1
+protocols = ["rest_open", "rest_closed", "working_memory", "mental_arithmetic", "paced_breathing"]
+quality_floor = 0.5
+noise_scale = 0.1
+
+[train]
+learning_rate = 0.06
+epochs = 320
+
+[paths]
+toy_dataset = "reports/cross_modal/toy/proto_gpu_small_dataset.json"
+toy_manifest = "reports/cross_modal/toy/proto_gpu_small_manifest.json"
+toy_report = "reports/cross_modal/toy/proto_gpu_small_report.md"
+toy_metrics = "reports/cross_modal/toy/proto_gpu_small_metrics.json"

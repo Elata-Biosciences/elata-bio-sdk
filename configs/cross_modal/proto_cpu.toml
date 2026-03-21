@@ -1,0 +1,23 @@
+[toy_subset]
+seed = 7
+subject_count = 4
+sessions_per_subject = 2
+windows_per_session = 24
+latent_dim = 4
+eeg_dim = 8
+fnirs_dim = 4
+ppg_dim = 4
+heldout_subjects = 1
+protocols = ["rest_open", "rest_closed", "working_memory", "mental_arithmetic"]
+quality_floor = 0.55
+noise_scale = 0.08
+
+[train]
+learning_rate = 0.08
+epochs = 220
+
+[paths]
+toy_dataset = "reports/cross_modal/toy/proto_cpu_dataset.json"
+toy_manifest = "reports/cross_modal/toy/proto_cpu_manifest.json"
+toy_report = "reports/cross_modal/toy/proto_cpu_report.md"
+toy_metrics = "reports/cross_modal/toy/proto_cpu_metrics.json"
