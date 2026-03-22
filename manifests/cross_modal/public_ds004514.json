@@ -98,9 +98,7 @@
       "candidate_paired_waveform_smoke"
     ],
     "blocked_on": [
-      "extend the paired waveform path beyond the uniform 28-channel fNIRS variant used in the current smoke subset",
-      "define how variable fNIRS montages and sampling rates will be normalized across subjects",
-      "decide whether low-quality fNIRS subjects such as sub-05 and sub-12 are excluded, corrected, or retained as stress-test cases"
+      "define how variable fNIRS montages and sampling rates will be normalized across subjects"
     ]
   },
   "notes": [
@@ -113,6 +111,7 @@
     "Waveform-level fNIRS smoke processing on real SNIRF payloads found subject-specific raw variants with 22 or 28 channels and sampling rates of 7.8125 Hz or 8.928571 Hz.",
     "SNIRF loading, optical-density conversion, HbO/HbR derivation, and scalp-coupling scoring have been validated on the raw fNIRS payloads.",
     "A laptop-safe raw EEG waveform smoke path has been validated on a two-subject BDF subset and confirms 64 EEG channels within 80 raw channels at 2048 Hz.",
-    "A paired EEG-fNIRS waveform smoke artifact now exists for sub-01 and sub-03 with 360 aligned windows saved as machine-readable tensors and metadata."
+    "A paired EEG-fNIRS waveform smoke artifact now exists for both observed fNIRS raw variants: sub-01/sub-03 for the 28-channel cohort and sub-10/sub-11 for the 22-channel cohort.",
+    "A machine-readable subject-quality policy now marks sub-05 and sub-12 as stress-test-only and sub-04 and sub-09 as borderline-review subjects."
   ]
 }

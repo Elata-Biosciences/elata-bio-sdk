@@ -1,0 +1,64 @@
+{
+  "config": "configs/cross_modal/ds004514_variant_routed_baseline.toml",
+  "runtime_sec": 4.045958300004713,
+  "peak_memory_mb": 777.4261789321899,
+  "aggregate": {
+    "variant_count": 2,
+    "train_windows": 360,
+    "eval_windows": 360,
+    "weighted_model_mse": 2.604476087511966e-05,
+    "weighted_null_mse": 2.5779132826583397e-09,
+    "weighted_mse_ratio_vs_null": 10103.039947201929,
+    "weighted_model_mae": 0.0034835531933001236,
+    "weighted_null_mae": 3.886624037904101e-05,
+    "weighted_model_corr": -0.08351297336215098,
+    "weighted_null_corr": -0.004412921271210584,
+    "beats_null_mse": false
+  },
+  "variants": [
+    {
+      "variant": "variant28",
+      "train_windows": 180,
+      "eval_windows": 180,
+      "eeg_input_shape": [
+        64,
+        1229
+      ],
+      "fnirs_target_shape": [
+        28,
+        78
+      ],
+      "alignment_rmse_seconds": 0.03703923052877821,
+      "model_mse": 4.019467953821637e-05,
+      "null_mse": 2.6949779202283477e-09,
+      "model_mae": 0.0050892284629747535,
+      "null_mae": 4.068404360242248e-05,
+      "model_corr": -0.03331669168420683,
+      "null_corr": 0.016378705997892738,
+      "mse_ratio_vs_null": 14914.66005584589,
+      "beats_null_mse": false
+    },
+    {
+      "variant": "variant22",
+      "train_windows": 180,
+      "eval_windows": 180,
+      "eeg_input_shape": [
+        64,
+        1229
+      ],
+      "fnirs_target_shape": [
+        22,
+        89
+      ],
+      "alignment_rmse_seconds": 0.032430810077060127,
+      "model_mse": 1.189484221202295e-05,
+      "null_mse": 2.460848645088331e-09,
+      "model_mae": 0.0018778779236254936,
+      "null_mae": 3.704843715565953e-05,
+      "model_corr": -0.13370925504009512,
+      "null_corr": -0.025204548540313905,
+      "mse_ratio_vs_null": 4833.634216295326,
+      "beats_null_mse": false
+    }
+  ]
+}

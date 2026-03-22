@@ -1,0 +1,41 @@
+{
+  "dataset_id": "ds004514",
+  "policy_version": "0.1",
+  "generated_from": [
+    "reports/cross_modal/ds004514/ds004514_fnirs_waveform_metrics.json",
+    "docs/cross-modal/ds004514-variant-summary.md"
+  ],
+  "tiers": {
+    "default_train_eval": [
+      "sub-01",
+      "sub-02",
+      "sub-03",
+      "sub-04",
+      "sub-06",
+      "sub-07",
+      "sub-08",
+      "sub-09",
+      "sub-10",
+      "sub-11"
+    ],
+    "borderline_review": [
+      "sub-04",
+      "sub-09"
+    ],
+    "stress_test_only": [
+      "sub-05",
+      "sub-12"
+    ]
+  },
+  "rationale": {
+    "sub-04": "Low SCI minimum and 10 channels below the 0.75 threshold, but median SCI remains high enough for review instead of automatic exclusion.",
+    "sub-05": "Very poor fNIRS quality with median SCI around 0.149 and 26 channels below the 0.75 threshold.",
+    "sub-09": "Borderline 22-channel cohort subject with 8 channels below the 0.75 threshold and lower median SCI than the clean cohort members.",
+    "sub-12": "Very poor fNIRS quality with median SCI around 0.060 and all 22 channels below the 0.75 threshold."
+  },
+  "notes": [
+    "Use default_train_eval as the default pool for early baselines and ablations.",
+    "Keep stress_test_only subjects out of default training runs unless a correction path is explicitly being tested.",
+    "Treat borderline_review subjects as eligible, but always surface their per-subject metrics separately."
+  ]
+}

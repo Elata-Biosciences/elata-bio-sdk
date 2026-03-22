@@ -1,0 +1,56 @@
+{
+  "kind": "ds004514_cross_modal_waveform_metrics",
+  "config_path": "configs/cross_modal/ds004514_cross_modal_waveform_variant22.toml",
+  "subject_count": 2,
+  "train_subject_count": 1,
+  "eval_subject_count": 1,
+  "paired_window_count": 360,
+  "eeg_tensor_shape": [
+    360,
+    64,
+    1229
+  ],
+  "fnirs_tensor_shape": [
+    360,
+    22,
+    89
+  ],
+  "max_subject_rmse_seconds": 0.032430810077060127,
+  "max_subject_abs_seconds": 0.05802659964547274,
+  "per_subject": [
+    {
+      "subject_id": "sub-10",
+      "split": "train",
+      "paired_window_count": 180,
+      "eeg_window_shape": [
+        64,
+        1229
+      ],
+      "fnirs_window_shape": [
+        22,
+        89
+      ],
+      "rmse_seconds": 0.03234415653729995,
+      "max_abs_seconds": 0.05802659964547274,
+      "fnirs_channel_count": 22,
+      "fnirs_sampling_rate_hz": 8.928571
+    },
+    {
+      "subject_id": "sub-11",
+      "split": "eval",
+      "paired_window_count": 180,
+      "eeg_window_shape": [
+        64,
+        1229
+      ],
+      "fnirs_window_shape": [
+        22,
+        89
+      ],
+      "rmse_seconds": 0.032430810077060127,
+      "max_abs_seconds": 0.057377789395559375,
+      "fnirs_channel_count": 22,
+      "fnirs_sampling_rate_hz": 8.928571
+    }
+  ]
+}

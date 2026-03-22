@@ -1,0 +1,19 @@
+[baseline]
+name = "ds004514-variant-routed-eeg-to-fnirs"
+ridge_lambda = 1.0
+
+[variant.variant28]
+name = "variant28"
+dataset = "reports/cross_modal/ds004514/ds004514_cross_modal_waveform_windows.npz"
+metadata = "reports/cross_modal/ds004514/ds004514_cross_modal_waveform_metadata.json"
+metrics = "reports/cross_modal/ds004514/ds004514_cross_modal_waveform_metrics.json"
+
+[variant.variant22]
+name = "variant22"
+dataset = "reports/cross_modal/ds004514/ds004514_cross_modal_variant22_waveform_windows.npz"
+metadata = "reports/cross_modal/ds004514/ds004514_cross_modal_variant22_waveform_metadata.json"
+metrics = "reports/cross_modal/ds004514/ds004514_cross_modal_variant22_waveform_metrics.json"
+
+[paths]
+report = "reports/cross_modal/ds004514/ds004514_variant_routed_baseline_report.md"
+metrics = "reports/cross_modal/ds004514/ds004514_variant_routed_baseline_metrics.json"

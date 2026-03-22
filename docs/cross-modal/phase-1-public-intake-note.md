@@ -21,9 +21,10 @@ This note summarizes the current state of the public candidate manifests and wha
   - executable raw EEG waveform smoke path validates BDF loading and event-window access on a laptop-safe two-subject subset
   - executable paired EEG-fNIRS waveform smoke path emits 360 aligned windows for one train subject and one eval subject
   - both observed fNIRS raw variants now have paired waveform smoke coverage on clean train/eval subject pairs
+  - executable variant-routed baseline exists for the two observed fNIRS cohorts
+  - subject-quality policy is now explicit and machine-readable
 - What remains:
-  - normalize the observed fNIRS montage and sampling-rate variants
-  - define the policy for low-quality fNIRS subjects
+  - decide whether future geometry-aware canonicalization beats the routed baseline strongly enough to justify the extra complexity
 
 ### DS003838
 

@@ -15,6 +15,8 @@ Status: Source-Backed Candidate
 - EEG waveform smoke: [../../../docs/cross-modal/ds004514-eeg-waveform-smoke.md](../../../docs/cross-modal/ds004514-eeg-waveform-smoke.md)
 - Cross-modal waveform smoke: [../../../docs/cross-modal/ds004514-cross-modal-waveform-smoke.md](../../../docs/cross-modal/ds004514-cross-modal-waveform-smoke.md)
 - Variant summary: [../../../docs/cross-modal/ds004514-variant-summary.md](../../../docs/cross-modal/ds004514-variant-summary.md)
+- Variant-routed baseline: [../../../docs/cross-modal/ds004514-variant-routed-baseline.md](../../../docs/cross-modal/ds004514-variant-routed-baseline.md)
+- Subject quality policy: [../../../docs/cross-modal/ds004514-subject-quality-policy.md](../../../docs/cross-modal/ds004514-subject-quality-policy.md)
 - Intake owner: unassigned
 - Intake date: 2026-03-21
 - Source version: `v1.1.2`
@@ -105,13 +107,12 @@ Decision rationale:
 
 - the frozen source tree and BIDS sidecars now support the candidate manifest with source-backed metadata
 - the dataset is clearly suitable for early EEG-fNIRS alignment and translation baselines
-- the dataset should remain `candidate` until cross-variant fNIRS normalization and low-quality-subject policy are made explicit in code and evaluation
+- the dataset should remain `candidate` until the chosen routed-vs-canonicalized normalization path is encoded in baseline configs beyond the smoke stage
 
 ## Next actions
 
-1. Define explicit normalization handling for the observed fNIRS montage and sampling-rate variants.
-2. Decide how low-quality fNIRS subjects are handled before moving the manifest to `ready`.
-3. Encode variant-routed or geometry-aware baseline configs so the choice is executable rather than just documented.
+1. Compare the routed baseline against any future geometry-aware canonicalization path before committing to a unification strategy.
+2. Promote the subject-quality policy from smoke-stage documentation into the first non-smoke training configs.
 
 ## Commands
 
