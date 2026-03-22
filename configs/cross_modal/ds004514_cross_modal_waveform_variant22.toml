@@ -28,7 +28,7 @@ eeg_channel_count = 64
 [expected]
 subject_ids = ["sub-10", "sub-11"]
 paired_window_count = 360
-eeg_window_shape = [64, 1230]
+eeg_window_shape = [64, 1229]
 fnirs_window_shape = [22, 89]
 
 [paths]

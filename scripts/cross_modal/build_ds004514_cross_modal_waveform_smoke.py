@@ -121,7 +121,7 @@ def fnirs_window(raw_haemo_data: np.ndarray, sfreq: float, onset_seconds: float,
     return raw_haemo_data[:, start:stop].astype(np.float32)
 
 
-def build_summary(metrics: dict, config_path: Path) -> str:
+def build_summary(metrics: dict, config_path: Path, subject_ids: list[str]) -> str:
     lines = [
         "# DS004514 Cross-Modal Waveform Smoke Summary",
         "",
@@ -157,7 +157,7 @@ def build_summary(metrics: dict, config_path: Path) -> str:
             "",
             "- This is the first true paired waveform artifact in the repo.",
             "- It uses the event-alignment transform to bridge EEG and fNIRS timing instead of assuming shared file-start time.",
-            "- The scope is intentionally limited to the uniform fNIRS variant shared by `sub-01` and `sub-03`.",
+            f"- This run is intentionally limited to the configured subject pair: {', '.join(subject_ids)}.",
             "",
         ]
     )
@@ -298,7 +298,7 @@ def main() -> int:
         "per_subject": per_subject,
     }
     metrics_path.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
-    summary_path.write_text(build_summary(metrics=metrics, config_path=config_path), encoding="utf-8")
+    summary_path.write_text(build_summary(metrics=metrics, config_path=config_path, subject_ids=iter_subjects(config)), encoding="utf-8")
 
     print(f"Wrote paired waveform dataset to {dataset_path}")
     print(f"Wrote paired waveform metadata to {metadata_path}")

@@ -20,6 +20,7 @@
 - [DS004514 fNIRS Waveform Smoke](ds004514-fnirs-waveform-smoke.md)
 - [DS004514 EEG Waveform Smoke](ds004514-eeg-waveform-smoke.md)
 - [DS004514 Cross-Modal Waveform Smoke](ds004514-cross-modal-waveform-smoke.md)
+- [DS004514 Variant Summary](ds004514-variant-summary.md)
 - [Intake Report Template](intake-report-template.md)
 - [Athena Intake Note](athena-intake-note.md)
 
