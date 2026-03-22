@@ -1,0 +1,25 @@
+[dataset]
+dataset_id = "ds004514"
+dataset_version = "1.1.2"
+dataset_name = "ds004514-simultaneous-eeg-fnirs-semantic-decoding"
+base_url = "https://s3.amazonaws.com/openneuro.org/ds004514"
+
+[subjects]
+train = ["sub-01"]
+eval = ["sub-03"]
+
+[fetch]
+include_code_examples = false
+raw_modalities = ["eeg"]
+force = false
+
+[window]
+event_trial_types = ["animal_image", "tool_image"]
+tmin_seconds = 0.0
+tmax_seconds = 0.6
+
+[paths]
+dataset_root = ".tmp/ds004514_eeg_smoke/source"
+fetch_report = "reports/cross_modal/ds004514/ds004514_eeg_fetch_report.json"
+metrics = "reports/cross_modal/ds004514/ds004514_eeg_waveform_metrics.json"
+summary = "reports/cross_modal/ds004514/ds004514_eeg_waveform_summary.md"

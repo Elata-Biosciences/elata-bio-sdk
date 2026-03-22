@@ -1,0 +1,40 @@
+[dataset]
+dataset_id = "ds004514"
+dataset_version = "1.1.2"
+dataset_name = "ds004514-simultaneous-eeg-fnirs-semantic-decoding"
+base_url = "https://s3.amazonaws.com/openneuro.org/ds004514"
+
+[subjects]
+train = ["sub-10"]
+eval = ["sub-11"]
+
+[fetch]
+include_code_examples = false
+raw_modalities = ["eeg", "fnirs"]
+force = false
+
+[alignment]
+max_rmse_seconds = 0.1
+max_abs_seconds = 0.15
+
+[window]
+event_trial_types = ["animal_image", "tool_image"]
+eeg_tmin_seconds = 0.0
+eeg_tmax_seconds = 0.6
+fnirs_tmin_seconds = 0.0
+fnirs_tmax_seconds = 10.0
+eeg_channel_count = 64
+
+[expected]
+subject_ids = ["sub-10", "sub-11"]
+paired_window_count = 360
+eeg_window_shape = [64, 1230]
+fnirs_window_shape = [22, 89]
+
+[paths]
+dataset_root = ".tmp/ds004514_cross_modal_variant22/source"
+fetch_report = "reports/cross_modal/ds004514/ds004514_cross_modal_variant22_fetch_report.json"
+dataset = "reports/cross_modal/ds004514/ds004514_cross_modal_variant22_waveform_windows.npz"
+metadata = "reports/cross_modal/ds004514/ds004514_cross_modal_variant22_waveform_metadata.json"
+metrics = "reports/cross_modal/ds004514/ds004514_cross_modal_variant22_waveform_metrics.json"
+summary = "reports/cross_modal/ds004514/ds004514_cross_modal_variant22_waveform_summary.md"

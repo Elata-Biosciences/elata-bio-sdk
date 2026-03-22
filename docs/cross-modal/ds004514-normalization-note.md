@@ -68,6 +68,12 @@ Do not:
 - apply aggressive notch or band-limit filtering before synchronization checks
 - assume all useful transient structure lies below traditional low-gamma cutoffs
 
+Observed raw validation:
+
+- a two-subject waveform smoke pass confirms `80` raw channels per subject
+- channel makeup matches the sidecars: `64 EEG`, `11 MISC`, `2 GSR`, `1 RESP`, `1 TEMP`, `1 TRIG`
+- raw waveform access around real image events works without requiring full preload
+
 ## fNIRS normalization
 
 Archive branch:
@@ -174,3 +180,8 @@ Every canonical window record should include:
 - the raw-preserving and derived branches both exist
 - variable fNIRS montage handling is implemented explicitly
 - the emitted window metadata include the fields above
+
+Current status:
+
+- the alignment transform has been validated on real paired waveform windows for `sub-01` and `sub-03`
+- the remaining gap is generalization across the observed fNIRS raw variants

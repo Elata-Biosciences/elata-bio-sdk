@@ -75,3 +75,4 @@ Working assumption:
 - fNIRS geometry is directly available from `optodes.tsv` and `coordsystem.json`.
 - HbO/HbR is not precomputed in the raw dataset; downstream ingest will need a documented SNIRF-to-derived-fNIRS conversion path.
 - Raw fNIRS is not uniform across subjects; waveform validation shows both `22`- and `28`-channel variants and both `7.8125 Hz` and `8.928571 Hz` sampling rates.
+- Raw EEG waveform access has been validated on a two-subject subset and confirms the expected `80` raw channels with `64` EEG channels at `2048 Hz`.

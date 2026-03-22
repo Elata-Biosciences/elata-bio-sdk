@@ -1,0 +1,58 @@
+{
+  "kind": "ds004514_eeg_waveform_metrics",
+  "config_path": "configs/cross_modal/ds004514_eeg_waveform.toml",
+  "subject_count": 2,
+  "train_subject_count": 1,
+  "eval_subject_count": 1,
+  "total_image_event_count": 360,
+  "sampling_rate_set": [
+    2048.0
+  ],
+  "raw_channel_count_set": [
+    80
+  ],
+  "per_subject": [
+    {
+      "subject_id": "sub-01",
+      "split": "train",
+      "age": 26,
+      "sex": "F",
+      "hand": "R",
+      "sfreq_hz": 2048.0,
+      "raw_channel_count": 80,
+      "eeg_channel_count": 64,
+      "misc_channel_count": 11,
+      "gsr_channel_count": 2,
+      "resp_channel_count": 1,
+      "temp_channel_count": 1,
+      "trig_channel_count": 1,
+      "duration_seconds": 4350.0,
+      "image_event_count": 180,
+      "first_window_shape": [
+        64,
+        1229
+      ]
+    },
+    {
+      "subject_id": "sub-03",
+      "split": "eval",
+      "age": 57,
+      "sex": "M",
+      "hand": "R",
+      "sfreq_hz": 2048.0,
+      "raw_channel_count": 80,
+      "eeg_channel_count": 64,
+      "misc_channel_count": 11,
+      "gsr_channel_count": 2,
+      "resp_channel_count": 1,
+      "temp_channel_count": 1,
+      "trig_channel_count": 1,
+      "duration_seconds": 4291.0,
+      "image_event_count": 180,
+      "first_window_shape": [
+        64,
+        1229
+      ]
+    }
+  ]
+}

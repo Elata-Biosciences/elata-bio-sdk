@@ -18,10 +18,11 @@ This note summarizes the current state of the public candidate manifests and wha
   - split-plan and normalization-note docs now exist for this dataset
   - executable smoke ingest path exists and validates event-aligned canonical windows across all 12 subjects
   - executable raw fNIRS waveform smoke path validates SNIRF loading and HbO/HbR derivation on real payloads
+  - executable raw EEG waveform smoke path validates BDF loading and event-window access on a laptop-safe two-subject subset
+  - executable paired EEG-fNIRS waveform smoke path emits 360 aligned windows for one train subject and one eval subject
 - What remains:
-  - fetch raw signal payloads for waveform-level smoke tests
-  - add laptop-viable EEG waveform access
   - normalize the observed fNIRS montage and sampling-rate variants
+  - define the policy for low-quality fNIRS subjects
 
 ### DS003838
 

@@ -18,6 +18,8 @@
 - [DS004514 Normalization Note](ds004514-normalization-note.md)
 - [DS004514 Smoke Ingest Path](ds004514-smoke-ingest.md)
 - [DS004514 fNIRS Waveform Smoke](ds004514-fnirs-waveform-smoke.md)
+- [DS004514 EEG Waveform Smoke](ds004514-eeg-waveform-smoke.md)
+- [DS004514 Cross-Modal Waveform Smoke](ds004514-cross-modal-waveform-smoke.md)
 - [Intake Report Template](intake-report-template.md)
 - [Athena Intake Note](athena-intake-note.md)
 

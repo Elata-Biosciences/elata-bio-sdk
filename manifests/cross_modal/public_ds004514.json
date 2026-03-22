@@ -93,13 +93,14 @@
     "accepted_for": [
       "candidate_eeg_fnirs_alignment",
       "candidate_eeg_to_fnirs_baseline",
-      "candidate_fnirs_waveform_target_preparation"
+      "candidate_fnirs_waveform_target_preparation",
+      "candidate_eeg_waveform_source_preparation",
+      "candidate_paired_waveform_smoke"
     ],
     "blocked_on": [
-      "fetch annexed raw payloads before running signal-level baselines",
-      "implement and validate the event-based alignment and drift-handling procedure on real payloads",
-      "integrate the validated SNIRF-to-HbO/HbR derivation path into canonical waveform ingest",
-      "define how variable fNIRS montages and sampling rates will be normalized across subjects"
+      "extend the paired waveform path beyond the uniform 28-channel fNIRS variant used in the current smoke subset",
+      "define how variable fNIRS montages and sampling rates will be normalized across subjects",
+      "decide whether low-quality fNIRS subjects such as sub-05 and sub-12 are excluded, corrected, or retained as stress-test cases"
     ]
   },
   "notes": [
@@ -110,6 +111,8 @@
     "Sub-01 inspection shows matched EEG and fNIRS event sequences with non-identical absolute onsets, so downstream pairing should be event-aligned rather than naive timestamp-matched.",
     "The subject split policy and canonical normalization/alignment rules are documented in docs/cross-modal/ds004514-split-plan.md and docs/cross-modal/ds004514-normalization-note.md.",
     "Waveform-level fNIRS smoke processing on real SNIRF payloads found subject-specific raw variants with 22 or 28 channels and sampling rates of 7.8125 Hz or 8.928571 Hz.",
-    "SNIRF loading, optical-density conversion, HbO/HbR derivation, and scalp-coupling scoring have been validated on the raw fNIRS payloads."
+    "SNIRF loading, optical-density conversion, HbO/HbR derivation, and scalp-coupling scoring have been validated on the raw fNIRS payloads.",
+    "A laptop-safe raw EEG waveform smoke path has been validated on a two-subject BDF subset and confirms 64 EEG channels within 80 raw channels at 2048 Hz.",
+    "A paired EEG-fNIRS waveform smoke artifact now exists for sub-01 and sub-03 with 360 aligned windows saved as machine-readable tensors and metadata."
   ]
 }

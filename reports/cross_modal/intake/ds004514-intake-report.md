@@ -12,6 +12,8 @@ Status: Source-Backed Candidate
 - Normalization note: [../../../docs/cross-modal/ds004514-normalization-note.md](../../../docs/cross-modal/ds004514-normalization-note.md)
 - Smoke ingest path: [../../../docs/cross-modal/ds004514-smoke-ingest.md](../../../docs/cross-modal/ds004514-smoke-ingest.md)
 - fNIRS waveform smoke: [../../../docs/cross-modal/ds004514-fnirs-waveform-smoke.md](../../../docs/cross-modal/ds004514-fnirs-waveform-smoke.md)
+- EEG waveform smoke: [../../../docs/cross-modal/ds004514-eeg-waveform-smoke.md](../../../docs/cross-modal/ds004514-eeg-waveform-smoke.md)
+- Cross-modal waveform smoke: [../../../docs/cross-modal/ds004514-cross-modal-waveform-smoke.md](../../../docs/cross-modal/ds004514-cross-modal-waveform-smoke.md)
 - Intake owner: unassigned
 - Intake date: 2026-03-21
 - Source version: `v1.1.2`
@@ -46,7 +48,7 @@ The current pass inspects the official snapshot metadata and the Git mirror of t
 - Confirmed channel count: 64 EEG channels in the EEG sidecar; 80 rows in `channels.tsv` including auxiliary signals
 - Confirmed sampling rate: `2048.0` Hz
 - Channel naming and montage notes: raw labels use BioSemi `A1-A32` and `B1-B32`; README provides the ordered mapping into extended 10/20 names
-- Auxiliary or missing channel notes: `channels.tsv` for `sub-01` contains 11 `MISC`, 2 `GSR`, 1 `RESP`, 1 `TEMP`, and 1 `TRIG`; all inspected channel statuses are `good`
+- Auxiliary or missing channel notes: waveform smoke on `sub-01` and `sub-03` confirms `80` raw channels with `11 MISC`, `2 GSR`, `1 RESP`, `1 TEMP`, and `1 TRIG`; all inspected sidecar channel statuses are `good`
 
 ### fNIRS
 
@@ -107,9 +109,9 @@ Decision rationale:
 ## Next actions
 
 1. Fetch the annexed `.bdf` and `.snirf` payloads needed for signal-level smoke tests.
-2. Add EEG waveform access for one or two development subjects without making laptop iteration unusable.
-3. Reuse the existing smoke ingest path to emit waveform-backed cross-modal windows instead of sidecar-only event windows.
-4. Define explicit normalization handling for the observed fNIRS montage and sampling-rate variants before moving the manifest to `ready`.
+2. Extend the paired waveform path beyond the uniform `28`-channel fNIRS subset used by `sub-01` and `sub-03`.
+3. Define explicit normalization handling for the observed fNIRS montage and sampling-rate variants.
+4. Decide how low-quality fNIRS subjects are handled before moving the manifest to `ready`.
 
 ## Commands
 
