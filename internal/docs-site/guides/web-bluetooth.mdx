@@ -71,6 +71,11 @@ await transport.start();
 
 ## Common Gotchas
 
+- **Both `connect()` and `start()` are required.** Omitting `start()` produces
+  silence — no error, no frames. Call both.
+- `frame.eeg.samples` is `number[][]` laid out as `[channelIdx][sampleIdx]`.
+  Each inner array is one channel. If you need interleaved format for WASM
+  models, convert manually.
 - If `navigator.bluetooth` is missing, you are likely in an unsupported browser
   or non-secure context.
 - If the device chooser never appears, confirm Bluetooth is enabled and the page

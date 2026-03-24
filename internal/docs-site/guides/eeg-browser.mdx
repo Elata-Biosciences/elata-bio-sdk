@@ -79,13 +79,43 @@ console.log("alpha", powers.alpha);
 2. Pass browser-side EEG sample buffers into the exported analysis functions.
 3. Add `eeg-web-ble` later if you need live headset transport.
 
+## Vite Config
+
+Vite requires explicit WASM asset handling. Add to `vite.config.ts`:
+
+```ts
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  assetsInclude: ["**/*.wasm"],
+  optimizeDeps: {
+    exclude: ["@elata-biosciences/eeg-web"],
+  },
+});
+```
+
+And import the WASM asset explicitly:
+
+```ts
+import wasmUrl from "@elata-biosciences/eeg-web/wasm/eeg_wasm_bg.wasm?url";
+import { initEegWasm } from "@elata-biosciences/eeg-web";
+
+await initEegWasm(wasmUrl);
+```
+
 ## Common Gotchas
 
+- `band_powers()` takes a **single-channel** `Float32Array`. If your frame has
+  multiple channels, slice per channel before passing.
+- `WasmCalmnessModel.process()` expects **interleaved** samples:
+  `[s0_ch0, s0_ch1, s1_ch0, s1_ch1, ...]`. The `frame.eeg.samples` layout is
+  per-channel — convert before passing.
+- `WasmCalmnessModel` needs `channelCount` at construction, but `channelCount`
+  only arrives on the first frame. Construct the model inside your first-frame
+  handler.
 - If `initEegWasm()` fails, your app may not be serving the packaged `wasm/`
-  assets correctly.
+  assets correctly. See Vite config above.
 - If you need a live headset connection, `eeg-web` alone is not enough.
-- If you are only evaluating the SDK, the scaffolded demo is faster than manual
-  setup.
 
 ## Next Steps
 
