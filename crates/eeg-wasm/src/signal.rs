@@ -46,7 +46,9 @@ impl WasmBandPowers {
         self.inner.total()
     }
 
-    /// Get relative powers (each band as fraction of total)
+    /// Get relative powers (each band as fraction of total).
+    /// Returns a new WASM-owned object — call `.free()` on it when done,
+    /// or use the `using` keyword (TypeScript 5.2+).
     pub fn relative(&self) -> WasmBandPowers {
         WasmBandPowers {
             inner: self.inner.relative(),

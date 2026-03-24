@@ -70,6 +70,13 @@ export class BleTransport implements HeadbandTransport {
 
 	constructor(options: BleTransportOptions = {}) {
 		this.sourceName = options.sourceName || "muse-ble";
+		if (!options.device && !options.deviceOptions?.athenaDecoderFactory) {
+			console.warn(
+				"[BleTransport] No athenaDecoderFactory provided. " +
+				"Muse S Athena devices will fail to decode — pass " +
+				"athenaDecoderFactory: () => new AthenaWasmDecoder() in deviceOptions.",
+			);
+		}
 		this.device =
 			options.device ||
 			new MuseBleDevice({

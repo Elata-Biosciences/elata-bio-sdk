@@ -8,6 +8,7 @@ export interface HeadbandSignalBlock {
 	sampleRateHz: number;
 	channelNames: string[];
 	channelCount: number;
+	/** Per-channel samples. Layout: samples[channelIdx][sampleIdx] */
 	samples: number[][];
 	timestampsMs?: number[];
 	clockSource?: HeadbandClockSource;
