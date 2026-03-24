@@ -71,6 +71,6 @@ transport.onStatus = (status) => {
   console.log("status", status.state, status.reason ?? "");
 };
 
-// Both connect() and start() are required — omitting start() produces silence
-await transport.connect();
-await transport.start();
+// startStreaming() handles connect() + start() in one call.
+// If BLE is already connected (e.g. after a stop()), it skips re-pairing.
+await transport.startStreaming();
