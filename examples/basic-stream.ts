@@ -21,11 +21,13 @@ import {
 } from "@elata-biosciences/eeg-web";
 import { BleTransport } from "@elata-biosciences/eeg-web-ble";
 
+// Safe to call multiple times — only initialises the WASM module once.
 await initEegWasm();
 
 const transport = new BleTransport({
   deviceOptions: {
-    // AthenaWasmDecoder is imported from eeg-web, not eeg-web-ble
+    // AthenaWasmDecoder lives in eeg-web but is required by eeg-web-ble as a
+    // peer dep. Import it from eeg-web and pass a factory here.
     athenaDecoderFactory: () => new AthenaWasmDecoder(),
   },
 });
@@ -38,7 +40,8 @@ transport.onFrame = (frame) => {
   const { samples, sampleRateHz, channelCount } = frame.eeg;
   // samples layout: [channelIdx][sampleIdx]
 
-  // Band powers — takes a single channel as Float32Array
+  // Use band_powers() for a per-frame, per-channel frequency breakdown.
+  // Use WasmCalmnessModel (below) if you want a smoothed, multi-channel score.
   // `using` ensures .free() is called on WASM-owned objects at block end.
   // Requires `"lib": ["ES2022", "ES2022.Disposable"]` (or "esnext.disposable")
   // in tsconfig.json. Alternatively call .free() manually.
@@ -47,7 +50,9 @@ transport.onFrame = (frame) => {
   using rel = powers.relative();
   console.log("alpha", rel.alpha.toFixed(3));
 
-  // Calmness score — takes interleaved multi-channel data
+  // Calmness score — takes interleaved multi-channel data.
+  // Returns undefined during warm-up (~2s at 256 Hz, see min_samples()).
+  // Show a "calibrating…" state in your UI until the first result arrives.
   if (!calmnessModel) {
     calmnessModel = new WasmCalmnessModel(sampleRateHz, channelCount);
   }
