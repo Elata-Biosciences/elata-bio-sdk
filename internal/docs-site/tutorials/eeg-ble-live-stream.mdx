@@ -1,0 +1,132 @@
+---
+title: Stream Muse-Compatible EEG Over Web Bluetooth
+description: Build a browser EEG flow that discovers a supported device, connects, and starts receiving frames.
+---
+
+This tutorial builds on the browser EEG package and adds live Web Bluetooth
+transport with `@elata-biosciences/eeg-web-ble`.
+
+Use this when your app needs real headset data in Chrome or Edge.
+
+## Before You Start
+
+You need:
+
+- Chrome or Edge
+- `https://` or `localhost`
+- Bluetooth enabled on the machine
+- a supported Muse-compatible device
+- `@elata-biosciences/eeg-web` installed alongside `@elata-biosciences/eeg-web-ble`
+
+Safari and iOS are not supported for this browser BLE workflow.
+
+## What You Will Build
+
+You will:
+
+1. install the BLE transport package
+2. create a `BleTransport`
+3. subscribe to frame and status events
+4. connect and start streaming
+
+## Step 1: Install The Packages
+
+```bash
+pnpm add @elata-biosciences/eeg-web @elata-biosciences/eeg-web-ble
+```
+
+Or:
+
+```bash
+npm install @elata-biosciences/eeg-web @elata-biosciences/eeg-web-ble
+```
+
+## Step 2: Create A Transport Module
+
+```ts
+import { AthenaWasmDecoder } from "@elata-biosciences/eeg-web";
+import { BleTransport } from "@elata-biosciences/eeg-web-ble";
+
+export function createHeadbandTransport() {
+  const transport = new BleTransport({
+    deviceOptions: {
+      athenaDecoderFactory: () => new AthenaWasmDecoder(),
+    },
+  });
+
+  transport.onStatus = (status) => {
+    console.log("status", status.state, status.reason);
+  };
+
+  transport.onFrame = (frame) => {
+    console.log("eeg samples", frame.eeg.samples.length);
+  };
+
+  return transport;
+}
+```
+
+Why include `athenaDecoderFactory` up front:
+
+- it keeps Athena-compatible devices working
+- it uses the supported decoder path from `@elata-biosciences/eeg-web`
+- it avoids a common failure mode later when testing across device variants
+
+## Step 3: Connect From A User Gesture
+
+Browser BLE connection prompts usually need a user gesture such as a button
+click.
+
+```ts
+const transport = createHeadbandTransport();
+
+await transport.connect();
+await transport.start();
+```
+
+Use this from a click handler in your UI.
+
+## Step 4: Turn Frames Into App State
+
+Once `onFrame` starts firing, move the data into your own app state instead of
+leaving it only in `console.log`.
+
+The usual pattern is:
+
+1. receive `HeadbandFrameV1` frames
+2. extract EEG samples or metadata
+3. compute or forward the values your app cares about
+4. render charts, scores, or adaptation logic
+
+## Step 5: Handle Browser And Platform Constraints
+
+If the chooser never appears or `navigator.bluetooth` is missing, check these
+first:
+
+- the page is running on `https://` or `localhost`
+- you are using Chrome or Edge
+- Bluetooth is enabled
+- the target device is powered on and available
+
+## Athena And Classic Devices
+
+This repo supports:
+
+- Muse 2 and Muse S classic BLE devices
+- Muse S Athena protocol v2 devices
+
+Including `athenaDecoderFactory` is the simplest supported way to keep both
+flows covered.
+
+## Common Problems
+
+- `navigator.bluetooth` is undefined: unsupported browser or insecure context
+- No device chooser appears: Bluetooth disabled or page not running on a secure origin
+- Athena decoding fails: make sure you passed `athenaDecoderFactory`
+- You need Safari or iOS support: this browser package is not the right path; use a native or bridge strategy
+
+## Next Steps
+
+- EEG transport reference: `/reference/eeg-web-ble`
+- EEG runtime reference: `/reference/eeg-web`
+- Overview guide: `/guides/web-bluetooth`

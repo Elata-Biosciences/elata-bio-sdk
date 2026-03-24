@@ -1,0 +1,127 @@
+---
+title: Build Your First Elata App
+description: Scaffold a working app first, then use it as the reference point for deeper SDK integration.
+---
+
+This is the best starting tutorial if you are new to the Elata SDK.
+
+The goal is simple: get a working app running locally, understand which
+template maps to which sensor workflow, and know where to go next.
+
+## What You Will Build
+
+You will scaffold one of the published demo apps with
+`@elata-biosciences/create-elata-demo`.
+
+Pick the template that matches your goal:
+
+- `rppg-web-demo`: camera-based pulse/rPPG app
+- `eeg-web-demo`: browser EEG processing app with synthetic data
+- `eeg-web-ble-demo`: browser Muse-compatible EEG app over Web Bluetooth
+
+## Why Start Here
+
+This is the recommended default because it gives you:
+
+- a working app structure
+- pinned compatible package versions
+- a reference implementation you can compare your own app against
+
+Do this before cloning repo demos or using internal maintainer workflows.
+
+## Step 1: Choose A Template
+
+Use this decision table:
+
+| If you want to... | Choose |
+| --- | --- |
+| Try camera-based biosignal features without hardware | `rppg-web-demo` |
+| Explore EEG processing in the browser without a headset | `eeg-web-demo` |
+| Connect to a Muse-compatible device from Chrome or Edge | `eeg-web-ble-demo` |
+
+If you are unsure, start with `rppg-web-demo`.
+
+## Step 2: Scaffold The App
+
+Default template:
+
+```bash
+npm create @elata-biosciences/elata-demo my-app
+```
+
+Specific templates:
+
+```bash
+npm create @elata-biosciences/elata-demo my-app -- --template rppg-web-demo
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
+```
+
+You can also list templates explicitly:
+
+```bash
+pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates
+npx @elata-biosciences/create-elata-demo -- --list-templates
+```
+
+## Step 3: Install And Run
+
+```bash
+cd my-app
+pnpm install
+pnpm run dev
+```
+
+You can use npm instead if you prefer:
+
+```bash
+npm install
+npm run dev
+```
+
+## Step 4: Confirm What You Have
+
+Once the app starts, verify the expected behavior:
+
+- `rppg-web-demo`: asks for camera access and starts a pulse-style session
+- `eeg-web-demo`: loads EEG processing in the browser and shows synthetic-data-driven output
+- `eeg-web-ble-demo`: presents a browser BLE flow for supported Muse-compatible devices
+
+If your goal is just evaluation, stop here first and learn from the generated
+app before integrating into an existing codebase.
+
+## Step 5: Understand The Generated App
+
+Each scaffolded app gives you:
+
+- a minimal Vite + React shell
+- Elata packages already wired in
+- a `README.md` with template-specific notes
+- a `build` script so you can confirm the app compiles cleanly
+
+This is meant to be your known-good baseline.
+
+When a manual integration goes wrong later, compare your app against this
+generated one before assuming the package is broken.
+
+## Common Gotcha: Scaffolding Inside Another `pnpm` Workspace
+
+If you create `my-app` inside another repository that already has a
+`pnpm-workspace.yaml`, `pnpm install` may attach to the parent workspace
+instead of the generated app.
+
+If that happens, run:
+
+```bash
+pnpm --dir my-app --ignore-workspace install
+pnpm --dir my-app --ignore-workspace run dev
+```
+
+Or use npm inside the generated app directory.
+
+## Where To Go Next
+
+- Want to build on top of the scaffolded starter: `/reference/create-elata-demo`
+- Want to integrate EEG into an existing app: `/tutorials/eeg-existing-app`
+- Want live Muse-compatible headset streaming: `/tutorials/eeg-ble-live-stream`
+- Want camera-based rPPG in an existing app: `/tutorials/rppg-existing-app`
