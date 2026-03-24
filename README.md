@@ -158,7 +158,7 @@ local EEG package against an app you already have.
 ## Docs Map
 
 - [docs/README.md](docs/README.md): docs index
-- [internal/docs-site/README.md](internal/docs-site/README.md): Mintlify docs site source for the next `docs.elata.bio`
+- [external/docs-site/README.md](external/docs-site/README.md): Mintlify docs site source for the next `docs.elata.bio`
 - [docs/repo-map.md](docs/repo-map.md): package ownership and repo layout
 - [docs/create-elata-demo.md](docs/create-elata-demo.md): scaffolding workflow
 - [docs/dev_setup.md](docs/dev_setup.md): local setup and iteration tips

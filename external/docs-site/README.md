@@ -26,7 +26,7 @@ Or from the repo root:
 ```
 
 Mintlify looks for `docs.json` in the current directory, so run the CLI from
-`internal/docs-site/`.
+`external/docs-site/`.
 
 The Mintlify CLI currently expects an LTS Node.js release. In this workspace,
 `mint dev` rejected Node `v25.2.1`, so use Node 20 or 22 locally when previewing
@@ -41,7 +41,7 @@ When this is wired into Mintlify as a monorepo deployment, point the docs root
 at:
 
 ```text
-internal/docs-site/
+external/docs-site/
 ```
 
 ## Content Sources
