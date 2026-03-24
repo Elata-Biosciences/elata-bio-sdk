@@ -46,21 +46,26 @@ If you are unsure, start with `rppg-web-demo`.
 Default template:
 
 ```bash
-npm create @elata-biosciences/elata-demo my-app
+pnpm create @elata-biosciences/elata-demo my-app
 ```
 
 Specific templates:
 
 ```bash
-npm create @elata-biosciences/elata-demo my-app -- --template rppg-web-demo
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
+pnpm create @elata-biosciences/elata-demo my-app -- --template rppg-web-demo
+pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
 ```
 
 You can also list templates explicitly:
 
 ```bash
 pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates
+```
+
+If you use npm instead, replace `pnpm create` with `npm create` and use:
+
+```bash
 npx @elata-biosciences/create-elata-demo -- --list-templates
 ```
 

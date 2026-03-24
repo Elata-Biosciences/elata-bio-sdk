@@ -35,7 +35,7 @@ You will:
 pnpm add @elata-biosciences/eeg-web @elata-biosciences/eeg-web-ble
 ```
 
-Or:
+If you use npm instead:
 
 ```bash
 npm install @elata-biosciences/eeg-web @elata-biosciences/eeg-web-ble
@@ -80,11 +80,17 @@ click.
 ```ts
 const transport = createHeadbandTransport();
 
-await transport.connect();
-await transport.start();
+export async function connectHeadband() {
+  try {
+    await transport.connect();
+    await transport.start();
+  } catch (error) {
+    console.error("BLE connect/start failed", error);
+  }
+}
 ```
 
-Use this from a click handler in your UI.
+Call `connectHeadband()` from a click handler in your UI.
 
 ## Step 4: Turn Frames Into App State
 
@@ -98,7 +104,18 @@ The usual pattern is:
 3. compute or forward the values your app cares about
 4. render charts, scores, or adaptation logic
 
-## Step 5: Handle Browser And Platform Constraints
+## Step 5: Clean Up On Route Or Component Exit
+
+When the current view is leaving, stop streaming so later reconnect attempts
+start from a clean state:
+
+```ts
+export async function stopHeadband() {
+  await transport.stop();
+}
+```
+
+## Step 6: Handle Browser And Platform Constraints
 
 If the chooser never appears or `navigator.bluetooth` is missing, check these
 first:

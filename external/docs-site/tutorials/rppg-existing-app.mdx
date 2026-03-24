@@ -26,7 +26,7 @@ You will:
 pnpm add @elata-biosciences/rppg-web
 ```
 
-Or:
+If you use npm instead:
 
 ```bash
 npm install @elata-biosciences/rppg-web
@@ -138,7 +138,7 @@ But start with plain `createRppgSession()` first.
 
 ## Common Problems
 
-- `backendMode` is `unavailable`: your app is likely not serving packaged `pkg/` assets correctly
+- `session.getDiagnostics().backendMode` is `unavailable`: your app is likely not serving packaged `pkg/` assets correctly
 - Camera access fails: check browser permissions and `getUserMedia` support
 - The session reaches terminal `failed`: recreate the session instead of trying to keep using the same poisoned processor
 - You are trying to debug lower-level generated bindings first: start with `createRppgSession()` unless you are intentionally debugging the SDK itself

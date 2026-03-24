@@ -39,13 +39,17 @@ test:
 ```ts
 import { initEegWasm, band_powers } from "@elata-biosciences/eeg-web";
 
-let eegReady = false;
+let eegInitPromise: Promise<void> | null = null;
+
+async function ensureEegReady() {
+  if (!eegInitPromise) {
+    eegInitPromise = initEegWasm();
+  }
+  await eegInitPromise;
+}
 
 export async function analyzeExampleEeg() {
-  if (!eegReady) {
-    await initEegWasm();
-    eegReady = true;
-  }
+  await ensureEegReady();
 
   const eegData = new Float32Array([0.2, 0.5, 0.1, -0.3, -0.4, 0.1, 0.2, 0.6]);
   const powers = band_powers(eegData, 256);
@@ -57,7 +61,7 @@ export async function analyzeExampleEeg() {
 Why this shape:
 
 - `initEegWasm()` should run before using analysis helpers
-- the module-level guard avoids repeated initialization during normal app use
+- the module-level Promise avoids repeated initialization, including concurrent calls
 - keeping it in one file makes it easier to swap in real samples later
 
 ## Step 3: Call It From Your UI
