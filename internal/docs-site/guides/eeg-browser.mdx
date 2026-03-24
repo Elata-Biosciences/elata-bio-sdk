@@ -105,8 +105,11 @@ await initEegWasm(wasmUrl);
 
 ## Common Gotchas
 
-- `band_powers()` takes a **single-channel** `Float32Array`. If your frame has
-  multiple channels, slice per channel before passing.
+- `band_powers()` takes a **single-channel** `Float32Array` — not `number[]`.
+  Convert with `new Float32Array(samples[channelIdx])` before passing. Passing
+  a plain array will cause a WASM runtime error. For a Muse headband (4
+  channels: TP9, AF7, AF8, TP10), use a frontal channel (AF7 = index 1, or
+  AF8 = index 2) for cognitive state features, or average across channels.
 - `WasmCalmnessModel.process()` expects **interleaved** samples:
   `[s0_ch0, s0_ch1, s1_ch0, s1_ch1, ...]`. The `frame.eeg.samples` layout is
   per-channel — convert before passing.
