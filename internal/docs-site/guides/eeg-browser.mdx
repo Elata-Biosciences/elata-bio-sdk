@@ -81,26 +81,28 @@ console.log("alpha", powers.alpha);
 
 ## Vite Config
 
-Vite requires explicit WASM asset handling. Add to `vite.config.ts`:
+Vite does not natively support wasm-pack ESM output. Add two plugins:
+
+```bash
+npm install -D vite-plugin-wasm vite-plugin-top-level-await
+```
 
 ```ts
 import { defineConfig } from "vite";
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
 
 export default defineConfig({
-  assetsInclude: ["**/*.wasm"],
-  optimizeDeps: {
-    exclude: ["@elata-biosciences/eeg-web"],
-  },
+  plugins: [wasm(), topLevelAwait()],
 });
 ```
 
-And import the WASM asset explicitly:
+Then call `initEegWasm()` with no arguments — the plugins handle asset loading:
 
 ```ts
-import wasmUrl from "@elata-biosciences/eeg-web/wasm/eeg_wasm_bg.wasm?url";
 import { initEegWasm } from "@elata-biosciences/eeg-web";
 
-await initEegWasm(wasmUrl);
+await initEegWasm();
 ```
 
 ## Common Gotchas
