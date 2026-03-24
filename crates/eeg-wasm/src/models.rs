@@ -299,7 +299,9 @@ impl WasmCalmnessModel {
     ///           Format: [s0_ch0, s0_ch1, ..., s1_ch0, s1_ch1, ...]
     ///
     /// # Returns
-    /// WasmCalmnessResult with calmness score and metrics
+    /// `WasmCalmnessResult` once enough data has accumulated, or `undefined`
+    /// during the initial warm-up period. Call `min_samples()` to know the
+    /// required sample count before results are produced.
     pub fn process(&mut self, data: &[f32]) -> Option<WasmCalmnessResult> {
         let mut buffer = SampleBuffer::new(self.sample_rate, self.channel_count);
         buffer.push_interleaved(data, 0, self.sample_rate);

@@ -39,7 +39,9 @@ transport.onFrame = (frame) => {
   // samples layout: [channelIdx][sampleIdx]
 
   // Band powers — takes a single channel as Float32Array
-  // `using` ensures .free() is called on WASM-owned objects at block end
+  // `using` ensures .free() is called on WASM-owned objects at block end.
+  // Requires `"lib": ["ES2022", "ES2022.Disposable"]` (or "esnext.disposable")
+  // in tsconfig.json. Alternatively call .free() manually.
   const ch0 = new Float32Array(samples[0]);
   using powers = band_powers(ch0, sampleRateHz);
   using rel = powers.relative();
