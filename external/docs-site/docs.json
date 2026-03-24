@@ -38,6 +38,7 @@
           "guides/eeg-browser",
           "guides/web-bluetooth",
           "guides/rppg-browser",
+          "guides/federated-learning",
           "operations/compatibility",
           "operations/troubleshooting"
         ]
