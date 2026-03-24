@@ -39,9 +39,11 @@ transport.onFrame = (frame) => {
   // samples layout: [channelIdx][sampleIdx]
 
   // Band powers — takes a single channel as Float32Array
+  // `using` ensures .free() is called on WASM-owned objects at block end
   const ch0 = new Float32Array(samples[0]);
-  const powers = band_powers(ch0, sampleRateHz);
-  console.log("alpha", powers.relative().alpha.toFixed(3));
+  using powers = band_powers(ch0, sampleRateHz);
+  using rel = powers.relative();
+  console.log("alpha", rel.alpha.toFixed(3));
 
   // Calmness score — takes interleaved multi-channel data
   if (!calmnessModel) {
@@ -56,7 +58,7 @@ transport.onFrame = (frame) => {
     }
   }
 
-  const result = calmnessModel.process(interleaved);
+  using result = calmnessModel.process(interleaved);
   if (result) {
     // smoothed_score: 0.0 = alert, 1.0 = very calm
     console.log("calmness", result.state_description(), result.smoothed_score.toFixed(2));
