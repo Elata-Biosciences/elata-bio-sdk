@@ -57,6 +57,7 @@ export class BleTransport implements HeadbandTransport {
 	private readonly device: BleDeviceLike;
 	private readonly sourceName: string;
 	private sequenceId = 0;
+	private _connected = false;
 	private pendingPpgRows: number[][] = [];
 	private pendingOptics: HeadbandSignalBlock | null = null;
 	private pendingAccgyro: HeadbandSignalBlock | null = null;
@@ -69,11 +70,19 @@ export class BleTransport implements HeadbandTransport {
 
 	constructor(options: BleTransportOptions = {}) {
 		this.sourceName = options.sourceName || "muse-ble";
+		if (!options.device && !options.deviceOptions?.athenaDecoderFactory) {
+			console.warn(
+				"[BleTransport] No athenaDecoderFactory provided. " +
+				"Muse S Athena devices will fail to decode — pass " +
+				"athenaDecoderFactory: () => new AthenaWasmDecoder() in deviceOptions.",
+			);
+		}
 		this.device =
 			options.device ||
 			new MuseBleDevice({
 				...(options.deviceOptions || {}),
 				onDisconnected: () => {
+					this._connected = false;
 					this.emitStatus(
 						HeadbandTransportState.Disconnected,
 						"gatt disconnected",
@@ -239,6 +248,7 @@ export class BleTransport implements HeadbandTransport {
 		this.emitStatus(HeadbandTransportState.Connecting);
 		try {
 			await this.device.prepareSession();
+			this._connected = true;
 			this.emitStatus(HeadbandTransportState.Connected);
 		} catch (e) {
 			const err = asElataError(e, {
@@ -255,9 +265,19 @@ export class BleTransport implements HeadbandTransport {
 		}
 	}
 
+	/** Connect and begin streaming in one call. Safe to call after stop() — skips
+	 *  re-pairing if the BLE connection is already active. */
+	async startStreaming(): Promise<void> {
+		if (!this._connected) {
+			await this.connect();
+		}
+		await this.start();
+	}
+
 	async disconnect(): Promise<void> {
 		try {
 			await this.device.releaseSession();
+			this._connected = false;
 			this.emitStatus(HeadbandTransportState.Disconnected);
 		} catch (e) {
 			const err = asElataError(e, {

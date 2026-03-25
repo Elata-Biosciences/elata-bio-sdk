@@ -46,7 +46,9 @@ impl WasmBandPowers {
         self.inner.total()
     }
 
-    /// Get relative powers (each band as fraction of total)
+    /// Get relative powers (each band as fraction of total).
+    /// Returns a new WASM-owned object — call `.free()` on it when done,
+    /// or use the `using` keyword (TypeScript 5.2+).
     pub fn relative(&self) -> WasmBandPowers {
         WasmBandPowers {
             inner: self.inner.relative(),
@@ -57,11 +59,14 @@ impl WasmBandPowers {
 /// Compute band powers for a single channel of EEG data
 ///
 /// # Arguments
-/// * `data` - Float32Array of EEG samples (microvolts)
+/// * `data` - Single-channel EEG samples as Float32Array (microvolts).
+///            Must be Float32Array — passing a plain JS number[] will cause a
+///            runtime error. Convert with `new Float32Array(samples[channelIdx])`.
 /// * `sample_rate` - Sample rate in Hz (e.g., 256)
 ///
 /// # Returns
-/// WasmBandPowers object with power in each frequency band
+/// WasmBandPowers object with power in each frequency band.
+/// Call `.free()` when done (or use the `using` keyword in TypeScript 5.2+).
 #[wasm_bindgen]
 pub fn band_powers(data: &[f32], sample_rate: f32) -> WasmBandPowers {
     let powers = compute_band_powers(data, sample_rate);

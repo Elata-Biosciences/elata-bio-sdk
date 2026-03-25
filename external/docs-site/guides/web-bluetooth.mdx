@@ -45,6 +45,7 @@ import { BleTransport } from "@elata-biosciences/eeg-web-ble";
 
 const transport = new BleTransport({
   deviceOptions: {
+    // AthenaWasmDecoder lives in eeg-web but is required here as a peer dep.
     athenaDecoderFactory: () => new AthenaWasmDecoder(),
   },
 });
@@ -57,8 +58,9 @@ transport.onStatus = (status) => {
   console.log(status.state, status.reason);
 };
 
-await transport.connect();
-await transport.start();
+// startStreaming() calls connect() + start() in one step.
+// If BLE is already connected (e.g. after stop()), it skips re-pairing.
+await transport.startStreaming();
 ```
 
 ## Typical Flow
@@ -67,10 +69,17 @@ await transport.start();
 2. Construct `BleTransport`.
 3. Provide `athenaDecoderFactory` if you need Athena support.
 4. Subscribe to frame and status callbacks.
-5. Call `connect()` and then `start()`.
+5. Call `startStreaming()` (or `connect()` then `start()` separately).
 
 ## Common Gotchas
 
+- **Use `startStreaming()` for the common case.** It calls `connect()` and
+  `start()` in one step and skips re-pairing if already connected. If you call
+  `connect()` and `start()` separately, both are required — omitting `start()`
+  produces silence with no error.
+- `frame.eeg.samples` is `number[][]` laid out as `[channelIdx][sampleIdx]`.
+  Each inner array is one channel. If you need interleaved format for WASM
+  models, convert manually.
 - If `navigator.bluetooth` is missing, you are likely in an unsupported browser
   or non-secure context.
 - If the device chooser never appears, confirm Bluetooth is enabled and the page
