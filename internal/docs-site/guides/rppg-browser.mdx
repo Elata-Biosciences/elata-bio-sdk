@@ -119,6 +119,54 @@ Useful public APIs for app-side diagnostics:
 - `createRppgAppAdapter()`
 - `createRppgAppMonitor()`
 
+## Vite Config
+
+Vite 7 blocks `import(url)` for files served from `/public`. Two approaches
+work:
+
+**Option A — vite-plugin-wasm (recommended for new projects)**
+
+```bash
+npm install -D vite-plugin-wasm vite-plugin-top-level-await
+```
+
+```ts
+import { defineConfig } from "vite";
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
+
+export default defineConfig({
+  plugins: [wasm(), topLevelAwait()],
+});
+```
+
+```ts
+import * as rppgWasm from "@elata-biosciences/rppg-web/pkg/rppg_wasm.js";
+import { createRppgSession } from "@elata-biosciences/rppg-web";
+
+const session = await createRppgSession({
+  video: videoEl,
+  wasmImporter: () => Promise.resolve(rppgWasm),
+});
+```
+
+**Option B — explicit URL imports (no extra plugins)**
+
+```ts
+import rppgWasmJsUrl from "@elata-biosciences/rppg-web/pkg/rppg_wasm.js?url";
+import rppgWasmBinaryUrl from "@elata-biosciences/rppg-web/pkg/rppg_wasm_bg.wasm?url";
+import { createRppgSession } from "@elata-biosciences/rppg-web";
+
+const session = await createRppgSession({
+  video: videoEl,
+  wasmJsUrl: rppgWasmJsUrl,
+  wasmBinaryUrl: rppgWasmBinaryUrl,
+});
+```
+
+Option B works because Vite resolves `?url` imports to fingerprinted asset
+URLs at build time, bypassing the public directory restriction entirely.
+
 ## Common Gotchas
 
 - If `session.backendMode` is `unavailable`, your app is probably not serving

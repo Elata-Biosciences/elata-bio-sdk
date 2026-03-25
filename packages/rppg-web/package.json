@@ -42,6 +42,7 @@
 		"access": "public"
 	},
 	"scripts": {
+		"prepare": "pnpm run build",
 		"lint": "pnpm exec biome lint src playwright.config.ts scripts/build-demo.mjs jest.config.cjs",
 		"test": "jest --config jest.config.cjs --passWithNoTests",
 		"test:consumer:node": "node ./scripts/verify-consumer-node-smoke.mjs",
