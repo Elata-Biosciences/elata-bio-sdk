@@ -58,13 +58,18 @@ Completed or materially implemented:
 - Phase 3 has only a preview implementation so far:
   - routed and canonicalized negative-control baselines exist for `DS004514`
   - these are useful for de-risking, but they are not yet the serious baseline suite the plan calls for
+  - `DS003838` now has the first EEG-PPG pilot baseline preview:
+    - ridge baselines over `eeg_event` and `eeg_clean` branches
+    - aggregate standardized error beats null on the two-subject pilot split after strong regularization
+    - pulse amplitude and rising-edge slope beat null on MSE
+    - mean inter-beat interval does not yet beat null
 
 Still incomplete:
 
 - Phase 1 is still partial for the EEG-PPG public datasets. `DS003838` is now source-backed, but `DS006848` is still only a candidate manifest.
 - Phase 2 is still pilot-scale for EEG-PPG. `DS003838` now has a two-subject pilot artifact, but not yet a broader paired-cohort default artifact.
 - Athena internal intake and preprocessing are still incomplete.
-- No real EEG-PPG baseline report exists yet.
+- There is still no broad-cohort EEG-PPG baseline report yet; the current DS003838 result is pilot-only.
 
 Operational interpretation:
 
@@ -122,13 +127,14 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
 2. Finish source-backed intake for `DS006848`.
    `DS003838` is now the first source-backed EEG-PPG reference, so `DS006848` should become the second public benchmark.
 
-3. Start Phase 3 EEG->PPG baselines on top of the `DS003838` pilot artifact.
-   The first targets should still be:
-   - beat timing
-   - pulse amplitude
-   - rising-edge slope
+3. Extend the current Phase 3 EEG->PPG baseline beyond the first pilot report.
+   Current pilot evidence suggests:
+   - pulse amplitude and rising-edge slope are learnable enough to beat null on MSE
+   - beat timing is not yet good enough
+   The next target additions should be:
+   - beat-synchronous targets
    - notch timing where quality allows
-   - HR and HRV as fallback targets, not the only targets
+   - better beat-timing targets before HR and HRV fallback summaries
 
 4. Bring `DS006848` in afterward as the second EEG-PPG benchmark.
    Use it for rest and working-memory protocol coverage, not as the first morphology dataset.
