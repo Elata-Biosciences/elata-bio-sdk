@@ -1,6 +1,6 @@
 # Cross-Modal Biosignal Model Implementation Plan (v2)
 
-Status: Proposed (v2, revised after feedback)
+Status: Active plan (v2, revised after feedback, annotated with execution status through March 25, 2026)
 
 ## Summary
 
@@ -26,11 +26,44 @@ The goal is not to train a giant tri-modal "foundation model" from scratch. The 
 The recommended execution order is:
 
 1. Build clean data, synchronization, and quality-control infrastructure.
-2. Start with EEG <-> fNIRS, because the biological link is strongest.
+2. Use EEG <-> fNIRS as the infrastructure reference path, but treat EEG-PPG as the immediate business-priority execution target.
 3. Preserve event-level structure early, especially in EEG and PPG, using minimal-distortion preprocessing and wavelet-friendly derived views.
-4. Add PPG as an event and morphology target first, then layer state targets on top.
+4. For EEG-PPG, start with PPG as an event and morphology target first, then layer state targets on top.
 5. Move to tri-modal missing-modality inference only after the paired latent space is stable.
 6. Treat raw waveform generation as a later capability, not the first milestone, but do not destroy waveform structure during preprocessing.
+
+---
+
+## Execution Status
+
+As of March 25, 2026, the repo is no longer at the pure-planning stage.
+
+Completed or materially implemented:
+
+- Phase 0 framing artifacts exist, including the research charter, metric sheet, reproducibility checklist, and toy-mode contract.
+- Phase 0A local prototype path exists and runs end to end on a laptop-scale synthetic task.
+- Phase 1 intake is substantially complete for `DS004514`, including source-backed manifest work, ingest notes, split and normalization notes, and raw waveform smoke paths.
+- Phase 1 intake is now also source-backed for `DS003838`, including the worksheet, ingest note, and intake report for the first EEG-PPG public reference dataset.
+- Phase 2 has a real `DS004514` pilot artifact, not just a proposal:
+  - canonicalized paired EEG-fNIRS dataset
+  - dual-view EEG window dataset
+  - per-window quality flags
+  - first preprocessing distortion ledger entry
+- Phase 3 has only a preview implementation so far:
+  - routed and canonicalized negative-control baselines exist for `DS004514`
+  - these are useful for de-risking, but they are not yet the serious baseline suite the plan calls for
+
+Still incomplete:
+
+- Phase 1 is still partial for the EEG-PPG public datasets. `DS003838` is now source-backed, but `DS006848` is still only a candidate manifest.
+- Phase 2 is only complete enough for a `DS004514` pilot. There is not yet an EEG-PPG Phase 2 artifact.
+- Athena internal intake and preprocessing are still incomplete.
+- No real EEG-PPG baseline report exists yet.
+
+Operational interpretation:
+
+- `DS004514` should now be treated as the completed reference path for ingest, synchronization, windowing, and distortion benchmarking.
+- The next execution track should shift to EEG-PPG rather than extending EEG-fNIRS research depth immediately.
 
 ---
 
@@ -52,14 +85,58 @@ The recommended execution order is:
 
 ### Recommended first target
 
-Start with EEG -> fNIRS and EEG <-> fNIRS latent alignment.
+Original scientific recommendation:
+
+- start with EEG -> fNIRS and EEG <-> fNIRS latent alignment
 
 Reasoning:
 
 - EEG and fNIRS are linked by neurovascular coupling.
 - There is published evidence that EEG-informed fNIRS prediction is feasible in limited-data settings.
 - The latency structure is known and can be modeled explicitly.
+
+Current execution note as of March 23, 2026:
+
+- the immediate business-priority target is now EEG-PPG, not EEG-fNIRS
+- the repo already has enough EEG-fNIRS implementation to use `DS004514` as the reference Phase 1 and Phase 2 path
+- this means the next incremental engineering work should move to EEG-PPG intake, preprocessing, and baseline modeling instead of deepening the EEG-fNIRS branch first
+
 - PPG is still useful, but v2 treats it as both an event-bearing waveform and a state signal. Morphology, dicrotic notch timing, and rising-edge slope should be preserved even if raw PPG reconstruction is not the first cross-modal milestone.
+
+---
+
+## Immediate Next Steps
+
+Given the EEG-PPG pivot, the recommended near-term sequence is:
+
+1. Build the first EEG-PPG Phase 2 artifact from `DS003838`.
+   This should be modeled directly on the completed `DS004514` Phase 2 path.
+
+2. Finish source-backed intake for `DS006848`.
+   `DS003838` is now the first source-backed EEG-PPG reference, so `DS006848` should become the second public benchmark.
+
+3. Bring `DS006848` in afterward as the second EEG-PPG benchmark.
+   Use it for rest and working-memory protocol coverage, not as the first morphology dataset.
+
+4. Start Phase 3 baseline work only after that `DS003838` EEG-PPG Phase 2 artifact exists.
+   It should emit:
+   - event-preserving EEG windows
+   - cleaned EEG windows
+   - morphology-preserving PPG windows
+   - cleaned PPG windows
+   - per-window quality flags
+   - preprocessing distortion report for the cleaned PPG path
+
+5. The first baseline targets should be:
+   - beat timing
+   - pulse amplitude
+   - rising-edge slope
+   - notch timing where quality allows
+   - HR and HRV as fallback targets, not the only targets
+
+6. Treat raw EEG -> raw PPG waveform generation as explicitly out of scope until morphology targets beat null.
+
+This is the shortest path from current repo state to the new business goal.
 
 ---
 
@@ -511,6 +588,12 @@ If a phase cannot be exercised in toy mode, it is not ready for the full-data pa
 
 ### Phase 0: Program framing and kill criteria
 
+Execution status as of March 25, 2026:
+
+- completed
+- the original first-target decision was EEG-fNIRS
+- that decision is now superseded operationally by the EEG-PPG pivot, but the Phase 0 artifacts remain valid
+
 Duration: 1 week
 
 Objectives:
@@ -542,6 +625,11 @@ Exit criteria:
 
 ### Phase 0A: Laptop-scale prototype path
 
+Execution status as of March 25, 2026:
+
+- completed
+- the toy dataset builder, local configs, manifest contract, and smoke-test path already exist in the repo
+
 Duration: 1 week
 
 Objectives:
@@ -570,6 +658,26 @@ Exit criteria:
 - a researcher can run a full toy experiment end-to-end locally without custom infrastructure
 
 ### Phase 1: Data audit and dataset intake
+
+Execution status as of March 25, 2026:
+
+- partially complete at the program level
+- substantially complete for `DS004514`
+- still incomplete for the public EEG-PPG candidates and for Athena internal completion work
+
+Completed so far:
+
+- manifest contract and registry
+- Athena intake template and intake note
+- source-backed `DS004514` intake packet, including ingest note, split plan, normalization note, and intake report
+- source-backed `DS003838` intake packet, including worksheet, ingest note, and intake report
+- candidate manifests for `DS006848` and `DREAMT`
+
+Still needed before Phase 1 can be called complete for the EEG-PPG branch:
+
+- source-backed intake for `DS006848`
+- decision on whether `DREAMT` enters the first EEG-PPG benchmark set
+- real Athena recording specification completion, including internal PPG layout and session storage details
 
 Duration: 2 to 3 weeks
 
@@ -605,6 +713,30 @@ Exit criteria:
 - pilot recordings show that synchronization is measurable and correctable
 
 ### Phase 2: Preprocessing, synchronization, and windowing
+
+Execution status as of March 25, 2026:
+
+- in progress
+- materially implemented for the `DS004514` pilot path
+- not yet implemented for EEG-PPG
+
+Completed so far:
+
+- `DS004514` canonicalized paired EEG-fNIRS artifact
+- `DS004514` Phase 2 window dataset with:
+  - event-preserving EEG windows
+  - cleaned EEG windows
+  - canonicalized fNIRS targets
+  - per-window quality flags
+- first preprocessing distortion ledger entry for the cleaned EEG path
+
+Still needed before Phase 2 can be called complete for the new business target:
+
+- morphology-preserving and cleaned PPG preprocessing paths
+- first EEG-PPG Phase 2 artifact for `DS003838`
+- first EEG-PPG distortion benchmark for the cleaned PPG path
+- random window inspection support for the EEG-PPG branch
+- Athena-facing Phase 2 implementation after the public EEG-PPG path is stable
 
 Duration: 2 to 4 weeks
 
@@ -661,6 +793,22 @@ Exit criteria:
 - preprocessing distortion is measured rather than assumed
 
 ### Phase 3: Baselines before deep modeling
+
+Execution status as of March 25, 2026:
+
+- preview only
+- the repo has negative-control baseline work for `DS004514`
+- the real baseline phase has not started for EEG-PPG
+
+Completed so far:
+
+- routed versus canonicalized baseline comparison for the `DS004514` reference path
+
+Still needed before this phase is genuinely underway for the current goal:
+
+- subject-mean, session-mean, and simple neural baselines on the EEG-PPG artifact
+- wavelet-versus-STFT baseline comparison for EEG-PPG
+- morphology-target-versus-state-target baseline comparison for EEG-PPG
 
 Duration: 2 weeks
 
@@ -1367,7 +1515,8 @@ Suggested 26-week sequence:
 
 Recommended first major milestone:
 
-- prove that EEG -> fNIRS is learnable beyond linear baselines on held-out subjects
+- original scientific milestone: prove that EEG -> fNIRS is learnable beyond linear baselines on held-out subjects
+- current business-priority milestone: prove that at least one EEG -> PPG event, morphology, or state target beats a null baseline on held-out subjects
 
 Recommended second major milestone:
 
@@ -1418,9 +1567,9 @@ Do this instead:
 7. Train lightweight translation heads only after the latent space is stable.
 8. Treat PPG as an event-bearing waveform as well as a state signal.
 9. Keep every major experiment runnable in toy mode on local hardware.
-10. Start with EEG <-> fNIRS.
+10. Use EEG <-> fNIRS as the completed reference path, but start the next execution branch with EEG-PPG.
 
-That path is much more likely to produce a real small-data result, and it keeps the program scientifically defensible.
+That path is still scientifically defensible, but it also matches the current business-priority shift.
 
 ---
 
