@@ -44,11 +44,17 @@ Completed or materially implemented:
 - Phase 0A local prototype path exists and runs end to end on a laptop-scale synthetic task.
 - Phase 1 intake is substantially complete for `DS004514`, including source-backed manifest work, ingest notes, split and normalization notes, and raw waveform smoke paths.
 - Phase 1 intake is now also source-backed for `DS003838`, including the worksheet, ingest note, and intake report for the first EEG-PPG public reference dataset.
+- Phase 1 intake for `DS003838` now also includes a pilot split plan and the first executable EEG-PPG Phase 2 note.
 - Phase 2 has a real `DS004514` pilot artifact, not just a proposal:
   - canonicalized paired EEG-fNIRS dataset
   - dual-view EEG window dataset
   - per-window quality flags
   - first preprocessing distortion ledger entry
+- Phase 2 now also has a real `DS003838` EEG-PPG pilot artifact:
+  - direct EEGLAB/HDF5 read path for EEG and cardiovascular `.set` payloads
+  - dual-view EEG windows plus dual-view PPG windows
+  - per-window PPG morphology-quality metadata
+  - second preprocessing distortion ledger entry, now including a cleaned PPG path
 - Phase 3 has only a preview implementation so far:
   - routed and canonicalized negative-control baselines exist for `DS004514`
   - these are useful for de-risking, but they are not yet the serious baseline suite the plan calls for
@@ -56,14 +62,15 @@ Completed or materially implemented:
 Still incomplete:
 
 - Phase 1 is still partial for the EEG-PPG public datasets. `DS003838` is now source-backed, but `DS006848` is still only a candidate manifest.
-- Phase 2 is only complete enough for a `DS004514` pilot. There is not yet an EEG-PPG Phase 2 artifact.
+- Phase 2 is still pilot-scale for EEG-PPG. `DS003838` now has a two-subject pilot artifact, but not yet a broader paired-cohort default artifact.
 - Athena internal intake and preprocessing are still incomplete.
 - No real EEG-PPG baseline report exists yet.
 
 Operational interpretation:
 
-- `DS004514` should now be treated as the completed reference path for ingest, synchronization, windowing, and distortion benchmarking.
-- The next execution track should shift to EEG-PPG rather than extending EEG-fNIRS research depth immediately.
+- `DS004514` should still be treated as the completed reference path for ingest, synchronization, windowing, and distortion benchmarking.
+- `DS003838` should now be treated as the first executable EEG-PPG pilot path.
+- The next execution track should stay on EEG-PPG rather than extending EEG-fNIRS research depth immediately.
 
 ---
 
@@ -109,32 +116,24 @@ Current execution note as of March 23, 2026:
 
 Given the EEG-PPG pivot, the recommended near-term sequence is:
 
-1. Build the first EEG-PPG Phase 2 artifact from `DS003838`.
-   This should be modeled directly on the completed `DS004514` Phase 2 path.
+1. Expand the current `DS003838` EEG-PPG Phase 2 pilot beyond the two-subject split.
+   The first pilot artifact now exists and should be treated as the seed path rather than rebuilt from scratch.
 
 2. Finish source-backed intake for `DS006848`.
    `DS003838` is now the first source-backed EEG-PPG reference, so `DS006848` should become the second public benchmark.
 
-3. Bring `DS006848` in afterward as the second EEG-PPG benchmark.
-   Use it for rest and working-memory protocol coverage, not as the first morphology dataset.
-
-4. Start Phase 3 baseline work only after that `DS003838` EEG-PPG Phase 2 artifact exists.
-   It should emit:
-   - event-preserving EEG windows
-   - cleaned EEG windows
-   - morphology-preserving PPG windows
-   - cleaned PPG windows
-   - per-window quality flags
-   - preprocessing distortion report for the cleaned PPG path
-
-5. The first baseline targets should be:
+3. Start Phase 3 EEG->PPG baselines on top of the `DS003838` pilot artifact.
+   The first targets should still be:
    - beat timing
    - pulse amplitude
    - rising-edge slope
    - notch timing where quality allows
    - HR and HRV as fallback targets, not the only targets
 
-6. Treat raw EEG -> raw PPG waveform generation as explicitly out of scope until morphology targets beat null.
+4. Bring `DS006848` in afterward as the second EEG-PPG benchmark.
+   Use it for rest and working-memory protocol coverage, not as the first morphology dataset.
+
+5. Treat raw EEG -> raw PPG waveform generation as explicitly out of scope until morphology targets beat null.
 
 This is the shortest path from current repo state to the new business goal.
 
