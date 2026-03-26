@@ -37,9 +37,40 @@ npm install @elata-biosciences/rppg-web
 
 ## Usage
 
+Minimal camera → BPM loop:
+
 ```ts
 import { createRppgSession } from "@elata-biosciences/rppg-web";
 
+// 1. Acquire camera and attach to a video element
+const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+const video = document.createElement("video");
+video.srcObject = stream;
+await video.play();
+
+// 2. Start an rPPG session
+const session = await createRppgSession({
+  video,
+  backend: "auto",
+  faceMesh: "off",
+});
+
+// 3. Poll for BPM
+const interval = setInterval(() => {
+  const metrics = session.getMetrics();
+  if (metrics?.bpm != null) {
+    console.log("BPM:", metrics.bpm.toFixed(1));
+  }
+}, 1000);
+
+// 4. Cleanup
+// clearInterval(interval);
+// await session.stop();
+```
+
+Expect a ~10 second warmup before the first BPM estimate. With diagnostics:
+
+```ts
 const session = await createRppgSession({
   video: videoEl,
   sampleRate: 30,
@@ -162,6 +193,27 @@ Those options let apps bypass guessed `/pkg/*` paths when bundler or deploy
 layout needs explicit wiring.
 
 ## Vite Config
+
+### WASM asset placement
+
+The default session loader fetches WASM files from `/pkg/rppg_wasm.js` and
+`/pkg/rppg_wasm_bg.wasm`. In a Vite app, place those files under `public/pkg/`
+so they are served at that path:
+
+```
+your-app/
+  public/
+    pkg/
+      rppg_wasm.js
+      rppg_wasm_bg.wasm
+```
+
+The built assets live in `packages/rppg-web/pkg/` (after `pnpm run build:wasm`)
+or in `node_modules/@elata-biosciences/rppg-web/pkg/` after an npm install.
+Copy or symlink that directory into your app's `public/` folder, or use the
+import-based options below to let Vite manage the asset URLs instead.
+
+### Dynamic import restriction
 
 Vite 7 blocks `import(url)` for files served from `/public`, which is where
 most projects place the `pkg/` WASM assets. Two approaches work:
