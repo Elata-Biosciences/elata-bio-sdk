@@ -49,6 +49,10 @@ Default template:
 pnpm create @elata-biosciences/elata-demo my-app
 ```
 
+If you omit `--template` in an interactive terminal, the CLI now prompts you
+to choose a template. In non-interactive runs, it still falls back to the rPPG
+starter.
+
 If you use npm instead:
 
 ```bash
@@ -59,14 +63,18 @@ Specific templates:
 
 ```bash
 pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+pnpm create @elata-biosciences/elata-demo my-app -- --template eeg
 pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
+pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 ```
 
 Npm equivalents:
 
 ```bash
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+npm create @elata-biosciences/elata-demo my-app -- --template eeg
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 ```
 
 You can also list templates explicitly:

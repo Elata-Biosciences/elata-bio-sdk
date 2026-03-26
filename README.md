@@ -21,14 +21,20 @@ The recommended way to try the SDK is to scaffold a demo app with
 `create-elata-demo`.
 
 ```bash
-# RPPG web demo (default template)
+# RPPG web demo
 npm create @elata-biosciences/elata-demo my-app
 
 # EEG web demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
 
+# EEG web demo (alias)
+npm create @elata-biosciences/elata-demo my-app -- --template eeg
+
 # EEG Web Bluetooth demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
+
+# EEG Web Bluetooth demo (alias)
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 ```
 
 You can also call the scaffolder directly:
@@ -37,6 +43,10 @@ You can also call the scaffolder directly:
 pnpm dlx @elata-biosciences/create-elata-demo my-app
 npx @elata-biosciences/create-elata-demo my-app
 ```
+
+When you run the scaffolder interactively without `--template`, it prompts you
+to choose a template. In non-interactive runs, it falls back to
+`rppg-web-demo`.
 
 After scaffolding:
 

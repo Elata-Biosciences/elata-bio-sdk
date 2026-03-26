@@ -10,6 +10,12 @@ This package provides the `create-elata-demo` CLI and the templates behind:
 - `eeg-web-demo`
 - `eeg-web-ble-demo`
 
+Short aliases are also supported:
+
+- `rppg`
+- `eeg`
+- `eeg-ble`
+
 Use it when you want a clean demo app or a consumer-facing reference project.
 
 ## When To Use It
@@ -46,8 +52,15 @@ npx @elata-biosciences/create-elata-demo -- --list-templates
 Scaffold a project:
 
 ```bash
+npm create @elata-biosciences/elata-demo my-app
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+npm create @elata-biosciences/elata-demo my-app -- --template eeg
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 ```
+
+When you run the CLI interactively without `--template`, it prompts you to pick
+from the available templates. In non-interactive runs, it still falls back to
+the default `rppg-web-demo` template.
 
 ## Build And Dev Notes
 
