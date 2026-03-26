@@ -78,6 +78,11 @@ The built assets live in `node_modules/@elata-biosciences/rppg-web/pkg/` after
 an npm install. Copy or symlink that directory into your app's `public/` folder,
 or use the import-based options below to let Vite manage the asset URLs instead.
 
+**Already using `@elata-biosciences/eeg-web`?** You don't need rppg-web's WASM
+at all. The session loader tries `/pkg/eeg_wasm.js` as a fallback, and eeg-web's
+WASM exports `RppgPipeline`. Copy `node_modules/@elata-biosciences/eeg-web/wasm/`
+to `public/pkg/` instead — it satisfies the interface automatically.
+
 ### Dynamic import restriction
 
 Vite 7 blocks `import(url)` for files served from `/public`, which is where

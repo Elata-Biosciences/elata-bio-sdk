@@ -127,10 +127,13 @@ export type CreateRppgSessionOptions = Omit<
 	autoStart?: boolean;
 	/**
 	 * URL of the wasm-bindgen JS glue file to load.
-	 * Defaults to `/pkg/rppg_wasm.js` (also tries `/pkg/eeg_wasm.js` and root
-	 * variants as fallbacks). In a Vite app, use a `?url` import and pass the
-	 * result here to avoid public-directory dynamic-import restrictions:
-	 * `import url from "@elata-biosciences/rppg-web/pkg/rppg_wasm.js?url"`
+	 * Defaults to `/pkg/rppg_wasm.js`, then falls back to `/pkg/eeg_wasm.js`
+	 * and root-path variants. This means **if you have `@elata-biosciences/eeg-web`
+	 * installed, you do not need to build rppg-web's WASM separately** — copy or
+	 * symlink `node_modules/@elata-biosciences/eeg-web/wasm/` to `public/pkg/` and
+	 * the eeg WASM will be found automatically (it exports `RppgPipeline`).
+	 * In a Vite app, use a `?url` import to avoid public-directory restrictions:
+	 * `import url from "@elata-biosciences/eeg-web/wasm/eeg_wasm.js?url"`
 	 */
 	wasmJsUrl?: string;
 	/**
