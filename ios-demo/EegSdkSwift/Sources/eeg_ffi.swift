@@ -67,7 +67,7 @@ fileprivate extension Data {
 // should Reader have?
 // - If Reader is fileprivate, then this means the read() must also
 //   be fileprivate, which doesn't work with external types.
-// - If Reader is internal/public, we'll get compile errors since both source
+// - If Reader is external/public, we'll get compile errors since both source
 //   files will try define the same type.
 //
 // Instead, the read() method and these helper functions input a tuple of data

@@ -1,0 +1,150 @@
+---
+title: Add Camera-Based rPPG To An Existing Browser App
+description: Build a working browser rPPG flow with createRppgSession, diagnostics, and cleanup.
+---
+
+This tutorial shows the recommended app integration path for
+`@elata-biosciences/rppg-web`.
+
+The core idea is simple: let `createRppgSession()` own the browser runtime,
+video processing loop, and diagnostics while your app owns the UI.
+
+## What You Will Build
+
+You will:
+
+1. install `@elata-biosciences/rppg-web`
+2. request camera access
+3. attach the stream to a `video` element
+4. start `createRppgSession()`
+5. read metrics and diagnostics
+6. stop the session during cleanup
+
+## Step 1: Install The Package
+
+```bash
+pnpm add @elata-biosciences/rppg-web
+```
+
+If you use npm instead:
+
+```bash
+npm install @elata-biosciences/rppg-web
+```
+
+## Step 2: Prepare A Video Element
+
+Your app needs a `video` element that can receive the camera stream.
+
+```html
+<video id="camera" autoplay playsinline muted></video>
+```
+
+The important parts are:
+
+- `autoplay` so playback can start once the stream is attached
+- `playsinline` for mobile browser behavior
+- `muted` to keep autoplay rules out of the way
+
+## Step 3: Acquire Camera Access
+
+```ts
+const videoEl = document.getElementById("camera") as HTMLVideoElement;
+
+const stream = await navigator.mediaDevices.getUserMedia({
+  video: { facingMode: "user" },
+  audio: false,
+});
+
+videoEl.srcObject = stream;
+await videoEl.play();
+```
+
+At this point your browser app should already be showing the camera preview.
+
+## Step 4: Start `createRppgSession()`
+
+```ts
+import { createRppgSession } from "@elata-biosciences/rppg-web";
+
+const session = await createRppgSession({
+  video: videoEl,
+  sampleRate: 30,
+  backend: "auto",
+  faceMesh: "off",
+  onDiagnostics: (diagnostics) => {
+    console.log("status", diagnostics.state.status);
+    console.log("frames", diagnostics.framesSeen);
+    console.log("samples", diagnostics.totalSamplesReceived);
+    console.log("issues", diagnostics.issues);
+  },
+  onError: (error) => {
+    console.error(error.code, error.message);
+  },
+});
+```
+
+This is the recommended starting point for most browser apps.
+
+It handles:
+
+- packaged WASM backend init
+- frame capture
+- ROI/session orchestration
+- diagnostics emission
+- cleanup support
+
+## Step 5: Read Metrics In Your UI
+
+```ts
+const metrics = session.getMetrics();
+console.log(metrics);
+```
+
+In a real app you would poll or subscribe through your own UI state layer and
+show the values that matter to your product.
+
+## Step 6: Clean Up Correctly
+
+When the component, route, or page is leaving, stop the session and release the
+camera stream:
+
+```ts
+await session.stop();
+
+for (const track of stream.getTracks()) {
+  track.stop();
+}
+```
+
+This matters more than it looks. It keeps later sessions from inheriting stale
+camera or runtime state.
+
+## What To Do With Diagnostics
+
+The quickest useful app behavior is:
+
+1. show whether the session is `running`, `degraded`, or `failed`
+2. display human-readable guidance when `issues` appear
+3. block publishing or scoring until your app has enough stable samples
+
+If you want a higher-level app-facing state layer later, look at:
+
+- `createManagedRppgSession()`
+- `createRppgAppAdapter()`
+- `createRppgAppMonitor()`
+
+But start with plain `createRppgSession()` first.
+
+## Common Problems
+
+- `session.getDiagnostics().backendMode` is `unavailable`: your app is likely not serving packaged `pkg/` assets correctly
+- Camera access fails: check browser permissions and `getUserMedia` support
+- The session reaches terminal `failed`: recreate the session instead of trying to keep using the same poisoned processor
+- You are trying to debug lower-level generated bindings first: start with `createRppgSession()` unless you are intentionally debugging the SDK itself
+
+## Next Steps
+
+- rPPG package reference: [rppg-web](/reference/rppg-web)
+- Shorter integration guide: [rPPG In A Browser App](/guides/rppg-browser)
+- Best first-time setup path: [Build Your First Elata App](/tutorials/first-app)

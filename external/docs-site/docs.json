@@ -24,11 +24,21 @@
         "pages": ["index", "quickstart", "package-selection"]
       },
       {
+        "group": "Tutorials",
+        "pages": [
+          "tutorials/first-app",
+          "tutorials/eeg-existing-app",
+          "tutorials/eeg-ble-live-stream",
+          "tutorials/rppg-existing-app"
+        ]
+      },
+      {
         "group": "Guides",
         "pages": [
           "guides/eeg-browser",
           "guides/web-bluetooth",
           "guides/rppg-browser",
+          "guides/federated-learning",
           "operations/compatibility",
           "operations/troubleshooting"
         ]

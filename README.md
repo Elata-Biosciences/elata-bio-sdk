@@ -21,22 +21,32 @@ The recommended way to try the SDK is to scaffold a demo app with
 `create-elata-demo`.
 
 ```bash
-# RPPG web demo (default template)
+# RPPG web demo
 npm create @elata-biosciences/elata-demo my-app
 
 # EEG web demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
 
+# EEG web demo (alias)
+npm create @elata-biosciences/elata-demo my-app -- --template eeg
+
 # EEG Web Bluetooth demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
+
+# EEG Web Bluetooth demo (alias)
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 ```
 
 You can also call the scaffolder directly:
 
 ```bash
-pnpm dlx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
-npx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
+pnpm dlx @elata-biosciences/create-elata-demo my-app
+npx @elata-biosciences/create-elata-demo my-app
 ```
+
+When you run the scaffolder interactively without `--template`, it prompts you
+to choose a template. In non-interactive runs, it falls back to
+`rppg-web-demo`.
 
 After scaffolding:
 
@@ -160,7 +170,7 @@ local EEG package against an app you already have.
 ## Docs Map
 
 - [docs/README.md](docs/README.md): docs index
-- [internal/docs-site/README.md](internal/docs-site/README.md): Mintlify docs site source for the next `docs.elata.bio`
+- [external/docs-site/README.md](external/docs-site/README.md): Mintlify docs site source for the next `docs.elata.bio`
 - [docs/repo-map.md](docs/repo-map.md): package ownership and repo layout
 - [docs/create-elata-demo.md](docs/create-elata-demo.md): scaffolding workflow
 - [docs/dev_setup.md](docs/dev_setup.md): local setup and iteration tips

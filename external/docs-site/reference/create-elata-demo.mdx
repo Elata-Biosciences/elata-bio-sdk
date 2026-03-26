@@ -11,7 +11,24 @@ This package provides the `create-elata-demo` CLI and the templates behind:
 - `eeg-web-demo`
 - `eeg-web-ble-demo`
 
+Short aliases are also supported:
+
+- `rppg`
+- `eeg`
+- `eeg-ble`
+
 Use it when you want a clean demo app or a consumer-facing reference project.
+
+## When To Use It
+
+Use this package when you want:
+
+- the fastest path to a working Elata app
+- a reference project that matches the published package surface
+- a known-good baseline before integrating packages into an existing app
+
+Do not start with repo-internal demos when this package already covers your use
+case.
 
 ## Install And Invocation
 
@@ -19,8 +36,8 @@ This package is usually invoked without installing it permanently:
 
 ```bash
 npm create @elata-biosciences/elata-demo my-app
-pnpm dlx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
-npx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
+pnpm dlx @elata-biosciences/create-elata-demo my-app
+npx @elata-biosciences/create-elata-demo my-app
 ```
 
 ## Requirements
@@ -37,15 +54,33 @@ npx @elata-biosciences/create-elata-demo -- --list-templates
 ## Recommended Usage
 
 ```bash
-# rPPG web demo (default template)
+# rPPG web demo
 npm create @elata-biosciences/elata-demo my-app
 
 # EEG web demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
 
+# EEG web demo (alias)
+npm create @elata-biosciences/elata-demo my-app -- --template eeg
+
 # EEG Web Bluetooth demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
+
+# EEG Web Bluetooth demo (alias)
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 ```
+
+When the CLI is run interactively without `--template`, it prompts you to pick
+a template. In non-interactive runs, it still falls back to `rppg-web-demo`.
+
+## What You Get
+
+Each generated app includes:
+
+- a minimal Vite + React app shell
+- Elata packages pinned to a compatible set of versions
+- a template-specific `README.md`
+- a buildable project you can use as a comparison baseline later
 
 ## Workspace Caveat
 
@@ -70,3 +105,9 @@ pnpm --dir packages/create-elata-demo test
 
 The second command also smoke-tests each template by scaffolding, installing
 dependencies, and running a build.
+
+## Related Docs
+
+- Fastest onboarding page: [Quickstart](/quickstart)
+- First end-to-end tutorial: [Build Your First Elata App](/tutorials/first-app)
+- Package choice help: [Package Selection](/package-selection)

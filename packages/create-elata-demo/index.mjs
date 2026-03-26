@@ -20,14 +20,17 @@ const templates = {
   'rppg-web-demo': {
     dir: 'rppg-web-demo',
     description: 'React + Vite rPPG heart-rate demo',
+    aliases: ['rppg'],
   },
   'eeg-web-demo': {
     dir: 'eeg-web-demo',
     description: 'React + Vite EEG WASM demo',
+    aliases: ['eeg'],
   },
   'eeg-web-ble-demo': {
     dir: 'eeg-web-ble-demo',
     description: 'React + Vite Muse Web Bluetooth demo',
+    aliases: ['eeg-ble'],
   },
 };
 
@@ -60,6 +63,12 @@ const packageVersions = {
   ),
 };
 
+const templateAliases = Object.fromEntries(
+  Object.entries(templates).flatMap(([name, info]) =>
+    (info.aliases ?? []).map((alias) => [alias, name]),
+  ),
+);
+
 async function prompt(question) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   return new Promise((resolve) =>
@@ -73,9 +82,45 @@ async function prompt(question) {
 function printTemplates() {
   console.log('Available templates:\n');
   for (const [name, info] of Object.entries(templates)) {
-    console.log(`  ${name} - ${info.description}`);
+    const aliasSuffix =
+      info.aliases?.length > 0 ? ` (aliases: ${info.aliases.join(', ')})` : '';
+    console.log(`  ${name} - ${info.description}${aliasSuffix}`);
   }
   console.log('');
+}
+
+function normalizeTemplateName(templateName) {
+  if (!templateName) {
+    return templateName;
+  }
+  return templateAliases[templateName] ?? templateName;
+}
+
+async function promptForTemplate() {
+  const entries = Object.entries(templates);
+
+  console.log('Choose a template:\n');
+  entries.forEach(([name, info], index) => {
+    const aliasSuffix =
+      info.aliases?.length > 0 ? ` (aliases: ${info.aliases.join(', ')})` : '';
+    console.log(`  ${index + 1}. ${name} - ${info.description}${aliasSuffix}`);
+  });
+  console.log('');
+
+  const answer = await prompt('Template [1]: ');
+  if (!answer) {
+    return entries[0][0];
+  }
+
+  const numericChoice = Number(answer);
+  if (Number.isInteger(numericChoice)) {
+    const chosen = entries[numericChoice - 1];
+    if (chosen) {
+      return chosen[0];
+    }
+  }
+
+  return normalizeTemplateName(answer);
 }
 
 function copyDir(src, dest, transforms) {
@@ -116,8 +161,9 @@ function findParentPnpmWorkspace(startDir) {
 function parseArgs(argv) {
   const args = [...argv];
   let projectName = '';
-  let templateName = 'rppg-web-demo';
+  let templateName = '';
   let listTemplates = false;
+  let templateSpecified = false;
 
   while (args.length > 0) {
     const arg = args.shift();
@@ -125,11 +171,13 @@ function parseArgs(argv) {
 
     if (arg === '--template') {
       templateName = args.shift() ?? '';
+      templateSpecified = true;
       continue;
     }
 
     if (arg.startsWith('--template=')) {
       templateName = arg.slice('--template='.length);
+      templateSpecified = true;
       continue;
     }
 
@@ -144,12 +192,15 @@ function parseArgs(argv) {
     }
   }
 
-  return { projectName, templateName, listTemplates };
+  return { projectName, templateName, listTemplates, templateSpecified };
 }
 
-const { projectName: rawProjectName, templateName, listTemplates } = parseArgs(
-  process.argv.slice(2),
-);
+const {
+  projectName: rawProjectName,
+  templateName: rawTemplateName,
+  listTemplates,
+  templateSpecified,
+} = parseArgs(process.argv.slice(2));
 
 if (listTemplates) {
   printTemplates();
@@ -165,9 +216,19 @@ if (!projectName) {
   process.exit(1);
 }
 
+let templateName = normalizeTemplateName(rawTemplateName);
+if (!templateSpecified) {
+  if (process.stdin.isTTY && process.stdout.isTTY) {
+    templateName = await promptForTemplate();
+  } else {
+    templateName = 'rppg-web-demo';
+  }
+}
+
 const template = templates[templateName];
 if (!template) {
-  console.error(`Error: unknown template "${templateName}".`);
+  const invalidTemplateName = rawTemplateName || templateName;
+  console.error(`Error: unknown template "${invalidTemplateName}".`);
   printTemplates();
   process.exit(1);
 }

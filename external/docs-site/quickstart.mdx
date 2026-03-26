@@ -3,6 +3,8 @@ title: Quickstart
 description: Get to a working Elata app quickly with the supported developer entrypoints.
 ---
 
+This page is the shortest path from "what is this SDK?" to a working local app.
+
 ## Fastest Path
 
 If you are evaluating the SDK for the first time, scaffold a demo app:
@@ -19,6 +21,14 @@ Available templates:
 - `rppg-web-demo`: camera-based rPPG demo
 - `eeg-web-demo`: browser EEG WASM demo with synthetic data
 - `eeg-web-ble-demo`: Muse-compatible browser BLE demo
+
+## Which Template Should You Choose?
+
+| If you want to... | Start here |
+| --- | --- |
+| Try the SDK without external hardware | `rppg-web-demo` |
+| Explore EEG analysis in the browser first | `eeg-web-demo` |
+| Connect to a real Muse-compatible device in Chrome or Edge | `eeg-web-ble-demo` |
 
 ## What You Are Choosing Between
 
@@ -41,6 +51,12 @@ pnpm add @elata-biosciences/rppg-web
 
 Use only the packages your app actually needs.
 
+The common paths are:
+
+- `@elata-biosciences/eeg-web` for browser EEG analysis APIs
+- `@elata-biosciences/eeg-web-ble` plus `eeg-web` for live Muse-compatible BLE transport
+- `@elata-biosciences/rppg-web` for browser camera-based rPPG
+
 ## App-Level Rule Of Thumb
 
 - Start with `eeg-web-demo` if you want to understand what EEG data and EEG
@@ -54,6 +70,12 @@ Use only the packages your app actually needs.
 1. Start with `@elata-biosciences/create-elata-demo` for evaluation or a new app.
 2. Install a published package directly when integrating into an existing app.
 3. Use repo-internal workflows only if you are modifying the SDK itself.
+
+## What Not To Start With
+
+- Do not start with `./run.sh sync-to` unless you are actively developing `packages/eeg-web` in this monorepo.
+- Do not assume the in-repo demos are the default consumer path.
+- Do not treat a parent-workspace `pnpm` install issue as a package failure until you check the workspace caveat below.
 
 ## Workspace Caveat
 
@@ -69,7 +91,8 @@ Or use `npm install` and `npm run dev` inside the generated app.
 
 ## Next Steps
 
-- Need help choosing packages: `/package-selection`
-- Building browser EEG features: `/guides/eeg-browser`
-- Building browser BLE flows: `/guides/web-bluetooth`
-- Building browser rPPG flows: `/guides/rppg-browser`
+- Need help choosing packages: [Package Selection](/package-selection)
+- Want step-by-step onboarding tutorials: [Build Your First Elata App](/tutorials/first-app)
+- Building browser EEG features: [EEG In A Browser App](/guides/eeg-browser)
+- Building browser BLE flows: [Web Bluetooth With Supported Devices](/guides/web-bluetooth)
+- Building browser rPPG flows: [rPPG In A Browser App](/guides/rppg-browser)

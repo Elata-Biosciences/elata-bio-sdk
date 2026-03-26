@@ -16,6 +16,17 @@ It provides:
 
 This package does not implement Bluetooth device connection logic by itself.
 
+## When To Use It
+
+Use this package when your app needs:
+
+- EEG analysis APIs in the browser
+- shared EEG web contracts used by higher-level integrations
+- browser-side access to Elata WASM models and signal-processing helpers
+
+If you also need live Muse-compatible browser transport, add
+`@elata-biosciences/eeg-web-ble`.
+
 ## Install
 
 ```bash
@@ -63,6 +74,11 @@ Advanced:
 - `WasmCalmnessModel`
 - `AthenaWasmDecoder`
 
+## Common Misunderstanding
+
+`eeg-web` is not the package that discovers Bluetooth devices. It gives you the
+EEG runtime and analysis surface. Add `eeg-web-ble` when you need browser BLE.
+
 ## Build And Dev Notes
 
 From the repo root:
@@ -79,3 +95,9 @@ For local iteration against an existing app:
 
 `sync-to` is a local repo-development helper for `eeg-web`. It is not the
 recommended path for starting a new app.
+
+## Related Docs
+
+- Existing-app tutorial: [Add EEG To An Existing Browser App](/tutorials/eeg-existing-app)
+- BLE transport guide: [Web Bluetooth With Supported Devices](/guides/web-bluetooth)
+- Package choice help: [Package Selection](/package-selection)

@@ -59,6 +59,7 @@ test('lists templates', () => {
   const result = runCli(['--list-templates'], __dirname);
   assert.strictEqual(result.status, 0, result.stderr);
   assert.match(result.stdout, /rppg-web-demo/);
+  assert.match(result.stdout, /aliases: rppg/);
   assert.match(result.stdout, /eeg-web-demo/);
   assert.match(result.stdout, /eeg-web-ble-demo/);
 });
@@ -180,6 +181,19 @@ test('warns when scaffolding inside a parent pnpm workspace', () => {
     assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
     assert.match(result.stdout, /inside an existing pnpm workspace/);
     assert.match(result.stdout, /--ignore-workspace install/);
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('accepts a short template alias', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
+  try {
+    const result = runCli(['brain-demo', '--template', 'eeg'], tmp);
+    assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
+    const pkg = readFileSync(join(tmp, 'brain-demo', 'package.json'), 'utf8');
+    assert.match(pkg, new RegExp(`"@elata-biosciences/eeg-web": "${eegWebVersion}"`));
+    assert.doesNotMatch(pkg, /@elata-biosciences\/eeg-web-ble/);
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }

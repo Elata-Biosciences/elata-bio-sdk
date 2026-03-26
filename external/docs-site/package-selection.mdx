@@ -10,6 +10,9 @@ If you are starting fresh, use `@elata-biosciences/create-elata-demo`.
 That is the shortest path to a running app and the best starting point for
 evaluation, onboarding, and comparison debugging.
 
+If you already have an app and know which sensor workflow you need, use this
+page to choose the published package path directly.
+
 ## What These Packages Help You Build
 
 - **EEG packages** are for apps that use brain-signal data from a headset.
@@ -29,6 +32,13 @@ evaluation, onboarding, and comparison debugging.
 | Run EEG WASM APIs in the browser | `@elata-biosciences/eeg-web` | signal processing, models, and WASM helpers |
 | Connect to Muse-compatible devices in the browser | `@elata-biosciences/eeg-web-ble` | install alongside `eeg-web` |
 | Run camera-based rPPG in a browser app | `@elata-biosciences/rppg-web` | start with `createRppgSession()` |
+
+## The Short Recommendation
+
+- New app or first evaluation: use `create-elata-demo`
+- Existing app with browser EEG analysis: use `eeg-web`
+- Existing app with live Muse-compatible browser streaming: use `eeg-web` + `eeg-web-ble`
+- Existing app with camera-based pulse estimation: use `rppg-web`
 
 ## Browser EEG
 
@@ -72,6 +82,13 @@ stress-aware UX, deception mechanics, or biofeedback-oriented health flows.
 - Do not treat in-repo demos as the primary consumer onboarding path.
 - Do not assume a scaffolded app is broken until you check whether `pnpm`
   attached to a parent workspace.
+
+## Related Docs
+
+- Getting started quickly: [Quickstart](/quickstart)
+- First end-to-end tutorial: [Build Your First Elata App](/tutorials/first-app)
+- Browser EEG guide: [EEG In A Browser App](/guides/eeg-browser)
+- Browser rPPG guide: [rPPG In A Browser App](/guides/rppg-browser)
 
 ## When The Alternative Path Is Correct
 

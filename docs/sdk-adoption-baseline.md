@@ -135,7 +135,7 @@ Current friction:
 Fastest consumer path:
 
 ```bash
-npm create @elata-biosciences/elata-demo my-app -- --template rppg-web-demo
+npm create @elata-biosciences/elata-demo my-app
 cd my-app
 pnpm install
 pnpm run dev

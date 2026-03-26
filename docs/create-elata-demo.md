@@ -19,6 +19,12 @@ The scaffolder exposes multiple templates:
 - `eeg-web-demo` – React + Vite EEG WASM demo
 - `eeg-web-ble-demo` – React + Vite Muse Web Bluetooth EEG demo
 
+Short aliases are also supported:
+
+- `rppg`
+- `eeg`
+- `eeg-ble`
+
 You can list templates from any environment:
 
 ```bash
@@ -31,15 +37,25 @@ npx @elata-biosciences/create-elata-demo -- --list-templates
 The recommended entry point is the npm "create" flow:
 
 ```bash
-# RPPG web demo (default template)
+# RPPG web demo
 npm create @elata-biosciences/elata-demo my-app
 
 # EEG web demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
 
+# EEG web demo (alias)
+npm create @elata-biosciences/elata-demo my-app -- --template eeg
+
 # EEG Web Bluetooth demo (Muse-compatible)
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
+
+# EEG Web Bluetooth demo (alias)
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 ```
+
+When the CLI is run interactively without `--template`, it now prompts you to
+pick a template. In non-interactive runs, it still defaults to
+`rppg-web-demo`.
 
 Behind the scenes this runs the `create-elata-demo` binary, which:
 
@@ -83,11 +99,12 @@ npm run dev
 If you prefer not to go through the npm "create" alias, you can invoke the scaffolder package explicitly:
 
 ```bash
-pnpm dlx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
-npx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
+pnpm dlx @elata-biosciences/create-elata-demo my-app
+npx @elata-biosciences/create-elata-demo my-app
+pnpm dlx @elata-biosciences/create-elata-demo my-app --template eeg
 ```
 
-This is equivalent to the `npm create @elata-biosciences/elata-demo` examples above.
+This is equivalent to the default `npm create @elata-biosciences/elata-demo my-app` flow above. Pass `--template` only when you want one of the EEG templates.
 
 ### Repo-level smoke tests
 
