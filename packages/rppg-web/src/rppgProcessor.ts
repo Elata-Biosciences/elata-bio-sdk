@@ -63,31 +63,57 @@ export type BpmResolutionResult = {
 };
 
 export type Metrics = {
+	/** Recommended display field. Final fused/calibrated BPM estimate. Null during warmup (~10s) or when backend is unavailable. */
 	bpm?: number | null;
+	/** 0–1 confidence score. Gate your UI on this — only show BPM when above your threshold (e.g. 0.5). */
 	confidence: number;
+	/** 0–1 raw signal quality based on skin ratio, motion, and clipping. Low values mean the camera signal is poor regardless of algorithm state. */
 	signal_quality: number;
+	/** Agreement between spectral and ACF estimators (0–1). Higher = the two methods agree on the same BPM. */
 	agreement?: number;
+	/** Debug codes explaining the current confidence level (e.g. "low_skin_ratio", "high_motion"). */
 	reason_codes?: string[];
+	/** Signal-to-noise ratio of the rPPG waveform. */
 	snr?: number;
+	/** Fraction of ROI pixels classified as skin (0–1). Low values indicate poor face framing or lighting. */
 	skin_ratio_mean?: number;
+	/** Mean motion level in the ROI. High values indicate the subject is moving too much for reliable estimation. */
 	motion_mean?: number;
+	/** Mean pixel clipping level. High values indicate overexposure washing out the rPPG signal. */
 	clip_mean?: number;
+	/** Intermediate: frequency-domain (FFT) BPM estimate. One of the two primary estimators. */
 	spectral_bpm?: number | null;
+	/** Intermediate: autocorrelation BPM estimate. One of the two primary estimators. */
 	acf_bpm?: number | null;
+	/** Intermediate: peak-detection BPM estimate. */
 	peaks_bpm?: number | null;
+	/** Intermediate: blended spectral+ACF estimate before Bayesian tracking. */
 	resolved_bpm?: number | null;
+	/** Confidence of the resolved (pre-Bayes) estimate. */
 	resolved_confidence?: number;
+	/** Which estimators contributed to the resolved estimate. */
 	winning_sources?: BpmEvidenceSource[];
+	/** Whether harmonic aliasing was detected in the frequency spectrum. */
 	alias_flag?: boolean;
+	/** Bayesian tracker output — temporally smoothed BPM with continuity across frames. */
 	bayes_bpm?: number | null;
+	/** Confidence of the Bayesian tracker output. */
 	bayes_confidence?: number;
+	/** Bayesian BPM after online calibration model correction. Used as the basis for `bpm`. */
 	calibrated_bpm?: number | null;
+	/** Final fused estimate combining camera rPPG with an optional external BPM reference (e.g. Muse headband). Same as `bpm` when no external source is active. */
 	fused_bpm?: number | null;
+	/** Which source drove the fused estimate: `"camera"`, `"muse"`, `"blend"`, or `"none"`. */
 	fused_source?: FusionSource;
+	/** Whether the online calibration model has accumulated enough data to correct estimates. */
 	calibration_trained?: boolean;
+	/** Rolling baseline BPM for relative-change calculations. */
 	baseline_bpm?: number | null;
+	/** Current BPM delta from the rolling baseline. Positive = elevated above resting rate. */
 	baseline_delta?: number | null;
+	/** Heart rate variability (RMSSD in ms). Experimental — requires sufficient window length. */
 	hrv_rmssd?: number | null;
+	/** Estimated respiration rate (breaths/min) derived from the rPPG waveform. Experimental. */
 	respiration_rate?: number | null;
 };
 

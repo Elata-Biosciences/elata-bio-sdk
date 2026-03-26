@@ -52,6 +52,79 @@ needed when working from the repo source.
 - `wasm-bindgen-cli` (`cargo install wasm-bindgen-cli`)
 - Run `pnpm --dir packages/rppg-web run build:wasm` to compile and place assets in `pkg/`
 
+## Vite Config
+
+### WASM asset placement
+
+The default session loader fetches WASM files from `/pkg/rppg_wasm.js` and
+`/pkg/rppg_wasm_bg.wasm`. In a Vite app, place those files under `public/pkg/`
+so they are served at that path:
+
+```
+your-app/
+  public/
+    pkg/
+      rppg_wasm.js
+      rppg_wasm_bg.wasm
+```
+
+The built assets live in `node_modules/@elata-biosciences/rppg-web/pkg/` after
+an npm install. Copy or symlink that directory into your app's `public/` folder,
+or use the import-based options below to let Vite manage the asset URLs instead.
+
+### Dynamic import restriction
+
+Vite 7 blocks `import(url)` for files served from `/public`, which is where
+most projects place the `pkg/` WASM assets. **If you skip this step, the
+session will start, `backendMode` will be `"unavailable"`, and BPM will always
+be null — no error is thrown.** Two approaches to fix it:
+
+**Option A — vite-plugin-wasm (recommended)**
+
+```bash
+npm install -D vite-plugin-wasm vite-plugin-top-level-await
+```
+
+```ts
+// vite.config.ts
+import { defineConfig } from "vite";
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
+
+export default defineConfig({
+  plugins: [wasm(), topLevelAwait()],
+});
+```
+
+Then import the WASM JS bundle statically and pass it as `wasmImporter`:
+
+```ts
+import * as rppgWasm from "@elata-biosciences/rppg-web/pkg/rppg_wasm.js";
+import { createRppgSession } from "@elata-biosciences/rppg-web";
+
+const session = await createRppgSession({
+  video: videoEl,
+  wasmImporter: () => Promise.resolve(rppgWasm),
+});
+```
+
+**Option B — explicit URL imports (no extra plugins)**
+
+```ts
+import rppgWasmJsUrl from "@elata-biosciences/rppg-web/pkg/rppg_wasm.js?url";
+import rppgWasmBinaryUrl from "@elata-biosciences/rppg-web/pkg/rppg_wasm_bg.wasm?url";
+import { createRppgSession } from "@elata-biosciences/rppg-web";
+
+const session = await createRppgSession({
+  video: videoEl,
+  wasmJsUrl: rppgWasmJsUrl,
+  wasmBinaryUrl: rppgWasmBinaryUrl,
+});
+```
+
+Option B works because Vite resolves `?url` imports to fingerprinted asset
+URLs at build time, bypassing the public directory restriction entirely.
+
 ## Usage
 
 Minimal camera → BPM loop:
@@ -74,12 +147,6 @@ const session = await createRppgSession({
 
 // 3. Poll for BPM
 const interval = setInterval(() => {
-  // Check backendMode first — if "unavailable", WASM didn't load and BPM
-  // will always be null (looks identical to the normal warmup period).
-  if (session.backendMode === "unavailable") {
-    console.warn("WASM backend not loaded — check that pkg/ assets are served at /pkg/");
-    return;
-  }
   const metrics = session.getMetrics();
   if (metrics?.bpm != null) {
     console.log("BPM:", metrics.bpm.toFixed(1));
@@ -92,6 +159,11 @@ const interval = setInterval(() => {
 ```
 
 Expect a ~10 second warmup before the first BPM estimate.
+
+> **If BPM is always null:** check `session.backendMode` before assuming bad
+> signal. If it is `"unavailable"`, the WASM assets did not load — the session
+> runs gracefully but metrics will always be null. This looks identical to the
+> warmup period. See the [Vite Config](#vite-config) section above.
 
 If you need a single boolean for UI gating (e.g. "show the BPM display"),
 use `createRppgAppAdapter().canPublish` instead of polling `getMetrics()`
@@ -232,80 +304,6 @@ If your app needs explicit asset control, `createRppgSession()` also accepts:
 
 Those options let apps bypass guessed `/pkg/*` paths when bundler or deploy
 layout needs explicit wiring.
-
-## Vite Config
-
-### WASM asset placement
-
-The default session loader fetches WASM files from `/pkg/rppg_wasm.js` and
-`/pkg/rppg_wasm_bg.wasm`. In a Vite app, place those files under `public/pkg/`
-so they are served at that path:
-
-```
-your-app/
-  public/
-    pkg/
-      rppg_wasm.js
-      rppg_wasm_bg.wasm
-```
-
-The built assets live in `packages/rppg-web/pkg/` (after `pnpm run build:wasm`)
-or in `node_modules/@elata-biosciences/rppg-web/pkg/` after an npm install.
-Copy or symlink that directory into your app's `public/` folder, or use the
-import-based options below to let Vite manage the asset URLs instead.
-
-### Dynamic import restriction
-
-Vite 7 blocks `import(url)` for files served from `/public`, which is where
-most projects place the `pkg/` WASM assets. **If you skip this step, the
-session will start, `backendMode` will be `"unavailable"`, and BPM will always
-be null — no error is thrown.** Two approaches to fix it:
-
-**Option A — vite-plugin-wasm (recommended)**
-
-```bash
-npm install -D vite-plugin-wasm vite-plugin-top-level-await
-```
-
-```ts
-// vite.config.ts
-import { defineConfig } from "vite";
-import wasm from "vite-plugin-wasm";
-import topLevelAwait from "vite-plugin-top-level-await";
-
-export default defineConfig({
-  plugins: [wasm(), topLevelAwait()],
-});
-```
-
-Then import the WASM JS bundle statically and pass it as `wasmImporter`:
-
-```ts
-import * as rppgWasm from "@elata-biosciences/rppg-web/pkg/rppg_wasm.js";
-import { createRppgSession } from "@elata-biosciences/rppg-web";
-
-const session = await createRppgSession({
-  video: videoEl,
-  wasmImporter: () => Promise.resolve(rppgWasm),
-});
-```
-
-**Option B — explicit URL imports (no extra plugins)**
-
-```ts
-import rppgWasmJsUrl from "@elata-biosciences/rppg-web/pkg/rppg_wasm.js?url";
-import rppgWasmBinaryUrl from "@elata-biosciences/rppg-web/pkg/rppg_wasm_bg.wasm?url";
-import { createRppgSession } from "@elata-biosciences/rppg-web";
-
-const session = await createRppgSession({
-  video: videoEl,
-  wasmJsUrl: rppgWasmJsUrl,
-  wasmBinaryUrl: rppgWasmBinaryUrl,
-});
-```
-
-Option B works because Vite resolves `?url` imports to fingerprinted asset
-URLs at build time, bypassing the public directory restriction entirely.
 
 ## Managed Session
 

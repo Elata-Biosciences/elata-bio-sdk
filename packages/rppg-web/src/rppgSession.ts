@@ -119,6 +119,11 @@ export type CreateRppgSessionOptions = Omit<
 				maxBpm?: number;
 				numParticles?: number;
 		  };
+	/**
+	 * Whether to start the session immediately after creation. Defaults to `true`.
+	 * Pass `false` to defer capture until you call `session.start()` manually —
+	 * useful when you want to show UI or request permissions before capture begins.
+	 */
 	autoStart?: boolean;
 	/**
 	 * URL of the wasm-bindgen JS glue file to load.
