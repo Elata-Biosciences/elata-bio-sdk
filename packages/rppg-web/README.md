@@ -13,11 +13,17 @@ This package provides:
 
 ## When To Use It
 
+**Abstraction level: managed session.** This package owns the camera capture
+loop, WASM loading, face ROI, diagnostics, and lifecycle for you — you call
+`createRppgSession()` and poll `getMetrics()`. If you want raw pipeline
+primitives to compose yourself, use `createRppgPipeline()` from `eeg-web`
+instead.
+
 Use `@elata-biosciences/rppg-web` when you want:
 
-- browser-side rPPG processing
+- browser-side rPPG processing with a managed camera session
 - packaged WASM backend loading without wiring the low-level runtime yourself
-- demo helpers for camera-driven prototypes and integrations
+- built-in diagnostics, graceful degradation, and lifecycle management
 
 If you are evaluating the SDK for the first time, start with the
 `create-elata-demo` rPPG template before integrating manually.
