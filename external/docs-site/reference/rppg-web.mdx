@@ -12,6 +12,17 @@ This package provides:
 - packaged browser WASM backend loading from `/pkg`
 - advanced helpers such as `DemoRunner` and frame sources
 
+## When To Use It
+
+Use this package when your app needs:
+
+- camera-based biosignal processing in the browser
+- a higher-level rPPG session API instead of raw WASM orchestration
+- diagnostics and app-facing helpers around rPPG sessions
+
+For most browser apps, start with `createRppgSession()` rather than lower-level
+bindings.
+
 ## Install
 
 ```bash
@@ -83,3 +94,9 @@ terminal and recreate the session instead of continuing to poll it.
 
 If `backend: "auto"` falls back to an unavailable backend mode, diagnostics
 report that state instead of failing silently.
+
+## Related Docs
+
+- Existing-app tutorial: [Add Camera-Based rPPG To An Existing Browser App](/tutorials/rppg-existing-app)
+- Browser guide: [rPPG In A Browser App](/guides/rppg-browser)
+- Package choice help: [Package Selection](/package-selection)

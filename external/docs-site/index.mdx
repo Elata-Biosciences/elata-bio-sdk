@@ -14,6 +14,18 @@ If you are evaluating the SDK or starting a new app, begin with
 `@elata-biosciences/create-elata-demo` instead of cloning this repo or starting
 from internal demos.
 
+## Who This Site Is For
+
+Use this site if you are:
+
+- evaluating Elata for a browser app
+- adding EEG or camera-based rPPG to an existing app
+- maintaining this monorepo and need the canonical package and workflow map
+
+The site is intentionally written to lead consumer developers toward the
+published package path first, then point maintainers to internal repo workflows
+only when they are the right tool.
+
 ## What EEG And rPPG Are
 
 - **EEG** measures electrical activity from the brain using a wearable headset.
@@ -53,6 +65,15 @@ The SDK supports two sensor workflows in the browser:
 | Muse EEG over BLE | `@elata-biosciences/eeg-web` + `@elata-biosciences/eeg-web-ble` | `new BleTransport(...)` + `connect()` + `start()` |
 | EEG analysis without a headset connection | `@elata-biosciences/eeg-web` | `await initEegWasm()` + analysis functions (e.g. `band_powers`) |
 | Camera-based rPPG | `@elata-biosciences/rppg-web` | `await createRppgSession({ video, ... })` |
+
+## Recommended Reading Order
+
+If you want the fastest route to value:
+
+1. Start with [Quickstart](/quickstart).
+2. Use [Package Selection](/package-selection) if you are choosing between EEG, BLE, and rPPG paths.
+3. Follow [Build Your First Elata App](/tutorials/first-app) if you want a working reference app before manual integration.
+4. Jump to the package reference pages after you know which integration path you need.
 
 ## Choose By App Need
 
