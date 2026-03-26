@@ -29,6 +29,18 @@ pnpm add @elata-biosciences/rppg-web
 npm install @elata-biosciences/rppg-web
 ```
 
+**Using a local `file:` path** (monorepo or local dev)? You must build the
+WASM backend before running `pnpm install` in your app — `file:` installs copy
+whatever is on disk at the time. Run `build:wasm` first:
+
+```bash
+pnpm --dir packages/rppg-web run build:wasm  # requires Rust + wasm-bindgen
+cd your-app && pnpm install
+```
+
+The published npm package includes pre-built `pkg/` assets — this step is only
+needed when working from the repo source.
+
 ## Requirements
 
 - Node.js `>= 20` for builds, tests, and demos
@@ -119,11 +131,13 @@ failing silently.
 |-----|----------|
 | `createRppgSession()` | Starting point for most browser apps — handles WASM init, frame capture, ROI, diagnostics, and cleanup. |
 | `createManagedRppgSession()` | Same as above, plus automatic restart after terminal processor failures. |
-| `createRppgAppAdapter()` | You want a single app-facing snapshot (status, BPM, canPublish, trace) to drive UI state. |
-| `createRppgAppMonitor()` | You want the SDK to own the polling loop and push snapshot updates via a subscription. |
+| `createRppgAppAdapter()` | You want a single app-facing snapshot (status, BPM, `canPublish`, trace) to drive UI state — use this instead of calling `getMetrics()` yourself and writing the gating logic. |
+| `createRppgAppMonitor()` | You want the SDK to own the update loop entirely — it polls on an interval and pushes snapshots to a subscriber, so you don't write any `setInterval` + `getMetrics()` code at all. |
 | `RppgProcessor` / `DemoRunner` | You need custom capture orchestration or rendering that the session helpers don't cover. |
 
-If you're unsure, start with `createRppgSession()`.
+If you're unsure, start with `createRppgSession()` and a `setInterval` +
+`getMetrics()` poll. Reach for the adapter/monitor when you want the SDK to
+own that loop.
 
 ## Recommended Vs Advanced
 
@@ -243,7 +257,9 @@ import-based options below to let Vite manage the asset URLs instead.
 ### Dynamic import restriction
 
 Vite 7 blocks `import(url)` for files served from `/public`, which is where
-most projects place the `pkg/` WASM assets. Two approaches work:
+most projects place the `pkg/` WASM assets. **If you skip this step, the
+session will start, `backendMode` will be `"unavailable"`, and BPM will always
+be null — no error is thrown.** Two approaches to fix it:
 
 **Option A — vite-plugin-wasm (recommended)**
 

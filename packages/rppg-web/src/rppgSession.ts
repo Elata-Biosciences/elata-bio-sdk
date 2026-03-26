@@ -98,11 +98,15 @@ export type CreateRppgSessionOptions = Omit<
 	backend?: RppgSessionBackendPreference;
 	/**
 	 * Face ROI mode.
-	 * - `"off"` — uses the full video frame as the ROI. No MediaPipe dependency.
-	 *   Good enough for a face filling most of the frame.
-	 * - `"auto"` — attempts to load MediaPipe FaceMesh for face-crop ROI. Falls
-	 *   back to `"off"` (video_frame mode) if MediaPipe fails to load. Check
-	 *   `diagnostics.faceTrackingMode` to see which mode is actually active.
+	 * - `"off"` — uses the full video frame as the ROI. No MediaPipe dependency,
+	 *   no extra download. Good enough when the face fills most of the frame.
+	 *   Best choice for quick integration or when minimizing bundle size.
+	 * - `"auto"` — loads MediaPipe FaceMesh (~3 MB) for a tighter face-crop ROI,
+	 *   which improves signal quality when the user moves or is smaller in frame.
+	 *   Falls back to `"off"` (video_frame mode) silently if MediaPipe fails to
+	 *   load. Check `diagnostics.faceTrackingMode` to confirm which mode is
+	 *   active: `"face_mesh"` means MediaPipe loaded; `"video_frame"` means it
+	 *   fell back.
 	 * - A `FaceMeshLike` instance — bring your own pre-loaded FaceMesh object.
 	 */
 	faceMesh?: FaceMeshLike | "auto" | "off";
