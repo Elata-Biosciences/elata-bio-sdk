@@ -35,6 +35,11 @@ npm install @elata-biosciences/rppg-web
 - modern browser with WebAssembly support for the default backend
 - optional MediaPipe FaceMesh for face-ROI demo helpers
 
+**Building the WASM backend from source** (not needed when installing from npm):
+- Rust toolchain (`rustup`, `cargo`)
+- `wasm-bindgen-cli` (`cargo install wasm-bindgen-cli`)
+- Run `pnpm --dir packages/rppg-web run build:wasm` to compile and place assets in `pkg/`
+
 ## Usage
 
 Minimal camera → BPM loop:
@@ -57,6 +62,12 @@ const session = await createRppgSession({
 
 // 3. Poll for BPM
 const interval = setInterval(() => {
+  // Check backendMode first — if "unavailable", WASM didn't load and BPM
+  // will always be null (looks identical to the normal warmup period).
+  if (session.backendMode === "unavailable") {
+    console.warn("WASM backend not loaded — check that pkg/ assets are served at /pkg/");
+    return;
+  }
   const metrics = session.getMetrics();
   if (metrics?.bpm != null) {
     console.log("BPM:", metrics.bpm.toFixed(1));
@@ -68,7 +79,14 @@ const interval = setInterval(() => {
 // await session.stop();
 ```
 
-Expect a ~10 second warmup before the first BPM estimate. With diagnostics:
+Expect a ~10 second warmup before the first BPM estimate.
+
+If you need a single boolean for UI gating (e.g. "show the BPM display"),
+use `createRppgAppAdapter().canPublish` instead of polling `getMetrics()`
+directly — it handles the backend check, confidence threshold, and warmup
+window in one place.
+
+With diagnostics:
 
 ```ts
 const session = await createRppgSession({

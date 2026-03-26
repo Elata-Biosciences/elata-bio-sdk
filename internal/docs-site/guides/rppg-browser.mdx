@@ -80,6 +80,12 @@ const session = await createRppgSession({
 
 // 3. Poll for BPM
 const interval = setInterval(() => {
+  // Check backendMode first — if "unavailable", WASM didn't load and BPM
+  // will always be null (looks identical to the normal warmup period).
+  if (session.backendMode === "unavailable") {
+    console.warn("WASM backend not loaded — check that pkg/ assets are served at /pkg/");
+    return;
+  }
   const metrics = session.getMetrics();
   if (metrics?.bpm != null) {
     console.log("BPM:", metrics.bpm.toFixed(1));
@@ -95,6 +101,10 @@ Expect a ~10 second warmup window before the first BPM estimate appears.
 `faceMesh: "off"` uses the full video frame as the ROI — good enough for a
 face filling most of the frame. Switch to `faceMesh: "mediapipe"` for
 face-crop ROI when the user might move around.
+
+If you need a single boolean for UI gating, use `createRppgAppAdapter().canPublish`
+instead of polling `getMetrics()` directly — it handles the backend check,
+confidence threshold, and warmup window in one place.
 
 ## Minimal Integration
 
@@ -230,6 +240,10 @@ URLs at build time, bypassing the public directory restriction entirely.
 
 ## Common Gotchas
 
+- **BPM is always null but status is `running`** — this looks like warmup but
+  could mean WASM didn't load. Check `session.backendMode` first: if it is
+  `"unavailable"`, the WASM assets are not being served at `/pkg/`. Fix the
+  asset placement and the metrics will flow. See the Vite Config section above.
 - If `session.backendMode` is `unavailable`, your app is probably not serving
   the packaged `pkg/` assets correctly.
 - If `session.state.status` is `failed`, recreate the session instead of
