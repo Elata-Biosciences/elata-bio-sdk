@@ -96,6 +96,15 @@ export type CreateRppgSessionOptions = Omit<
 	sampleRate?: number;
 	windowSec?: number;
 	backend?: RppgSessionBackendPreference;
+	/**
+	 * Face ROI mode.
+	 * - `"off"` — uses the full video frame as the ROI. No MediaPipe dependency.
+	 *   Good enough for a face filling most of the frame.
+	 * - `"auto"` — attempts to load MediaPipe FaceMesh for face-crop ROI. Falls
+	 *   back to `"off"` (video_frame mode) if MediaPipe fails to load. Check
+	 *   `diagnostics.faceTrackingMode` to see which mode is actually active.
+	 * - A `FaceMeshLike` instance — bring your own pre-loaded FaceMesh object.
+	 */
 	faceMesh?: FaceMeshLike | "auto" | "off";
 	ensureVideoPlayback?: boolean;
 	videoPlaybackTimeoutMs?: number;
@@ -107,8 +116,30 @@ export type CreateRppgSessionOptions = Omit<
 				numParticles?: number;
 		  };
 	autoStart?: boolean;
+	/**
+	 * URL of the wasm-bindgen JS glue file to load.
+	 * Defaults to `/pkg/rppg_wasm.js` (also tries `/pkg/eeg_wasm.js` and root
+	 * variants as fallbacks). In a Vite app, use a `?url` import and pass the
+	 * result here to avoid public-directory dynamic-import restrictions:
+	 * `import url from "@elata-biosciences/rppg-web/pkg/rppg_wasm.js?url"`
+	 */
 	wasmJsUrl?: string;
+	/**
+	 * URL of the `.wasm` binary file.
+	 * Only needed when the wasm-bindgen JS glue cannot infer the binary path
+	 * automatically (e.g. when using a `?url` import in Vite).
+	 * `import url from "@elata-biosciences/rppg-web/pkg/rppg_wasm_bg.wasm?url"`
+	 */
 	wasmBinaryUrl?: string;
+	/**
+	 * Custom WASM module importer. Replaces the default `import(url)` call.
+	 * Use this in Vite (which blocks dynamic imports from `/public`) by
+	 * statically importing the WASM JS bundle and returning it here:
+	 * ```ts
+	 * import * as rppgWasm from "@elata-biosciences/rppg-web/pkg/rppg_wasm.js";
+	 * wasmImporter: () => Promise.resolve(rppgWasm)
+	 * ```
+	 */
 	wasmImporter?: WasmImporter;
 	onDiagnostics?: (diagnostics: RppgSessionDiagnostics) => void;
 	onError?: (error: RppgSessionError) => void;

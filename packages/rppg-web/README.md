@@ -193,6 +193,15 @@ Every session diagnostics payload includes:
 - `processorFailure` when a fatal backend exception poisons the WASM pipeline
 - `lastError` when capture, FaceMesh, or processor work fails
 
+**Warmup indicator:** During the ~10 second warmup window, `diagnostics.issues`
+contains `insufficient_window`. Once that clears, the processor has enough
+samples for a BPM estimate. `diagnostics.windowSampleCount` gives the raw
+sample count if you want to show a progress indicator.
+
+**FaceMesh fallback:** `faceMesh: "auto"` falls back to `video_frame` mode if
+MediaPipe fails to load. Check `diagnostics.faceTrackingMode` to see which
+mode is active — `"face_mesh"` or `"video_frame"`.
+
 Intentional `faceMesh: "off"` sessions use `video_frame` mode without being
 reported as a FaceMesh failure. If a fatal processor exception occurs,
 `session.state` switches to terminal `failed`, later metrics reads return safe
@@ -449,6 +458,16 @@ a fresh clone does not. The `prepare` script handles this automatically after
 To also build the WASM assets (required for the `pkg/` directory and any
 integration that loads WASM), run `pnpm --dir packages/rppg-web run build:wasm`
 first. This requires Rust and `wasm-bindgen`.
+
+**Using via `file:` path (monorepo or local integration)?** Run `build:wasm`
+*before* running `pnpm install` in the consumer app. `file:` installs copy
+whatever is on disk at install time — if `pkg/` doesn't exist yet, it won't
+be included. The sequence is:
+
+```bash
+pnpm --dir packages/rppg-web run build:wasm  # builds pkg/ at package root
+cd your-app && pnpm install                   # now pkg/ is copied in
+```
 
 From the repo root:
 
