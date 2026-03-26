@@ -26,8 +26,8 @@ This package is usually invoked without installing it permanently:
 
 ```bash
 npm create @elata-biosciences/elata-demo my-app
-pnpm dlx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
-npx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
+pnpm dlx @elata-biosciences/create-elata-demo my-app
+npx @elata-biosciences/create-elata-demo my-app
 ```
 
 ## Requirements

@@ -88,6 +88,17 @@ deployment is not serving the packaged `wasm/` assets correctly.
 
 This is the first thing to fix before adding more product logic.
 
+If you are using Vite, the two common fixes are:
+
+1. add `vite-plugin-wasm` and `vite-plugin-top-level-await`, then keep using
+   `await initEegWasm()`
+2. import the WASM asset URL directly and pass it to `initEegWasm(wasmUrl)`
+
+The guide at [EEG In A Browser App](/guides/eeg-browser) shows both patterns.
+
+If you are stuck, compare your app against the scaffolded `eeg-web-demo`
+template before assuming the package itself is broken.
+
 ## Step 5: Replace Example Data With Real App Data
 
 Once the example call works, swap the placeholder array with actual EEG sample

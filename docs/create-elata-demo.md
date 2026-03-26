@@ -83,11 +83,11 @@ npm run dev
 If you prefer not to go through the npm "create" alias, you can invoke the scaffolder package explicitly:
 
 ```bash
-pnpm dlx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
-npx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
+pnpm dlx @elata-biosciences/create-elata-demo my-app
+npx @elata-biosciences/create-elata-demo my-app
 ```
 
-This is equivalent to the `npm create @elata-biosciences/elata-demo` examples above.
+This is equivalent to the default `npm create @elata-biosciences/elata-demo my-app` flow above. Pass `--template` only when you want one of the EEG templates.
 
 ### Repo-level smoke tests
 

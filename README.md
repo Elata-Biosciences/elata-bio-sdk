@@ -34,8 +34,8 @@ npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
 You can also call the scaffolder directly:
 
 ```bash
-pnpm dlx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
-npx @elata-biosciences/create-elata-demo my-app --template rppg-web-demo
+pnpm dlx @elata-biosciences/create-elata-demo my-app
+npx @elata-biosciences/create-elata-demo my-app
 ```
 
 After scaffolding:
