@@ -84,7 +84,7 @@ test('scaffolds the default template', () => {
     const viteEnv = readFileSync(join(tmp, 'demo-app', 'src', 'vite-env.d.ts'), 'utf8');
     assert.match(pkg, new RegExp(`"@elata-biosciences/rppg-web": "${rppgWebVersion}"`));
     assert.match(app, /createRppgSession/);
-    assert.match(app, /Session diagnostics/);
+    assert.match(app, /Technical diagnostics/);
     assert.match(app, /backendMode/);
     assert.match(app, /lastError/);
     assert.match(app, /processorIssues/);

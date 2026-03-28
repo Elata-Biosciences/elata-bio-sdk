@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   createRppgSession,
   type Metrics,
@@ -16,7 +16,7 @@ const EMPTY_METRICS: Metrics = {
 
 function formatMetric(value: number | null | undefined, digits = 2): string {
   if (value == null || Number.isNaN(value)) {
-    return '--';
+    return '—';
   }
 
   return value.toFixed(digits);
@@ -24,7 +24,7 @@ function formatMetric(value: number | null | undefined, digits = 2): string {
 
 function formatInteger(value: number | null | undefined): string {
   if (value == null || Number.isNaN(value)) {
-    return '--';
+    return '—';
   }
 
   return `${Math.round(value)}`;
@@ -40,25 +40,25 @@ function formatIssueList(issues: string[] | undefined): string {
 
 function getStatusMessage(diagnostics: RppgSessionDiagnostics | null): string {
   if (!diagnostics) {
-    return 'Starting...';
+    return 'Starting session…';
   }
 
   if (diagnostics.lastError) {
-    return `Last error: ${diagnostics.lastError.message}`;
+    return diagnostics.lastError.message;
   }
 
   if (diagnostics.backendMode !== 'wasm') {
-    return 'Session running without the packaged WASM backend. Check that the bundled WASM asset URLs are loading correctly.';
+    return 'WASM backend not active — check bundled asset URLs.';
   }
 
   if (
     diagnostics.issues.includes('no_samples_yet') ||
     diagnostics.issues.includes('insufficient_window')
   ) {
-    return 'Collecting samples. Keep your face centered and still for a few seconds.';
+    return 'Warming up — hold still, face the camera.';
   }
 
-  return 'Live rPPG session running.';
+  return 'Estimating pulse from the live feed.';
 }
 
 function getStatusTone(diagnostics: RppgSessionDiagnostics | null): 'live' | 'warn' | 'error' {
@@ -73,13 +73,27 @@ function getStatusTone(diagnostics: RppgSessionDiagnostics | null): 'live' | 'wa
   return 'live';
 }
 
+function clamp01(n: number): number {
+  if (Number.isNaN(n)) return 0;
+  return Math.min(1, Math.max(0, n));
+}
+
 export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const sessionRef = useRef<RppgSession | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const [status, setStatus] = useState('Requesting camera access...');
+  const [status, setStatus] = useState('Requesting camera…');
   const [metrics, setMetrics] = useState<Metrics>(EMPTY_METRICS);
   const [diagnostics, setDiagnostics] = useState<RppgSessionDiagnostics | null>(null);
+
+  const syncFromSession = useCallback(() => {
+    const session = sessionRef.current;
+    if (!session) return;
+    const nextDiagnostics = session.getDiagnostics();
+    setMetrics(session.getMetrics());
+    setDiagnostics(nextDiagnostics);
+    setStatus(getStatusMessage(nextDiagnostics));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -92,11 +106,15 @@ export default function App() {
       let stream: MediaStream;
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 320, height: 240 },
+          video: {
+            facingMode: 'user',
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+          },
           audio: false,
         });
       } catch {
-        setStatus('Camera access denied. Allow camera and reload.');
+        setStatus('Camera unavailable — allow access and reload.');
         return;
       }
 
@@ -110,7 +128,7 @@ export default function App() {
       await video.play().catch(() => undefined);
 
       const sampleRate = stream.getVideoTracks()[0]?.getSettings().frameRate ?? 30;
-      setStatus('Starting rPPG session...');
+      setStatus('Starting rPPG…');
 
       try {
         const session = await createRppgSession({
@@ -123,6 +141,12 @@ export default function App() {
           enableTracker: { minBpm: 55, maxBpm: 150, numParticles: 200 },
           roiSmoothingAlpha: 0.25,
           useSkinMask: true,
+          onDiagnostics: () => {
+            syncFromSession();
+          },
+          onError: (error) => {
+            setStatus(error.message);
+          },
         });
 
         if (cancelled) {
@@ -131,19 +155,11 @@ export default function App() {
         }
 
         sessionRef.current = session;
-
-        const syncSessionState = () => {
-          const nextDiagnostics = session.getDiagnostics();
-          setMetrics(session.getMetrics());
-          setDiagnostics(nextDiagnostics);
-          setStatus(getStatusMessage(nextDiagnostics));
-        };
-
-        syncSessionState();
-        intervalId = setInterval(syncSessionState, 1000);
+        syncFromSession();
+        intervalId = setInterval(syncFromSession, 400);
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : 'Failed to start the rPPG session.';
+          error instanceof Error ? error.message : 'Could not start the rPPG session.';
         setStatus(message);
       }
     }
@@ -162,216 +178,220 @@ export default function App() {
         streamRef.current = null;
       }
     };
-  }, []);
+  }, [syncFromSession]);
 
   const statusTone = getStatusTone(diagnostics);
   const statusDotClass =
     statusTone === 'error' ? 'status-dot error' : statusTone === 'warn' ? 'status-dot warn' : 'status-dot';
   const readinessLabel =
-    diagnostics?.estimationAvailable && metrics.bpm != null ? 'Locked' : 'Warming up';
+    diagnostics?.estimationAvailable && metrics.bpm != null ? 'Ready' : 'Warm-up';
+
+  const confidencePct = Math.round(clamp01(metrics.confidence) * 100);
+  const qualityPct = Math.round(clamp01(metrics.signal_quality) * 100);
 
   return (
-    <main className="app-shell">
-      <div className="app-grid">
-        <section className="hero-card">
-          <div className="hero-content">
-            <div className="hero-topline">
-              <div className="eyebrow">Elata rPPG Studio</div>
-              <div className="status-pill">
-                <span className={statusDotClass} />
-                <span>{status}</span>
+    <div className="app">
+      <header className="topbar" aria-label="Application header">
+        <div className="brand">
+          <span className="brand-mark" aria-hidden="true" />
+          <span className="brand-name">Elata</span>
+        </div>
+        <span className="topbar-sep" aria-hidden="true" />
+        <span className="topbar-tagline">Camera-based pulse estimation</span>
+        <div className="topbar-spacer" />
+        <div className={`session-chip session-chip--${statusTone}`}>
+          <span className={statusDotClass} aria-hidden="true" />
+          <span className="session-chip-text">{status}</span>
+        </div>
+      </header>
+
+      <main className="main">
+        <section className="stage" aria-labelledby="stage-heading">
+          <h1 id="stage-heading" className="visually-hidden">
+            Live pulse readout and camera
+          </h1>
+
+          <div className="stage-video-wrap">
+            <div className="video-chrome">
+              <div className="video-chrome-corners" aria-hidden="true" />
+              <video
+                ref={videoRef}
+                autoPlay
+                muted
+                playsInline
+                className="stage-video"
+              />
+              <div className="video-label">
+                <span className="video-label-dot" aria-hidden="true" />
+                Live input
+              </div>
+            </div>
+            <p className="stage-hint">
+              Face the light, fill the frame, and stay steady for the first few seconds.
+            </p>
+          </div>
+
+          <aside className="readouts" aria-label="Pulse metrics">
+            <div className="bpm-block">
+              <p className="bpm-label">Estimated heart rate</p>
+              <div className="bpm-value-row">
+                <span className="bpm-number">
+                  {metrics.bpm != null ? formatMetric(metrics.bpm, 0) : '—'}
+                </span>
+                <span className="bpm-unit">BPM</span>
+              </div>
+              <p className="bpm-sub">{readinessLabel}</p>
+            </div>
+
+            <div className="meter-group">
+              <div className="meter">
+                <div className="meter-head">
+                  <span>Confidence</span>
+                  <span className="meter-pct">{confidencePct}%</span>
+                </div>
+                <div className="meter-track" role="presentation">
+                  <div
+                    className="meter-fill meter-fill--confidence"
+                    style={{ width: `${confidencePct}%` }}
+                  />
+                </div>
+              </div>
+              <div className="meter">
+                <div className="meter-head">
+                  <span>Signal quality</span>
+                  <span className="meter-pct">{qualityPct}%</span>
+                </div>
+                <div className="meter-track" role="presentation">
+                  <div
+                    className="meter-fill meter-fill--quality"
+                    style={{ width: `${qualityPct}%` }}
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="hero-main">
-              <h1 className="hero-title">Camera pulse, surfaced like a product.</h1>
-              <p className="hero-copy">
-                This starter app uses <code>createRppgSession()</code> with the packaged
-                WASM backend, live diagnostics, and a calmer dashboard treatment so a new
-                integration feels immediately inspectable instead of purely utilitarian.
-              </p>
-            </div>
-
-            <div className="hero-summary">
-              <article className="signal-card">
-                <p className="signal-label">Session mode</p>
-                <p className="signal-value">{diagnostics?.backendMode ?? 'starting'}</p>
-              </article>
-              <article className="signal-card">
-                <p className="signal-label">Tracking state</p>
-                <p className="signal-value">{diagnostics?.faceTrackingMode ?? 'starting'}</p>
-              </article>
-              <article className="signal-card">
-                <p className="signal-label">Readiness</p>
-                <p className="signal-value">{readinessLabel}</p>
-              </article>
-            </div>
-          </div>
+            <ul className="chip-row" aria-label="Session state">
+              <li className="chip">
+                <span className="chip-key">Backend</span>
+                <span className="chip-val">{diagnostics?.backendMode ?? '…'}</span>
+              </li>
+              <li className="chip">
+                <span className="chip-key">Tracking</span>
+                <span className="chip-val">{diagnostics?.faceTrackingMode ?? '…'}</span>
+              </li>
+              <li className="chip">
+                <span className="chip-key">ROI</span>
+                <span className="chip-val">{diagnostics?.roiSource ?? '—'}</span>
+              </li>
+            </ul>
+          </aside>
         </section>
 
-        <section className="content-grid">
-          <div className="left-column">
-            <article className="panel-card">
-              <div className="panel-header">
+        <p className="deck">
+          Built with <code>createRppgSession()</code> — packaged WASM, live diagnostics, and a layout
+          suited for demos and screen recordings.
+        </p>
+
+        <details className="panel-disclosure">
+          <summary>Technical diagnostics</summary>
+          <div className="panel-inner">
+            <div className="stats-grid">
+              <div className="stat-row">
+                <span className="stat-key">Estimation available</span>
+                <span className="stat-value">
+                  {diagnostics?.estimationAvailable ? 'Yes' : 'No'}
+                </span>
+              </div>
+              <div className="stat-row">
+                <span className="stat-key">Frames seen</span>
+                <span className="stat-value">{formatInteger(diagnostics?.framesSeen ?? 0)}</span>
+              </div>
+              <div className="stat-row">
+                <span className="stat-key">Samples received</span>
+                <span className="stat-value">
+                  {formatInteger(diagnostics?.totalSamplesReceived ?? 0)}
+                </span>
+              </div>
+              <div className="stat-row">
+                <span className="stat-key">Dropped frames</span>
+                <span className="stat-value">{formatInteger(diagnostics?.droppedFrames ?? 0)}</span>
+              </div>
+              <div className="stat-row">
+                <span className="stat-key">Window samples</span>
+                <span className="stat-value">
+                  {formatInteger(diagnostics?.windowSampleCount ?? 0)}
+                </span>
+              </div>
+              <div className="stat-row">
+                <span className="stat-key">Window duration (ms)</span>
+                <span className="stat-value">
+                  {formatInteger(diagnostics?.windowDurationMs ?? 0)}
+                </span>
+              </div>
+              <div className="stat-row">
+                <span className="stat-key">Processor method</span>
+                <span className="stat-value">{diagnostics?.processorMethod ?? '—'}</span>
+              </div>
+              <div className="stat-row">
+                <span className="stat-key">Last drop reason</span>
+                <span className="stat-value">{diagnostics?.lastDropReason ?? 'none'}</span>
+              </div>
+              <div className="stat-row stat-row--wide">
+                <span className="stat-key">Session issues</span>
+                <span className="stat-value">{formatIssueList(diagnostics?.issues)}</span>
+              </div>
+              <div className="stat-row stat-row--wide">
+                <span className="stat-key">Processor issues</span>
+                <span className="stat-value">{formatIssueList(diagnostics?.processorIssues)}</span>
+              </div>
+              <div className="stat-row stat-row--wide">
+                <span className="stat-key">Last error</span>
+                <span className="stat-value">
+                  {diagnostics?.lastError
+                    ? `${diagnostics.lastError.code}: ${diagnostics.lastError.message}`
+                    : 'none'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details className="panel-disclosure">
+          <summary>Capture tips</summary>
+          <div className="panel-inner">
+            <ol className="guidance-list">
+              <li className="guidance-item">
+                <span className="guidance-index">1</span>
                 <div>
-                  <h2 className="panel-title">Live camera feed</h2>
-                  <p className="panel-subtitle">
-                    Keep your face centered, evenly lit, and as still as possible while the
-                    warm-up window fills.
-                  </p>
+                  <strong>Use soft, frontal light</strong>
+                  <span>Even lighting beats resolution for a stable trace.</span>
                 </div>
-              </div>
-
-              <div className="camera-frame">
-                <video
-                  ref={videoRef}
-                  width={320}
-                  height={240}
-                  autoPlay
-                  muted
-                  playsInline
-                  className="camera-video"
-                />
-                <div className="camera-overlay">
-                  <div className="overlay-badge">Session diagnostics enabled</div>
-                  <div className="overlay-grid">
-                    <span>ROI: {diagnostics?.roiSource ?? 'none'}</span>
-                    <span>Method: {diagnostics?.processorMethod ?? 'none'}</span>
-                  </div>
+              </li>
+              <li className="guidance-item">
+                <span className="guidance-index">2</span>
+                <div>
+                  <strong>Minimize motion during warm-up</strong>
+                  <span>Give the estimator a few calm seconds before reading BPM.</span>
                 </div>
-              </div>
-            </article>
-
-            <section className="metric-grid">
-              <article className="metric-card">
-                <p className="metric-label">Heart rate</p>
-                <p className="metric-value">
-                  {metrics.bpm != null ? formatMetric(metrics.bpm, 1) : '--'}
-                </p>
-                <p className="metric-note">BPM</p>
-              </article>
-
-              <article className="metric-card">
-                <p className="metric-label">Confidence</p>
-                <p className="metric-value">{formatMetric(metrics.confidence)}</p>
-                <p className="metric-note">estimator trust</p>
-              </article>
-
-              <article className="metric-card">
-                <p className="metric-label">Signal quality</p>
-                <p className="metric-value">{formatMetric(metrics.signal_quality)}</p>
-                <p className="metric-note">lighting + motion</p>
-              </article>
-            </section>
+              </li>
+              <li className="guidance-item">
+                <span className="guidance-index">3</span>
+                <div>
+                  <strong>Confirm WASM is active</strong>
+                  <span>
+                    Backend should read <code>wasm</code>. If not, verify Vite URLs for the packaged{' '}
+                    <code>.wasm</code> assets.
+                  </span>
+                </div>
+              </li>
+            </ol>
           </div>
+        </details>
+      </main>
 
-          <div className="right-column">
-            <section className="diagnostic-panel">
-              <article className="diagnostic-card">
-                <header>
-                  <div>
-                    <h2 className="section-title">Session diagnostics</h2>
-                    <p>All the live hooks you need while wiring the SDK into a real app.</p>
-                  </div>
-                </header>
-                <div className="stats-grid">
-                  <div className="stat-row">
-                    <span className="stat-key">Estimation available</span>
-                    <span className="stat-value">
-                      {diagnostics?.estimationAvailable ? 'yes' : 'no'}
-                    </span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-key">Frames seen</span>
-                    <span className="stat-value">{formatInteger(diagnostics?.framesSeen ?? 0)}</span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-key">Samples received</span>
-                    <span className="stat-value">
-                      {formatInteger(diagnostics?.totalSamplesReceived ?? 0)}
-                    </span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-key">Dropped frames</span>
-                    <span className="stat-value">
-                      {formatInteger(diagnostics?.droppedFrames ?? 0)}
-                    </span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-key">Window samples</span>
-                    <span className="stat-value">
-                      {formatInteger(diagnostics?.windowSampleCount ?? 0)}
-                    </span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-key">Window duration ms</span>
-                    <span className="stat-value">
-                      {formatInteger(diagnostics?.windowDurationMs ?? 0)}
-                    </span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-key">Last drop reason</span>
-                    <span className="stat-value">{diagnostics?.lastDropReason ?? 'none'}</span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-key">Session issues</span>
-                    <span className="stat-value">{formatIssueList(diagnostics?.issues)}</span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-key">Processor issues</span>
-                    <span className="stat-value">
-                      {formatIssueList(diagnostics?.processorIssues)}
-                    </span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-key">Last error</span>
-                    <span className="stat-value">
-                      {diagnostics?.lastError
-                        ? `${diagnostics.lastError.code}: ${diagnostics.lastError.message}`
-                        : 'none'}
-                    </span>
-                  </div>
-                </div>
-              </article>
-
-              <article className="diagnostic-card">
-                <header>
-                  <div>
-                    <h3>Capture guidance</h3>
-                    <p>Quick practical checks that improve the first few readings.</p>
-                  </div>
-                </header>
-                <ol className="guidance-list">
-                  <li className="guidance-item">
-                    <span className="guidance-index">1</span>
-                    <div>
-                      <strong>Face the light</strong>
-                      <span>Soft frontal lighting helps signal quality far more than raw resolution.</span>
-                    </div>
-                  </li>
-                  <li className="guidance-item">
-                    <span className="guidance-index">2</span>
-                    <div>
-                      <strong>Stay still for the warm-up</strong>
-                      <span>Give the tracker a few steady seconds before judging the BPM output.</span>
-                    </div>
-                  </li>
-                  <li className="guidance-item">
-                    <span className="guidance-index">3</span>
-                    <div>
-                      <strong>Watch the diagnostics</strong>
-                      <span>
-                        If the backend is not <code>wasm</code>, confirm the bundled WASM
-                        asset URLs are loading correctly in the browser.
-                      </span>
-                    </div>
-                  </li>
-                </ol>
-              </article>
-            </section>
-          </div>
-        </section>
-      </div>
-    </main>
+      <footer className="footer">
+        <span>Elata SDK · rPPG web template</span>
+      </footer>
+    </div>
   );
 }
