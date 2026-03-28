@@ -1,6 +1,6 @@
 {
   "name": "@elata-biosciences/create-elata-demo",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Scaffold Elata demo apps from multiple templates",
   "license": "MIT",
   "author": "Elata",
@@ -24,9 +24,9 @@
   },
   "type": "module",
   "elataSdkVersions": {
-    "eegWeb": "0.1.11",
-    "eegWebBle": "0.1.11",
-    "rppgWeb": "0.1.11"
+    "eegWeb": "0.1.12",
+    "eegWebBle": "0.1.12",
+    "rppgWeb": "0.1.12"
   },
   "bin": {
     "create-elata-demo": "index.mjs"
