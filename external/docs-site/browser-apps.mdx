@@ -1,0 +1,69 @@
+---
+title: Build A Browser App
+description: Start with camera rPPG; add browser EEG if you need brain signals; use Web Bluetooth to connect a Muse-compatible headset.
+---
+
+If you already finished [Build Your First Elata App](/tutorials/first-app), the
+intended next step is **camera (rPPG)**—see that page’s *Where To Go Next* for
+scaffold vs existing-app links. This page collects the same **scaffold or
+integrate** choices in one view, in the **recommended priority order**.
+
+**Primary:** most apps should start with **camera-based rPPG** (no extra
+hardware). **Secondary:** add **browser EEG** when your product needs
+brain-signal analysis. **Bluetooth:** add **`eeg-web-ble`** when you need **live
+headset streaming**—it is the transport that connects a Muse-compatible device
+to the EEG stack (always alongside `eeg-web`).
+
+## How This Site Splits Docs
+
+| Doc type | What it is | When to use it |
+| --- | --- | --- |
+| **Scaffold** | Commands from [Quickstart](/quickstart) using `create-elata-demo` templates | New app, evaluation, or you want a reference repo before touching your product |
+| **Step-by-step tutorial** | Numbered steps (install → minimal code → WASM/assets checks) for **existing** apps | You already have a bundler app and want a verified integration path |
+| **Integration overview** | Shorter conceptual page: typical flow, minimal snippet, links | You read once for mental model and package boundaries, then use reference pages |
+
+Tutorials and overviews cover similar ground at different depths—use **one primary path** (scaffold *or* tutorial *or* overview), not all three in sequence unless you are comparing behavior.
+
+## Pick Your Workflow
+
+### 1. Primary: Camera-based rPPG
+
+| Path | Where to go |
+| --- | --- |
+| Scaffold | [Quickstart](/quickstart) → template `rppg-web-demo` |
+| Step-by-step (existing app) | [Add Camera-Based rPPG To An Existing Browser App](/tutorials/rppg-existing-app) |
+| Integration overview | [rPPG In A Browser App](/guides/rppg-browser) |
+
+### 2. Optional: Browser EEG (WASM APIs, synthetic or your own samples)
+
+| Path | Where to go |
+| --- | --- |
+| Scaffold | [Quickstart](/quickstart) → template `eeg-web-demo` |
+| Step-by-step (existing app) | [Add EEG To An Existing Browser App](/tutorials/eeg-existing-app) |
+| Integration overview | [EEG In A Browser App](/guides/eeg-browser) |
+
+### 3. Enable Bluetooth headset: Web Bluetooth + EEG
+
+Use this when you already want live data from a **Muse-compatible** headset in
+Chrome or Edge. It is not a separate “app type” from EEG: **`eeg-web-ble` turns
+on Bluetooth transport** on top of **`eeg-web`**.
+
+| Path | Where to go |
+| --- | --- |
+| Scaffold | [Quickstart](/quickstart) → template `eeg-web-ble-demo` |
+| Step-by-step (existing app) | [Stream Muse-Compatible EEG Over Web Bluetooth](/tutorials/eeg-ble-live-stream) |
+| Integration overview | [Web Bluetooth With Supported Devices](/guides/web-bluetooth) |
+
+If you have not wired the EEG WASM path yet, do **section 2** (or its
+tutorial) before the BLE live-stream walkthrough.
+
+## Onboarding Tutorial (All Templates)
+
+[Build Your First Elata App](/tutorials/first-app) scaffolds one template end
+to end. When you are done, it sends you **first to camera (rPPG)**, then
+**optional EEG**, then **Bluetooth headset transport** for EEG, each with the
+same **new app vs existing app** split.
+
+## Package Names (Reminder)
+
+See [Package Selection](/package-selection) for when to depend on each published package and paths to avoid.

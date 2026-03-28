@@ -3,6 +3,16 @@ title: EEG In A Browser App
 description: Add Elata EEG WASM APIs to an existing browser application.
 ---
 
+This page is a **shorter integration overview**. For a numbered walkthrough into
+an existing app, use
+[Add EEG To An Existing Browser App](/tutorials/eeg-existing-app). To pick
+scaffold vs tutorial for each workflow, see [Build A Browser App](/browser-apps).
+
+EEG is **optional** in the usual Elata journey: **camera rPPG** is the primary
+browser integration for many apps. Add `eeg-web` when you need brain-signal
+analysis; add **`eeg-web-ble`** alongside it when you need **Web Bluetooth** for a
+Muse-compatible headset.
+
 EEG measures electrical activity from the brain using a wearable headset.
 In browser apps, developers usually use EEG to stream headset samples, compute
 features such as band powers, and drive feedback, dashboards, adaptive UX, or

@@ -3,6 +3,17 @@ title: Web Bluetooth With Supported Devices
 description: Stream Muse-compatible EEG devices from supported Chromium browsers.
 ---
 
+This page is a **shorter integration overview**. For a numbered walkthrough into
+an existing app, use
+[Stream Muse-Compatible EEG Over Web Bluetooth](/tutorials/eeg-ble-live-stream).
+To pick scaffold vs tutorial for each workflow, see
+[Build A Browser App](/browser-apps).
+
+**Role in the SDK:** camera **rPPG** is the usual first app. **EEG** is optional
+when you need brain signals. **Web Bluetooth** (`eeg-web-ble` with `eeg-web`)
+**enables a live Muse-compatible headset**—it is transport for EEG, not a
+parallel primary product to rPPG.
+
 ## Start With A Known-Good Demo
 
 If you want the fastest path to a working browser BLE example, scaffold the BLE

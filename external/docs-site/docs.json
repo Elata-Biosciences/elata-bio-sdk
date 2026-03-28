@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Elata SDK",
-  "description": "Developer documentation for Elata EEG, browser BLE, and rPPG packages.",
+  "description": "Developer documentation for Elata browser rPPG (primary), optional browser EEG, and Web Bluetooth for Muse-compatible headsets.",
   "colors": {
     "primary": "#7D66D9",
     "light": "#7D66D9",
@@ -21,35 +21,37 @@
     "groups": [
       {
         "group": "Start Here",
-        "pages": ["index", "quickstart", "package-selection"]
+        "pages": ["index", "quickstart", "browser-apps", "package-selection"]
       },
       {
-        "group": "Tutorials",
+        "group": "Step-By-Step Tutorials",
         "pages": [
           "tutorials/first-app",
+          "tutorials/rppg-existing-app",
           "tutorials/eeg-existing-app",
-          "tutorials/eeg-ble-live-stream",
-          "tutorials/rppg-existing-app"
+          "tutorials/eeg-ble-live-stream"
         ]
       },
       {
-        "group": "Guides",
+        "group": "Integration Overviews",
         "pages": [
+          "guides/rppg-browser",
           "guides/eeg-browser",
           "guides/web-bluetooth",
-          "guides/rppg-browser",
-          "guides/federated-learning",
-          "operations/compatibility",
-          "operations/troubleshooting"
+          "guides/federated-learning"
         ]
+      },
+      {
+        "group": "Operations",
+        "pages": ["operations/compatibility", "operations/troubleshooting"]
       },
       {
         "group": "Reference",
         "pages": [
           "reference/create-elata-demo",
+          "reference/rppg-web",
           "reference/eeg-web",
-          "reference/eeg-web-ble",
-          "reference/rppg-web"
+          "reference/eeg-web-ble"
         ]
       },
       {

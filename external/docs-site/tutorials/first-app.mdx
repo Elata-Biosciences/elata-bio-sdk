@@ -5,6 +5,10 @@ description: Scaffold a working app first, then use it as the reference point fo
 
 This is the best starting tutorial if you are new to the Elata SDK.
 
+If you want the full map (**rPPG primary**, **EEG optional**, **Bluetooth to
+connect a headset**) with scaffold vs step-by-step vs overview, use
+[Build A Browser App](/browser-apps).
+
 The goal is simple: get a working app running locally, understand which
 template maps to which sensor workflow, and know where to go next.
 
@@ -15,9 +19,9 @@ You will scaffold one of the published demo apps with
 
 Pick the template that matches your goal:
 
-- `rppg-web-demo`: camera-based pulse/rPPG app
-- `eeg-web-demo`: browser EEG processing app with synthetic data
-- `eeg-web-ble-demo`: browser Muse-compatible EEG app over Web Bluetooth
+- `rppg-web-demo`: **primary** — camera-based pulse/rPPG app
+- `eeg-web-demo`: **optional** — browser EEG processing with synthetic data (no headset)
+- `eeg-web-ble-demo`: **Bluetooth** — same EEG stack with Web Bluetooth for a Muse-compatible headset
 
 ## Why Start Here
 
@@ -35,80 +39,141 @@ Use this decision table:
 
 | If you want to... | Choose |
 | --- | --- |
-| Try camera-based biosignal features without hardware | `rppg-web-demo` |
-| Explore EEG processing in the browser without a headset | `eeg-web-demo` |
-| Connect to a Muse-compatible device from Chrome or Edge | `eeg-web-ble-demo` |
+| Build the default camera-based app (no extra hardware) | `rppg-web-demo` |
+| Add browser EEG only (synthetic or offline samples first) | `eeg-web-demo` |
+| Enable a Muse-compatible headset over Bluetooth (Chrome/Edge) | `eeg-web-ble-demo` |
 
 If you are unsure, start with `rppg-web-demo`.
 
 ## Step 2: Scaffold The App
 
-Interactive template chooser:
+Interactive template chooser (copy **one** tab):
 
-```bash
+<CodeGroup>
+
+```bash pnpm
 pnpm create @elata-biosciences/elata-demo my-app
 ```
 
-If you omit `--template` in an interactive terminal, the CLI now prompts you
-to choose a template. In non-interactive runs, it still falls back to the rPPG
-starter.
-
-If you know you want the rPPG starter without the chooser:
-
-```bash
-pnpm create @elata-biosciences/elata-demo my-app -- --template rppg
-```
-
-If you use npm instead:
-
-```bash
+```bash npm
 npm create @elata-biosciences/elata-demo my-app
 ```
 
-Specific templates:
+</CodeGroup>
 
-```bash
-pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
-pnpm create @elata-biosciences/elata-demo my-app -- --template eeg
-pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
-pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
+If you omit `--template` in an interactive terminal, the CLI prompts you to choose a template. In non-interactive runs, it still falls back to the rPPG starter.
+
+Explicit **rPPG** template without the chooser:
+
+<CodeGroup>
+
+```bash pnpm
+pnpm create @elata-biosciences/elata-demo my-app -- --template rppg
 ```
 
-Npm equivalents:
-
-```bash
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
-npm create @elata-biosciences/elata-demo my-app -- --template eeg
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
+```bash npm
+npm create @elata-biosciences/elata-demo my-app -- --template rppg
 ```
 
-You can also list templates explicitly:
+</CodeGroup>
 
-```bash
+List available templates:
+
+<CodeGroup>
+
+```bash pnpm
 pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates
 ```
 
-If you want to list templates explicitly with npm:
-
-```bash
+```bash npm
 npx @elata-biosciences/create-elata-demo -- --list-templates
 ```
 
+</CodeGroup>
+
+### Other templates (copy the pair you use)
+
+Each block is a **single** command — safe to paste into a terminal as-is.
+
+<CodeGroup>
+
+```bash rPPG (pnpm)
+pnpm create @elata-biosciences/elata-demo my-app -- --template rppg
+```
+
+```bash rPPG (npm)
+npm create @elata-biosciences/elata-demo my-app -- --template rppg
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```bash EEG — full name (pnpm)
+pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+```
+
+```bash EEG — full name (npm)
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```bash EEG — short alias (pnpm)
+pnpm create @elata-biosciences/elata-demo my-app -- --template eeg
+```
+
+```bash EEG — short alias (npm)
+npm create @elata-biosciences/elata-demo my-app -- --template eeg
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```bash EEG + BLE — full name (pnpm)
+pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
+```
+
+```bash EEG + BLE — full name (npm)
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```bash EEG + BLE — short alias (pnpm)
+pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
+```
+
+```bash EEG + BLE — short alias (npm)
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
+```
+
+</CodeGroup>
+
 ## Step 3: Install And Run
 
-```bash
+Copy **one** column (pnpm or npm), then run each line in order:
+
+<CodeGroup>
+
+```bash pnpm
 cd my-app
 pnpm install
 pnpm run dev
 ```
 
-You can use npm instead if you prefer:
-
-```bash
+```bash npm
+cd my-app
 npm install
 npm run dev
 ```
+
+</CodeGroup>
 
 ## Step 4: Confirm What You Have
 
@@ -116,7 +181,7 @@ Once the app starts, verify the expected behavior:
 
 - `rppg-web-demo`: asks for camera access and starts a pulse-style session
 - `eeg-web-demo`: loads EEG processing in the browser and shows synthetic-data-driven output
-- `eeg-web-ble-demo`: presents a browser BLE flow for supported Muse-compatible devices
+- `eeg-web-ble-demo`: adds Bluetooth pairing/streaming for a supported Muse-compatible headset on top of EEG
 
 If your goal is just evaluation, stop here first and learn from the generated
 app before integrating into an existing codebase.
@@ -141,18 +206,50 @@ If you create `my-app` inside another repository that already has a
 `pnpm-workspace.yaml`, `pnpm install` may attach to the parent workspace
 instead of the generated app.
 
-If that happens, run:
+Run these **one line at a time** from the parent directory (adjust `my-app` if needed):
 
 ```bash
 pnpm --dir my-app --ignore-workspace install
+```
+
+```bash
 pnpm --dir my-app --ignore-workspace run dev
 ```
 
-Or use npm inside the generated app directory.
+Or use `npm install` and `npm run dev` inside the generated app directory.
 
 ## Where To Go Next
 
-- Want to build on top of the scaffolded starter: [create-elata-demo reference](/reference/create-elata-demo)
-- Want to integrate EEG into an existing app: [Add EEG To An Existing Browser App](/tutorials/eeg-existing-app)
-- Want live Muse-compatible headset streaming: [Stream Muse-Compatible EEG Over Web Bluetooth](/tutorials/eeg-ble-live-stream)
-- Want camera-based rPPG in an existing app: [Add Camera-Based rPPG To An Existing Browser App](/tutorials/rppg-existing-app)
+You already have a running scaffold. The recommended order is **camera rPPG
+first** (most people’s primary app), **browser EEG second if the product needs
+brain signals**, then **Web Bluetooth to connect a headset** (transport on top
+of EEG). Each step splits the same way: **stay on the scaffold** or **integrate
+into an app you already have**.
+
+### Next: Camera (rPPG) — primary
+
+Pick the row that matches you:
+
+| Your situation | What to do next |
+| --- | --- |
+| **New app** — you will keep building from the generated `rppg-web-demo` | Use [rPPG In A Browser App](/guides/rppg-browser) for the integration model, then [rppg-web](/reference/rppg-web) while you change the template. For scaffold CLI details: [create-elata-demo](/reference/create-elata-demo). |
+| **Existing app** — you need rPPG inside a codebase you already ship | Follow [Add Camera-Based rPPG To An Existing Browser App](/tutorials/rppg-existing-app) step by step. |
+
+### Then: Browser EEG — optional (no headset yet)
+
+| Your situation | What to do next |
+| --- | --- |
+| **New app** — extend or respin `eeg-web-demo` | [EEG In A Browser App](/guides/eeg-browser), then [eeg-web](/reference/eeg-web). Scaffold reference: [create-elata-demo](/reference/create-elata-demo). |
+| **Existing app** | [Add EEG To An Existing Browser App](/tutorials/eeg-existing-app). |
+
+### Then: Enable Bluetooth headset (Muse-compatible)
+
+| Your situation | What to do next |
+| --- | --- |
+| **New app** — extend or respin `eeg-web-ble-demo` | [Web Bluetooth With Supported Devices](/guides/web-bluetooth), then [eeg-web-ble](/reference/eeg-web-ble) (and [eeg-web](/reference/eeg-web)). |
+| **Existing app** | [Stream Muse-Compatible EEG Over Web Bluetooth](/tutorials/eeg-ble-live-stream). If WASM is not wired yet, do the EEG row above first. |
+
+### Full map
+
+For the same choices in one place in **priority order** (rPPG → EEG →
+Bluetooth), use [Build A Browser App](/browser-apps).

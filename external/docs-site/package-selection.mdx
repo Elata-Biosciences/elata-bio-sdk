@@ -15,56 +15,36 @@ page to choose the published package path directly.
 
 ## What These Packages Help You Build
 
-- **EEG packages** are for apps that use brain-signal data from a headset.
-  Typical use cases include meditation or focus UX, neurofeedback, adaptive
-  gameplay, dashboards, and simulated athletic-performance or training
-  experiences that react to live headset input or EEG-derived features.
-- **rPPG packages** are for apps that use a regular camera to estimate
-  pulse-related signals. Typical use cases include wellness flows, readiness
-  checks, deception or bluffing mechanics, biofeedback-style experiences, and
-  camera-based vitals prototypes.
+- **rPPG (`rppg-web`)** is the **primary** path for most browser integrations:
+  a regular camera estimates pulse-related signals. Typical use cases include
+  wellness flows, readiness checks, deception or bluffing mechanics,
+  biofeedback-style experiences, and camera-based vitals prototypes.
+- **EEG (`eeg-web`)** is **optional** until your product needs brain-signal
+  analysis in the browser—meditation or focus UX, neurofeedback, adaptive
+  gameplay, dashboards, and performance-style training that reacts to EEG
+  features.
+- **`eeg-web-ble`** **enables Bluetooth**: it is the transport that connects a
+  Muse-compatible headset to the EEG stack. Use it with `eeg-web`, not instead
+  of it.
 
 ## Choose By Outcome
 
 | You want to... | Use this | Notes |
 | --- | --- | --- |
 | Scaffold a new demo app | `@elata-biosciences/create-elata-demo` | recommended first step |
-| Run EEG WASM APIs in the browser | `@elata-biosciences/eeg-web` | signal processing, models, and WASM helpers |
-| Connect to Muse-compatible devices in the browser | `@elata-biosciences/eeg-web-ble` | install alongside `eeg-web` |
-| Run camera-based rPPG in a browser app | `@elata-biosciences/rppg-web` | start with `createRppgSession()` |
+| Run camera-based rPPG in a browser app | `@elata-biosciences/rppg-web` | primary integration; start with `createRppgSession()` |
+| Run EEG WASM APIs in the browser | `@elata-biosciences/eeg-web` | optional; signal processing, models, and WASM helpers |
+| Enable a Muse-compatible headset over Bluetooth | `@elata-biosciences/eeg-web-ble` | add **with** `eeg-web` |
 
 ## The Short Recommendation
 
-- New app or first evaluation: use `create-elata-demo`
-- Existing app with browser EEG analysis: use `eeg-web`
-- Existing app with live Muse-compatible browser streaming: use `eeg-web` + `eeg-web-ble`
-- Existing app with camera-based pulse estimation: use `rppg-web`
+- New app or first evaluation: use `create-elata-demo` (defaults lean **rPPG**)
+- Existing app with camera-based pulse estimation: use `rppg-web` (**primary**)
+- Existing app with browser EEG analysis: add `eeg-web` (**optional**)
+- Existing app with a live Muse-compatible headset: add `eeg-web-ble` **and**
+  `eeg-web` (**Bluetooth transport**)
 
-## Browser EEG
-
-Use `@elata-biosciences/eeg-web` when you need:
-
-- browser-side EEG WASM APIs
-- signal processing and model functions
-- shared types used by higher-level browser integrations
-
-In app terms, this is the package you use when your product logic needs EEG
-features or analyses in the browser for things like meditation state, focus
-feedback, neurofeedback, or performance-style training loops.
-
-## Browser BLE For Muse-Compatible Devices
-
-Use `@elata-biosciences/eeg-web-ble` when you need:
-
-- browser BLE discovery and streaming
-- normalized headband frames
-- a transport layer that plugs into the Elata EEG web stack
-
-You should generally install `@elata-biosciences/eeg-web` alongside it.
-
-In app terms, this is the package that gets real headset data into the browser.
-
-## Camera-Based rPPG
+## Camera-Based rPPG (Primary)
 
 Use `@elata-biosciences/rppg-web` when you need:
 
@@ -76,6 +56,30 @@ In app terms, this is the package you use when the camera itself is the sensor
 and your app wants pulse-style metrics without extra hardware for things like
 stress-aware UX, deception mechanics, or biofeedback-oriented health flows.
 
+## Browser EEG (Optional)
+
+Use `@elata-biosciences/eeg-web` when you need:
+
+- browser-side EEG WASM APIs
+- signal processing and model functions
+- shared types used by higher-level browser integrations
+
+In app terms, this is the package you use when your product logic needs EEG
+features or analyses in the browser for things like meditation state, focus
+feedback, neurofeedback, or performance-style training loops.
+
+## Web Bluetooth: Enable A Muse-Compatible Headset
+
+Use `@elata-biosciences/eeg-web-ble` when you need:
+
+- browser BLE discovery and streaming
+- normalized headband frames
+- a transport layer that plugs into the Elata EEG web stack
+
+Install `@elata-biosciences/eeg-web` alongside it. This package **turns on
+Bluetooth** for supported headsets; it does not replace the EEG WASM APIs in
+`eeg-web`.
+
 ## Internal Paths To Avoid Unless You Mean It
 
 - Do not start new apps with `./run.sh sync-to`.
@@ -85,10 +89,12 @@ stress-aware UX, deception mechanics, or biofeedback-oriented health flows.
 
 ## Related Docs
 
+- Map scaffold vs tutorial vs overview: [Build A Browser App](/browser-apps)
 - Getting started quickly: [Quickstart](/quickstart)
 - First end-to-end tutorial: [Build Your First Elata App](/tutorials/first-app)
-- Browser EEG guide: [EEG In A Browser App](/guides/eeg-browser)
-- Browser rPPG guide: [rPPG In A Browser App](/guides/rppg-browser)
+- Browser rPPG overview: [rPPG In A Browser App](/guides/rppg-browser)
+- Browser EEG overview: [EEG In A Browser App](/guides/eeg-browser)
+- Enable headset Bluetooth: [Web Bluetooth With Supported Devices](/guides/web-bluetooth)
 
 ## When The Alternative Path Is Correct
 

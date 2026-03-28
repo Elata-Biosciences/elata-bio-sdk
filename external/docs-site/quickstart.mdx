@@ -16,27 +16,31 @@ pnpm install
 pnpm run dev
 ```
 
-Available templates:
+Available templates (recommended priority):
 
-- `rppg-web-demo`: camera-based rPPG demo
-- `eeg-web-demo`: browser EEG WASM demo with synthetic data
-- `eeg-web-ble-demo`: Muse-compatible browser BLE demo
+- `rppg-web-demo`: **primary** — camera-based rPPG demo
+- `eeg-web-demo`: **optional** — browser EEG WASM demo with synthetic data
+- `eeg-web-ble-demo`: **Bluetooth** — EEG demo with Muse-compatible Web Bluetooth
 
 ## Which Template Should You Choose?
 
 | If you want to... | Start here |
 | --- | --- |
-| Try the SDK without external hardware | `rppg-web-demo` |
-| Explore EEG analysis in the browser first | `eeg-web-demo` |
-| Connect to a real Muse-compatible device in Chrome or Edge | `eeg-web-ble-demo` |
+| Build the default camera-based app (no headset) | `rppg-web-demo` |
+| Add browser EEG without a headset yet | `eeg-web-demo` |
+| Turn on Bluetooth for a Muse-compatible headset (Chrome/Edge) | `eeg-web-ble-demo` |
 
 ## What You Are Choosing Between
 
-- **EEG**: brain-signal data from a headset. Choose this when your app needs
-  live headset input, brain-signal analysis, or EEG-driven gameplay, feedback,
-  or training flows.
-- **rPPG**: pulse estimation from a camera stream. Choose this when your app
-  needs camera-based wellness or readiness signals without requiring a wearable.
+- **rPPG**: pulse estimation from a camera stream — the **usual first app**.
+  Choose this when you want biosignals without hardware or when you are still
+  exploring the SDK.
+- **EEG**: brain-signal analysis in the browser — **optional** until your
+  product needs headset-driven or neuro-style features. Start with `eeg-web-demo`
+  for WASM and synthetic data before worrying about hardware.
+- **Web Bluetooth (`eeg-web-ble-demo`)**: **enables a live Muse-compatible
+  headset** on top of the EEG stack. It is not a separate product category from
+  EEG; it is how you connect the device in supported browsers.
 
 ## Existing App Path
 
@@ -44,26 +48,24 @@ If you already have an app and know which capability you need, install the
 published package directly:
 
 ```bash
+pnpm add @elata-biosciences/rppg-web
 pnpm add @elata-biosciences/eeg-web
 pnpm add @elata-biosciences/eeg-web-ble
-pnpm add @elata-biosciences/rppg-web
 ```
 
 Use only the packages your app actually needs.
 
 The common paths are:
 
+- `@elata-biosciences/rppg-web` for browser camera-based rPPG (typical first integration)
 - `@elata-biosciences/eeg-web` for browser EEG analysis APIs
-- `@elata-biosciences/eeg-web-ble` plus `eeg-web` for live Muse-compatible BLE transport
-- `@elata-biosciences/rppg-web` for browser camera-based rPPG
+- `@elata-biosciences/eeg-web-ble` plus `eeg-web` to **enable** live Muse-compatible Bluetooth streaming
 
 ## App-Level Rule Of Thumb
 
-- Start with `eeg-web-demo` if you want to understand what EEG data and EEG
-  analysis feel like in an app.
-- Start with `eeg-web-ble-demo` if you need real browser headset transport.
-- Start with `rppg-web-demo` if you want a camera-based signal that works
-  without external hardware.
+- Start with `rppg-web-demo` for the default camera-based app (no headset).
+- Add `eeg-web-demo` when you want browser EEG without Bluetooth yet.
+- Use `eeg-web-ble-demo` when you need **Bluetooth on** for a real Muse-compatible headset in Chrome or Edge.
 
 ## Recommended Decision Order
 
@@ -91,8 +93,7 @@ Or use `npm install` and `npm run dev` inside the generated app.
 
 ## Next Steps
 
+- Map each workflow to scaffold, tutorial, or overview: [Build A Browser App](/browser-apps)
 - Need help choosing packages: [Package Selection](/package-selection)
 - Want step-by-step onboarding tutorials: [Build Your First Elata App](/tutorials/first-app)
-- Building browser EEG features: [EEG In A Browser App](/guides/eeg-browser)
-- Building browser BLE flows: [Web Bluetooth With Supported Devices](/guides/web-bluetooth)
-- Building browser rPPG flows: [rPPG In A Browser App](/guides/rppg-browser)
+- Shorter integration overviews: [rPPG In A Browser App](/guides/rppg-browser), [EEG In A Browser App](/guides/eeg-browser), [Web Bluetooth With Supported Devices](/guides/web-bluetooth)

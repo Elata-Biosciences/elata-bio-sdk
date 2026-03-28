@@ -6,6 +6,9 @@ description: Step by step, wire Elata EEG processing into a browser app and veri
 This tutorial shows the recommended path for adding
 `@elata-biosciences/eeg-web` to an existing browser application.
 
+EEG is **optional** in the typical Elata journey—**camera rPPG** is the usual
+primary integration unless your product needs brain-signal features.
+
 Use this when your app needs EEG analysis APIs in the browser.
 If you also need live headset transport, you will add
 `@elata-biosciences/eeg-web-ble` after this tutorial.
@@ -21,22 +24,24 @@ You will:
 
 ## Step 1: Install The Package
 
-```bash
+<CodeGroup>
+
+```bash pnpm
 pnpm add @elata-biosciences/eeg-web
 ```
 
-Or:
-
-```bash
+```bash npm
 npm install @elata-biosciences/eeg-web
 ```
+
+</CodeGroup>
 
 ## Step 2: Create A Small EEG Module
 
 Create a small module in your app so the integration stays isolated and easy to
-test:
+test (for example `src/eeg.ts`):
 
-```ts
+```ts eeg.ts
 import { initEegWasm, band_powers } from "@elata-biosciences/eeg-web";
 
 let eegInitPromise: Promise<void> | null = null;
@@ -66,7 +71,7 @@ Why this shape:
 
 ## Step 3: Call It From Your UI
 
-For example:
+For example, in a component or entry file:
 
 ```ts
 import { analyzeExampleEeg } from "./eeg";
