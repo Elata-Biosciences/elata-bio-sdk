@@ -6,9 +6,9 @@ Scaffold Elata demo apps from published templates.
 
 This package provides the `create-elata-demo` CLI and the templates behind:
 
-- `rppg-web-demo`
+- `rppg-demo`
 - `eeg-web-demo`
-- `eeg-web-ble-demo`
+- `eeg-demo`
 
 Short aliases are also supported:
 
@@ -61,7 +61,7 @@ npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 
 When you run the CLI interactively without `--template`, it prompts you to pick
 from the available templates. In non-interactive runs, it still falls back to
-the default `rppg-web-demo` template.
+the default `rppg-demo` template.
 
 If you omit the project directory, the CLI prompts for the project name.
 

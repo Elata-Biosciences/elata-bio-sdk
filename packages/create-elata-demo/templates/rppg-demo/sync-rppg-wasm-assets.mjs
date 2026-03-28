@@ -39,12 +39,12 @@ async function main() {
     const toPath = path.join(destDir, file.to);
     await fs.copyFile(fromPath, toPath);
     copied += 1;
-    console.log(`[rppg-web-demo] Copied ${file.from} -> public/pkg/${file.to}`);
+    console.log(`[rppg-demo] Copied ${file.from} -> public/pkg/${file.to}`);
   }
 
   if (copied === 0) {
     throw new Error(
-      `[rppg-web-demo] No packaged rPPG WASM assets found under ${srcDir}. ` +
+      `[rppg-demo] No packaged rPPG WASM assets found under ${srcDir}. ` +
         `Make sure @elata-biosciences/rppg-web is installed and run the demo install again.`,
     );
   }

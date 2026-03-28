@@ -17,8 +17,8 @@ const packageMetadata = JSON.parse(
 );
 
 const templates = {
-  'rppg-web-demo': {
-    dir: 'rppg-web-demo',
+  'rppg-demo': {
+    dir: 'rppg-demo',
     description: 'React + Vite rPPG heart-rate demo',
     aliases: ['rppg'],
   },
@@ -27,8 +27,8 @@ const templates = {
     description: 'React + Vite EEG WASM demo',
     aliases: ['eeg'],
   },
-  'eeg-web-ble-demo': {
-    dir: 'eeg-web-ble-demo',
+  'eeg-demo': {
+    dir: 'eeg-demo',
     description: 'React + Vite Muse Web Bluetooth demo',
     aliases: ['eeg-ble'],
   },
@@ -241,7 +241,7 @@ if (!templateSpecified) {
   if (process.stdin.isTTY && process.stdout.isTTY) {
     templateName = await promptForTemplate();
   } else {
-    templateName = 'rppg-web-demo';
+    templateName = 'rppg-demo';
   }
 }
 if (templateName === null) {
