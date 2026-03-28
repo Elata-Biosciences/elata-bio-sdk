@@ -132,6 +132,7 @@ Build & Demo:
   bindings     Generate bindings from an existing build (default: release)
   docs         Run internal Mintlify docs tooling (default: 'mint dev --no-open')
   demo         Run the demo - specify 'rppg' (default; temp-served), 'hal', or 'eeg' (example: 'run.sh demo eeg')
+  create       Scaffold a local demo app via packages/create-elata-demo (examples: './run.sh create rppg my-app', './run.sh create my-app')
   sync-to      Build eeg-web and install it into a local app (default app: ../my-app)
 
 Quality:
@@ -570,6 +571,59 @@ normalize_profile() {
             return 1
             ;;
     esac
+}
+
+normalize_scaffold_template() {
+    local raw="${1:-}"
+    case "$raw" in
+        "") printf "\n" ;;
+        rppg|rppg-web-demo) printf "rppg-web-demo\n" ;;
+        eeg|eeg-web-demo) printf "eeg-web-demo\n" ;;
+        eeg-ble|eeg-web-ble-demo|ble) printf "eeg-web-ble-demo\n" ;;
+        *)
+            echo "Unknown scaffold template: $raw" >&2
+            return 1
+            ;;
+    esac
+}
+
+run_create_demo() {
+    require_cmds node
+
+    local first_arg="${1:-}"
+    local second_arg="${2:-}"
+    local template=""
+    local app_name=""
+    shift 2 || true
+
+    if [[ "$first_arg" == --* ]]; then
+        node "$ROOT_DIR/packages/create-elata-demo/index.mjs" "$first_arg" "$second_arg" "$@"
+        return 0
+    fi
+
+    if normalized_template="$(normalize_scaffold_template "$first_arg" 2>/dev/null)"; then
+        template="$normalized_template"
+        app_name="$second_arg"
+    else
+        app_name="$first_arg"
+    fi
+
+    if [[ -n "$template" && -z "$app_name" ]]; then
+        node "$ROOT_DIR/packages/create-elata-demo/index.mjs" --template "$template"
+        return 0
+    fi
+
+    if [[ -z "$app_name" ]]; then
+        node "$ROOT_DIR/packages/create-elata-demo/index.mjs"
+        return 0
+    fi
+
+    if [[ -n "$template" ]]; then
+        node "$ROOT_DIR/packages/create-elata-demo/index.mjs" "$app_name" --template "$template"
+        return 0
+    fi
+
+    node "$ROOT_DIR/packages/create-elata-demo/index.mjs" "$app_name"
 }
 
 require_cmd() {
@@ -1334,6 +1388,18 @@ case "$cmd" in
     demo)
         RUN_SH_TASK="demo"
         run_demo "${2:-rppg}"
+        ;;
+    create)
+        RUN_SH_TASK="create"
+        # Usage:
+        #   ./run.sh create [template] [app-name]
+        #   ./run.sh create [app-name]
+        # Examples:
+        #   ./run.sh create rppg my-app
+        #   ./run.sh create eeg my-app
+        #   ./run.sh create eeg-ble my-app
+        #   ./run.sh create my-app
+        run_create_demo "${2:-}" "${3:-}"
         ;;
     bindings)
         RUN_SH_TASK="bindings"
