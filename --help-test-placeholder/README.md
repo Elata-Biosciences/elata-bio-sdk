@@ -1,6 +1,6 @@
-# __APP_NAME__
+# --help-test-placeholder
 
-This app was generated from the `__TEMPLATE_NAME__` template in
+This app was generated from the `rppg-web-demo` template in
 `@elata-biosciences/create-elata-demo`.
 
 ## What This Demo Shows
@@ -27,13 +27,12 @@ If this app was created inside another `pnpm` workspace and is not part of that
 workspace, run from the parent directory:
 
 ```bash
-pnpm --dir __APP_NAME__ --ignore-workspace install
-pnpm --dir __APP_NAME__ --ignore-workspace run dev
+pnpm --dir --help-test-placeholder --ignore-workspace install
+pnpm --dir --help-test-placeholder --ignore-workspace run dev
 ```
 
 ## Notes
 
 - This template is meant as a quick integration starting point, not a finished product UI.
 - It intentionally starts from `createRppgSession()` instead of lower-level `DemoRunner` or `RppgProcessor` wiring.
-- It uses Vite `?url` imports for the packaged WASM files, so it does not rely on importing `/public/pkg/*` from source code.
 - If you need a deeper reference, compare this app with the monorepo `packages/rppg-web` demo tooling.

@@ -5,8 +5,6 @@ import {
   type RppgSession,
   type RppgSessionDiagnostics,
 } from '@elata-biosciences/rppg-web';
-import rppgWasmJsUrl from '@elata-biosciences/rppg-web/pkg/rppg_wasm.js?url';
-import rppgWasmBinaryUrl from '@elata-biosciences/rppg-web/pkg/rppg_wasm_bg.wasm?url';
 
 const EMPTY_METRICS: Metrics = {
   bpm: null,
@@ -48,7 +46,7 @@ function getStatusMessage(diagnostics: RppgSessionDiagnostics | null): string {
   }
 
   if (diagnostics.backendMode !== 'wasm') {
-    return 'Session running without the packaged WASM backend. Check that the bundled WASM asset URLs are loading correctly.';
+    return 'Session running without the packaged WASM backend. Serve the /pkg assets to enable live metrics.';
   }
 
   if (
@@ -118,8 +116,6 @@ export default function App() {
           sampleRate,
           backend: 'auto',
           faceMesh: 'auto',
-          wasmJsUrl: rppgWasmJsUrl,
-          wasmBinaryUrl: rppgWasmBinaryUrl,
           enableTracker: { minBpm: 55, maxBpm: 150, numParticles: 200 },
           roiSmoothingAlpha: 0.25,
           useSkinMask: true,

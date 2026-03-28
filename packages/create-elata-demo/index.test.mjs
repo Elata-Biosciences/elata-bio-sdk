@@ -78,14 +78,24 @@ test('scaffolds the default template', () => {
     assert.ok(existsSync(join(tmp, 'demo-app', 'package.json')));
     assert.ok(existsSync(join(tmp, 'demo-app', 'README.md')));
     assert.ok(existsSync(join(tmp, 'demo-app', 'src', 'App.tsx')));
+    assert.ok(existsSync(join(tmp, 'demo-app', 'src', 'vite-env.d.ts')));
     const pkg = readFileSync(join(tmp, 'demo-app', 'package.json'), 'utf8');
     const app = readFileSync(join(tmp, 'demo-app', 'src', 'App.tsx'), 'utf8');
+    const viteEnv = readFileSync(join(tmp, 'demo-app', 'src', 'vite-env.d.ts'), 'utf8');
     assert.match(pkg, new RegExp(`"@elata-biosciences/rppg-web": "${rppgWebVersion}"`));
     assert.match(app, /createRppgSession/);
     assert.match(app, /Session diagnostics/);
     assert.match(app, /backendMode/);
     assert.match(app, /lastError/);
     assert.match(app, /processorIssues/);
+    assert.match(app, /rppg_wasm\.js\?url/);
+    assert.match(app, /rppg_wasm_bg\.wasm\?url/);
+    assert.match(app, /wasmJsUrl: rppgWasmJsUrl/);
+    assert.match(app, /wasmBinaryUrl: rppgWasmBinaryUrl/);
+    assert.match(viteEnv, /declare module '\*\.js\?url'/);
+    assert.match(viteEnv, /declare module '\*\.wasm\?url'/);
+    assert.doesNotMatch(pkg, /postinstall/);
+    assert.doesNotMatch(app, /from '\/pkg\/rppg_wasm\.js'/);
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
@@ -194,6 +204,29 @@ test('accepts a short template alias', () => {
     const pkg = readFileSync(join(tmp, 'brain-demo', 'package.json'), 'utf8');
     assert.match(pkg, new RegExp(`"@elata-biosciences/eeg-web": "${eegWebVersion}"`));
     assert.doesNotMatch(pkg, /@elata-biosciences\/eeg-web-ble/);
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('rppg template uses Vite URL assets instead of public pkg imports', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
+  try {
+    const result = runCli(['pulse-demo', '--template', 'rppg-web-demo'], tmp);
+    assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
+
+    const appDir = join(tmp, 'pulse-demo');
+    const pkg = JSON.parse(readFileSync(join(appDir, 'package.json'), 'utf8'));
+    const app = readFileSync(join(appDir, 'src', 'App.tsx'), 'utf8');
+    const viteEnv = readFileSync(join(appDir, 'src', 'vite-env.d.ts'), 'utf8');
+
+    assert.equal(pkg.scripts.postinstall, undefined);
+    assert.ok(!existsSync(join(appDir, 'sync-rppg-wasm-assets.mjs')));
+    assert.match(app, /@elata-biosciences\/rppg-web\/pkg\/rppg_wasm\.js\?url/);
+    assert.match(app, /@elata-biosciences\/rppg-web\/pkg\/rppg_wasm_bg\.wasm\?url/);
+    assert.match(app, /wasmJsUrl: rppgWasmJsUrl/);
+    assert.match(app, /wasmBinaryUrl: rppgWasmBinaryUrl/);
+    assert.match(viteEnv, /reference types="vite\/client"/);
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }

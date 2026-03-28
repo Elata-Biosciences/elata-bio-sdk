@@ -1,15 +1,16 @@
 {
-  "name": "__APP_NAME__",
+  "name": "--help-test-placeholder",
   "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "node ./sync-rppg-wasm-assets.mjs"
   },
   "dependencies": {
-    "@elata-biosciences/rppg-web": "__RPPG_WEB_VERSION__",
+    "@elata-biosciences/rppg-web": "0.1.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
