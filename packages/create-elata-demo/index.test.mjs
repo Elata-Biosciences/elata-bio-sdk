@@ -199,6 +199,32 @@ test('accepts a short template alias', () => {
   }
 });
 
+test('eeg-web-demo vite config excludes package from dep optimization', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
+  try {
+    const result = runCli(['my-demo', '--template', 'eeg-web-demo'], tmp);
+    assert.strictEqual(result.status, 0, result.stderr);
+    const viteConfig = readFileSync(join(tmp, 'my-demo', 'vite.config.ts'), 'utf8');
+    assert.match(viteConfig, /optimizeDeps/);
+    assert.match(viteConfig, /@elata-biosciences\/eeg-web/);
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('eeg-web-ble-demo vite config excludes package from dep optimization', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
+  try {
+    const result = runCli(['my-demo', '--template', 'eeg-web-ble-demo'], tmp);
+    assert.strictEqual(result.status, 0, result.stderr);
+    const viteConfig = readFileSync(join(tmp, 'my-demo', 'vite.config.ts'), 'utf8');
+    assert.match(viteConfig, /optimizeDeps/);
+    assert.match(viteConfig, /@elata-biosciences\/eeg-web-ble/);
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
 test('fails on unknown template', () => {
   const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
   try {
