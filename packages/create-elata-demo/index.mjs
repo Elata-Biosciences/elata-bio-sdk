@@ -71,12 +71,28 @@ const templateAliases = Object.fromEntries(
 
 async function prompt(question) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
-  return new Promise((resolve) =>
-    rl.question(question, (ans) => {
+  return new Promise((resolve) => {
+    let settled = false;
+
+    const finish = (value) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
       rl.close();
-      resolve(ans.trim());
-    }),
-  );
+      resolve(value);
+    };
+
+    rl.on('SIGINT', () => finish(null));
+    rl.on('close', () => {
+      if (!settled) {
+        settled = true;
+        resolve(null);
+      }
+    });
+
+    rl.question(question, (ans) => finish(ans.trim()));
+  });
 }
 
 function printTemplates() {
@@ -211,6 +227,10 @@ let projectName = rawProjectName;
 if (!projectName) {
   projectName = await prompt('Project name: ');
 }
+if (projectName === null) {
+  console.error('\nCancelled.');
+  process.exit(130);
+}
 if (!projectName) {
   console.error('Error: project name is required.');
   process.exit(1);
@@ -223,6 +243,10 @@ if (!templateSpecified) {
   } else {
     templateName = 'rppg-web-demo';
   }
+}
+if (templateName === null) {
+  console.error('\nCancelled.');
+  process.exit(130);
 }
 
 const template = templates[templateName];

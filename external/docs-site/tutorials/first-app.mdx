@@ -43,7 +43,7 @@ If you are unsure, start with `rppg-web-demo`.
 
 ## Step 2: Scaffold The App
 
-Default template:
+Interactive template chooser:
 
 ```bash
 pnpm create @elata-biosciences/elata-demo my-app
@@ -52,6 +52,12 @@ pnpm create @elata-biosciences/elata-demo my-app
 If you omit `--template` in an interactive terminal, the CLI now prompts you
 to choose a template. In non-interactive runs, it still falls back to the rPPG
 starter.
+
+If you know you want the rPPG starter without the chooser:
+
+```bash
+pnpm create @elata-biosciences/elata-demo my-app -- --template rppg
+```
 
 If you use npm instead:
 

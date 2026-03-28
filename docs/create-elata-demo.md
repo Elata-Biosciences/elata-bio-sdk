@@ -37,8 +37,11 @@ npx @elata-biosciences/create-elata-demo -- --list-templates
 The recommended entry point is the npm "create" flow:
 
 ```bash
-# RPPG web demo
+# Interactive template chooser
 npm create @elata-biosciences/elata-demo my-app
+
+# RPPG web demo (alias)
+npm create @elata-biosciences/elata-demo my-app -- --template rppg
 
 # EEG web demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
@@ -101,10 +104,11 @@ If you prefer not to go through the npm "create" alias, you can invoke the scaff
 ```bash
 pnpm dlx @elata-biosciences/create-elata-demo my-app
 npx @elata-biosciences/create-elata-demo my-app
+pnpm dlx @elata-biosciences/create-elata-demo my-app --template rppg
 pnpm dlx @elata-biosciences/create-elata-demo my-app --template eeg
 ```
 
-This is equivalent to the default `npm create @elata-biosciences/elata-demo my-app` flow above. Pass `--template` only when you want one of the EEG templates.
+This is equivalent to the `npm create @elata-biosciences/elata-demo` flows above. Pass `--template` when you want a specific template without the interactive chooser.
 
 ### Repo-level smoke tests
 

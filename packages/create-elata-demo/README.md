@@ -53,6 +53,7 @@ Scaffold a project:
 
 ```bash
 npm create @elata-biosciences/elata-demo my-app
+npm create @elata-biosciences/elata-demo my-app -- --template rppg
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble

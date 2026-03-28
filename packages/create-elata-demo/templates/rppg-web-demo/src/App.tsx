@@ -5,6 +5,7 @@ import {
   type RppgSession,
   type RppgSessionDiagnostics,
 } from '@elata-biosciences/rppg-web';
+import * as rppgWasm from '@elata-biosciences/rppg-web/pkg/rppg_wasm.js';
 
 const EMPTY_METRICS: Metrics = {
   bpm: null,
@@ -88,6 +89,7 @@ export default function App() {
           sampleRate,
           backend: 'auto',
           faceMesh: 'auto',
+          wasmImporter: () => Promise.resolve(rppgWasm),
           enableTracker: { minBpm: 55, maxBpm: 150, numParticles: 200 },
           roiSmoothingAlpha: 0.25,
           useSkinMask: true,
