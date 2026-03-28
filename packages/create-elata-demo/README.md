@@ -7,7 +7,6 @@ Scaffold Elata demo apps from published templates.
 This package provides the `create-elata-demo` CLI and the templates behind:
 
 - `rppg-demo`
-- `eeg-web-demo`
 - `eeg-demo`
 
 Short aliases are also supported:

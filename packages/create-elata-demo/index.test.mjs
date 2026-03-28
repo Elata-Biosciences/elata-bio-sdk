@@ -60,8 +60,8 @@ test('lists templates', () => {
   assert.strictEqual(result.status, 0, result.stderr);
   assert.match(result.stdout, /rppg-demo/);
   assert.match(result.stdout, /aliases: rppg/);
-  assert.match(result.stdout, /eeg-web-demo/);
   assert.match(result.stdout, /eeg-demo/);
+  assert.doesNotMatch(result.stdout, /eeg-web-demo/);
 });
 
 test('ships fallback SDK versions that match the repo package versions', () => {
@@ -117,7 +117,7 @@ test('scaffolds correctly from packaged contents without monorepo siblings', () 
 });
 
 test('smoke: each template scaffolds, installs, and builds', () => {
-  const templates = ['rppg-demo', 'eeg-web-demo', 'eeg-demo'];
+  const templates = ['rppg-demo', 'eeg-demo'];
 
   for (const templateName of templates) {
     const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-smoke-'));
@@ -145,10 +145,10 @@ test('smoke: each template scaffolds, installs, and builds', () => {
 test('scaffolds a selected EEG template', () => {
   const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
   try {
-    const result = runCli(['brain-demo', '--template', 'eeg-web-demo'], tmp);
+    const result = runCli(['brain-demo', '--template', 'eeg-demo'], tmp);
     assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
     const pkg = readFileSync(join(tmp, 'brain-demo', 'package.json'), 'utf8');
-    assert.match(pkg, new RegExp(`"@elata-biosciences/eeg-web": "${eegWebVersion}"`));
+    assert.match(pkg, new RegExp(`"@elata-biosciences/eeg-web-ble": "${eegWebBleVersion}"`));
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
@@ -192,8 +192,7 @@ test('accepts a short template alias', () => {
     const result = runCli(['brain-demo', '--template', 'eeg'], tmp);
     assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
     const pkg = readFileSync(join(tmp, 'brain-demo', 'package.json'), 'utf8');
-    assert.match(pkg, new RegExp(`"@elata-biosciences/eeg-web": "${eegWebVersion}"`));
-    assert.doesNotMatch(pkg, /@elata-biosciences\/eeg-web-ble/);
+    assert.match(pkg, new RegExp(`"@elata-biosciences/eeg-web-ble": "${eegWebBleVersion}"`));
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
@@ -207,19 +206,6 @@ test('rppg-demo vite config excludes package from dep optimization', () => {
     const viteConfig = readFileSync(join(tmp, 'my-demo', 'vite.config.ts'), 'utf8');
     assert.match(viteConfig, /optimizeDeps/);
     assert.match(viteConfig, /@elata-biosciences\/rppg-web/);
-  } finally {
-    rmSync(tmp, { recursive: true, force: true });
-  }
-});
-
-test('eeg-web-demo vite config excludes package from dep optimization', () => {
-  const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
-  try {
-    const result = runCli(['my-demo', '--template', 'eeg-web-demo'], tmp);
-    assert.strictEqual(result.status, 0, result.stderr);
-    const viteConfig = readFileSync(join(tmp, 'my-demo', 'vite.config.ts'), 'utf8');
-    assert.match(viteConfig, /optimizeDeps/);
-    assert.match(viteConfig, /@elata-biosciences\/eeg-web/);
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }

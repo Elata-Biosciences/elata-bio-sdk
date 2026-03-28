@@ -22,15 +22,10 @@ const templates = {
     description: 'React + Vite rPPG heart-rate demo',
     aliases: ['rppg'],
   },
-  'eeg-web-demo': {
-    dir: 'eeg-web-demo',
-    description: 'React + Vite EEG WASM demo',
-    aliases: ['eeg'],
-  },
   'eeg-demo': {
     dir: 'eeg-demo',
     description: 'React + Vite Muse Web Bluetooth demo',
-    aliases: ['eeg-ble'],
+    aliases: ['eeg', 'eeg-ble'],
   },
 };
 
