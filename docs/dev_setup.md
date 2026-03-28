@@ -35,7 +35,43 @@ This short guide shows quick ways to speed up the Rust edit/build/test loop for 
 - Build web artifacts (debug): `./run.sh dev [eeg|rppg|all]`
 - Build web artifacts (release): `./run.sh build [eeg|rppg|all]`
 - Generate bindings only: `./run.sh bindings [release|debug]`
+- Run the in-repo rPPG demo: `./run.sh demo rppg`
+- Run the in-repo EEG demo: `./run.sh demo eeg`
+- Run the native HAL example: `./run.sh demo hal`
 - Run full workspace + web package tests: `./run.sh test`
+
+## In-Repo Demo Behavior
+
+Use the repo demos when you are developing the SDK itself, checking generated
+artifacts, or debugging package integration inside this monorepo.
+
+- `./run.sh demo rppg`
+  - runs `packages/rppg-web` demo asset generation
+  - copies the built demo to a temporary directory
+  - serves that directory on `PORT`, default `8080`
+  - supports `KEEP_TMP=1` if you want to inspect the served files after exit
+- `./run.sh demo eeg`
+  - builds `eeg-wasm`
+  - runs `wasm-bindgen`
+  - syncs artifacts into `packages/eeg-web`
+  - serves `eeg-demo/` on `PORT`, default `4173`
+  - supports `EEG_DEMO_BLE=1` to also build `packages/eeg-web-ble`
+  - supports `EEG_DEMO_BLE_TEST=1` to run BLE tests during that flow
+- `./run.sh demo hal`
+  - runs the Rust HAL example directly
+
+Examples:
+
+```bash
+PORT=9000 ./run.sh demo rppg
+KEEP_TMP=1 ./run.sh demo rppg
+PORT=5000 EEG_DEMO_BLE=1 ./run.sh demo eeg
+EEG_DEMO_BLE=1 EEG_DEMO_BLE_TEST=1 ./run.sh demo eeg
+./run.sh demo hal
+```
+
+If you are validating the consumer experience instead of the repo-development
+surface, use `create-elata-demo` rather than these in-repo demos.
 
 ## Notes
 - If you add heavy dependencies to `rppg` tests, test compile times will increase; keep dependencies minimal for unit tests.

@@ -60,6 +60,43 @@ trap 'on_err "$?" "$LINENO" "$BASH_COMMAND"' ERR
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET="wasm32-unknown-unknown"
+
+# Load NPM_TOKEN from repo-root .env when not already set (supports NPM_TOKEN= or npm_token=).
+# Does not override an existing environment variable. Skips comments and blank lines.
+ensure_npm_token_from_dotenv() {
+    if [[ -n "${NPM_TOKEN:-}" ]]; then
+        return 0
+    fi
+    local env_file="$ROOT_DIR/.env"
+    if [[ ! -f "$env_file" ]]; then
+        return 0
+    fi
+    local line key val
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        line="${line#"${line%%[![:space:]]*}"}"
+        line="${line%"${line##*[![:space:]]}"}"
+        [[ -z "$line" || "$line" == \#* ]] && continue
+        if [[ "$line" == export\ * ]]; then
+            line="${line#export }"
+        fi
+        [[ "$line" == *"="* ]] || continue
+        key="${line%%=*}"
+        val="${line#*=}"
+        if [[ "$key" != "NPM_TOKEN" && "$key" != "npm_token" ]]; then
+            continue
+        fi
+        val="${val%$'\r'}"
+        if [[ "$val" == \"*\" ]]; then
+            val="${val#\"}"
+            val="${val%\"}"
+        elif [[ "$val" == \'*\' ]]; then
+            val="${val#\'}"
+            val="${val%\'}"
+        fi
+        export NPM_TOKEN="$val"
+        return 0
+    done <"$env_file"
+}
 EEG_PACKAGE="eeg-wasm"
 EEG_BINDINGS_OUT_DIR="$ROOT_DIR/eeg-demo/pkg"
 TARGET_DIR="${CARGO_TARGET_DIR:-$ROOT_DIR/target}"
@@ -308,6 +345,7 @@ publish_packages() {
     validate_dist_tag "$dist_tag" || exit 1
     require_cmds node
     require_package_manager
+    ensure_npm_token_from_dotenv
 
     if [[ "$skip_verify" != "1" ]]; then
         verify_release_contract_for_target "$target"
@@ -387,6 +425,7 @@ promote_latest() {
 
     target="$(normalize_release_target "$raw_target")" || exit 1
     require_cmds npm node
+    ensure_npm_token_from_dotenv
 
     for pkg in $(release_targets_for "$target"); do
         pkg_name="$(package_name_for_target "$pkg")"

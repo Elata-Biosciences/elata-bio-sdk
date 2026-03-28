@@ -106,10 +106,25 @@ repo-level entry point.
 
 - `eeg-demo/`: canonical in-repo EEG browser demo
 - `packages/rppg-web/demo/`: in-package rPPG demo assets and build tooling
+- `ios-demo/`: native iOS integration reference
+- `android-demo/`: native Android integration reference
 - `packages/create-elata-demo/templates/*`: consumer-facing scaffold templates
 
 Use in-repo demos when developing the SDK itself. Use the scaffolder when
 validating the consumer experience.
+
+At the repo-command level:
+
+- `./run.sh demo rppg` builds and temp-serves the `packages/rppg-web` demo
+- `./run.sh demo eeg` builds EEG artifacts and serves `eeg-demo/`
+- `./run.sh demo hal` runs the Rust HAL example
+
+Useful demo-specific environment variables:
+
+- `PORT` overrides the default server port for `demo rppg` and `demo eeg`
+- `KEEP_TMP=1` keeps the temporary served directory for `demo rppg`
+- `EEG_DEMO_BLE=1` also builds `packages/eeg-web-ble` during `demo eeg`
+- `EEG_DEMO_BLE_TEST=1` runs BLE tests during that EEG demo flow
 
 ## Generated Artifact Paths
 

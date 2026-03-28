@@ -58,10 +58,15 @@ Before changing release docs, verify the package set against current
 
 - Package README changes: confirm referenced commands still exist
 - Scaffolder changes: run `./run.sh test create-elata-demo`
+- Scaffolder doc changes: confirm `--list-templates`, template aliases, and the interactive chooser still match `packages/create-elata-demo/index.mjs`
 - Consumer onboarding or packaging changes: run `pnpm smoke:consumers`
 - `run.sh` changes: run the narrowest affected command and prefer broader checks if release paths are touched
 - Release-tooling changes: run `./run.sh verify-all` if feasible
 - Docs that mention onboarding: verify `create-elata-demo` guidance and workspace caveats
+
+`./run.sh test create-elata-demo` currently runs the Node test suite in
+`packages/create-elata-demo`, and those tests also scaffold each template into a
+temporary directory, run `pnpm install`, and run `pnpm run build`.
 
 ## Workspace Caveat
 
@@ -82,6 +87,7 @@ or use `npm` inside the generated app.
 - `scripts/dev-link.sh` is intentionally kept as a thin wrapper around `run.sh sync-to`
 - `sync-to` remains useful for local `packages/eeg-web` development, but it is not the recommended user onboarding flow
 - consumer onboarding should point to `create-elata-demo`, not to `sync-to`
+- when scaffold behavior changes, keep `README.md`, `docs/create-elata-demo.md`, and `packages/create-elata-demo/README.md` aligned in the same PR when practical
 
 ## Documentation Ownership
 

@@ -21,6 +21,9 @@ The recommended way to try the SDK is to scaffold a demo app with
 `create-elata-demo`.
 
 ```bash
+# Show the current template list
+pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates
+
 # Interactive template chooser
 npm create @elata-biosciences/elata-demo my-app
 
@@ -47,16 +50,17 @@ pnpm dlx @elata-biosciences/create-elata-demo my-app
 npx @elata-biosciences/create-elata-demo my-app
 ```
 
-When you run the scaffolder interactively without `--template`, it prompts you
-to choose a template. In non-interactive runs, it still falls back to
+The scaffolder supports interactive project-name prompting when you omit
+`my-app`, interactive template selection when you omit `--template`, template
+aliases (`rppg`, `eeg`, `eeg-ble`), and a non-interactive default of
 `rppg-web-demo`.
 
 After scaffolding:
 
 ```bash
 cd my-app
-pnpm install
-pnpm run dev
+npm install
+npm run dev
 ```
 
 If the new app lives inside another `pnpm` workspace, run this from the parent
@@ -139,9 +143,33 @@ Use `run.sh` as the canonical task runner:
 ./run.sh build all
 ./run.sh demo eeg
 ./run.sh demo rppg
+./run.sh test create-elata-demo
 ./run.sh test
 ./run.sh verify-all
 ```
+
+### In-Repo Demos And Examples
+
+The repo also includes demo and example surfaces for SDK development:
+
+- `./run.sh demo rppg` builds the in-repo `packages/rppg-web` demo assets,
+  copies them to a temporary directory, and serves them on `http://127.0.0.1:8080`
+  by default.
+- `./run.sh demo eeg` builds the EEG WASM package and serves `eeg-demo/` on
+  `http://127.0.0.1:4173` by default.
+- `./run.sh demo hal` runs the native Rust HAL example.
+- `ios-demo/` and `android-demo/` are native integration references, not the
+  normal browser onboarding path.
+
+Useful flags while working on demos:
+
+- `PORT=9000 ./run.sh demo rppg`
+- `KEEP_TMP=1 ./run.sh demo rppg`
+- `EEG_DEMO_BLE=1 ./run.sh demo eeg`
+- `EEG_DEMO_BLE=1 EEG_DEMO_BLE_TEST=1 ./run.sh demo eeg`
+
+Use these in-repo demos when developing or debugging the SDK itself. For a
+clean end-user starting point, prefer `create-elata-demo`.
 
 ## Contributing
 

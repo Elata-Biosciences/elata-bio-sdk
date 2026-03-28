@@ -63,17 +63,20 @@ When you run the CLI interactively without `--template`, it prompts you to pick
 from the available templates. In non-interactive runs, it still falls back to
 the default `rppg-web-demo` template.
 
+If you omit the project directory, the CLI prompts for the project name.
+
 ## Build And Dev Notes
 
 The package is tested from the repo with:
 
 ```bash
+./run.sh doctor
 pnpm --dir packages/create-elata-demo test
 ./run.sh test create-elata-demo
 ```
 
-The second command also smoke-tests each template by scaffolding, installing
-dependencies, and running a build.
+The second command also ensures workspace dependencies exist, then smoke-tests
+each template by scaffolding, installing dependencies, and running a build.
 
 ## Workspace Caveat
 

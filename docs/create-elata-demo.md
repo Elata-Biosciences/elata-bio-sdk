@@ -60,13 +60,15 @@ When the CLI is run interactively without `--template`, it now prompts you to
 pick a template. In non-interactive runs, it still defaults to
 `rppg-web-demo`.
 
+If you omit the project directory, the CLI also prompts for the project name.
+
 Behind the scenes this runs the `create-elata-demo` binary, which:
 
 - prompts for `projectName` when missing,
 - validates the template name,
 - copies the chosen template into the target directory,
 - renames `_gitignore` → `.gitignore`, and
-- rewrites placeholders like `__APP_NAME__`.
+- rewrites placeholders like `__APP_NAME__` and package-version placeholders.
 
 Each generated app includes:
 
@@ -79,10 +81,10 @@ After scaffolding:
 
 ```bash
 cd my-app
-pnpm install
-pnpm run dev
 npm install
 npm run dev
+pnpm install
+pnpm run dev
 ```
 
 > Note: The templates are compatible with `pnpm` and other package managers; this repo prefers `pnpm` for local work.
