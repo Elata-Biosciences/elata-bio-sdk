@@ -97,6 +97,24 @@ ensure_npm_token_from_dotenv() {
         return 0
     done <"$env_file"
 }
+
+# Apply registry auth only when NPM_TOKEN is set. Avoids ${NPM_TOKEN} in repo .npmrc,
+# which makes pnpm warn on every command when the variable is unset.
+with_npm_registry_auth() {
+    local user_npmrc=""
+    if [[ -n "${NPM_TOKEN:-}" ]]; then
+        user_npmrc="$(mktemp "${TMPDIR:-/tmp}/elata-npmrc.XXXXXX")" || die "mktemp failed for npm auth config"
+        printf '//registry.npmjs.org/:_authToken=%s\n' "$NPM_TOKEN" >"$user_npmrc"
+        export NPM_CONFIG_USERCONFIG="$user_npmrc"
+    fi
+    local rc=0
+    "$@" || rc=$?
+    if [[ -n "${user_npmrc:-}" ]]; then
+        unset NPM_CONFIG_USERCONFIG
+        rm -f "$user_npmrc"
+    fi
+    return "$rc"
+}
 EEG_PACKAGE="eeg-wasm"
 EEG_BINDINGS_OUT_DIR="$ROOT_DIR/eeg-demo/pkg"
 TARGET_DIR="${CARGO_TARGET_DIR:-$ROOT_DIR/target}"
@@ -386,9 +404,9 @@ publish_packages() {
         (
             cd "$ROOT_DIR/$pkg_dir"
             if [[ "$PKG_MGR" == "pnpm" ]]; then
-                pnpm publish --access public --tag "$dist_tag" --no-git-checks
+                with_npm_registry_auth pnpm publish --access public --tag "$dist_tag" --no-git-checks
             else
-                npm publish --access public --tag "$dist_tag"
+                with_npm_registry_auth npm publish --access public --tag "$dist_tag"
             fi
         )
     done
@@ -431,7 +449,7 @@ promote_latest() {
         pkg_name="$(package_name_for_target "$pkg")"
         version="$(package_version_for_target "$pkg")"
         echo "Setting 'latest' dist-tag for ${pkg_name}@${version}..."
-        npm dist-tag add "${pkg_name}@${version}" latest || {
+        with_npm_registry_auth npm dist-tag add "${pkg_name}@${version}" latest || {
             echo "Failed to set 'latest' for ${pkg_name}@${version} (is this version published?)." >&2
         }
     done
