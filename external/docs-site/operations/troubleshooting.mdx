@@ -9,10 +9,20 @@ You likely created the app inside another `pnpm` workspace.
 
 Run from the parent directory:
 
-```bash
+<CodeGroup>
+
+```bash pnpm
 pnpm --dir my-app --ignore-workspace install
 pnpm --dir my-app --ignore-workspace run dev
 ```
+
+```bash npm
+cd my-app
+npm install
+npm run dev
+```
+
+</CodeGroup>
 
 ## Web Bluetooth Is Unavailable
 

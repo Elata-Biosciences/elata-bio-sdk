@@ -3,6 +3,12 @@ title: Add Camera-Based rPPG To An Existing Browser App
 description: Build a working browser rPPG flow with createRppgSession, diagnostics, and cleanup.
 ---
 
+Use this page if you already have a browser app and want the recommended
+existing-app integration path.
+
+If you want the scaffold path instead, use [Quickstart](/quickstart). If you
+only need the mental model first, use [rPPG In A Browser App](/guides/rppg-browser).
+
 This tutorial shows the recommended app integration path for
 `@elata-biosciences/rppg-web`.
 
@@ -241,7 +247,7 @@ But start with plain `createRppgSession()` first.
 
 ## Common Problems
 
-- `session.getDiagnostics().backendMode` is `unavailable`: your app is likely not serving packaged `pkg/` assets correctly
+- `session.getDiagnostics().backendMode` is `unavailable`: your app is likely not loading the packaged WASM assets correctly
 - Camera access fails: check browser permissions and `getUserMedia` support
 - The session reaches terminal `failed`: recreate the session instead of trying to keep using the same poisoned processor
 - You are trying to debug lower-level generated bindings first: start with `createRppgSession()` unless you are intentionally debugging the SDK itself

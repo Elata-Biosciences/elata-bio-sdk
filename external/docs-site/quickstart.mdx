@@ -4,25 +4,44 @@ description: Get to a working Elata app quickly with the supported developer ent
 ---
 
 This page is the shortest path from "what is this SDK?" to a working local app.
+It is intentionally the fast path only.
+
+If you need help choosing between scaffold, existing-app tutorial, and
+integration overview, use [Build A Browser App](/browser-apps).
 
 ## Fastest Path
 
 If you are evaluating the SDK for the first time, scaffold a demo app:
 
-```bash
-npm create @elata-biosciences/elata-demo my-app
+<CodeGroup>
+
+```bash pnpm
+pnpm create @elata-biosciences/elata-demo my-app
 cd my-app
 pnpm install
 pnpm run dev
 ```
 
-Available templates (recommended priority):
+```bash npm
+npm create @elata-biosciences/elata-demo my-app
+cd my-app
+npm install
+npm run dev
+```
+
+</CodeGroup>
+
+That is the default recommendation.
+
+## Pick One Template
+
+Available templates:
 
 - `rppg-web-demo`: **primary** — camera-based rPPG demo
 - `eeg-web-demo`: **optional** — browser EEG WASM demo with synthetic data
 - `eeg-web-ble-demo`: **Bluetooth** — EEG demo with Muse-compatible Web Bluetooth
 
-## Which Template Should You Choose?
+If you are unsure, start with `rppg-web-demo`.
 
 | If you want to... | Start here |
 | --- | --- |
@@ -30,48 +49,31 @@ Available templates (recommended priority):
 | Add browser EEG without a headset yet | `eeg-web-demo` |
 | Turn on Bluetooth for a Muse-compatible headset (Chrome/Edge) | `eeg-web-ble-demo` |
 
-## What You Are Choosing Between
+## Existing App Instead?
 
-- **rPPG**: pulse estimation from a camera stream — the **usual first app**.
-  Choose this when you want biosignals without hardware or when you are still
-  exploring the SDK.
-- **EEG**: brain-signal analysis in the browser — **optional** until your
-  product needs headset-driven or neuro-style features. Start with `eeg-web-demo`
-  for WASM and synthetic data before worrying about hardware.
-- **Web Bluetooth (`eeg-web-ble-demo`)**: **enables a live Muse-compatible
-  headset** on top of the EEG stack. It is not a separate product category from
-  EEG; it is how you connect the device in supported browsers.
+If you already have an app, install only the package you need:
 
-## Existing App Path
+<CodeGroup>
 
-If you already have an app and know which capability you need, install the
-published package directly:
-
-```bash
+```bash pnpm
 pnpm add @elata-biosciences/rppg-web
 pnpm add @elata-biosciences/eeg-web
 pnpm add @elata-biosciences/eeg-web-ble
 ```
 
-Use only the packages your app actually needs.
+```bash npm
+npm install @elata-biosciences/rppg-web
+npm install @elata-biosciences/eeg-web
+npm install @elata-biosciences/eeg-web-ble
+```
 
-The common paths are:
+</CodeGroup>
 
 - `@elata-biosciences/rppg-web` for browser camera-based rPPG (typical first integration)
 - `@elata-biosciences/eeg-web` for browser EEG analysis APIs
 - `@elata-biosciences/eeg-web-ble` plus `eeg-web` to **enable** live Muse-compatible Bluetooth streaming
 
-## App-Level Rule Of Thumb
-
-- Start with `rppg-web-demo` for the default camera-based app (no headset).
-- Add `eeg-web-demo` when you want browser EEG without Bluetooth yet.
-- Use `eeg-web-ble-demo` when you need **Bluetooth on** for a real Muse-compatible headset in Chrome or Edge.
-
-## Recommended Decision Order
-
-1. Start with `@elata-biosciences/create-elata-demo` for evaluation or a new app.
-2. Install a published package directly when integrating into an existing app.
-3. Use repo-internal workflows only if you are modifying the SDK itself.
+For the full map of where each path goes next, use [Build A Browser App](/browser-apps).
 
 ## What Not To Start With
 
@@ -84,16 +86,24 @@ The common paths are:
 If you scaffold an app inside another `pnpm` workspace and the new app is not
 part of that workspace, install and run it from the parent directory:
 
-```bash
+<CodeGroup>
+
+```bash pnpm
 pnpm --dir my-app --ignore-workspace install
 pnpm --dir my-app --ignore-workspace run dev
 ```
 
-Or use `npm install` and `npm run dev` inside the generated app.
+```bash npm
+cd my-app
+npm install
+npm run dev
+```
+
+</CodeGroup>
 
 ## Next Steps
 
-- Map each workflow to scaffold, tutorial, or overview: [Build A Browser App](/browser-apps)
-- Need help choosing packages: [Package Selection](/package-selection)
-- Want step-by-step onboarding tutorials: [Build Your First Elata App](/tutorials/first-app)
-- Shorter integration overviews: [rPPG In A Browser App](/guides/rppg-browser), [EEG In A Browser App](/guides/eeg-browser), [Web Bluetooth With Supported Devices](/guides/web-bluetooth)
+- Full chooser page: [Build A Browser App](/browser-apps)
+- New app tutorial: [Build Your First Elata App](/tutorials/first-app)
+- Existing app tutorials: [Add Camera-Based rPPG To An Existing Browser App](/tutorials/rppg-existing-app), [Add EEG To An Existing Browser App](/tutorials/eeg-existing-app), [Stream Muse-Compatible EEG Over Web Bluetooth](/tutorials/eeg-ble-live-stream)
+- Package-focused page: [Package Selection](/package-selection)

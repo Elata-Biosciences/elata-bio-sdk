@@ -24,16 +24,19 @@
         "pages": ["index", "quickstart", "browser-apps", "package-selection"]
       },
       {
-        "group": "Step-By-Step Tutorials",
+        "group": "New App",
+        "pages": ["tutorials/first-app"]
+      },
+      {
+        "group": "Existing App",
         "pages": [
-          "tutorials/first-app",
           "tutorials/rppg-existing-app",
           "tutorials/eeg-existing-app",
           "tutorials/eeg-ble-live-stream"
         ]
       },
       {
-        "group": "Integration Overviews",
+        "group": "Concepts",
         "pages": [
           "guides/rppg-browser",
           "guides/eeg-browser",

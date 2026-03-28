@@ -83,12 +83,16 @@ each template by scaffolding, installing dependencies, and running a build.
 If you scaffold a new app inside another `pnpm` workspace and that app is not
 added to the workspace globs, run this from the parent directory:
 
-```bash
+```text
+pnpm:
 pnpm --dir my-app --ignore-workspace install
 pnpm --dir my-app --ignore-workspace run dev
-```
 
-or use `npm install` and `npm run dev` inside the generated app.
+npm:
+cd my-app
+npm install
+npm run dev
+```
 
 ## Troubleshooting
 

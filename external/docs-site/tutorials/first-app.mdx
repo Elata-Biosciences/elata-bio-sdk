@@ -3,7 +3,8 @@ title: Build Your First Elata App
 description: Scaffold a working app first, then use it as the reference point for deeper SDK integration.
 ---
 
-This is the best starting tutorial if you are new to the Elata SDK.
+Use this page if you are new to the SDK and want one successful scaffolded app
+running locally before you integrate anything manually.
 
 If you want the full map (**rPPG primary**, **EEG optional**, **Bluetooth to
 connect a headset**) with scaffold vs step-by-step vs overview, use
@@ -47,7 +48,7 @@ If you are unsure, start with `rppg-web-demo`.
 
 ## Step 2: Scaffold The App
 
-Interactive template chooser (copy **one** tab):
+Start with the interactive chooser:
 
 <CodeGroup>
 
@@ -61,9 +62,8 @@ npm create @elata-biosciences/elata-demo my-app
 
 </CodeGroup>
 
-If you omit `--template` in an interactive terminal, the CLI prompts you to choose a template. In non-interactive runs, it still falls back to the rPPG starter.
-
-Explicit **rPPG** template without the chooser:
+If you prefer the explicit default path instead, scaffold `rppg-web-demo`
+directly:
 
 <CodeGroup>
 
@@ -77,7 +77,7 @@ npm create @elata-biosciences/elata-demo my-app -- --template rppg
 
 </CodeGroup>
 
-List available templates:
+If you want to see the full template list first:
 
 <CodeGroup>
 
@@ -91,69 +91,7 @@ npx @elata-biosciences/create-elata-demo -- --list-templates
 
 </CodeGroup>
 
-### Other templates (copy the pair you use)
-
-Each block is a **single** command — safe to paste into a terminal as-is.
-
-<CodeGroup>
-
-```bash rPPG (pnpm)
-pnpm create @elata-biosciences/elata-demo my-app -- --template rppg
-```
-
-```bash rPPG (npm)
-npm create @elata-biosciences/elata-demo my-app -- --template rppg
-```
-
-</CodeGroup>
-
-<CodeGroup>
-
-```bash EEG — full name (pnpm)
-pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
-```
-
-```bash EEG — full name (npm)
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
-```
-
-</CodeGroup>
-
-<CodeGroup>
-
-```bash EEG — short alias (pnpm)
-pnpm create @elata-biosciences/elata-demo my-app -- --template eeg
-```
-
-```bash EEG — short alias (npm)
-npm create @elata-biosciences/elata-demo my-app -- --template eeg
-```
-
-</CodeGroup>
-
-<CodeGroup>
-
-```bash EEG + BLE — full name (pnpm)
-pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
-```
-
-```bash EEG + BLE — full name (npm)
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
-```
-
-</CodeGroup>
-
-<CodeGroup>
-
-```bash EEG + BLE — short alias (pnpm)
-pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
-```
-
-```bash EEG + BLE — short alias (npm)
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
-```
-
-</CodeGroup>
+The full alias and template matrix lives on [create-elata-demo](/reference/create-elata-demo).
 
 ## Step 3: Install And Run
 
@@ -208,15 +146,20 @@ instead of the generated app.
 
 Run these **one line at a time** from the parent directory (adjust `my-app` if needed):
 
-```bash
-pnpm --dir my-app --ignore-workspace install
-```
+<CodeGroup>
 
-```bash
+```bash pnpm
+pnpm --dir my-app --ignore-workspace install
 pnpm --dir my-app --ignore-workspace run dev
 ```
 
-Or use `npm install` and `npm run dev` inside the generated app directory.
+```bash npm
+cd my-app
+npm install
+npm run dev
+```
+
+</CodeGroup>
 
 ## Where To Go Next
 

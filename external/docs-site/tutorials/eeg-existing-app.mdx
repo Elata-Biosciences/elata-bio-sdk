@@ -3,6 +3,12 @@ title: Add EEG To An Existing Browser App
 description: Step by step, wire Elata EEG processing into a browser app and verify the WASM path works.
 ---
 
+Use this page if you already have a browser app and want the recommended
+existing-app EEG integration path.
+
+If you want the scaffold path instead, use [Quickstart](/quickstart). If you
+only need the package model first, use [EEG In A Browser App](/guides/eeg-browser).
+
 This tutorial shows the recommended path for adding
 `@elata-biosciences/eeg-web` to an existing browser application.
 
@@ -128,7 +134,7 @@ loading working first, then add transport.
 
 ## Common Problems
 
-- `initEegWasm()` throws: your app is probably not serving packaged `wasm/` assets correctly
+- `initEegWasm()` throws: your app is probably not loading packaged `wasm/` assets correctly
 - You expected device discovery: `eeg-web` does not do Bluetooth transport by itself
 - You are evaluating the SDK from scratch: start with [Build Your First Elata App](/tutorials/first-app) instead of manual setup
 

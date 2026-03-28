@@ -16,7 +16,8 @@ This app was generated from the `__TEMPLATE_NAME__` template in
 
 ## Run It
 
-```bash
+```text
+pnpm:
 pnpm install
 pnpm run dev
 ```
@@ -24,9 +25,15 @@ pnpm run dev
 If this app was created inside another `pnpm` workspace and is not part of that
 workspace, run from the parent directory:
 
-```bash
+```text
+pnpm:
 pnpm --dir __APP_NAME__ --ignore-workspace install
 pnpm --dir __APP_NAME__ --ignore-workspace run dev
+
+npm:
+cd __APP_NAME__
+npm install
+npm run dev
 ```
 
 ## Notes
