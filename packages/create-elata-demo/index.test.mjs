@@ -221,13 +221,14 @@ test('rppg-demo vite config excludes package from dep optimization', () => {
   }
 });
 
-test('eeg-demo vite config excludes package from dep optimization', () => {
+test('eeg-demo vite config excludes packages from dep optimization', () => {
   const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
   try {
     const result = runCli(['my-demo', '--template', 'eeg-demo'], tmp);
     assert.strictEqual(result.status, 0, result.stderr);
     const viteConfig = readFileSync(join(tmp, 'my-demo', 'vite.config.ts'), 'utf8');
     assert.match(viteConfig, /optimizeDeps/);
+    assert.match(viteConfig, /@elata-biosciences\/eeg-web[^-]/);
     assert.match(viteConfig, /@elata-biosciences\/eeg-web-ble/);
   } finally {
     rmSync(tmp, { recursive: true, force: true });

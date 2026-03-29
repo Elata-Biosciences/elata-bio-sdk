@@ -6,6 +6,6 @@ import topLevelAwait from 'vite-plugin-top-level-await';
 export default defineConfig({
   plugins: [react(), wasm(), topLevelAwait()],
   optimizeDeps: {
-    exclude: ['@elata-biosciences/eeg-web-ble'],
+    exclude: ['@elata-biosciences/eeg-web', '@elata-biosciences/eeg-web-ble'],
   },
 });
