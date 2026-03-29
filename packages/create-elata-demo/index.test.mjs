@@ -61,6 +61,8 @@ test('lists templates', () => {
   assert.match(result.stdout, /rppg-demo/);
   assert.match(result.stdout, /aliases: rppg/);
   assert.match(result.stdout, /eeg-demo/);
+  assert.match(result.stdout, /eeg-ble/);
+  assert.match(result.stdout, /uses eeg-demo scaffold/);
   assert.doesNotMatch(result.stdout, /eeg-web-demo/);
 });
 
@@ -167,7 +169,7 @@ test('scaffolds a selected EEG template', () => {
 test('scaffolds the BLE template with current package versions', () => {
   const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
   try {
-    const result = runCli(['ble-demo', '--template', 'eeg-demo'], tmp);
+    const result = runCli(['ble-demo', '--template', 'eeg-ble'], tmp);
     assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
     const pkg = readFileSync(join(tmp, 'ble-demo', 'package.json'), 'utf8');
     assert.match(pkg, new RegExp(`"@elata-biosciences/eeg-web": "${eegWebVersion}"`));
@@ -175,6 +177,8 @@ test('scaffolds the BLE template with current package versions', () => {
       pkg,
       new RegExp(`"@elata-biosciences/eeg-web-ble": "${eegWebBleVersion}"`),
     );
+    const readme = readFileSync(join(tmp, 'ble-demo', 'README.md'), 'utf8');
+    assert.match(readme, /eeg-ble/);
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }

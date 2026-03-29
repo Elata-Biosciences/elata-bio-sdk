@@ -50,10 +50,10 @@ pnpm dlx @elata-biosciences/create-elata-demo my-app
 npx @elata-biosciences/create-elata-demo my-app
 ```
 
-The scaffolder supports interactive project-name prompting when you omit
-`my-app`, interactive template selection when you omit `--template`, template
-aliases (`rppg`, `eeg`, `eeg-ble`), and a non-interactive default of
-`rppg-demo`.
+The scaffolder supports interactive app-type selection when you omit
+`--template`, then prompts for the project name when needed. It also supports
+template aliases (`rppg`, `eeg`, `eeg-ble`) and uses `rppg-demo` as the
+non-interactive default.
 
 After scaffolding:
 

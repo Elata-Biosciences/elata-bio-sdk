@@ -4,16 +4,20 @@ Scaffold Elata starter apps from published templates.
 
 ## What This Package Is
 
-This package provides the `create-elata-demo` CLI and the templates behind:
+This package provides the `create-elata-demo` CLI and these user-facing app starters:
 
 - `rppg-demo`
 - `eeg-demo`
+- `eeg-ble`
 
-Short aliases are also supported:
+Short aliases and compatibility names are also supported:
 
 - `rppg`
 - `eeg`
-- `eeg-ble`
+- `eeg-web-ble-demo`
+
+`eeg-ble` is a BLE-focused starter choice that currently uses the `eeg-demo`
+scaffold under the hood.
 
 Use it when you want a clean scaffolded app or a consumer-facing reference project.
 
@@ -58,9 +62,9 @@ npm create @elata-biosciences/elata-demo my-app -- --template eeg
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 ```
 
-When you run the CLI interactively without `--template`, it prompts you to pick
-from the available templates. In non-interactive runs, it still falls back to
-the default `rppg-demo` template.
+When you run the CLI interactively without `--template`, it first asks which app
+type you want to create, then asks for the project name. In non-interactive
+runs, it still falls back to the default `rppg-demo` template.
 
 If you omit the project directory, the CLI prompts for the project name.
 

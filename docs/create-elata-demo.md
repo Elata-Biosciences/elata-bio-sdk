@@ -13,16 +13,20 @@ Use it when you want a working scaffolded app that already wires up the Elata SD
 
 ### Templates
 
-The scaffolder exposes multiple templates:
+The scaffolder exposes three user-facing app starters:
 
 - `rppg-demo` – React + Vite rPPG starter app
-- `eeg-demo` – React + Vite EEG starter app with Muse Web Bluetooth support
+- `eeg-demo` – React + Vite EEG starter app with synthetic data and browser EEG wiring
+- `eeg-ble` – Muse-compatible EEG starter path with Web Bluetooth guidance
 
-Short aliases are also supported:
+Short aliases and compatibility names are also supported:
 
-- `rppg`
-- `eeg`
-- `eeg-ble`
+- `rppg` → `rppg-demo`
+- `eeg` → `eeg-demo`
+- `eeg-web-ble-demo` → `eeg-ble`
+
+Today, `eeg-ble` reuses the `eeg-demo` scaffold under the hood, but it is
+presented as its own starter choice because it is a distinct onboarding path.
 
 You can list templates from any environment:
 
@@ -52,16 +56,17 @@ npm create @elata-biosciences/elata-demo my-app -- --template eeg
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 ```
 
-When the CLI is run interactively without `--template`, it now prompts you to
-pick a template. In non-interactive runs, it still defaults to
-`rppg-demo`.
+When the CLI is run interactively without `--template`, it first prompts you to
+pick which app type you want, then asks for the project name. In
+non-interactive runs, it still defaults to `rppg-demo`.
 
 If you omit the project directory, the CLI also prompts for the project name.
 
 Behind the scenes this runs the `create-elata-demo` binary, which:
 
+- prompts for the app type first when running interactively without `--template`,
 - prompts for `projectName` when missing,
-- validates the template name,
+- validates the selected starter name,
 - copies the chosen template into the target directory,
 - renames `_gitignore` → `.gitignore`, and
 - rewrites placeholders like `__APP_NAME__` and package-version placeholders.

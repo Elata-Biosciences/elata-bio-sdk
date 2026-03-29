@@ -20,14 +20,60 @@ const templates = {
   'rppg-demo': {
     dir: 'rppg-demo',
     description: 'React + Vite rPPG starter app',
-    aliases: ['rppg'],
   },
   'eeg-demo': {
     dir: 'eeg-demo',
     description: 'React + Vite EEG starter app with Muse Web Bluetooth support',
-    aliases: ['eeg', 'eeg-ble'],
   },
 };
+
+const starterChoices = [
+  {
+    name: 'rppg-demo',
+    template: 'rppg-demo',
+    aliases: ['rppg'],
+    headline: 'Camera-based pulse and rPPG starter',
+    detail: 'Fastest path to a working browser app. No headset required.',
+  },
+  {
+    name: 'eeg-demo',
+    template: 'eeg-demo',
+    aliases: ['eeg'],
+    headline: 'Browser EEG starter app',
+    detail: 'Best for SDK wiring and EEG setup before Bluetooth pairing.',
+  },
+  {
+    name: 'eeg-ble',
+    template: 'eeg-demo',
+    aliases: ['eeg-web-ble-demo'],
+    headline: 'Muse-compatible EEG over Web Bluetooth',
+    detail: 'BLE-focused path using the EEG starter scaffold and pairing flow.',
+  },
+];
+
+const isColorEnabled =
+  process.stdin.isTTY && process.stdout.isTTY && !process.env.NO_COLOR;
+
+function ansi(code) {
+  return isColorEnabled ? `\u001B[${code}m` : '';
+}
+
+const style = {
+  reset: ansi('0'),
+  bold: ansi('1'),
+  dim: ansi('2'),
+  cyan: ansi('36'),
+  blue: ansi('34'),
+  green: ansi('32'),
+  yellow: ansi('33'),
+};
+
+function paint(text, ...codes) {
+  if (!isColorEnabled) {
+    return text;
+  }
+  return `${codes.join('')}${text}${style.reset}`;
+}
 
 function readVersion(relativePath, fallbackVersion, packageName) {
   const candidate = join(__dirname, relativePath);
@@ -58,9 +104,13 @@ const packageVersions = {
   ),
 };
 
+const starterChoiceMap = Object.fromEntries(
+  starterChoices.map((choice) => [choice.name, choice]),
+);
+
 const templateAliases = Object.fromEntries(
-  Object.entries(templates).flatMap(([name, info]) =>
-    (info.aliases ?? []).map((alias) => [alias, name]),
+  starterChoices.flatMap((choice) =>
+    (choice.aliases ?? []).map((alias) => [alias, choice.name]),
   ),
 );
 
@@ -90,12 +140,26 @@ async function prompt(question) {
   });
 }
 
+function formatChoiceLine(index, choice) {
+  return `  ${paint(String(index + 1), style.bold, style.cyan)} ${paint(choice.name, style.bold, style.blue)}`;
+}
+
+function formatMetaLine(label, value) {
+  return `     ${paint(label, style.dim)} ${value}`;
+}
+
 function printTemplates() {
-  console.log('Available templates:\n');
-  for (const [name, info] of Object.entries(templates)) {
+  console.log('Available app starters:\n');
+  for (const choice of starterChoices) {
     const aliasSuffix =
-      info.aliases?.length > 0 ? ` (aliases: ${info.aliases.join(', ')})` : '';
-    console.log(`  ${name} - ${info.description}${aliasSuffix}`);
+      choice.aliases?.length > 0 ? ` (aliases: ${choice.aliases.join(', ')})` : '';
+    const templateSuffix =
+      choice.template !== choice.name
+        ? ` [uses ${choice.template} scaffold]`
+        : '';
+    console.log(
+      `  ${choice.name} - ${choice.headline}${aliasSuffix}${templateSuffix}`,
+    );
   }
   console.log('');
 }
@@ -103,7 +167,7 @@ function printTemplates() {
 const legacyTemplateNames = {
   'rppg-web-demo': 'rppg-demo',
   'eeg-web-demo': 'eeg-demo',
-  'eeg-web-ble-demo': 'eeg-demo',
+  'eeg-web-ble-demo': 'eeg-ble',
 };
 
 function normalizeTemplateName(templateName) {
@@ -115,30 +179,47 @@ function normalizeTemplateName(templateName) {
 }
 
 async function promptForTemplate() {
-  const entries = Object.entries(templates);
-
-  console.log('Choose a template:\n');
-  entries.forEach(([name, info], index) => {
-    const aliasSuffix =
-      info.aliases?.length > 0 ? ` (aliases: ${info.aliases.join(', ')})` : '';
-    console.log(`  ${index + 1}. ${name} - ${info.description}${aliasSuffix}`);
+  console.log(`\n${paint('What would you like to create?', style.bold, style.green)}\n`);
+  starterChoices.forEach((choice, index) => {
+    console.log(formatChoiceLine(index, choice));
+    console.log(`     ${paint(choice.headline, style.bold)}`);
+    console.log(`     ${choice.detail}`);
+    if (choice.aliases?.length > 0) {
+      console.log(formatMetaLine('Aliases:', choice.aliases.join(', ')));
+    }
+    if (choice.template !== choice.name) {
+      console.log(formatMetaLine('Scaffold:', choice.template));
+    }
+    console.log('');
   });
-  console.log('');
 
-  const answer = await prompt('Template [1]: ');
+  const answer = await prompt(
+    `${paint('App type', style.bold, style.yellow)} ${paint('[1]:', style.dim)} `,
+  );
   if (!answer) {
-    return entries[0][0];
+    return starterChoices[0].name;
   }
 
   const numericChoice = Number(answer);
   if (Number.isInteger(numericChoice)) {
-    const chosen = entries[numericChoice - 1];
+    const chosen = starterChoices[numericChoice - 1];
     if (chosen) {
-      return chosen[0];
+      return chosen.name;
     }
   }
 
   return normalizeTemplateName(answer);
+}
+
+function describeSelection(choiceName) {
+  const choice = starterChoiceMap[choiceName];
+  if (!choice) {
+    return choiceName;
+  }
+  if (choice.template === choice.name) {
+    return choice.name;
+  }
+  return `${choice.name} (${choice.template} scaffold)`;
 }
 
 function copyDir(src, dest, transforms) {
@@ -226,6 +307,21 @@ if (listTemplates) {
 }
 
 let projectName = rawProjectName;
+let templateName = normalizeTemplateName(rawTemplateName);
+const isInteractive = process.stdin.isTTY && process.stdout.isTTY;
+
+if (!templateSpecified) {
+  if (isInteractive) {
+    templateName = await promptForTemplate();
+  } else {
+    templateName = 'rppg-demo';
+  }
+}
+if (templateName === null) {
+  console.error('\nCancelled.');
+  process.exit(130);
+}
+
 if (!projectName) {
   projectName = await prompt('Project name: ');
 }
@@ -238,26 +334,15 @@ if (!projectName) {
   process.exit(1);
 }
 
-let templateName = normalizeTemplateName(rawTemplateName);
-if (!templateSpecified) {
-  if (process.stdin.isTTY && process.stdout.isTTY) {
-    templateName = await promptForTemplate();
-  } else {
-    templateName = 'rppg-demo';
-  }
-}
-if (templateName === null) {
-  console.error('\nCancelled.');
-  process.exit(130);
-}
-
-const template = templates[templateName];
-if (!template) {
+const starterChoice = starterChoiceMap[templateName];
+if (!starterChoice) {
   const invalidTemplateName = rawTemplateName || templateName;
   console.error(`Error: unknown template "${invalidTemplateName}".`);
   printTemplates();
   process.exit(1);
 }
+
+const template = templates[starterChoice.template];
 
 const targetDir = resolve(process.cwd(), projectName);
 if (existsSync(targetDir)) {
@@ -268,13 +353,15 @@ if (existsSync(targetDir)) {
 const templateDir = join(__dirname, 'templates', template.dir);
 copyDir(templateDir, targetDir, {
   __APP_NAME__: projectName,
-  __TEMPLATE_NAME__: templateName,
+  __TEMPLATE_NAME__: starterChoice.name,
   __EEG_WEB_VERSION__: packageVersions.eegWeb,
   __EEG_WEB_BLE_VERSION__: packageVersions.eegWebBle,
   __RPPG_WEB_VERSION__: packageVersions.rppgWeb,
 });
 
-console.log(`\nCreated ${projectName} using ${templateName}!\n`);
+console.log(
+  `\nCreated ${projectName} using ${describeSelection(starterChoice.name)}!\n`,
+);
 console.log('Next steps:\n');
 console.log(`  cd ${projectName}`);
 console.log('  npm install');
