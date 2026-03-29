@@ -15,6 +15,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageMetadata = JSON.parse(
   readFileSync(join(__dirname, 'package.json'), 'utf8'),
 );
+const cliVersion = packageMetadata.version;
 
 const templates = {
   'rppg-demo': {
@@ -149,6 +150,7 @@ function formatMetaLine(label, value) {
 }
 
 function printTemplates() {
+  console.log(`create-elata-demo v${cliVersion}\n`);
   console.log('Available app starters:\n');
   for (const choice of starterChoices) {
     const aliasSuffix =
@@ -179,7 +181,8 @@ function normalizeTemplateName(templateName) {
 }
 
 async function promptForTemplate() {
-  console.log(`\n${paint('What would you like to create?', style.bold, style.green)}\n`);
+  console.log(`\n${paint(`create-elata-demo v${cliVersion}`, style.dim)}`);
+  console.log(`${paint('What would you like to create?', style.bold, style.green)}\n`);
   starterChoices.forEach((choice, index) => {
     console.log(formatChoiceLine(index, choice));
     console.log(`     ${paint(choice.headline, style.bold)}`);

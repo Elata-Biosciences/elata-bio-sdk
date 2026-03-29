@@ -58,6 +58,10 @@ function runCommand(cmd, args, cwd, timeoutMs = 5 * 60_000) {
 test('lists templates', () => {
   const result = runCli(['--list-templates'], __dirname);
   assert.strictEqual(result.status, 0, result.stderr);
+  assert.match(
+    result.stdout,
+    new RegExp(`create-elata-demo v${scaffolderPackage.version}`),
+  );
   assert.match(result.stdout, /rppg-demo/);
   assert.match(result.stdout, /aliases: rppg/);
   assert.match(result.stdout, /eeg-demo/);
