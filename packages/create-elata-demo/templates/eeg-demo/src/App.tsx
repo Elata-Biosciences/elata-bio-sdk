@@ -29,30 +29,6 @@ const WINDOW_SAMPLES = SAMPLE_RATE * 4;
 const WAVEFORM_DISPLAY = SAMPLE_RATE * 3; // 3s of samples shown in graph
 const SYNTH_TICK_MS = 32;                 // ~30 fps for synthetic animation
 
-// Design tokens (TradeLock dark theme)
-const C = {
-  bg:          '#0f172a',
-  surface:     'rgba(30,41,59,0.6)',
-  surfaceHigh: 'rgba(30,41,59,0.9)',
-  border:      'rgba(51,65,85,0.5)',
-  borderFocus: 'rgba(51,65,85,0.8)',
-  track:       '#1e293b',
-  text:        '#f1f5f9',
-  muted:       '#94a3b8',
-  faint:       '#475569',
-  emerald:     '#10b981',
-  emeraldDim:  'rgba(16,185,129,0.15)',
-  rose:        '#f43f5e',
-  roseDim:     'rgba(244,63,94,0.15)',
-  amber:       '#f59e0b',
-  amberDim:    'rgba(245,158,11,0.15)',
-  cyan:        '#22d3ee',
-  cyanDim:     'rgba(34,211,238,0.12)',
-  indigo:      '#818cf8',
-  indigoDim:   'rgba(129,140,248,0.12)',
-  blue:        '#60a5fa',
-} as const;
-
 // ── EEG processing ────────────────────────────────────────────────────────────
 
 function makeSyntheticWindow(): Float32Array {
@@ -112,129 +88,55 @@ function fmt(n: number, decimals = 2) {
   return n.toFixed(decimals);
 }
 
-function stateColor(state: string): string {
-  if (state === 'high' || state === 'very calm' || state === 'calm') return C.emerald;
-  if (state === 'low' || state === 'alert') return C.rose;
-  if (state === 'transitioning' || state === 'neutral') return C.amber;
-  return C.muted;
+function calmnessColor(state: string): string {
+  if (state === 'high' || state === 'very calm' || state === 'calm') return 'var(--good)';
+  if (state === 'low' || state === 'alert') return 'var(--bad)';
+  return 'var(--warn)';
 }
 
-function stateBg(state: string): string {
-  if (state === 'high' || state === 'very calm' || state === 'calm') return C.emeraldDim;
-  if (state === 'low' || state === 'alert') return C.roseDim;
-  if (state === 'transitioning' || state === 'neutral') return C.amberDim;
-  return 'transparent';
+function calmnessGradient(state: string): string {
+  if (state === 'high' || state === 'very calm' || state === 'calm')
+    return 'linear-gradient(90deg, #059669, #34d399)';
+  if (state === 'low' || state === 'alert')
+    return 'linear-gradient(90deg, #e11d48, #f43f5e)';
+  return 'linear-gradient(90deg, #d97706, #fbbf24)';
 }
 
-// ── Design primitives ─────────────────────────────────────────────────────────
+function getStatusTone(
+  wasmReady: boolean,
+  mode: Mode,
+  deviceName: string | null,
+  status: string,
+): 'live' | 'warn' | 'error' {
+  const lower = status.toLowerCase();
+  if (lower.includes('failed') || lower.includes('unavailable') || lower.includes('error'))
+    return 'error';
+  if (!wasmReady) return 'warn';
+  if (mode === 'headband' && !deviceName) return 'warn';
+  return 'live';
+}
 
-function Card({ children, accent }: { children: React.ReactNode; accent?: string }) {
+// ── ModeToggle ─────────────────────────────────────────────────────────────────
+
+function ModeToggle({ mode, onChange }: { mode: Mode; onChange: (m: Mode) => void }) {
+  const isHeadband = mode === 'headband';
   return (
-    <div
-      style={{
-        background: C.surface,
-        border: `1px solid ${accent ? `${accent}30` : C.border}`,
-        borderRadius: 16,
-        padding: '16px 18px',
-        backdropFilter: 'blur(8px)',
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        fontSize: 10,
-        fontWeight: 700,
-        letterSpacing: '0.12em',
-        textTransform: 'uppercase',
-        color: C.faint,
-        marginBottom: 12,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function StateBadge({ state }: { state: string }) {
-  const color = stateColor(state);
-  const bg = stateBg(state);
-  return (
-    <span
-      style={{
-        fontSize: 11,
-        fontWeight: 600,
-        letterSpacing: '0.06em',
-        textTransform: 'capitalize',
-        color,
-        background: bg,
-        border: `1px solid ${color}40`,
-        borderRadius: 999,
-        padding: '2px 10px',
-      }}
-    >
-      {state}
-    </span>
-  );
-}
-
-function MetricRow({
-  label,
-  value,
-  unit,
-  accent,
-}: {
-  label: string;
-  value: string;
-  unit?: string;
-  accent?: string;
-}) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'baseline',
-        marginBottom: 8,
-        gap: 8,
-      }}
-    >
-      <span style={{ fontSize: 12, color: C.muted }}>{label}</span>
-      <span style={{ fontSize: 13, fontWeight: 600, color: accent ?? C.text, fontVariantNumeric: 'tabular-nums' }}>
-        {value}
-        {unit && <span style={{ fontSize: 11, fontWeight: 400, color: C.faint, marginLeft: 3 }}>{unit}</span>}
+    <div className="mode-toggle">
+      <span className={`mode-toggle-label${isHeadband ? '' : ' mode-toggle-label--active'}`}>
+        Synthetic
       </span>
-    </div>
-  );
-}
-
-function ProgressBar({
-  value,
-  max,
-  color,
-}: {
-  value: number;
-  max: number;
-  color: string;
-}) {
-  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
-  return (
-    <div style={{ background: C.track, borderRadius: 999, height: 6, overflow: 'hidden' }}>
-      <div
-        style={{
-          background: color,
-          height: '100%',
-          width: `${pct}%`,
-          borderRadius: 999,
-          transition: 'width 0.5s ease',
-          boxShadow: `0 0 6px ${color}60`,
-        }}
-      />
+      <button
+        type="button"
+        role="switch"
+        aria-checked={isHeadband}
+        className={`mode-toggle-btn${isHeadband ? ' mode-toggle-btn--on' : ''}`}
+        onClick={() => onChange(isHeadband ? 'synthetic' : 'headband')}
+      >
+        <span className="mode-toggle-thumb" />
+      </button>
+      <span className={`mode-toggle-label${isHeadband ? ' mode-toggle-label--active' : ''}`}>
+        Headband (BLE)
+      </span>
     </div>
   );
 }
@@ -269,6 +171,7 @@ function WaveformGraph({
     const ctx = canvas.getContext('2d')!;
 
     function draw() {
+      if (!canvas) return;
       const dpr = window.devicePixelRatio || 1;
       const w = canvas.width / dpr;
       const h = canvas.height / dpr;
@@ -313,10 +216,10 @@ function WaveformGraph({
 
         // Line
         ctx.beginPath();
-        ctx.strokeStyle = active ? C.cyan : C.faint;
+        ctx.strokeStyle = active ? '#22d3ee' : '#475569';
         ctx.lineWidth = 1.5;
         ctx.lineJoin = 'round';
-        ctx.shadowColor = C.cyan;
+        ctx.shadowColor = '#22d3ee';
         ctx.shadowBlur = active ? 8 : 0;
         ctx.moveTo(0, toY(samples[0]));
         for (let i = 1; i < n; i++) {
@@ -336,200 +239,14 @@ function WaveformGraph({
     };
   }, [active]);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        display: 'block',
-        width: '100%',
-        height: 100,
-        borderRadius: 8,
-      }}
-    />
-  );
-}
-
-function WaveformCard({
-  bufRef,
-  active,
-  mode,
-}: {
-  bufRef: React.MutableRefObject<number[]>;
-  active: boolean;
-  mode: Mode;
-}) {
-  return (
-    <Card>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
-        <SectionLabel>Live EEG Signal</SectionLabel>
-        <span style={{ fontSize: 10, color: C.faint }}>
-          {mode === 'headband' ? 'TP9 channel · 256 Hz' : 'synthetic · 256 Hz'}
-        </span>
-      </div>
-      <WaveformGraph bufRef={bufRef} active={active} />
-    </Card>
-  );
-}
-
-// ── Section components ────────────────────────────────────────────────────────
-
-function AlphaBumpDisplay({ bump }: { bump: AlphaBump }) {
-  const color = stateColor(bump.state);
-  const bg = stateBg(bump.state);
-  return (
-    <Card accent={color}>
-      <SectionLabel>Alpha Bump Detection</SectionLabel>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 14,
-          padding: '10px 14px',
-          background: bg,
-          border: `1px solid ${color}30`,
-          borderRadius: 10,
-        }}
-      >
-        <span style={{ fontSize: 11, color: C.muted, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-          Alpha State
-        </span>
-        <StateBadge state={bump.state} />
-      </div>
-      <MetricRow label="Alpha Power" value={fmt(bump.alphaPower, 4)} />
-      <MetricRow label="Baseline" value={fmt(bump.baseline, 4)} />
-    </Card>
-  );
-}
-
-function CalmnessDisplay({ calmness }: { calmness: Calmness }) {
-  const pct = Math.round(calmness.score * 100);
-  const color = stateColor(calmness.state);
-  return (
-    <Card accent={color}>
-      <SectionLabel>Calmness Model</SectionLabel>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
-        <div style={{ fontSize: 36, fontWeight: 800, color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
-          {pct}
-          <span style={{ fontSize: 18, fontWeight: 600, marginLeft: 2 }}>%</span>
-        </div>
-        <StateBadge state={calmness.state} />
-      </div>
-
-      {/* Alert ←→ Calm scale */}
-      <div style={{ marginBottom: 14 }}>
-        <ProgressBar value={pct} max={100} color={color} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5 }}>
-          <span style={{ fontSize: 10, color: C.rose, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600 }}>Alert</span>
-          <span style={{ fontSize: 10, color: C.emerald, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600 }}>Calm</span>
-        </div>
-      </div>
-
-      <MetricRow label="Calmness Score" value={fmt(calmness.score, 3)} />
-      <MetricRow label="Alpha / Beta Ratio" value={fmt(calmness.alphaBetaRatio, 2)} />
-    </Card>
-  );
-}
-
-function AlphaPeakDisplay({ peak }: { peak: AlphaPeak }) {
-  return (
-    <Card accent={C.cyan}>
-      <SectionLabel>Alpha Peak Model</SectionLabel>
-      <MetricRow label="Peak Frequency"  value={fmt(peak.peakFrequency, 2)}  unit="Hz" accent={C.cyan} />
-      <MetricRow label="Smoothed Peak"   value={fmt(peak.smoothedPeak, 2)}   unit="Hz" />
-      <MetricRow label="Long-Term Peak"  value={fmt(peak.longTermPeak, 2)}   unit="Hz" />
-      <MetricRow label="SNR"             value={fmt(peak.snr, 3)} />
-      <MetricRow label="Peak Power"      value={fmt(peak.peakPower, 4)} />
-    </Card>
-  );
-}
-
-function BandPowersDisplay({ powers, mode }: { powers: BandPowers; mode: Mode }) {
-  const max = Math.max(powers.delta, powers.theta, powers.alpha, powers.beta, powers.gamma) || 1;
-  const bands: { label: string; key: keyof BandPowers; color: string }[] = [
-    { label: 'Delta  0.5–4 Hz',  key: 'delta',  color: C.indigo },
-    { label: 'Theta  4–8 Hz',    key: 'theta',  color: C.blue },
-    { label: 'Alpha  8–13 Hz',   key: 'alpha',  color: C.emerald },
-    { label: 'Beta   13–30 Hz',  key: 'beta',   color: C.amber },
-    { label: 'Gamma  30–100 Hz', key: 'gamma',  color: C.rose },
-  ];
-  return (
-    <Card>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
-        <SectionLabel>Band Powers</SectionLabel>
-        <span style={{ fontSize: 10, color: C.faint, marginBottom: 12 }}>
-          {mode === 'headband' ? 'TP9 channel' : 'synthetic signal'}
-        </span>
-      </div>
-      {bands.map(({ label, key, color }) => (
-        <div key={key} style={{ marginBottom: 10 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontSize: 12, color: C.muted }}>{label}</span>
-            <span style={{ fontSize: 12, fontWeight: 600, color, fontVariantNumeric: 'tabular-nums' }}>
-              {powers[key].toFixed(4)}
-            </span>
-          </div>
-          <ProgressBar value={powers[key]} max={max} color={color} />
-        </div>
-      ))}
-    </Card>
-  );
-}
-
-// ── Mode toggle ───────────────────────────────────────────────────────────────
-
-function ModeToggle({ mode, onChange }: { mode: Mode; onChange: (m: Mode) => void }) {
-  const isHeadband = mode === 'headband';
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <span style={{ fontSize: 13, color: isHeadband ? C.faint : C.text, fontWeight: isHeadband ? 400 : 600, transition: 'color 0.2s' }}>
-        Synthetic
-      </span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={isHeadband}
-        onClick={() => onChange(isHeadband ? 'synthetic' : 'headband')}
-        style={{
-          position: 'relative',
-          width: 44,
-          height: 24,
-          borderRadius: 12,
-          background: isHeadband ? C.indigo : C.faint,
-          border: 'none',
-          cursor: 'pointer',
-          transition: 'background 0.25s',
-          flexShrink: 0,
-          padding: 0,
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            top: 3,
-            left: isHeadband ? 23 : 3,
-            width: 18,
-            height: 18,
-            borderRadius: '50%',
-            background: '#fff',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.4)',
-            transition: 'left 0.25s',
-          }}
-        />
-      </button>
-      <span style={{ fontSize: 13, color: isHeadband ? C.text : C.faint, fontWeight: isHeadband ? 600 : 400, transition: 'color 0.2s' }}>
-        Headband (BLE)
-      </span>
-    </div>
-  );
+  return <canvas ref={canvasRef} className="waveform-canvas" />;
 }
 
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
   const [mode, setMode] = useState<Mode>('synthetic');
-  const [status, setStatus] = useState('Initializing WASM...');
+  const [status, setStatus] = useState('Initializing WASM…');
   const [powers, setPowers] = useState<BandPowers | null>(null);
   const [calmness, setCalmness] = useState<Calmness | null>(null);
   const [alphaBump, setAlphaBump] = useState<AlphaBump | null>(null);
@@ -540,8 +257,8 @@ export default function App() {
 
   const deviceRef    = useRef<MuseBleDevice | null>(null);
   const rollingBuf   = useRef<number[]>([]);
-  const waveformBuf  = useRef<number[]>([]);   // raw samples for graph
-  const synthPhase   = useRef(0);              // running sample count for synthetic
+  const waveformBuf  = useRef<number[]>([]);
+  const synthPhase   = useRef(0);
   const intervalRef  = useRef<ReturnType<typeof setInterval> | null>(null);
   const synthFastRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const calmnessRef  = useRef<WasmCalmnessModel | null>(null);
@@ -562,7 +279,6 @@ export default function App() {
     rollingBuf.current = [];
   }
 
-  // Push samples into the waveform display buffer (capped at WAVEFORM_DISPLAY)
   const pushWaveform = useCallback((samples: number[]) => {
     waveformBuf.current.push(...samples);
     if (waveformBuf.current.length > WAVEFORM_DISPLAY)
@@ -606,7 +322,6 @@ export default function App() {
     synthPhase.current = 0;
     waveformBuf.current = [];
 
-    // Fast tick: generate ~8 samples per frame for smooth waveform animation
     const batchSize = Math.round(SAMPLE_RATE * SYNTH_TICK_MS / 1000);
     synthFastRef.current = setInterval(() => {
       const batch: number[] = [];
@@ -624,7 +339,6 @@ export default function App() {
       pushWaveform(batch);
     }, SYNTH_TICK_MS);
 
-    // Slow tick: run WASM analysis every second
     intervalRef.current = setInterval(() => processWindow(makeSyntheticWindow()), 1000);
 
     return () => {
@@ -634,14 +348,19 @@ export default function App() {
   }, [wasmReady, mode]);
 
   useEffect(() => {
-    if (mode !== 'headband') void teardownHeadband();
+    if (mode === 'headband') {
+      // Return a cleanup so teardown fires during the cleanup phase (before
+      // the synthetic effect re-runs), not after it — which would kill the
+      // freshly created synthetic intervals.
+      return () => { void teardownHeadband(); };
+    }
   }, [mode]);
 
   function switchMode(next: Mode) {
     setPowers(null); setCalmness(null); setAlphaBump(null); setAlphaPeak(null);
     waveformBuf.current = [];
     resetModels();
-    setStatus(next === 'synthetic' ? 'Switching to synthetic...' : 'Ready to connect.');
+    setStatus(next === 'synthetic' ? 'Switching to synthetic…' : 'Ready to connect.');
     setMode(next);
   }
 
@@ -652,13 +371,13 @@ export default function App() {
     waveformBuf.current = [];
     resetModels();
     try {
-      setStatus('Requesting Bluetooth device...');
+      setStatus('Requesting Bluetooth device…');
       const device = new MuseBleDevice();
       deviceRef.current = device;
       await device.prepareSession();
       const info = device.getBoardInfo();
       setDeviceName(info.device_name);
-      setStatus(`Connected to ${info.device_name}. Streaming...`);
+      setStatus(`Connected to ${info.device_name}. Streaming…`);
       await device.startStream((rows) => {
         const batch = rows.map((r) => r[0]);
         for (const v of batch) rollingBuf.current.push(v);
@@ -678,102 +397,197 @@ export default function App() {
 
   useEffect(() => () => { void teardownHeadband(); }, []);
 
+  // ── Derived display values ──────────────────────────────────────────────────
+
+  const statusTone = getStatusTone(wasmReady, mode, deviceName, status);
+  const statusDotClass =
+    statusTone === 'error' ? 'status-dot error' : statusTone === 'warn' ? 'status-dot warn' : 'status-dot';
+  const calmnessPct = calmness ? Math.round(calmness.score * 100) : null;
+  const bandMax = powers
+    ? Math.max(powers.delta, powers.theta, powers.alpha, powers.beta, powers.gamma) || 1
+    : 1;
+
+  const bands: { label: string; range: string; key: keyof BandPowers; cls: string }[] = [
+    { label: 'Delta', range: '0.5–4 Hz',  key: 'delta', cls: 'meter-fill--delta' },
+    { label: 'Theta', range: '4–8 Hz',    key: 'theta', cls: 'meter-fill--theta' },
+    { label: 'Alpha', range: '8–13 Hz',   key: 'alpha', cls: 'meter-fill--alpha' },
+    { label: 'Beta',  range: '13–30 Hz',  key: 'beta',  cls: 'meter-fill--beta'  },
+    { label: 'Gamma', range: '30–100 Hz', key: 'gamma', cls: 'meter-fill--gamma' },
+  ];
+
   return (
-    <main
-      style={{
-        maxWidth: 480,
-        margin: '0 auto',
-        padding: '2rem 1rem 4rem',
-        minHeight: '100vh',
-      }}
-    >
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <h1
-          style={{
-            fontSize: 22,
-            fontWeight: 700,
-            color: C.text,
-            letterSpacing: '-0.02em',
-            marginBottom: 18,
-          }}
-        >
-          Elata EEG Demo
-        </h1>
-        <ModeToggle mode={mode} onChange={switchMode} />
-      </div>
-
-      {/* Status bar */}
-      <div
-        style={{
-          fontSize: 12,
-          color: C.muted,
-          marginBottom: 20,
-          padding: '8px 12px',
-          background: C.surface,
-          borderRadius: 8,
-          border: `1px solid ${C.border}`,
-          minHeight: 36,
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <span
-          style={{
-            display: 'inline-block',
-            width: 6,
-            height: 6,
-            borderRadius: '50%',
-            background: wasmReady ? C.emerald : C.amber,
-            marginRight: 8,
-            flexShrink: 0,
-            boxShadow: wasmReady ? `0 0 6px ${C.emerald}` : `0 0 6px ${C.amber}`,
-          }}
-        />
-        {status}
-      </div>
-
-      {/* Headband connect */}
-      {mode === 'headband' && (
-        <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            onClick={connectHeadband}
-            style={{
-              background: C.indigo,
-              color: '#fff',
-              border: 'none',
-              borderRadius: 999,
-              padding: '8px 20px',
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: 'pointer',
-              letterSpacing: '0.02em',
-              boxShadow: `0 0 12px ${C.indigo}40`,
-              transition: 'opacity 0.15s',
-            }}
-          >
-            Connect Muse
-          </button>
-          {deviceName && (
-            <span style={{ fontSize: 12, color: C.emerald, fontWeight: 600 }}>{deviceName}</span>
-          )}
-          {sampleCount > 0 && (
-            <span style={{ fontSize: 12, color: C.muted }}>
-              {sampleCount.toLocaleString()} samples
-            </span>
-          )}
+    <div className="app">
+      <header className="topbar" aria-label="Application header">
+        <div className="brand">
+          <span className="brand-mark" aria-hidden="true" />
+          <span className="brand-name">Elata</span>
         </div>
-      )}
+        <span className="topbar-sep" aria-hidden="true" />
+        <span className="topbar-tagline">Brain wave analysis</span>
+        <div className="topbar-spacer" />
+        <div className={`session-chip session-chip--${statusTone}`}>
+          <span className={statusDotClass} aria-hidden="true" />
+          <span className="session-chip-text">{status}</span>
+        </div>
+      </header>
 
-      {/* Cards */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <WaveformCard bufRef={waveformBuf} active={wasmReady} mode={mode} />
-        {alphaBump && <AlphaBumpDisplay bump={alphaBump} />}
-        {calmness  && <CalmnessDisplay calmness={calmness} />}
-        {alphaPeak && <AlphaPeakDisplay peak={alphaPeak} />}
-        {powers    && <BandPowersDisplay powers={powers} mode={mode} />}
+      <div className="mode-bar">
+        <ModeToggle mode={mode} onChange={switchMode} />
+        {mode === 'headband' && (
+          <div className="connect-group">
+            <button type="button" className="connect-btn" onClick={connectHeadband}>
+              Connect Muse
+            </button>
+            {deviceName && (
+              <span className="connect-device">{deviceName}</span>
+            )}
+            {sampleCount > 0 && (
+              <span className="connect-samples">{sampleCount.toLocaleString()} samples</span>
+            )}
+          </div>
+        )}
       </div>
-    </main>
+
+      <main className="main">
+        <section className="stage" aria-labelledby="stage-heading">
+          <h1 id="stage-heading" className="visually-hidden">
+            Live EEG readout and brain state
+          </h1>
+
+          {/* Left: waveform */}
+          <div className="stage-video-wrap">
+            <div className="waveform-chrome">
+              <div className="video-chrome-corners" aria-hidden="true" />
+              <WaveformGraph bufRef={waveformBuf} active={wasmReady} />
+              <div className="video-label">
+                <span className="video-label-dot" aria-hidden="true" />
+                {mode === 'headband' ? 'TP9 · 256 Hz' : 'Synthetic · 256 Hz'}
+              </div>
+            </div>
+            <p className="stage-hint">
+              3-second rolling EEG window — alpha (8–13 Hz) dominance indicates a relaxed state.
+            </p>
+          </div>
+
+          {/* Right: metrics */}
+          <aside className="readouts" aria-label="Brain state metrics">
+
+            {/* Calmness hero */}
+            <div className="bpm-block">
+              <p className="bpm-label">Calmness</p>
+              <div className="bpm-value-row">
+                <span className="bpm-number">{calmnessPct ?? '—'}</span>
+                <span className="bpm-unit">%</span>
+              </div>
+              {calmness && (
+                <div className="calm-scale">
+                  <div className="meter-track">
+                    <div
+                      className="meter-fill"
+                      style={{
+                        width: `${calmnessPct}%`,
+                        background: calmnessGradient(calmness.state),
+                      }}
+                    />
+                  </div>
+                  <div className="calm-scale-labels">
+                    <span className="calm-label-alert">Alert</span>
+                    <span className="calm-label-calm">Calm</span>
+                  </div>
+                </div>
+              )}
+              <p className="bpm-sub" style={{ color: calmness ? calmnessColor(calmness.state) : 'var(--muted)' }}>
+                {calmness ? calmness.state : 'Warming up'}
+              </p>
+            </div>
+
+            {/* Band powers */}
+            {powers && (
+              <div className="meter-group">
+                {bands.map(({ label, range, key, cls }) => (
+                  <div key={key} className="meter">
+                    <div className="meter-head">
+                      <span>
+                        {label} <span className="band-range">{range}</span>
+                      </span>
+                      <span className="meter-pct">{powers[key].toFixed(3)}</span>
+                    </div>
+                    <div className="meter-track" role="presentation">
+                      <div
+                        className={`meter-fill ${cls}`}
+                        style={{ width: `${(powers[key] / bandMax) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Alpha bump state chips */}
+            {alphaBump && (
+              <ul className="chip-row" aria-label="Alpha state">
+                <li className="chip">
+                  <span className="chip-key">Alpha State</span>
+                  <span className="chip-val">{alphaBump.state}</span>
+                </li>
+                <li className="chip">
+                  <span className="chip-key">Alpha Power</span>
+                  <span className="chip-val">{alphaBump.alphaPower.toFixed(4)}</span>
+                </li>
+                <li className="chip">
+                  <span className="chip-key">Baseline</span>
+                  <span className="chip-val">{alphaBump.baseline.toFixed(4)}</span>
+                </li>
+              </ul>
+            )}
+          </aside>
+        </section>
+
+        <p className="deck">
+          Built with <code>@elata-biosciences/eeg-web</code> — WASM EEG analysis, Muse BLE
+          streaming, and a layout suited for demos and screen recordings.
+        </p>
+
+        {alphaPeak && (
+          <details className="panel-disclosure">
+            <summary>Alpha peak analysis</summary>
+            <div className="panel-inner">
+              <div className="stats-grid">
+                <div className="stat-row">
+                  <span className="stat-key">Peak Frequency</span>
+                  <span className="stat-value">{fmt(alphaPeak.peakFrequency, 2)} Hz</span>
+                </div>
+                <div className="stat-row">
+                  <span className="stat-key">Smoothed Peak</span>
+                  <span className="stat-value">{fmt(alphaPeak.smoothedPeak, 2)} Hz</span>
+                </div>
+                <div className="stat-row">
+                  <span className="stat-key">Long-Term Peak</span>
+                  <span className="stat-value">{fmt(alphaPeak.longTermPeak, 2)} Hz</span>
+                </div>
+                <div className="stat-row">
+                  <span className="stat-key">SNR</span>
+                  <span className="stat-value">{fmt(alphaPeak.snr, 3)}</span>
+                </div>
+                <div className="stat-row">
+                  <span className="stat-key">Peak Power</span>
+                  <span className="stat-value">{fmt(alphaPeak.peakPower, 4)}</span>
+                </div>
+                {calmness && (
+                  <div className="stat-row">
+                    <span className="stat-key">Alpha / Beta Ratio</span>
+                    <span className="stat-value">{fmt(calmness.alphaBetaRatio, 2)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </details>
+        )}
+      </main>
+
+      <footer className="footer">
+        <span>Elata SDK · EEG web template</span>
+      </footer>
+    </div>
   );
 }
