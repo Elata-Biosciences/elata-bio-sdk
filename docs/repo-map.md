@@ -6,10 +6,10 @@ workflow is canonical for a given job.
 ## Top-Level Layout
 
 - `crates/`: Rust crates for EEG, rPPG, protocol support, FFI, and synthetic bridges
-- `packages/`: published TypeScript packages and the demo scaffolder
-- `eeg-demo/`: in-repo EEG browser demo
-- `ios-demo/`: Swift demo and package integration reference
-- `android-demo/`: Android demo and Gradle integration reference
+- `packages/`: published TypeScript packages and the app scaffolder
+- `eeg-demo/`: in-repo EEG browser dev demo
+- `ios-demo/`: Swift dev demo and package integration reference
+- `android-demo/`: Android dev demo and Gradle integration reference
 - `scripts/`: shared scripts used by package build, verification, and release flows
 - `docs/`: workflow, architecture, and planning docs
 - `run.sh`: canonical task runner for local development, demos, tests, and releases
@@ -49,31 +49,31 @@ Owns:
 
 - TypeScript wrapper around the rPPG pipeline
 - browser backend loading for packaged rPPG WASM
-- demo helpers like `DemoRunner` and frame sources
+- advanced helpers like `DemoRunner` and frame sources
 
 Use this package when you need:
 
 - rPPG processing in a web app
-- camera-driven demo helpers
+- camera-driven app helpers and diagnostics
 - packaged WASM backend loading
 
 ### `packages/create-elata-demo`
 
 Owns:
 
-- published demo scaffolding flow
-- template generation for `rppg-web-demo`, `eeg-web-demo`, and `eeg-web-ble-demo`
+- published app scaffolding flow
+- template generation for `rppg-demo` and `eeg-demo`
 - template smoke-test coverage
 
 Use this package when you need:
 
-- a new demo app
+- a new scaffolded app
 - a clean consumer-facing starting point
 - a reference app with pinned dependencies
 
 ## Canonical User Paths
 
-- New app or demo: use `create-elata-demo`
+- New app: use `create-elata-demo`
 - Existing app consuming published packages: install from npm
 - SDK repo development: use `run.sh`
 - Local EEG wrapper iteration against another app: use `./run.sh sync-to`
@@ -82,7 +82,7 @@ Use this package when you need:
 
 These serve different jobs:
 
-- `create-elata-demo` is the recommended way to start a new app or demo
+- `create-elata-demo` is the recommended way to start a new app
 - `sync-to` is only for local `packages/eeg-web` development against an existing app
 
 Do not present `sync-to` as the main onboarding path for users.
@@ -102,20 +102,20 @@ Prefer these commands before creating new workflow docs or scripts:
 If a package-local command and `run.sh` overlap, `run.sh` is usually the better
 repo-level entry point.
 
-## Demos
+## In-Repo Dev Demos And Scaffolds
 
-- `eeg-demo/`: canonical in-repo EEG browser demo
-- `packages/rppg-web/demo/`: in-package rPPG demo assets and build tooling
+- `eeg-demo/`: canonical in-repo EEG browser dev demo
+- `packages/rppg-web/demo/`: in-package rPPG dev demo assets and build tooling
 - `ios-demo/`: native iOS integration reference
 - `android-demo/`: native Android integration reference
 - `packages/create-elata-demo/templates/*`: consumer-facing scaffold templates
 
-Use in-repo demos when developing the SDK itself. Use the scaffolder when
+Use in-repo dev demos when developing the SDK itself. Use the scaffolder when
 validating the consumer experience.
 
 At the repo-command level:
 
-- `./run.sh demo rppg` builds and temp-serves the `packages/rppg-web` demo
+- `./run.sh demo rppg` builds and temp-serves the `packages/rppg-web` dev demo
 - `./run.sh demo eeg` builds EEG artifacts and serves `eeg-demo/`
 - `./run.sh demo hal` runs the Rust HAL example
 
@@ -124,12 +124,12 @@ Useful demo-specific environment variables:
 - `PORT` overrides the default server port for `demo rppg` and `demo eeg`
 - `KEEP_TMP=1` keeps the temporary served directory for `demo rppg`
 - `EEG_DEMO_BLE=1` also builds `packages/eeg-web-ble` during `demo eeg`
-- `EEG_DEMO_BLE_TEST=1` runs BLE tests during that EEG demo flow
+- `EEG_DEMO_BLE_TEST=1` runs BLE tests during that EEG dev-demo flow
 
 ## Generated Artifact Paths
 
 - EEG WASM build output is generated from `crates/eeg-wasm` and synced into `packages/eeg-web/wasm`
-- rPPG demo and publishable WASM assets are built through `packages/rppg-web/scripts/build-demo.mjs`
+- rPPG dev-demo and publishable WASM assets are built through `packages/rppg-web/scripts/build-demo.mjs`
 - publish verification relies on package `prepare:publish` and `verify:publish` scripts
 
 If a task affects packaging, demo assets, or WASM output, inspect both the

@@ -97,9 +97,8 @@ const packages = [
 		requiredFiles: [
 			"index.mjs",
 			"package.json",
-			"templates/rppg-web-demo/package.json",
-			"templates/eeg-web-demo/package.json",
-			"templates/eeg-web-ble-demo/package.json",
+			"templates/rppg-demo/package.json",
+			"templates/eeg-demo/package.json",
 		],
 		forbiddenPatterns: [
 			"node_modules/",

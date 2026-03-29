@@ -20,7 +20,7 @@ pnpm smoke:consumers
 
 ## What To Use For Common Jobs
 
-- New demo app flow: `create-elata-demo`
+- New app scaffolding flow: `create-elata-demo`
 - Consumer-facing package docs: package `README.md` files
 - SDK-level build/test/release orchestration: `run.sh`
 - Release policy and recovery: `docs/releasing.md`
@@ -70,7 +70,7 @@ temporary directory, run `pnpm install`, and run `pnpm run build`.
 
 ## Workspace Caveat
 
-If you scaffold a demo inside this repo, plain `pnpm install` in the generated
+If you scaffold an app inside this repo, plain `pnpm install` in the generated
 app can attach to the parent workspace from `pnpm-workspace.yaml`.
 
 Use:

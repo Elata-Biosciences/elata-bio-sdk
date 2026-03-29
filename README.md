@@ -11,13 +11,13 @@ transports, and rPPG processing for web and native clients.
 - WebAssembly bindings for EEG and rPPG
 - Web Bluetooth transport for Muse-compatible EEG devices
 - Native FFI layers for iOS and Android integration
-- Demo scaffolding and in-repo reference demos
+- App scaffolding and in-repo development demos
 
 ## Quick Start
 
-### Scaffold a demo app
+### Scaffold an app
 
-The recommended way to try the SDK is to scaffold a demo app with
+The recommended way to try the SDK is to scaffold a starter app with
 `create-elata-demo`.
 
 ```bash
@@ -27,20 +27,20 @@ pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates
 # Interactive template chooser
 npm create @elata-biosciences/elata-demo my-app
 
-# RPPG web demo
+# rPPG starter app
 npm create @elata-biosciences/elata-demo my-app -- --template rppg
 
-# EEG web demo
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+# EEG starter app
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-demo
 
-# EEG web demo (alias)
+# EEG starter app (alias)
 npm create @elata-biosciences/elata-demo my-app -- --template eeg
 
-# EEG Web Bluetooth demo
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
-
-# EEG Web Bluetooth demo (alias)
+# EEG starter app with BLE alias
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
+
+# List templates
+pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates
 ```
 
 You can also call the scaffolder directly:
@@ -53,7 +53,7 @@ npx @elata-biosciences/create-elata-demo my-app
 The scaffolder supports interactive project-name prompting when you omit
 `my-app`, interactive template selection when you omit `--template`, template
 aliases (`rppg`, `eeg`, `eeg-ble`), and a non-interactive default of
-`rppg-web-demo`.
+`rppg-demo`.
 
 After scaffolding:
 
@@ -90,7 +90,7 @@ Use this quick guide if you are starting from an existing app:
 
 | Goal | Start here | Notes |
 |------|------------|-------|
-| Scaffold a new demo app | `@elata-biosciences/create-elata-demo` | Fastest path for evaluation and onboarding |
+| Scaffold a new app | `@elata-biosciences/create-elata-demo` | Fastest path for evaluation and onboarding |
 | Run EEG WASM APIs in the browser | `@elata-biosciences/eeg-web` | Signal processing, models, and WASM helpers |
 | Connect to a Muse-compatible EEG device in the browser | `@elata-biosciences/eeg-web-ble` | Requires `@elata-biosciences/eeg-web` and Web Bluetooth |
 | Run camera-based rPPG in a browser app | `@elata-biosciences/rppg-web` | Includes processor, backend loader, and demo helpers |
@@ -101,7 +101,7 @@ manual package setup.
 Wrong turns to avoid:
 
 - Do not start with `./run.sh sync-to` unless you are modifying `packages/eeg-web` inside this monorepo.
-- Do not treat in-repo demos as the normal consumer install path; they are reference and SDK-development surfaces.
+- Do not treat in-repo dev demos as the normal consumer install path; they are reference and SDK-development surfaces.
 - If you scaffold inside another `pnpm` workspace, check the `--ignore-workspace` flow before assuming the template is broken.
 
 ## Packages
@@ -109,7 +109,7 @@ Wrong turns to avoid:
 - `@elata-biosciences/eeg-web`: EEG WASM wrapper and re-export surface
 - `@elata-biosciences/eeg-web-ble`: Web Bluetooth transport for EEG headbands
 - `@elata-biosciences/rppg-web`: rPPG processing wrapper and demo helpers
-- `@elata-biosciences/create-elata-demo`: demo scaffolder with multiple templates
+- `@elata-biosciences/create-elata-demo`: app scaffolder with multiple templates
 
 ## Compatibility Summary
 
@@ -148,9 +148,9 @@ Use `run.sh` as the canonical task runner:
 ./run.sh verify-all
 ```
 
-### In-Repo Demos And Examples
+### In-Repo Dev Demos And Examples
 
-The repo also includes demo and example surfaces for SDK development:
+The repo also includes in-repo dev demos and example surfaces for SDK development:
 
 - `./run.sh demo rppg` builds the in-repo `packages/rppg-web` demo assets,
   copies them to a temporary directory, and serves them on `http://127.0.0.1:8080`
@@ -168,7 +168,7 @@ Useful flags while working on demos:
 - `EEG_DEMO_BLE=1 ./run.sh demo eeg`
 - `EEG_DEMO_BLE=1 EEG_DEMO_BLE_TEST=1 ./run.sh demo eeg`
 
-Use these in-repo demos when developing or debugging the SDK itself. For a
+Use these in-repo dev demos when developing or debugging the SDK itself. For a
 clean end-user starting point, prefer `create-elata-demo`.
 
 ## Contributing

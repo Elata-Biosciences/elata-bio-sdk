@@ -1,15 +1,14 @@
 ---
 title: create-elata-demo
-description: Scaffold Elata demo apps from published templates.
+description: Scaffold Elata starter apps from published templates.
 ---
 
 ## What This Package Is
 
 This package provides the `create-elata-demo` CLI and the templates behind:
 
-- `rppg-web-demo`
-- `eeg-web-demo`
-- `eeg-web-ble-demo`
+- `rppg-demo`
+- `eeg-demo`
 
 Short aliases are also supported:
 
@@ -17,7 +16,7 @@ Short aliases are also supported:
 - `eeg`
 - `eeg-ble`
 
-Use it when you want a clean demo app or a consumer-facing reference project.
+Use it when you want a clean scaffolded app or a consumer-facing reference project.
 
 ## When To Use It
 
@@ -74,19 +73,16 @@ npx @elata-biosciences/create-elata-demo -- --list-templates
 # Interactive template chooser
 pnpm create @elata-biosciences/elata-demo my-app
 
-# rPPG web demo (alias)
+# rPPG starter app (alias)
 pnpm create @elata-biosciences/elata-demo my-app -- --template rppg
 
-# EEG web demo
-pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+# EEG starter app
+pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-demo
 
-# EEG web demo (alias)
+# EEG starter app (alias)
 pnpm create @elata-biosciences/elata-demo my-app -- --template eeg
 
-# EEG Web Bluetooth demo
-pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
-
-# EEG Web Bluetooth demo (alias)
+# EEG starter app with BLE alias
 pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 ```
 
@@ -94,26 +90,23 @@ pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 # Interactive template chooser
 npm create @elata-biosciences/elata-demo my-app
 
-# rPPG web demo (alias)
+# rPPG starter app (alias)
 npm create @elata-biosciences/elata-demo my-app -- --template rppg
 
-# EEG web demo
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+# EEG starter app
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-demo
 
-# EEG web demo (alias)
+# EEG starter app (alias)
 npm create @elata-biosciences/elata-demo my-app -- --template eeg
 
-# EEG Web Bluetooth demo
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
-
-# EEG Web Bluetooth demo (alias)
+# EEG starter app with BLE alias
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 ```
 
 </CodeGroup>
 
 When the CLI is run interactively without `--template`, it prompts you to pick
-a template. In non-interactive runs, it still falls back to `rppg-web-demo`.
+a template. In non-interactive runs, it still falls back to `rppg-demo`.
 
 ## What You Get
 

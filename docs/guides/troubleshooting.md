@@ -24,7 +24,7 @@ Check the following:
 Make sure your app is serving the packaged `pkg/rppg_wasm.js` and `.wasm`
 assets from a path the browser can reach.
 
-If you are unsure, compare your app with the scaffolded `rppg-web-demo`.
+If you are unsure, compare your app with the scaffolded `rppg-demo` app.
 
 ## I am not sure which package I need
 

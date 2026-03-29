@@ -46,9 +46,9 @@ Current device classes referenced by this repo:
 
 ## Package Manager Notes
 
-- Generated demo apps work with `pnpm` or `npm`.
+- Generated scaffolded apps work with `pnpm` or `npm`.
 - This repo prefers `pnpm` for local development.
-- If you scaffold a demo app inside another `pnpm` workspace and do not add it to the workspace globs, use:
+- If you scaffold an app inside another `pnpm` workspace and do not add it to the workspace globs, use:
 
 ```bash
 pnpm --dir my-app --ignore-workspace install

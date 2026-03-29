@@ -11,7 +11,7 @@ integration overview, use [Build A Browser App](/browser-apps).
 
 ## Fastest Path
 
-If you are evaluating the SDK for the first time, scaffold a demo app:
+If you are evaluating the SDK for the first time, scaffold a starter app:
 
 <CodeGroup>
 
@@ -37,17 +37,16 @@ That is the default recommendation.
 
 Available templates:
 
-- `rppg-web-demo`: **primary** — camera-based rPPG demo
-- `eeg-web-demo`: **optional** — browser EEG WASM demo with synthetic data
-- `eeg-web-ble-demo`: **Bluetooth** — EEG demo with Muse-compatible Web Bluetooth
+- `rppg-demo`: **primary** — camera-based rPPG starter app
+- `eeg-demo`: **optional** — browser EEG starter app with synthetic data and Muse-compatible Web Bluetooth support
 
-If you are unsure, start with `rppg-web-demo`.
+If you are unsure, start with `rppg-demo`.
 
 | If you want to... | Start here |
 | --- | --- |
-| Build the default camera-based app (no headset) | `rppg-web-demo` |
-| Add browser EEG without a headset yet | `eeg-web-demo` |
-| Turn on Bluetooth for a Muse-compatible headset (Chrome/Edge) | `eeg-web-ble-demo` |
+| Build the default camera-based app (no headset) | `rppg-demo` |
+| Add browser EEG without a headset yet | `eeg-demo` |
+| Turn on Bluetooth for a Muse-compatible headset (Chrome/Edge) | `eeg-ble` alias for `eeg-demo` |
 
 ## Existing App Instead?
 
@@ -78,7 +77,7 @@ For the full map of where each path goes next, use [Build A Browser App](/browse
 ## What Not To Start With
 
 - Do not start with `./run.sh sync-to` unless you are actively developing `packages/eeg-web` in this monorepo.
-- Do not assume the in-repo demos are the default consumer path.
+- Do not assume the in-repo dev demos are the default consumer path.
 - Do not treat a parent-workspace `pnpm` install issue as a package failure until you check the workspace caveat below.
 
 ## Workspace Caveat

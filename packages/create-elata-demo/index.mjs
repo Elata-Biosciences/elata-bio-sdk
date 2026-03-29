@@ -19,12 +19,12 @@ const packageMetadata = JSON.parse(
 const templates = {
   'rppg-demo': {
     dir: 'rppg-demo',
-    description: 'React + Vite rPPG heart-rate demo',
+    description: 'React + Vite rPPG starter app',
     aliases: ['rppg'],
   },
   'eeg-demo': {
     dir: 'eeg-demo',
-    description: 'React + Vite Muse Web Bluetooth demo',
+    description: 'React + Vite EEG starter app with Muse Web Bluetooth support',
     aliases: ['eeg', 'eeg-ble'],
   },
 };

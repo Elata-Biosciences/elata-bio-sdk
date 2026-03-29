@@ -5,14 +5,14 @@ Use this page to find the right document quickly.
 ## Operational Docs
 
 - [../external/docs-site/README.md](../external/docs-site/README.md): Mintlify docs-site source for the future `docs.elata.bio` developer portal
-- [create-elata-demo.md](create-elata-demo.md): scaffold a new demo app from published templates
+- [create-elata-demo.md](create-elata-demo.md): scaffold a new app from published templates
 - [dev_setup.md](dev_setup.md): local development setup and faster iteration tips
 - [repo-map.md](repo-map.md): repo layout, package ownership, and canonical workflows
 
 ## Consumer Guides
 
 - [guides/README.md](guides/README.md): guide index for SDK consumers
-- [guides/getting-started.md](guides/getting-started.md): fastest path to a running demo
+- [guides/getting-started.md](guides/getting-started.md): fastest path to a running app
 - [guides/choose-the-right-package.md](guides/choose-the-right-package.md): package decision guide
 - [guides/using-eeg-in-a-browser-app.md](guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
 - [guides/using-web-bluetooth-with-supported-devices.md](guides/using-web-bluetooth-with-supported-devices.md): supported browser BLE flow

@@ -2,10 +2,10 @@
 
 ## Start With The Right Path
 
-If you want a working reference app first, scaffold the EEG demo:
+If you want a working reference app first, scaffold the EEG starter app:
 
 ```bash
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-demo
 cd my-app
 pnpm install
 pnpm run dev
@@ -53,17 +53,17 @@ console.log("alpha", powers.alpha);
 
 ## When To Use The EEG Template Instead
 
-Prefer the scaffolded `eeg-web-demo` template when you want:
+Prefer the scaffolded `eeg-demo` template when you want:
 
 - a known-good Vite setup
 - a reference for how bundled WASM assets should be served
-- a synthetic-data demo that runs without hardware
+- a synthetic-data app that runs without hardware
 
 ## Common Gotchas
 
 - If `initEegWasm()` fails, your app may not be serving the packaged `wasm/` assets correctly.
 - If you need a live headset connection, `eeg-web` alone is not enough.
-- If you are only evaluating the SDK, the scaffolded demo is faster than manual setup.
+- If you are only evaluating the SDK, the scaffolded app is faster than manual setup.
 
 ## Next Steps
 

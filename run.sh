@@ -131,8 +131,8 @@ Build & Demo:
   build        Build release artifacts for 'eeg', 'rppg', or 'all' (default: all)
   bindings     Generate bindings from an existing build (default: release)
   docs         Run internal Mintlify docs tooling (default: 'mint dev --no-open')
-  demo         Run the demo - specify 'rppg' (default; temp-served), 'hal', or 'eeg' (example: 'run.sh demo eeg')
-  create       Scaffold a local demo app via packages/create-elata-demo (examples: './run.sh create rppg my-app', './run.sh create my-app')
+  demo         Run an in-repo dev demo - specify 'rppg' (default; temp-served), 'hal', or 'eeg' (example: 'run.sh demo eeg')
+  create       Scaffold a local app via packages/create-elata-demo (examples: './run.sh create rppg my-app', './run.sh create my-app')
   sync-to      Build eeg-web and install it into a local app (default app: ../my-app)
 
 Quality:

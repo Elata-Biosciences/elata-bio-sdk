@@ -3,7 +3,7 @@
 ## Start With The Fastest Path
 
 If you want a working reference app before integrating manually, scaffold the
-rPPG demo:
+rPPG starter app:
 
 ```bash
 npm create @elata-biosciences/elata-demo my-app
@@ -233,9 +233,9 @@ frame-source helpers are still available.
 
 ## When To Use The rPPG Template Instead
 
-Prefer the scaffolded `rppg-web-demo` template when you want:
+Prefer the scaffolded `rppg-demo` template when you want:
 
-- a known-good browser camera example
+- a known-good browser camera app
 - a reference for packaged WASM asset loading
 - a faster comparison point when debugging your own integration
 
@@ -248,7 +248,7 @@ Prefer the scaffolded `rppg-web-demo` template when you want:
 - If you see deprecated init warnings, route startup through `initEegWasm()` instead of forwarding raw strings, URLs, or buffers to the generated init exports.
 - If camera access fails, confirm the page has permission to use `getUserMedia`.
 - If `session.lastError` is non-null, use its `code` and `message` to surface the real capture or processor failure instead of retrying blindly.
-- If you are just evaluating the SDK, the scaffolded demo is much faster than building the whole browser pipeline yourself.
+- If you are just evaluating the SDK, the scaffolded app is much faster than building the whole browser pipeline yourself.
 
 ## Version Guidance
 

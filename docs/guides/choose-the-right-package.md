@@ -48,5 +48,5 @@ Do not use `sync-to` as the normal onboarding path for new SDK consumers.
 ## Paths To Avoid Unless You Have A Specific Reason
 
 - Avoid starting from `./run.sh sync-to` for new apps. It is a local `eeg-web` development helper, not a general setup flow.
-- Avoid treating in-repo demos as the normal install path. They are useful references, but `create-elata-demo` is the cleaner consumer starting point.
+- Avoid treating in-repo dev demos as the normal install path. They are useful references, but `create-elata-demo` is the cleaner consumer starting point.
 - Avoid assuming a scaffolded app is broken if `pnpm install` behaves strangely inside another workspace. Check the `pnpm --ignore-workspace` workflow first.

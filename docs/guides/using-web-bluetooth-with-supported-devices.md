@@ -1,12 +1,12 @@
 # Using Web Bluetooth With Supported Devices
 
-## Start With A Known-Good Demo
+## Start With A Known-Good Scaffolded App
 
-If you want the fastest path to a working browser BLE example, scaffold the BLE
-demo first:
+If you want the fastest path to a working browser BLE example, scaffold the EEG
+starter app first:
 
 ```bash
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 cd my-app
 pnpm install
 pnpm run dev
@@ -71,7 +71,7 @@ await transport.start();
 
 ## When To Use The BLE Template Instead
 
-Prefer the scaffolded `eeg-web-ble-demo` template when you want:
+Prefer the scaffolded `eeg-demo` app, via the `eeg-ble` alias when helpful, when you want:
 
 - a quick environment check for browser BLE support
 - a reference for transport startup and status handling

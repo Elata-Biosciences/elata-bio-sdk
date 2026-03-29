@@ -17,6 +17,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const packageRoot = path.resolve(__dirname, "..");
 const tempRoot = mkdtempSync(path.join(tmpdir(), "rppg-web-consumer-node-"));
+const npmCacheDir = path.join(tempRoot, "npm-cache");
+
+mkdirSync(npmCacheDir, { recursive: true });
 
 function run(cmd, args, cwd, capture = false, envOverride) {
 	const env = envOverride ? { ...process.env, ...envOverride } : process.env;
@@ -46,7 +49,12 @@ function packPackage() {
 		["pack", "--ignore-scripts"],
 		packageRoot,
 		true,
-		{ npm_config_dry_run: "false", NPM_CONFIG_DRY_RUN: "false" },
+		{
+			npm_config_dry_run: "false",
+			NPM_CONFIG_DRY_RUN: "false",
+			npm_config_cache: npmCacheDir,
+			NPM_CONFIG_CACHE: npmCacheDir,
+		},
 	);
 	// `npm pack` output can become JSON-ified under some pnpm pack contexts.
 	// Extract the bare tarball filename robustly (no surrounding quotes).

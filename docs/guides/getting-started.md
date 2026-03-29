@@ -2,7 +2,7 @@
 
 ## Fastest Path
 
-If you are evaluating the SDK for the first time, scaffold a demo app:
+If you are evaluating the SDK for the first time, scaffold a starter app:
 
 ```bash
 npm create @elata-biosciences/elata-demo my-app
@@ -13,9 +13,8 @@ pnpm run dev
 
 Templates:
 
-- `rppg-web-demo`: camera-based rPPG demo
-- `eeg-web-demo`: browser EEG WASM demo with synthetic data
-- `eeg-web-ble-demo`: Muse-compatible browser BLE demo
+- `rppg-demo`: camera-based rPPG starter app
+- `eeg-demo`: browser EEG starter app with synthetic data and BLE support
 
 ## Existing App Path
 
@@ -36,7 +35,7 @@ Follow-up guides:
 
 ## Workspace Caveat
 
-If you scaffold a demo inside another `pnpm` workspace and the new app is not
+If you scaffold an app inside another `pnpm` workspace and the new app is not
 added to that workspace, run from the parent directory:
 
 ```bash

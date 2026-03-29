@@ -1,6 +1,6 @@
 # @elata-biosciences/create-elata-demo
 
-Scaffold Elata demo apps from published templates.
+Scaffold Elata starter apps from published templates.
 
 ## What This Package Is
 
@@ -15,13 +15,13 @@ Short aliases are also supported:
 - `eeg`
 - `eeg-ble`
 
-Use it when you want a clean demo app or a consumer-facing reference project.
+Use it when you want a clean scaffolded app or a consumer-facing reference project.
 
 ## When To Use It
 
 Use `@elata-biosciences/create-elata-demo` when you want:
 
-- the fastest path to a running Elata demo
+- the fastest path to a running Elata app
 - a reference app that matches the published package surface
 - a cleaner starting point than cloning or modifying the monorepo demos
 
@@ -53,7 +53,7 @@ Scaffold a project:
 ```bash
 npm create @elata-biosciences/elata-demo my-app
 npm create @elata-biosciences/elata-demo my-app -- --template rppg
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 ```

@@ -1,12 +1,12 @@
-## Elata Demo Scaffolding (`create-elata-demo`)
+## Elata App Scaffolding (`create-elata-demo`)
 
-This repo ships a small scaffolder package to generate ready-to-run Elata web demos:
+This repo ships a small scaffolder package to generate ready-to-run Elata web apps:
 
 - **Package**: `@elata-biosciences/create-elata-demo`
 - **CLI name**: `create-elata-demo`
 - **Usage style**: standard npm "create" convention
 
-Use it when you want a working demo app that already wires up the Elata SDK and Vite, either as:
+Use it when you want a working scaffolded app that already wires up the Elata SDK and Vite, either as:
 
 - a starting point for a new project, or
 - a reference you can compare against your own app.
@@ -15,9 +15,8 @@ Use it when you want a working demo app that already wires up the Elata SDK and 
 
 The scaffolder exposes multiple templates:
 
-- `rppg-web-demo` – React + Vite rPPG heart-rate demo
-- `eeg-web-demo` – React + Vite EEG WASM demo
-- `eeg-web-ble-demo` – React + Vite Muse Web Bluetooth EEG demo
+- `rppg-demo` – React + Vite rPPG starter app
+- `eeg-demo` – React + Vite EEG starter app with Muse Web Bluetooth support
 
 Short aliases are also supported:
 
@@ -32,7 +31,7 @@ pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates
 npx @elata-biosciences/create-elata-demo -- --list-templates
 ```
 
-### Creating a new demo app
+### Creating a new app
 
 The recommended entry point is the npm "create" flow:
 
@@ -40,25 +39,22 @@ The recommended entry point is the npm "create" flow:
 # Interactive template chooser
 npm create @elata-biosciences/elata-demo my-app
 
-# RPPG web demo (alias)
+# rPPG starter app (alias)
 npm create @elata-biosciences/elata-demo my-app -- --template rppg
 
-# EEG web demo
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+# EEG starter app
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-demo
 
-# EEG web demo (alias)
+# EEG starter app (alias)
 npm create @elata-biosciences/elata-demo my-app -- --template eeg
 
-# EEG Web Bluetooth demo (Muse-compatible)
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
-
-# EEG Web Bluetooth demo (alias)
+# EEG starter app with BLE alias
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 ```
 
 When the CLI is run interactively without `--template`, it now prompts you to
 pick a template. In non-interactive runs, it still defaults to
-`rppg-web-demo`.
+`rppg-demo`.
 
 If you omit the project directory, the CLI also prompts for the project name.
 
@@ -70,7 +66,7 @@ Behind the scenes this runs the `create-elata-demo` binary, which:
 - renames `_gitignore` → `.gitignore`, and
 - rewrites placeholders like `__APP_NAME__` and package-version placeholders.
 
-Each generated app includes:
+Each scaffolded app includes:
 
 - a `package.json` pinned to the current compatible Elata SDK package versions,
 - a minimal React + Vite shell, and
@@ -114,7 +110,7 @@ This is equivalent to the `npm create @elata-biosciences/elata-demo` flows above
 
 ### Repo-level smoke tests
 
-The repo treats demo scaffolding as part of its test surface.
+The repo treats app scaffolding as part of its test surface.
 
 From the repo root:
 
@@ -126,7 +122,7 @@ This command:
 
 1. Ensures `node_modules/` exists at the workspace root (`pnpm install` if needed).
 2. Runs the `packages/create-elata-demo` test suite.
-3. For each template (`rppg-web-demo`, `eeg-web-demo`, `eeg-web-ble-demo`):
+3. For each template (`rppg-demo`, `eeg-demo`):
    - scaffolds into a temporary directory,
    - installs dependencies with `pnpm install`, and
    - runs `pnpm run build` (Vite + TypeScript).
@@ -135,16 +131,16 @@ This gives us a fast end-to-end smoke test that:
 
 - catches template breakages when SDK exports change,
 - validates that dependencies resolve and compile, and
-- keeps the published `create-elata-demo` flow aligned with the repo demos.
+- keeps the published `create-elata-demo` flow aligned with the in-repo dev demos.
 
 ### When to use the scaffolder vs. examples
 
 - **Use `@elata-biosciences/create-elata-demo`** when you want:
-  - a clean, self-contained demo app,
+  - a clean, self-contained scaffolded app,
   - pinned dependencies, and
   - a flow that mirrors what end users will see on npm.
 
-- **Use the in-repo demos (e.g. `eeg-demo/`, `rppg-web` demo tooling)** when you:
+- **Use the in-repo dev demos (e.g. `eeg-demo/`, `packages/rppg-web/demo/`)** when you:
   - are developing the SDK itself,
   - need deeper debugging hooks, or
   - want to iterate on WASM and analysis internals.
