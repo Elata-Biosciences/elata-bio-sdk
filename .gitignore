@@ -3,9 +3,10 @@
 **/*.rs.bk
 Cargo.lock
 
-# IDE
+# IDE / AI tools
 .idea/
 .vscode/
+.claude/
 *.swp
 *.swo
 
@@ -40,6 +41,7 @@ yarn-error.log*
 pnpm-debug.log*
 .pnpm-store/
 packages/*/pnpm-lock.yaml
+packages/*/templates/**/pnpm-lock.yaml
 
 # Local scaffolded demo apps
 my-app/
