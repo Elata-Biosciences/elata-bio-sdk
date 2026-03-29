@@ -15,14 +15,14 @@ template maps to which sensor workflow, and know where to go next.
 
 ## What You Will Build
 
-You will scaffold one of the published demo apps with
+You will scaffold one of the published starter apps with
 `@elata-biosciences/create-elata-demo`.
 
 Pick the template that matches your goal:
 
-- `rppg-web-demo`: **primary** — camera-based pulse/rPPG app
-- `eeg-web-demo`: **optional** — browser EEG processing with synthetic data (no headset)
-- `eeg-web-ble-demo`: **Bluetooth** — same EEG stack with Web Bluetooth for a Muse-compatible headset
+- `rppg-demo`: **primary** — camera-based pulse/rPPG app
+- `eeg-demo`: **optional** — browser EEG processing with synthetic data
+- `eeg-ble` alias: **Bluetooth** — use the EEG starter app with the BLE-focused alias when you want a Muse-compatible headset flow
 
 ## Why Start Here
 
@@ -40,11 +40,11 @@ Use this decision table:
 
 | If you want to... | Choose |
 | --- | --- |
-| Build the default camera-based app (no extra hardware) | `rppg-web-demo` |
-| Add browser EEG only (synthetic or offline samples first) | `eeg-web-demo` |
-| Enable a Muse-compatible headset over Bluetooth (Chrome/Edge) | `eeg-web-ble-demo` |
+| Build the default camera-based app (no extra hardware) | `rppg-demo` |
+| Add browser EEG only (synthetic or offline samples first) | `eeg-demo` |
+| Enable a Muse-compatible headset over Bluetooth (Chrome/Edge) | `eeg-ble` alias for `eeg-demo` |
 
-If you are unsure, start with `rppg-web-demo`.
+If you are unsure, start with `rppg-demo`.
 
 ## Step 2: Scaffold The App
 
@@ -62,7 +62,7 @@ npm create @elata-biosciences/elata-demo my-app
 
 </CodeGroup>
 
-If you prefer the explicit default path instead, scaffold `rppg-web-demo`
+If you prefer the explicit default path instead, scaffold `rppg-demo`
 directly:
 
 <CodeGroup>
@@ -117,9 +117,9 @@ npm run dev
 
 Once the app starts, verify the expected behavior:
 
-- `rppg-web-demo`: asks for camera access and starts a pulse-style session
-- `eeg-web-demo`: loads EEG processing in the browser and shows synthetic-data-driven output
-- `eeg-web-ble-demo`: adds Bluetooth pairing/streaming for a supported Muse-compatible headset on top of EEG
+- `rppg-demo`: asks for camera access and starts a pulse-style session
+- `eeg-demo`: loads EEG processing in the browser and shows synthetic-data-driven output
+- `eeg-ble` alias for `eeg-demo`: adds Bluetooth pairing and streaming guidance for a supported Muse-compatible headset on top of EEG
 
 If your goal is just evaluation, stop here first and learn from the generated
 app before integrating into an existing codebase.
@@ -175,21 +175,21 @@ Pick the row that matches you:
 
 | Your situation | What to do next |
 | --- | --- |
-| **New app** — you will keep building from the generated `rppg-web-demo` | Use [rPPG In A Browser App](/guides/rppg-browser) for the integration model, then [rppg-web](/reference/rppg-web) while you change the template. For scaffold CLI details: [create-elata-demo](/reference/create-elata-demo). |
+| **New app** — you will keep building from the generated `rppg-demo` scaffold | Use [rPPG In A Browser App](/guides/rppg-browser) for the integration model, then [rppg-web](/reference/rppg-web) while you change the template. For scaffold CLI details: [create-elata-demo](/reference/create-elata-demo). |
 | **Existing app** — you need rPPG inside a codebase you already ship | Follow [Add Camera-Based rPPG To An Existing Browser App](/tutorials/rppg-existing-app) step by step. |
 
 ### Then: Browser EEG — optional (no headset yet)
 
 | Your situation | What to do next |
 | --- | --- |
-| **New app** — extend or respin `eeg-web-demo` | [EEG In A Browser App](/guides/eeg-browser), then [eeg-web](/reference/eeg-web). Scaffold reference: [create-elata-demo](/reference/create-elata-demo). |
+| **New app** — extend or respin `eeg-demo` | [EEG In A Browser App](/guides/eeg-browser), then [eeg-web](/reference/eeg-web). Scaffold reference: [create-elata-demo](/reference/create-elata-demo). |
 | **Existing app** | [Add EEG To An Existing Browser App](/tutorials/eeg-existing-app). |
 
 ### Then: Enable Bluetooth headset (Muse-compatible)
 
 | Your situation | What to do next |
 | --- | --- |
-| **New app** — extend or respin `eeg-web-ble-demo` | [Web Bluetooth With Supported Devices](/guides/web-bluetooth), then [eeg-web-ble](/reference/eeg-web-ble) (and [eeg-web](/reference/eeg-web)). |
+| **New app** — extend `eeg-demo` via the `eeg-ble` alias path | [Web Bluetooth With Supported Devices](/guides/web-bluetooth), then [eeg-web-ble](/reference/eeg-web-ble) (and [eeg-web](/reference/eeg-web)). |
 | **Existing app** | [Stream Muse-Compatible EEG Over Web Bluetooth](/tutorials/eeg-ble-live-stream). If WASM is not wired yet, do the EEG row above first. |
 
 ### Full map
