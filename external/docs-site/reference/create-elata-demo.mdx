@@ -34,11 +34,19 @@ case.
 
 This package is usually invoked without installing it permanently:
 
-```bash
-npm create @elata-biosciences/elata-demo my-app
+<CodeGroup>
+
+```bash pnpm
+pnpm create @elata-biosciences/elata-demo my-app
 pnpm dlx @elata-biosciences/create-elata-demo my-app
+```
+
+```bash npm
+npm create @elata-biosciences/elata-demo my-app
 npx @elata-biosciences/create-elata-demo my-app
 ```
+
+</CodeGroup>
 
 ## Requirements
 
@@ -46,14 +54,43 @@ npx @elata-biosciences/create-elata-demo my-app
 
 ## Template Listing
 
-```bash
+<CodeGroup>
+
+```bash pnpm
 pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates
+```
+
+```bash npm
 npx @elata-biosciences/create-elata-demo -- --list-templates
 ```
 
+</CodeGroup>
+
 ## Recommended Usage
 
-```bash
+<CodeGroup>
+
+```bash pnpm
+# Interactive template chooser
+pnpm create @elata-biosciences/elata-demo my-app
+
+# rPPG web demo (alias)
+pnpm create @elata-biosciences/elata-demo my-app -- --template rppg
+
+# EEG web demo
+pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+
+# EEG web demo (alias)
+pnpm create @elata-biosciences/elata-demo my-app -- --template eeg
+
+# EEG Web Bluetooth demo
+pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
+
+# EEG Web Bluetooth demo (alias)
+pnpm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
+```
+
+```bash npm
 # Interactive template chooser
 npm create @elata-biosciences/elata-demo my-app
 
@@ -73,6 +110,8 @@ npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 ```
 
+</CodeGroup>
+
 When the CLI is run interactively without `--template`, it prompts you to pick
 a template. In non-interactive runs, it still falls back to `rppg-web-demo`.
 
@@ -90,12 +129,20 @@ Each generated app includes:
 If you scaffold a new app inside another `pnpm` workspace and that app is not
 added to the workspace globs, run this from the parent directory:
 
-```bash
+<CodeGroup>
+
+```bash pnpm
 pnpm --dir my-app --ignore-workspace install
 pnpm --dir my-app --ignore-workspace run dev
 ```
 
-Or use `npm install` and `npm run dev` inside the generated app.
+```bash npm
+cd my-app
+npm install
+npm run dev
+```
+
+</CodeGroup>
 
 ## Repo Verification
 

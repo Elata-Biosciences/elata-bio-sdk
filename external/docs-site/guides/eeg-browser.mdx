@@ -3,6 +3,18 @@ title: EEG In A Browser App
 description: Add Elata EEG WASM APIs to an existing browser application.
 ---
 
+Use this page if you want the package model for browser EEG, not a full
+integration walkthrough.
+
+If you want numbered steps for an existing app, use
+[Add EEG To An Existing Browser App](/tutorials/eeg-existing-app). If you want
+the scaffold path, use [Quickstart](/quickstart).
+
+EEG is **optional** in the usual Elata journey: **camera rPPG** is the primary
+browser integration for many apps. Add `eeg-web` when you need brain-signal
+analysis; add **`eeg-web-ble`** alongside it when you need **Web Bluetooth** for a
+Muse-compatible headset.
+
 EEG measures electrical activity from the brain using a wearable headset.
 In browser apps, developers usually use EEG to stream headset samples, compute
 features such as band powers, and drive feedback, dashboards, adaptive UX, or
@@ -15,26 +27,6 @@ Concrete app examples include:
 - simulated athletic-performance or training apps that react to mental state
 - games or creative tools that change difficulty, pacing, or effects based on
   live EEG features
-
-## Start With The Right Path
-
-If you want a known-good reference app first, scaffold the EEG demo:
-
-```bash
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
-cd my-app
-pnpm install
-pnpm run dev
-```
-
-Use this guide when you want to integrate EEG APIs into an existing app.
-
-## Install
-
-```bash
-pnpm add @elata-biosciences/eeg-web
-npm install @elata-biosciences/eeg-web
-```
 
 ## What `eeg-web` Gives You
 
@@ -60,7 +52,7 @@ an app might slow a meditation guide when focus drops, increase challenge in a
 training simulation when sustained attention improves, or visualize calm vs.
 activation during a neurofeedback session.
 
-## Minimal Integration
+## Minimal Shape
 
 ```ts
 import { initEegWasm, band_powers } from "@elata-biosciences/eeg-web";
@@ -79,45 +71,6 @@ console.log("alpha", powers.alpha);
 2. Pass browser-side EEG sample buffers into the exported analysis functions.
 3. Add `eeg-web-ble` later if you need live headset transport.
 
-## Vite Config
-
-Two approaches work. Use whichever fits your setup:
-
-**Option A — plugins (recommended for new projects)**
-
-```bash
-npm install -D vite-plugin-wasm vite-plugin-top-level-await
-```
-
-```ts
-import { defineConfig } from "vite";
-import wasm from "vite-plugin-wasm";
-import topLevelAwait from "vite-plugin-top-level-await";
-
-export default defineConfig({
-  plugins: [wasm(), topLevelAwait()],
-});
-```
-
-```ts
-import { initEegWasm } from "@elata-biosciences/eeg-web";
-await initEegWasm(); // no argument needed
-```
-
-**Option B — explicit URL import (no extra plugins)**
-
-If you prefer not to add plugins, pass the WASM asset URL directly:
-
-```ts
-import wasmUrl from "@elata-biosciences/eeg-web/wasm/eeg_wasm_bg.wasm?url";
-import { initEegWasm } from "@elata-biosciences/eeg-web";
-
-await initEegWasm(wasmUrl);
-```
-
-Option B works because `initEegWasm` accepts a URL and fetches the WASM
-manually, bypassing Vite's ESM module handling entirely.
-
 ## Common Gotchas
 
 - `band_powers()` takes a **single-channel** `Float32Array` — not `number[]`.
@@ -131,12 +84,13 @@ manually, bypassing Vite's ESM module handling entirely.
 - `WasmCalmnessModel` needs `channelCount` at construction, but `channelCount`
   only arrives on the first frame. Construct the model inside your first-frame
   handler.
-- If `initEegWasm()` fails, your app may not be serving the packaged `wasm/`
-  assets correctly. See Vite config above.
+- If `initEegWasm()` fails, your app may not be loading the packaged `wasm/`
+  assets correctly.
 - If you need a live headset connection, `eeg-web` alone is not enough.
 
 ## Next Steps
 
+- Existing-app walkthrough: [Add EEG To An Existing Browser App](/tutorials/eeg-existing-app)
 - Browser BLE setup: [Web Bluetooth With Supported Devices](/guides/web-bluetooth)
 - Package reference: [eeg-web](/reference/eeg-web)
 - General troubleshooting: [Troubleshooting](/operations/troubleshooting)

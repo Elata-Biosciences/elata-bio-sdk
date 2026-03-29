@@ -3,10 +3,20 @@ title: Stream Muse-Compatible EEG Over Web Bluetooth
 description: Build a browser EEG flow that discovers a supported device, connects, and starts receiving frames.
 ---
 
+Use this page if you already have a browser app and need the recommended
+existing-app BLE transport path.
+
+If you want the scaffold path instead, use [Quickstart](/quickstart). If you
+only need the transport model first, use [Web Bluetooth With Supported Devices](/guides/web-bluetooth).
+
 This tutorial builds on the browser EEG package and adds live Web Bluetooth
 transport with `@elata-biosciences/eeg-web-ble`.
 
 Use this when your app needs real headset data in Chrome or Edge.
+
+This step **turns on Web Bluetooth** for a Muse-compatible headset on top of the
+EEG stack. It comes **after** you are committed to EEG (and usually **after**
+[rPPG](/guides/rppg-browser) if your product also uses camera biosignals).
 
 ## Before You Start
 
@@ -31,38 +41,55 @@ You will:
 
 ## Step 1: Install The Packages
 
-```bash
+<CodeGroup>
+
+```bash pnpm
 pnpm add @elata-biosciences/eeg-web @elata-biosciences/eeg-web-ble
 ```
 
-If you use npm instead:
-
-```bash
+```bash npm
 npm install @elata-biosciences/eeg-web @elata-biosciences/eeg-web-ble
 ```
 
-## Step 2: Create A Transport Module
+</CodeGroup>
 
-```ts
+## Step 2: Transport module + connect (single paste)
+
+Use one module so imports, handlers, and lifecycle stay together (for example
+`src/headbandBle.ts`). Call `connectHeadband()` from a **button** click (browser
+BLE requires a user gesture).
+
+```ts headbandBle.ts
 import { AthenaWasmDecoder } from "@elata-biosciences/eeg-web";
 import { BleTransport } from "@elata-biosciences/eeg-web-ble";
 
+let transport: BleTransport | null = null;
+
 export function createHeadbandTransport() {
-  const transport = new BleTransport({
+  const next = new BleTransport({
     deviceOptions: {
       athenaDecoderFactory: () => new AthenaWasmDecoder(),
     },
   });
 
-  transport.onStatus = (status) => {
+  next.onStatus = (status) => {
     console.log("status", status.state, status.reason);
   };
 
-  transport.onFrame = (frame) => {
+  next.onFrame = (frame) => {
     console.log("eeg samples", frame.eeg.samples.length);
   };
 
-  return transport;
+  return next;
+}
+
+export async function connectHeadband() {
+  transport = createHeadbandTransport();
+  try {
+    await transport.startStreaming();
+  } catch (error) {
+    console.error("BLE start failed", error);
+  }
 }
 ```
 
@@ -72,30 +99,11 @@ Why include `athenaDecoderFactory` up front:
 - it uses the supported decoder path from `@elata-biosciences/eeg-web`
 - it avoids a common failure mode later when testing across device variants
 
-## Step 3: Connect From A User Gesture
-
-Browser BLE connection prompts usually need a user gesture such as a button
-click.
-
-```ts
-const transport = createHeadbandTransport();
-
-export async function connectHeadband() {
-  try {
-    await transport.startStreaming();
-  } catch (error) {
-    console.error("BLE start failed", error);
-  }
-}
-```
-
-Call `connectHeadband()` from a click handler in your UI.
-
 `startStreaming()` is the recommended default because it handles the common
 `connect()` plus `start()` sequence in one call and avoids a frequent mistake
 where apps connect successfully but never actually begin streaming.
 
-## Step 4: Turn Frames Into App State
+## Step 3: Turn Frames Into App State
 
 Once `onFrame` starts firing, move the data into your own app state instead of
 leaving it only in `console.log`.
@@ -107,14 +115,17 @@ The usual pattern is:
 3. compute or forward the values your app cares about
 4. render charts, scores, or adaptation logic
 
-## Step 5: Clean Up On Route Or Component Exit
+## Step 4: Clean Up On Route Or Component Exit
 
 When the current view is leaving, stop streaming so later reconnect attempts
-start from a clean state:
+start from a clean state. Add this next to the helpers above (same module as
+`transport`). Append to **headbandBle.ts**:
 
 ```ts
 export async function stopHeadband() {
+  if (!transport) return;
   await transport.stop();
+  transport = null;
 }
 ```
 
@@ -122,7 +133,7 @@ If you prefer finer-grained lifecycle control, you can still call
 `connect()` and `start()` separately. The tutorial uses `startStreaming()`
 because it is the safest default for most app integrations.
 
-## Step 6: Handle Browser And Platform Constraints
+## Step 5: Handle Browser And Platform Constraints
 
 If the chooser never appears or `navigator.bluetooth` is missing, check these
 first:

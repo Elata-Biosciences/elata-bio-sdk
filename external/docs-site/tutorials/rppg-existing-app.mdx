@@ -3,11 +3,26 @@ title: Add Camera-Based rPPG To An Existing Browser App
 description: Build a working browser rPPG flow with createRppgSession, diagnostics, and cleanup.
 ---
 
+Use this page if you already have a browser app and want the recommended
+existing-app integration path.
+
+If you want the scaffold path instead, use [Quickstart](/quickstart). If you
+only need the mental model first, use [rPPG In A Browser App](/guides/rppg-browser).
+
 This tutorial shows the recommended app integration path for
 `@elata-biosciences/rppg-web`.
 
+Camera rPPG is the **primary** browser integration for many Elata products—no
+headset required.
+
 The core idea is simple: let `createRppgSession()` own the browser runtime,
 video processing loop, and diagnostics while your app owns the UI.
+
+This is the usual **next tutorial** after
+[Build Your First Elata App](/tutorials/first-app) when you choose the
+**existing app** branch for camera rPPG. If you are **extending the scaffold**
+instead, stay on `rppg-web-demo` and use
+[rPPG In A Browser App](/guides/rppg-browser) plus [rppg-web](/reference/rppg-web).
 
 ## What You Will Build
 
@@ -22,21 +37,23 @@ You will:
 
 ## Step 1: Install The Package
 
-```bash
+<CodeGroup>
+
+```bash pnpm
 pnpm add @elata-biosciences/rppg-web
 ```
 
-If you use npm instead:
-
-```bash
+```bash npm
 npm install @elata-biosciences/rppg-web
 ```
+
+</CodeGroup>
 
 ## Step 2: Prepare A Video Element
 
 Your app needs a `video` element that can receive the camera stream.
 
-```html
+```html index.html (or your component markup)
 <video id="camera" autoplay playsinline muted></video>
 ```
 
@@ -48,7 +65,7 @@ The important parts are:
 
 ## Step 3: Acquire Camera Access
 
-```ts
+```ts camera setup
 const videoEl = document.getElementById("camera") as HTMLVideoElement;
 
 const stream = await navigator.mediaDevices.getUserMedia({
@@ -64,7 +81,7 @@ At this point your browser app should already be showing the camera preview.
 
 ## Step 4: Start `createRppgSession()`
 
-```ts
+```ts rPPG session
 import { createRppgSession } from "@elata-biosciences/rppg-web";
 
 const session = await createRppgSession({
@@ -107,11 +124,13 @@ show the values that matter to your product.
 ## Step 6: Clean Up Correctly
 
 When the component, route, or page is leaving, stop the session and release the
-camera stream:
+camera stream. Run these in order (same `session` and `stream` as above):
 
 ```ts
 await session.stop();
+```
 
+```ts
 for (const track of stream.getTracks()) {
   track.stop();
 }
@@ -119,6 +138,96 @@ for (const track of stream.getTracks()) {
 
 This matters more than it looks. It keeps later sessions from inheriting stale
 camera or runtime state.
+
+## Full example (single paste)
+
+Use this when you want one file to drop into a Vite + React app (for example
+replace the contents of `src/App.tsx`). It includes camera setup, session start,
+and cleanup on unmount.
+
+```tsx App.tsx
+import { useEffect, useRef, useState } from "react";
+import { createRppgSession, type RppgSession } from "@elata-biosciences/rppg-web";
+
+export default function App() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const sessionRef = useRef<RppgSession | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [line, setLine] = useState("Starting…");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      const video = videoRef.current;
+      if (!video) return;
+
+      let stream: MediaStream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: false,
+        });
+      } catch {
+        setLine("Camera permission denied.");
+        return;
+      }
+
+      if (cancelled) {
+        stream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+
+      streamRef.current = stream;
+      video.srcObject = stream;
+      await video.play().catch(() => undefined);
+
+      const sampleRate = stream.getVideoTracks()[0]?.getSettings().frameRate ?? 30;
+
+      try {
+        const session = await createRppgSession({
+          video,
+          sampleRate,
+          backend: "auto",
+          faceMesh: "off",
+          onDiagnostics: (d) => {
+            setLine(`status=${d.state.status} backend=${d.backendMode}`);
+          },
+          onError: (e) => setLine(`${e.code}: ${e.message}`),
+        });
+
+        if (cancelled) {
+          await session.dispose();
+          return;
+        }
+
+        sessionRef.current = session;
+      } catch (e) {
+        setLine(e instanceof Error ? e.message : "Session failed");
+      }
+    }
+
+    void run();
+
+    return () => {
+      cancelled = true;
+      void sessionRef.current?.dispose();
+      sessionRef.current = null;
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    };
+  }, []);
+
+  return (
+    <main style={{ padding: "1.5rem", maxWidth: 720 }}>
+      <p>{line}</p>
+      <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%", borderRadius: 12 }} />
+    </main>
+  );
+}
+```
+
+This example uses a React `ref` on `<video>` instead of `getElementById("camera")` from the steps above.
 
 ## What To Do With Diagnostics
 
@@ -138,7 +247,7 @@ But start with plain `createRppgSession()` first.
 
 ## Common Problems
 
-- `session.getDiagnostics().backendMode` is `unavailable`: your app is likely not serving packaged `pkg/` assets correctly
+- `session.getDiagnostics().backendMode` is `unavailable`: your app is likely not loading the packaged WASM assets correctly
 - Camera access fails: check browser permissions and `getUserMedia` support
 - The session reaches terminal `failed`: recreate the session instead of trying to keep using the same poisoned processor
 - You are trying to debug lower-level generated bindings first: start with `createRppgSession()` unless you are intentionally debugging the SDK itself

@@ -3,17 +3,17 @@ title: Web Bluetooth With Supported Devices
 description: Stream Muse-compatible EEG devices from supported Chromium browsers.
 ---
 
-## Start With A Known-Good Demo
+Use this page if you want the transport model and platform constraints, not a
+full walkthrough.
 
-If you want the fastest path to a working browser BLE example, scaffold the BLE
-demo first:
+If you want numbered steps for an existing app, use
+[Stream Muse-Compatible EEG Over Web Bluetooth](/tutorials/eeg-ble-live-stream).
+If you want the scaffold path, use [Quickstart](/quickstart).
 
-```bash
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-ble-demo
-cd my-app
-pnpm install
-pnpm run dev
-```
+**Role in the SDK:** camera **rPPG** is the usual first app. **EEG** is optional
+when you need brain signals. **Web Bluetooth** (`eeg-web-ble` with `eeg-web`)
+**enables a live Muse-compatible headset**—it is transport for EEG, not a
+parallel primary product to rPPG.
 
 ## Requirements
 
@@ -30,14 +30,7 @@ Supported device classes in this repo today:
 
 Safari and iOS do not support this browser BLE workflow.
 
-## Install
-
-```bash
-pnpm add @elata-biosciences/eeg-web @elata-biosciences/eeg-web-ble
-npm install @elata-biosciences/eeg-web @elata-biosciences/eeg-web-ble
-```
-
-## Minimal Integration
+## Minimal Shape
 
 ```ts
 import { AthenaWasmDecoder } from "@elata-biosciences/eeg-web";
@@ -91,6 +84,7 @@ await transport.startStreaming();
 
 ## Next Steps
 
+- Existing-app walkthrough: [Stream Muse-Compatible EEG Over Web Bluetooth](/tutorials/eeg-ble-live-stream)
 - EEG package details: [eeg-web](/reference/eeg-web)
 - BLE package details: [eeg-web-ble](/reference/eeg-web-ble)
 - Platform expectations: [Compatibility](/operations/compatibility)

@@ -3,8 +3,17 @@ title: Add EEG To An Existing Browser App
 description: Step by step, wire Elata EEG processing into a browser app and verify the WASM path works.
 ---
 
+Use this page if you already have a browser app and want the recommended
+existing-app EEG integration path.
+
+If you want the scaffold path instead, use [Quickstart](/quickstart). If you
+only need the package model first, use [EEG In A Browser App](/guides/eeg-browser).
+
 This tutorial shows the recommended path for adding
 `@elata-biosciences/eeg-web` to an existing browser application.
+
+EEG is **optional** in the typical Elata journey—**camera rPPG** is the usual
+primary integration unless your product needs brain-signal features.
 
 Use this when your app needs EEG analysis APIs in the browser.
 If you also need live headset transport, you will add
@@ -21,22 +30,24 @@ You will:
 
 ## Step 1: Install The Package
 
-```bash
+<CodeGroup>
+
+```bash pnpm
 pnpm add @elata-biosciences/eeg-web
 ```
 
-Or:
-
-```bash
+```bash npm
 npm install @elata-biosciences/eeg-web
 ```
+
+</CodeGroup>
 
 ## Step 2: Create A Small EEG Module
 
 Create a small module in your app so the integration stays isolated and easy to
-test:
+test (for example `src/eeg.ts`):
 
-```ts
+```ts eeg.ts
 import { initEegWasm, band_powers } from "@elata-biosciences/eeg-web";
 
 let eegInitPromise: Promise<void> | null = null;
@@ -66,7 +77,7 @@ Why this shape:
 
 ## Step 3: Call It From Your UI
 
-For example:
+For example, in a component or entry file:
 
 ```ts
 import { analyzeExampleEeg } from "./eeg";
@@ -123,7 +134,7 @@ loading working first, then add transport.
 
 ## Common Problems
 
-- `initEegWasm()` throws: your app is probably not serving packaged `wasm/` assets correctly
+- `initEegWasm()` throws: your app is probably not loading packaged `wasm/` assets correctly
 - You expected device discovery: `eeg-web` does not do Bluetooth transport by itself
 - You are evaluating the SDK from scratch: start with [Build Your First Elata App](/tutorials/first-app) instead of manual setup
 

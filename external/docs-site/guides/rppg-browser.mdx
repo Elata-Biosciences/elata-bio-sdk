@@ -3,6 +3,16 @@ title: rPPG In A Browser App
 description: Add browser-based camera rPPG with the supported Elata session helpers.
 ---
 
+Use this page if you want the mental model for browser rPPG, not a full
+install walkthrough.
+
+If you want numbered steps for an existing app, use
+[Add Camera-Based rPPG To An Existing Browser App](/tutorials/rppg-existing-app).
+If you want the scaffold path, use [Quickstart](/quickstart).
+
+This is the **primary** browser biosignal path for most products: no headset
+required before you ship meaningful signal UX.
+
 rPPG stands for remote photoplethysmography. It estimates pulse-related changes
 from camera video, usually from a face region, without requiring a wearable
 sensor.
@@ -17,28 +27,6 @@ Concrete app examples include:
 - breathing and relaxation flows that show physiological response over time
 - biofeedback-oriented health or wellness apps that want camera-based pulse
   signals without extra hardware
-
-## Start With The Fastest Path
-
-If you want a working reference app before integrating manually, scaffold the
-rPPG demo:
-
-```bash
-npm create @elata-biosciences/elata-demo my-app
-cd my-app
-pnpm install
-pnpm run dev
-```
-
-Use this guide when you want to add browser-side rPPG processing to an existing
-app.
-
-## Install
-
-```bash
-pnpm add @elata-biosciences/rppg-web
-npm install @elata-biosciences/rppg-web
-```
 
 ## Recommended Entry Point
 
@@ -58,9 +46,9 @@ runtime orchestration.
 That last step can be as simple as showing a pulse estimate, or as game-like as
 changing dialogue, pressure, or scoring when the user's physiology changes.
 
-## Minimal Camera → BPM Loop
+## Minimal Shape
 
-The shortest path from camera to BPM readings:
+This is the minimal integration shape:
 
 ```ts
 import { createRppgSession } from "@elata-biosciences/rppg-web";
@@ -97,37 +85,7 @@ const interval = setInterval(() => {
 // await session.stop();
 ```
 
-Expect a ~10 second warmup window before the first BPM estimate appears.
-`faceMesh: "off"` uses the full video frame as the ROI — good enough for a
-face filling most of the frame. Switch to `faceMesh: "mediapipe"` for
-face-crop ROI when the user might move around.
-
-If you need a single boolean for UI gating, use `createRppgAppAdapter().canPublish`
-instead of polling `getMetrics()` directly — it handles the backend check,
-confidence threshold, and warmup window in one place.
-
-## Minimal Integration
-
-```ts
-import { createRppgSession } from "@elata-biosciences/rppg-web";
-
-const session = await createRppgSession({
-  video: videoEl,
-  sampleRate: 30,
-  backend: "auto",
-  faceMesh: "off",
-  onDiagnostics: (diagnostics) => {
-    console.log(diagnostics.state.status, diagnostics.faceTrackingMode);
-    console.log(diagnostics.framesSeen, diagnostics.totalSamplesReceived);
-    console.log(diagnostics.issues, diagnostics.processorFailure);
-  },
-  onError: (error) => {
-    console.error(error.code, error.message);
-  },
-});
-
-console.log(session.getMetrics());
-```
+Expect a warmup window before the first BPM estimate appears.
 
 ## Typical Flow
 
@@ -137,26 +95,7 @@ console.log(session.getMetrics());
 4. Surface diagnostics through `onDiagnostics` or `session.getDiagnostics()`.
 5. Stop the session during cleanup with `await session.stop()`.
 
-## Managed Restart Flow
-
-If your app wants the SDK to own restart timing after terminal processor
-failures, use `createManagedRppgSession()`:
-
-```ts
-import { createManagedRppgSession } from "@elata-biosciences/rppg-web";
-
-const managed = await createManagedRppgSession({
-  video: videoEl,
-  faceMesh: "off",
-  maxRetries: 3,
-  retryDelayMs: 1500,
-  onStateChange: (state) => {
-    console.log(state.status, state.retryCount, state.lastError?.code);
-  },
-});
-```
-
-## Public Diagnostics And Debug Data
+## What You Reach For Later
 
 Useful public APIs for app-side diagnostics:
 
@@ -167,93 +106,21 @@ Useful public APIs for app-side diagnostics:
 - `createRppgAppAdapter()`
 - `createRppgAppMonitor()`
 
-## Vite Config
-
-### WASM asset placement
-
-The default session loader fetches WASM files from `/pkg/rppg_wasm.js` and
-`/pkg/rppg_wasm_bg.wasm` at runtime. In a Vite app, place those files under
-`public/pkg/` so they are served at that path:
-
-```
-your-app/
-  public/
-    pkg/
-      rppg_wasm.js
-      rppg_wasm_bg.wasm
-```
-
-The built assets live in `packages/rppg-web/pkg/` after running
-`pnpm --dir packages/rppg-web run build:wasm`, or in `node_modules/@elata-biosciences/rppg-web/pkg/`
-after an npm install. Copy or symlink that directory into your `public/` folder.
-
-Alternatively, use the import-based options below to let Vite manage the asset
-URLs instead of serving them from `public/`.
-
-### Dynamic import restriction
-
-Vite 7 blocks `import(url)` for files served from `/public`. Two approaches
-work:
-
-**Option A — vite-plugin-wasm (recommended for new projects)**
-
-```bash
-npm install -D vite-plugin-wasm vite-plugin-top-level-await
-```
-
-```ts
-import { defineConfig } from "vite";
-import wasm from "vite-plugin-wasm";
-import topLevelAwait from "vite-plugin-top-level-await";
-
-export default defineConfig({
-  plugins: [wasm(), topLevelAwait()],
-});
-```
-
-```ts
-import * as rppgWasm from "@elata-biosciences/rppg-web/pkg/rppg_wasm.js";
-import { createRppgSession } from "@elata-biosciences/rppg-web";
-
-const session = await createRppgSession({
-  video: videoEl,
-  wasmImporter: () => Promise.resolve(rppgWasm),
-});
-```
-
-**Option B — explicit URL imports (no extra plugins)**
-
-```ts
-import rppgWasmJsUrl from "@elata-biosciences/rppg-web/pkg/rppg_wasm.js?url";
-import rppgWasmBinaryUrl from "@elata-biosciences/rppg-web/pkg/rppg_wasm_bg.wasm?url";
-import { createRppgSession } from "@elata-biosciences/rppg-web";
-
-const session = await createRppgSession({
-  video: videoEl,
-  wasmJsUrl: rppgWasmJsUrl,
-  wasmBinaryUrl: rppgWasmBinaryUrl,
-});
-```
-
-Option B works because Vite resolves `?url` imports to fingerprinted asset
-URLs at build time, bypassing the public directory restriction entirely.
-
 ## Common Gotchas
 
 - **BPM is always null but status is `running`** — this looks like warmup but
   could mean WASM didn't load. Check `session.backendMode` first: if it is
-  `"unavailable"`, the WASM assets are not being served at `/pkg/`. Fix the
-  asset placement and the metrics will flow. See the Vite Config section above.
-- If `session.backendMode` is `unavailable`, your app is probably not serving
-  the packaged `pkg/` assets correctly.
+  `"unavailable"`, the WASM assets are not loading correctly.
 - If `session.state.status` is `failed`, recreate the session instead of
   continuing to use the same poisoned processor.
 - If camera access fails, verify that the page can call `getUserMedia`.
+
+## Where To Go Next
+
+- Existing-app walkthrough: [Add Camera-Based rPPG To An Existing Browser App](/tutorials/rppg-existing-app)
+- Package reference: [rppg-web](/reference/rppg-web)
+- Main chooser page: [Build A Browser App](/browser-apps)
 - If you are just evaluating the SDK, the scaffolded demo is much faster than
   wiring the whole camera pipeline yourself.
-
-## Next Steps
-
-- Package reference: [rppg-web](/reference/rppg-web)
 - Compatibility details: [Compatibility](/operations/compatibility)
 - Troubleshooting: [Troubleshooting](/operations/troubleshooting)

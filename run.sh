@@ -97,6 +97,24 @@ ensure_npm_token_from_dotenv() {
         return 0
     done <"$env_file"
 }
+
+# Apply registry auth only when NPM_TOKEN is set. Avoids ${NPM_TOKEN} in repo .npmrc,
+# which makes pnpm warn on every command when the variable is unset.
+with_npm_registry_auth() {
+    local user_npmrc=""
+    if [[ -n "${NPM_TOKEN:-}" ]]; then
+        user_npmrc="$(mktemp "${TMPDIR:-/tmp}/elata-npmrc.XXXXXX")" || die "mktemp failed for npm auth config"
+        printf '//registry.npmjs.org/:_authToken=%s\n' "$NPM_TOKEN" >"$user_npmrc"
+        export NPM_CONFIG_USERCONFIG="$user_npmrc"
+    fi
+    local rc=0
+    "$@" || rc=$?
+    if [[ -n "${user_npmrc:-}" ]]; then
+        unset NPM_CONFIG_USERCONFIG
+        rm -f "$user_npmrc"
+    fi
+    return "$rc"
+}
 EEG_PACKAGE="eeg-wasm"
 EEG_BINDINGS_OUT_DIR="$ROOT_DIR/eeg-demo/pkg"
 TARGET_DIR="${CARGO_TARGET_DIR:-$ROOT_DIR/target}"
@@ -114,6 +132,7 @@ Build & Demo:
   bindings     Generate bindings from an existing build (default: release)
   docs         Run internal Mintlify docs tooling (default: 'mint dev --no-open')
   demo         Run the demo - specify 'rppg' (default; temp-served), 'hal', or 'eeg' (example: 'run.sh demo eeg')
+  create       Scaffold a local demo app via packages/create-elata-demo (examples: './run.sh create rppg my-app', './run.sh create my-app')
   sync-to      Build eeg-web and install it into a local app (default app: ../my-app)
 
 Quality:
@@ -386,9 +405,9 @@ publish_packages() {
         (
             cd "$ROOT_DIR/$pkg_dir"
             if [[ "$PKG_MGR" == "pnpm" ]]; then
-                pnpm publish --access public --tag "$dist_tag" --no-git-checks
+                with_npm_registry_auth pnpm publish --access public --tag "$dist_tag" --no-git-checks
             else
-                npm publish --access public --tag "$dist_tag"
+                with_npm_registry_auth npm publish --access public --tag "$dist_tag"
             fi
         )
     done
@@ -431,7 +450,7 @@ promote_latest() {
         pkg_name="$(package_name_for_target "$pkg")"
         version="$(package_version_for_target "$pkg")"
         echo "Setting 'latest' dist-tag for ${pkg_name}@${version}..."
-        npm dist-tag add "${pkg_name}@${version}" latest || {
+        with_npm_registry_auth npm dist-tag add "${pkg_name}@${version}" latest || {
             echo "Failed to set 'latest' for ${pkg_name}@${version} (is this version published?)." >&2
         }
     done
@@ -552,6 +571,59 @@ normalize_profile() {
             return 1
             ;;
     esac
+}
+
+normalize_scaffold_template() {
+    local raw="${1:-}"
+    case "$raw" in
+        "") printf "\n" ;;
+        rppg|rppg-web-demo) printf "rppg-web-demo\n" ;;
+        eeg|eeg-web-demo) printf "eeg-web-demo\n" ;;
+        eeg-ble|eeg-web-ble-demo|ble) printf "eeg-web-ble-demo\n" ;;
+        *)
+            echo "Unknown scaffold template: $raw" >&2
+            return 1
+            ;;
+    esac
+}
+
+run_create_demo() {
+    require_cmds node
+
+    local first_arg="${1:-}"
+    local second_arg="${2:-}"
+    local template=""
+    local app_name=""
+    shift 2 || true
+
+    if [[ "$first_arg" == --* ]]; then
+        node "$ROOT_DIR/packages/create-elata-demo/index.mjs" "$first_arg" "$second_arg" "$@"
+        return 0
+    fi
+
+    if normalized_template="$(normalize_scaffold_template "$first_arg" 2>/dev/null)"; then
+        template="$normalized_template"
+        app_name="$second_arg"
+    else
+        app_name="$first_arg"
+    fi
+
+    if [[ -n "$template" && -z "$app_name" ]]; then
+        node "$ROOT_DIR/packages/create-elata-demo/index.mjs" --template "$template"
+        return 0
+    fi
+
+    if [[ -z "$app_name" ]]; then
+        node "$ROOT_DIR/packages/create-elata-demo/index.mjs"
+        return 0
+    fi
+
+    if [[ -n "$template" ]]; then
+        node "$ROOT_DIR/packages/create-elata-demo/index.mjs" "$app_name" --template "$template"
+        return 0
+    fi
+
+    node "$ROOT_DIR/packages/create-elata-demo/index.mjs" "$app_name"
 }
 
 require_cmd() {
@@ -1316,6 +1388,18 @@ case "$cmd" in
     demo)
         RUN_SH_TASK="demo"
         run_demo "${2:-rppg}"
+        ;;
+    create)
+        RUN_SH_TASK="create"
+        # Usage:
+        #   ./run.sh create [template] [app-name]
+        #   ./run.sh create [app-name]
+        # Examples:
+        #   ./run.sh create rppg my-app
+        #   ./run.sh create eeg my-app
+        #   ./run.sh create eeg-ble my-app
+        #   ./run.sh create my-app
+        run_create_demo "${2:-}" "${3:-}"
         ;;
     bindings)
         RUN_SH_TASK="bindings"
