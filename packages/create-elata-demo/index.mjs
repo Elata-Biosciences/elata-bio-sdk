@@ -100,11 +100,18 @@ function printTemplates() {
   console.log('');
 }
 
+const legacyTemplateNames = {
+  'rppg-web-demo': 'rppg-demo',
+  'eeg-web-demo': 'eeg-demo',
+  'eeg-web-ble-demo': 'eeg-demo',
+};
+
 function normalizeTemplateName(templateName) {
   if (!templateName) {
     return templateName;
   }
-  return templateAliases[templateName] ?? templateName;
+  const resolved = legacyTemplateNames[templateName] ?? templateName;
+  return templateAliases[resolved] ?? resolved;
 }
 
 async function promptForTemplate() {

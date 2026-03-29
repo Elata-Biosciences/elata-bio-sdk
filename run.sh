@@ -577,9 +577,9 @@ normalize_scaffold_template() {
     local raw="${1:-}"
     case "$raw" in
         "") printf "\n" ;;
-        rppg|rppg-web-demo) printf "rppg-web-demo\n" ;;
-        eeg|eeg-web-demo) printf "eeg-web-demo\n" ;;
-        eeg-ble|eeg-web-ble-demo|ble) printf "eeg-web-ble-demo\n" ;;
+        rppg|rppg-demo|rppg-web-demo) printf "rppg-demo\n" ;;
+        eeg|eeg-demo|eeg-web-demo) printf "eeg-demo\n" ;;
+        eeg-ble|eeg-web-ble-demo|ble) printf "eeg-demo\n" ;;
         *)
             echo "Unknown scaffold template: $raw" >&2
             return 1

@@ -66,4 +66,4 @@ packages/eeg-web/src/*.d.ts.map
 .env
 
 # Maintainer-local helper scripts (not shared)
-/gen-rppg-app.sh
+/gen-*.sh
