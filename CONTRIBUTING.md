@@ -49,7 +49,7 @@ path.
      flow or package build that proves the docs still match reality.
 5. **Run checks**
    - Prefer `./run.sh` or documented scripts from `README.md` where available.
-   - If you changed `external/docs-site`, run `pnpm docs:check`.
+   - If you changed `external/docs-site`, run `pnpm docs:mintlify:check` (or `pnpm docs:check`).
    - If you changed scaffold commands or template behavior, update `README.md`,
      `docs/create-elata-demo.md`, and nearby contributor docs in the same task
      when practical.

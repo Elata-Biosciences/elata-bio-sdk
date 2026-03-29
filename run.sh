@@ -1090,6 +1090,9 @@ run_docs_site() {
         die "Docs site directory not found: $docs_dir" "Expected Mintlify project at external/docs-site"
     fi
 
+    echo "Validating Mintlify docs before launch..."
+    run_root_script "docs:mintlify:check"
+
     if [[ $# -eq 0 ]]; then
         mint_args=(dev --no-open)
     else

@@ -36,6 +36,41 @@ function pageRouteFromRelPath(relPath) {
 	return withoutExt === "index" ? "/" : `/${withoutExt}`;
 }
 
+function stripAnchorAndQuery(target) {
+	return target.split("#", 1)[0].split("?", 1)[0];
+}
+
+function flattenNavigationPages(groups, pages = []) {
+	for (const group of groups ?? []) {
+		for (const page of group.pages ?? []) {
+			if (typeof page === "string") {
+				pages.push(page);
+				continue;
+			}
+
+			if (page && typeof page === "object") {
+				if (typeof page.page === "string") {
+					pages.push(page.page);
+				}
+				if (Array.isArray(page.pages)) {
+					flattenNavigationPages([{ pages: page.pages }], pages);
+				}
+			}
+		}
+	}
+
+	return pages;
+}
+
+function resolveRelativeDocTarget(sourceRelPath, target) {
+	const sourceDir = path.posix.dirname(sourceRelPath);
+	const resolved = path.posix.normalize(path.posix.join(sourceDir, target));
+	if (resolved.startsWith("../")) {
+		return null;
+	}
+	return resolved;
+}
+
 function assert(condition, message) {
 	if (!condition) {
 		errors.push(message);
@@ -51,13 +86,26 @@ if (errors.length === 0) {
 	walkDocs(docsRoot, (absPath) => {
 		const relPath = toPosix(path.relative(docsRoot, absPath));
 		if (relPath === "README.md") return;
-		if (!/\.(md|mdx)$/u.test(relPath)) return;
+		if (relPath.endsWith(".md")) {
+			errors.push(
+				`${relPath} must use .mdx in external/docs-site (README.md is the only allowed .md file)`,
+			);
+			return;
+		}
+		if (!relPath.endsWith(".mdx")) return;
 		pageFiles.push(relPath);
 	});
 
 	const routeToFile = new Map(
 		pageFiles.map((relPath) => [pageRouteFromRelPath(relPath), relPath]),
 	);
+	const navigatedPages = flattenNavigationPages(docsConfig.navigation?.groups ?? []);
+	const seenNavigationPages = new Set();
+	const legacyTemplateNames = new Map([
+		["rppg-web-demo", "rppg-demo"],
+		["eeg-web-demo", "eeg-demo"],
+		["eeg-web-ble-demo", "eeg-demo or the eeg-ble alias"],
+	]);
 
 	for (const relPath of pageFiles) {
 		const text = fs.readFileSync(path.join(docsRoot, relPath), "utf8");
@@ -83,23 +131,50 @@ if (errors.length === 0) {
 			}
 
 			if (target.startsWith("/")) {
-				const route = target.split("#", 1)[0].split("?", 1)[0];
+				const route = stripAnchorAndQuery(target);
 				assert(
 					routeToFile.has(route),
 					`${relPath} links to missing docs route: ${target}`,
 				);
+				continue;
 			}
+
+			const relativeTarget = stripAnchorAndQuery(target);
+			const resolvedRelativePath = resolveRelativeDocTarget(relPath, relativeTarget);
+			if (resolvedRelativePath) {
+				assert(
+					pageFiles.includes(resolvedRelativePath),
+					`${relPath} links to missing relative docs page: ${target}`,
+				);
+			}
+		}
+
+		for (const [legacyName, replacement] of legacyTemplateNames) {
+			assert(
+				!text.includes(legacyName),
+				`${relPath} still uses legacy template name "${legacyName}" (prefer ${replacement})`,
+			);
 		}
 	}
 
-	for (const group of docsConfig.navigation?.groups ?? []) {
-		for (const page of group.pages ?? []) {
-			const route = page === "index" ? "/" : `/${page}`;
-			assert(
-				routeToFile.has(route),
-				`docs.json navigation references missing page: ${page}`,
-			);
-		}
+	for (const page of navigatedPages) {
+		assert(!seenNavigationPages.has(page), `docs.json navigation duplicates page: ${page}`);
+		seenNavigationPages.add(page);
+
+		const route = page === "index" ? "/" : `/${page}`;
+		assert(
+			routeToFile.has(route),
+			`docs.json navigation references missing page: ${page}`,
+		);
+	}
+
+	for (const relPath of pageFiles) {
+		const route = pageRouteFromRelPath(relPath);
+		const pageId = route === "/" ? "index" : route.slice(1);
+		assert(
+			seenNavigationPages.has(pageId),
+			`${relPath} exists in external/docs-site but is not referenced in docs.json navigation`,
+		);
 	}
 
 	for (const assetPath of [
