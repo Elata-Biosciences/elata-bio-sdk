@@ -5,16 +5,16 @@ This app was generated from the `__TEMPLATE_NAME__` template in
 
 ## What This Demo Shows
 
-- browser-side Muse-compatible BLE connection
-- `@elata-biosciences/eeg-web-ble` integration
-- a minimal sample counter for streamed EEG rows
+- two modes: **synthetic** (no hardware required) and **headband** (Muse-compatible BLE)
+- `@elata-biosciences/eeg-web` WASM models: `band_powers`, `WasmCalmnessModel`, `WasmAlphaBumpDetector`, `WasmAlphaPeakModel`
+- `@elata-biosciences/eeg-web-ble` for browser-side Muse BLE connection
+- a live canvas waveform, five color-coded band-power meters (delta/theta/alpha/beta/gamma), a calmness score hero number, alpha bump state chips, and a collapsible alpha peak analysis panel
 
 ## Requirements
 
-- Chrome or Edge with Web Bluetooth support
-- `https://` or `localhost`
-- a supported Muse-compatible EEG device
-- Bluetooth enabled on the machine
+- Chrome or Edge (Web Bluetooth is required for headband mode; synthetic mode works in any modern browser)
+- `https://` or `localhost` (required for Web Bluetooth)
+- a supported Muse-compatible EEG device (headband mode only)
 - `pnpm` or `npm` to install dependencies
 
 ## Run It
@@ -41,5 +41,7 @@ npm run dev
 
 ## Notes
 
-- Safari and iOS do not support this browser BLE workflow.
-- This template is a starting point for browser transport integration, not a full production app.
+- Safari and iOS do not support Web Bluetooth; headband mode will not work on those platforms.
+- Synthetic mode generates a synthetic EEG signal locally — no device or Bluetooth is needed and it works in any Chromium or Firefox build.
+- This template is a polished integration starting point and works well for demos and screen recordings.
+- It uses Vite `?url` imports for the packaged WASM files, so it does not rely on importing `/public/pkg/*` from source code.
