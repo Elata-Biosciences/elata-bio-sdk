@@ -41,7 +41,9 @@ function hasCommand(cmd) {
 
 function buildWasm() {
 	mkdirSync(outDir, { recursive: true });
-	run("rustup", ["target", "add", "wasm32-unknown-unknown"]);
+	if (hasCommand("rustup")) {
+		run("rustup", ["target", "add", "wasm32-unknown-unknown"]);
+	}
 	run("cargo", [
 		"build",
 		"-p",

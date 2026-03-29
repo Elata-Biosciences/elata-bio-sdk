@@ -941,7 +941,7 @@ build_eeg_web_package() {
 }
 
 build_rppg_web_package() {
-    require_cmds cargo rustup node
+    require_cmds cargo node
     require_package_manager
 
     # Produces demo/pkg wasm bindings + bundled demo JS.
@@ -1186,16 +1186,10 @@ doctor() {
     header "Toolchain"
     check_cmd "cargo" "cargo: $(cargo --version)" "cargo missing (install Rust via https://rustup.rs)" || toolchain_err=1
 
-    if command -v rustup >/dev/null 2>&1; then
-        ok_line "rustup: $(rustup --version 2>/dev/null | head -n 1)"
-        if rustup target list --installed | grep -Fxq "$TARGET"; then
-            ok_line "rust target installed: $TARGET"
-        else
-            err_line "rust target missing: $TARGET (run: rustup target add $TARGET)"
-            toolchain_err=1
-        fi
+    if rustc --target "$TARGET" --print cfg >/dev/null 2>&1; then
+        ok_line "rust target installed: $TARGET"
     else
-        err_line "rustup missing (install Rust via https://rustup.rs)"
+        err_line "rust target missing: $TARGET (run: rustup target add $TARGET, or add it via your toolchain manager)"
         toolchain_err=1
     fi
 
