@@ -8,6 +8,7 @@
 	},
 	"scripts": {
 		"audit:repo": "node scripts/audit-repo.mjs",
+		"docs:check": "node scripts/check-external-docs.mjs",
 		"build": "pnpm -r --if-present build",
 		"test": "./run.sh test",
 		"test:all": "./run.sh test",

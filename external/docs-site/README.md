@@ -21,6 +21,7 @@ npx mint dev
 Or from the repo root:
 
 ```bash
+pnpm docs:check
 ./run.sh docs
 ./run.sh docs open
 ```
@@ -34,6 +35,13 @@ the site.
 
 `./run.sh docs` already prefers Volta with Node `22.22.1` when Volta is
 available, so it is the easiest local preview path in this repo.
+
+Use `pnpm docs:check` from the repo root for a fast local validation pass over:
+
+- docs-site navigation targets in `docs.json`
+- required page frontmatter (`title` and `description`)
+- internal docs route links such as `/quickstart`
+- referenced docs assets such as the logo and favicon
 
 ## Deployment Shape
 

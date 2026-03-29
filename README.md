@@ -1,6 +1,6 @@
 # Elata SDK
 
-> AI-assisted integration? Start with the [Quickstart](internal/docs-site/quickstart.mdx) and [guides](internal/docs-site/guides/).
+> AI-assisted integration? Start with the [getting started guide](docs/guides/getting-started.md), the [consumer guides index](docs/guides/README.md), or the [external docs site source](external/docs-site/quickstart.mdx).
 
 A cross-platform biosignal SDK spanning EEG device pipelines, browser
 transports, and rPPG processing for web and native clients.
