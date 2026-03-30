@@ -26,6 +26,10 @@ const templates = {
     dir: 'eeg-demo',
     description: 'React + Vite EEG starter app with Muse Web Bluetooth support',
   },
+  'eeg-ble': {
+    dir: 'eeg-ble',
+    description: 'React + Vite BLE-first EEG starter app with native reference links',
+  },
 };
 
 const starterChoices = [
@@ -45,10 +49,10 @@ const starterChoices = [
   },
   {
     name: 'eeg-ble',
-    template: 'eeg-demo',
-    aliases: ['eeg-web-ble-demo'],
+    template: 'eeg-ble',
+    aliases: ['ble', 'eeg-web-ble-demo'],
     headline: 'Muse-compatible EEG over Web Bluetooth',
-    detail: 'BLE-focused path using the EEG starter scaffold and pairing flow.',
+    detail: 'BLE-first starter with browser pairing flow and native demo references.',
   },
 ];
 

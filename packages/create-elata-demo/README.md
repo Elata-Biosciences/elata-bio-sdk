@@ -14,10 +14,11 @@ Short aliases and compatibility names are also supported:
 
 - `rppg`
 - `eeg`
+- `ble`
 - `eeg-web-ble-demo`
 
-`eeg-ble` is a BLE-focused starter choice that currently uses the `eeg-demo`
-scaffold under the hood.
+`eeg-ble` is a separate BLE-first starter with browser pairing flow and native
+reference callouts for the iOS and Android demo surfaces.
 
 Use it when you want a clean scaffolded app or a consumer-facing reference project.
 
@@ -60,6 +61,7 @@ npm create @elata-biosciences/elata-demo my-app -- --template rppg
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
+npm create @elata-biosciences/elata-demo my-app -- --template ble
 ```
 
 When you run the CLI interactively without `--template`, it first asks which app

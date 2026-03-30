@@ -66,7 +66,7 @@ test('lists templates', () => {
   assert.match(result.stdout, /aliases: rppg/);
   assert.match(result.stdout, /eeg-demo/);
   assert.match(result.stdout, /eeg-ble/);
-  assert.match(result.stdout, /uses eeg-demo scaffold/);
+  assert.match(result.stdout, /aliases: ble, eeg-web-ble-demo/);
   assert.doesNotMatch(result.stdout, /eeg-web-demo/);
 });
 
@@ -133,7 +133,7 @@ test('scaffolds correctly from packaged contents without monorepo siblings', () 
 });
 
 test('smoke: each template scaffolds, installs, and builds', () => {
-  const templates = ['rppg-demo', 'eeg-demo'];
+  const templates = ['rppg-demo', 'eeg-demo', 'eeg-ble'];
 
   for (const templateName of templates) {
     const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-smoke-'));
@@ -183,6 +183,8 @@ test('scaffolds the BLE template with current package versions', () => {
     );
     const readme = readFileSync(join(tmp, 'ble-demo', 'README.md'), 'utf8');
     assert.match(readme, /eeg-ble/);
+    assert.match(readme, /ios-demo\/EegDemoApp\/Bluetooth\/MuseBluetoothManager\.swift/);
+    assert.match(readme, /android-demo\/app\/src\/main\/AndroidManifest\.xml/);
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
@@ -211,6 +213,20 @@ test('accepts a short template alias', () => {
     assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
     const pkg = readFileSync(join(tmp, 'brain-demo', 'package.json'), 'utf8');
     assert.match(pkg, new RegExp(`"@elata-biosciences/eeg-web-ble": "${eegWebBleVersion}"`));
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('accepts the BLE short alias', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
+  try {
+    const result = runCli(['ble-short-demo', '--template', 'ble'], tmp);
+    assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
+    const readme = readFileSync(join(tmp, 'ble-short-demo', 'README.md'), 'utf8');
+    assert.match(readme, /eeg-ble/);
+    const app = readFileSync(join(tmp, 'ble-short-demo', 'src', 'App.tsx'), 'utf8');
+    assert.match(app, /iOS native BLE reference/);
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }

@@ -36,8 +36,11 @@ npm create @elata-biosciences/elata-demo my-app -- --template eeg-demo
 # EEG starter app (alias)
 npm create @elata-biosciences/elata-demo my-app -- --template eeg
 
-# EEG starter app with BLE alias
+# EEG starter app with BLE starter name
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
+
+# EEG starter app with BLE alias
+npm create @elata-biosciences/elata-demo my-app -- --template ble
 
 # List templates
 pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates
@@ -52,7 +55,7 @@ npx @elata-biosciences/create-elata-demo my-app
 
 The scaffolder supports interactive app-type selection when you omit
 `--template`, then prompts for the project name when needed. It also supports
-template aliases (`rppg`, `eeg`, `eeg-ble`) and uses `rppg-demo` as the
+template aliases (`rppg`, `eeg`, `ble`) and uses `rppg-demo` as the
 non-interactive default.
 
 After scaffolding:
@@ -129,7 +132,7 @@ The Mintlify site exposes the same content as **Example applications** under `ex
 Browser caveats:
 
 - `eeg-web-ble` requires Web Bluetooth and an `https://` origin or `localhost`
-- Safari and iOS do not provide usable Web Bluetooth support for Muse browser workflows
+- for Muse browser BLE workflows, use Chrome or Bluefy on iOS; do not expect Safari itself to handle this path
 - `rppg-web` needs camera access and packaged WASM assets when using `loadWasmBackend()`
 
 Package docs:

@@ -17,16 +17,18 @@ The scaffolder exposes three user-facing app starters:
 
 - `rppg-demo` – React + Vite rPPG starter app
 - `eeg-demo` – React + Vite EEG starter app with synthetic data and browser EEG wiring
-- `eeg-ble` – Muse-compatible EEG starter path with Web Bluetooth guidance
+- `eeg-ble` – Muse-compatible EEG starter path with Chrome or Bluefy-on-iOS Web Bluetooth guidance
 
 Short aliases and compatibility names are also supported:
 
 - `rppg` → `rppg-demo`
 - `eeg` → `eeg-demo`
+- `ble` → `eeg-ble`
 - `eeg-web-ble-demo` → `eeg-ble`
 
-Today, `eeg-ble` reuses the `eeg-demo` scaffold under the hood, but it is
-presented as its own starter choice because it is a distinct onboarding path.
+`eeg-ble` is its own BLE-first scaffold. It starts in the headset flow and
+includes on-screen references to the repo's iOS and Android native demo
+surfaces.
 
 You can list templates from any environment:
 
@@ -54,6 +56,9 @@ npm create @elata-biosciences/elata-demo my-app -- --template eeg
 
 # EEG starter app with BLE alias
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
+
+# EEG starter app with the short BLE alias
+npm create @elata-biosciences/elata-demo my-app -- --template ble
 ```
 
 When the CLI is run interactively without `--template`, it first prompts you to
