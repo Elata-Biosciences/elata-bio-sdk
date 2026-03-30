@@ -1,0 +1,51 @@
+---
+title: Example applications
+description: Open source browser apps built with Elata EEG, Web Bluetooth, and rPPG packages.
+---
+
+These projects are **full applications** that ship on GitHub Pages. They complement the
+[`create-elata-demo`](/reference/create-elata-demo) scaffolder and the
+[Build A Browser App](/browser-apps) chooser: use those for the fastest evaluation, then study
+these repos when you want routing, game loops, session summaries, or multi-package wiring in a real
+product-shaped codebase.
+
+<Note>
+  In-app screenshots will be added here in a future docs update. Live demos and source links below
+  are ready to use today.
+</Note>
+
+## Apps
+
+| App | What it shows | Live demo | Source |
+| --- | --- | --- | --- |
+| Breathwork Trainer | Guided breathing protocols with live EEG and rPPG session UI | [Play](https://wkyleg.github.io/breathwork-trainer/) | [wkyleg/breathwork-trainer](https://github.com/wkyleg/breathwork-trainer) |
+| NeuroFlight | 3D flight sim with AI opponent and post-session neural analytics | [Play](https://wkyleg.github.io/neuroflight/) | [wkyleg/neuroflight](https://github.com/wkyleg/neuroflight) |
+| Monkey Mind: Inner Invaders | Canvas arcade with brain-reactive gameplay and level reports | [Play](https://wkyleg.github.io/monkey-mind/) | [wkyleg/monkey-mind](https://github.com/wkyleg/monkey-mind) |
+| Neuro Chess | Chess vs Stockfish with live neuro HUD and post-game charts | [Play](https://wkyleg.github.io/neuro-chess/) | [wkyleg/neuro-chess](https://github.com/wkyleg/neuro-chess) |
+| Reaction Trainer | Reaction game with stress-modulated difficulty and results analytics | [Play](https://wkyleg.github.io/reaction-trainer/) | [wkyleg/reaction-trainer](https://github.com/wkyleg/reaction-trainer) |
+
+## Packages used
+
+All five apps consume published npm packages from `@elata-biosciences`:
+
+| Package | Role in these apps |
+| --- | --- |
+| `@elata-biosciences/eeg-web` | WASM-backed EEG analysis, band powers, derived features |
+| `@elata-biosciences/eeg-web-ble` | Web Bluetooth streaming from Muse-compatible headsets |
+| `@elata-biosciences/rppg-web` | Camera-based pulse and related metrics without a wearable |
+
+Not every app uses every package in the same way; open the repo that matches your use case.
+
+## Store listing copy and art
+
+Each linked repository includes **`docs/store-assets/`** with `listing.json` (marketing copy) and
+PNG exports sized for store-style listings (icon, banner, desktop and mobile previews, expansion
+promo). Those files are useful if you are launching on a marketplace that expects that shape of
+metadata and imagery.
+
+## Where to go next
+
+- [Quickstart](/quickstart): scaffold a minimal demo first
+- [Build A Browser App](/browser-apps): main chooser for tutorials and paths
+- [Package Selection](/package-selection): choose packages for your own app
+- [EEG In A Browser App](/guides/eeg-browser) and [rPPG In A Browser App](/guides/rppg-browser): integration detail

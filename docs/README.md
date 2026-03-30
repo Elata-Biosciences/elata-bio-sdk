@@ -13,6 +13,7 @@ Use this page to find the right document quickly.
 
 - [guides/README.md](guides/README.md): guide index for SDK consumers
 - [guides/getting-started.md](guides/getting-started.md): fastest path to a running app
+- [guides/example-apps.md](guides/example-apps.md): open source apps using the SDK on GitHub Pages
 - [guides/choose-the-right-package.md](guides/choose-the-right-package.md): package decision guide
 - [guides/using-eeg-in-a-browser-app.md](guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
 - [guides/using-web-bluetooth-with-supported-devices.md](guides/using-web-bluetooth-with-supported-devices.md): supported browser BLE flow

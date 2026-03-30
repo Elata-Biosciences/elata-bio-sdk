@@ -28,6 +28,7 @@ See [choose-the-right-package.md](choose-the-right-package.md) for the decision 
 
 Follow-up guides:
 
+- [example-apps.md](example-apps.md): full example applications (live demos and source)
 - [using-eeg-in-a-browser-app.md](using-eeg-in-a-browser-app.md)
 - [using-web-bluetooth-with-supported-devices.md](using-web-bluetooth-with-supported-devices.md)
 - [using-rppg-in-a-browser-app.md](using-rppg-in-a-browser-app.md)

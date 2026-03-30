@@ -61,6 +61,7 @@ external/docs-site/
 This first pass is based on the current repo docs and package READMEs, plus
 public protocol context that SDK and ecosystem developers need:
 
+- `example-apps.mdx`: links to open source consumer apps on GitHub Pages (Breathwork Trainer, NeuroFlight, Monkey Mind, Neuro Chess, Reaction Trainer)
 - `README.md`
 - `docs/guides/*`
 - `docs/create-elata-demo.md`

@@ -3,6 +3,7 @@
 These guides are aimed at SDK consumers rather than repo maintainers.
 
 - [getting-started.md](getting-started.md): the fastest way to try Elata
+- [example-apps.md](example-apps.md): open source browser apps on GitHub Pages built with the published packages
 - [choose-the-right-package.md](choose-the-right-package.md): pick the right package for your use case
 - [using-eeg-in-a-browser-app.md](using-eeg-in-a-browser-app.md): integrate EEG WASM APIs into a browser app
 - [using-web-bluetooth-with-supported-devices.md](using-web-bluetooth-with-supported-devices.md): connect to supported Muse-compatible devices from the browser
