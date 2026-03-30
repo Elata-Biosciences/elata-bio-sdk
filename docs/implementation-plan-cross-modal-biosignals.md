@@ -1,6 +1,6 @@
 # Cross-Modal Biosignal Model Implementation Plan (v2)
 
-Status: Active plan (v2, revised after feedback, annotated with execution status through March 25, 2026)
+Status: Active plan (v2, revised after feedback, annotated with execution status through March 30, 2026)
 
 ## Summary
 
@@ -36,7 +36,7 @@ The recommended execution order is:
 
 ## Execution Status
 
-As of March 25, 2026, the repo is no longer at the pure-planning stage.
+As of March 30, 2026, the repo is no longer at the pure-planning stage.
 
 Completed or materially implemented:
 
@@ -44,7 +44,9 @@ Completed or materially implemented:
 - Phase 0A local prototype path exists and runs end to end on a laptop-scale synthetic task.
 - Phase 1 intake is substantially complete for `DS004514`, including source-backed manifest work, ingest notes, split and normalization notes, and raw waveform smoke paths.
 - Phase 1 intake is now also source-backed for `DS003838`, including the worksheet, ingest note, and intake report for the first EEG-PPG public reference dataset.
+- Phase 1 intake is now also source-backed for `DS006848`, including the worksheet, ingest note, and intake report for the second EEG-PPG public benchmark candidate.
 - Phase 1 intake for `DS003838` now also includes a pilot split plan and the first executable EEG-PPG Phase 2 note.
+- Phase 1 intake for `DS006848` now also includes a pilot split plan, an executable EEG-PPG Phase 2 note, and dataset-specific target and baseline notes.
 - Phase 2 has a real `DS004514` pilot artifact, not just a proposal:
   - canonicalized paired EEG-fNIRS dataset
   - dual-view EEG window dataset
@@ -57,6 +59,16 @@ Completed or materially implemented:
   - second preprocessing distortion ledger entry, now including a cleaned PPG path
   - the default pilot split has been expanded to 4 subjects and 2048 paired windows
   - a first explicit PPG target artifact now exists on top of that pilot split, with target-validity masks and coverage reporting
+  - an expanded development split now exists with 8 subjects and 4096 paired windows
+- Phase 2 now also has a real `DS006848` EEG-PPG path:
+  - direct BrainVision read path for shared EEG, PPG, and ECG recordings
+  - dual-view EEG windows plus dual-view PPG windows
+  - per-window event-family and morphology-quality metadata
+  - third preprocessing distortion ledger entry, now using a source-matched `50 Hz` notch
+  - a first verbalwm smoke split now exists with `sub-001` train, `sub-007` eval, and `512` paired quality-pass windows
+  - a first DS006848 target artifact now exists on top of that pilot split, with `508` dominant-beat-valid windows and train-only notch coverage
+  - an expanded verbalwm development split now exists with `sub-001`, `sub-010` train and `sub-007`, `sub-012` eval, with `1024` paired quality-pass windows
+  - an expanded target artifact now exists on top of that development split, with `1020` dominant-beat-valid windows and notch coverage still entirely concentrated in train
 - Phase 3 has only a preview implementation so far:
   - routed and canonicalized negative-control baselines exist for `DS004514`
   - these are useful for de-risking, but they are not yet the serious baseline suite the plan calls for
@@ -66,18 +78,38 @@ Completed or materially implemented:
     - pulse amplitude range, rising-edge slope, and dominant-beat amplitude beat null on MSE
     - mean inter-beat interval does not yet beat null
     - dominant-beat rise time and width do not yet beat null
+  - `DS003838` now also has the first broader development check:
+    - the 8-subject split stays clean at the data and alignment level
+    - the simple ridge baseline no longer beats null on aggregate standardized MSE
+    - a ridge sweep from `100` through `100,000,000` does not recover an aggregate win for either branch
+    - failure analysis now shows:
+      - `eeg_clean` is the least-bad branch
+      - the remaining positive signal is amplitude-heavy, not timing-heavy
+      - the failure is not explained by target sparsity for the dominant-beat family
+      - the highest `ppg_clean_std` quartile is the only eval-quality slice that is slightly better than null
+  - `DS006848` now also has the first broader positive-check baseline:
+    - the 4-subject verbalwm split stays clean at the data, alignment, and target-coverage levels
+    - both `eeg_event` and `eeg_clean` beat the null on aggregate standardized MSE
+    - `eeg_event` is currently the best branch
+    - the current gain is concentrated in amplitude-style targets, especially `amplitude_range` and `dominant_beat_amplitude`
+    - the first slice-analysis pass now shows:
+      - the aggregate win is asymmetric across eval subjects
+      - `sub-012` carries most of the current amplitude-family gain
+      - timing-family targets still underperform
+      - the lower two `ppg_clean_std` eval quartiles remain worse than null
 
 Still incomplete:
 
-- Phase 1 is still partial for the EEG-PPG public datasets. `DS003838` is now source-backed, but `DS006848` is still only a candidate manifest.
-- Phase 2 is still pilot-scale for EEG-PPG. `DS003838` now has a 4-subject pilot artifact plus a target-coverage layer, but not yet a broader paired-cohort default artifact.
+- Phase 2 for `DS006848` is now development-scale for verbalwm, but it is still incomplete at the dataset level because the rest-specific branch does not yet exist and the verbalwm path has not yet expanded beyond the current 4-subject check.
+- Phase 2 is still development-scale for EEG-PPG. `DS003838` now has a 4-subject smoke artifact, an 8-subject development artifact, and target-coverage layers for both, but not yet a broader paired-cohort default artifact.
 - Athena internal intake and preprocessing are still incomplete.
-- There is still no broad-cohort EEG-PPG baseline report yet; the current DS003838 result is still pilot-only.
+- There is still no broad-cohort EEG-PPG positive baseline result; `DS006848` now has a positive 4-subject development check, but it is still too small and too asymmetric to count as established.
 
 Operational interpretation:
 
 - `DS004514` should still be treated as the completed reference path for ingest, synchronization, windowing, and distortion benchmarking.
-- `DS003838` should now be treated as the first executable EEG-PPG pilot path.
+- `DS003838` should now be treated as the harder EEG-PPG stress-test and negative-check path.
+- `DS006848` should now be treated as the provisional primary EEG-PPG development path.
 - The next execution track should stay on EEG-PPG rather than extending EEG-fNIRS research depth immediately.
 
 ---
@@ -124,26 +156,26 @@ Current execution note as of March 23, 2026:
 
 Given the EEG-PPG pivot, the recommended near-term sequence is:
 
-1. Expand the current `DS003838` EEG-PPG Phase 2 pilot beyond the current four-subject split.
-   The seed path now exists and should be iterated forward rather than rebuilt from scratch.
+1. Treat the current `DS006848` 4-subject verbalwm split as the default EEG-PPG positive-check path.
+   Keep the 2-subject path as the DS006848 smoke contract only.
 
-2. Finish source-backed intake for `DS006848`.
-   `DS003838` is now the first source-backed EEG-PPG reference, so `DS006848` should become the second public benchmark.
+2. Expand the `DS006848` verbalwm path beyond the current 4-subject development split before starting a deeper model.
+   The current question is no longer “is there any signal,” but “does the current aggregate win survive the next subject expansion.”
 
-3. Extend the current Phase 3 EEG->PPG baseline beyond the current pilot report.
-   Current pilot evidence suggests:
-   - pulse amplitude range, rising-edge slope, and dominant-beat amplitude are learnable enough to beat null on MSE
-   - dominant-beat targets now have near-complete coverage, but rise time and width are not yet beating null
-   - notch timing still has only `11` train-valid windows on the current split and should stay masked
-   The next target additions should be:
-   - better beat-timing targets before HR and HRV fallback summaries
-   - broader-split validation of the existing dominant-beat target family
-   - notch timing only after train-side valid coverage improves materially
+3. Treat the `DS003838` failure analysis as complete enough to change priorities.
+   Current evidence now says:
+   - the 4-subject pilot win is real at pilot scope, but not stable enough yet
+   - dominant-beat coverage remains strong on the 8-subject split, so the problem is not target sparsity for the main morphology family
+   - `eeg_clean` remains the default source branch
+   - the surviving positive signal is concentrated in amplitude-style targets
+   - the current simple baseline is not robust enough under mild subject expansion
 
-4. Bring `DS006848` in afterward as the second EEG-PPG benchmark.
-   Use it for rest and working-memory protocol coverage, not as the first morphology dataset.
+4. Treat the first `DS006848` morphology baseline as encouraging but not decisive.
+   The current slice analysis says the gain is concentrated in `sub-012` and in the upper half of the `ppg_clean_std` distribution, so the next move is wider subject coverage rather than a larger architecture.
 
-5. Treat raw EEG -> raw PPG waveform generation as explicitly out of scope until morphology targets beat null.
+5. Add the 22-subject DS006848 rest branch only after the next broader verbalwm split is stable enough to interpret.
+
+6. Treat raw EEG -> raw PPG waveform generation and deeper architectures as explicitly out of scope until at least one broader EEG-PPG split beats null.
 
 This is the shortest path from current repo state to the new business goal.
 
@@ -597,7 +629,7 @@ If a phase cannot be exercised in toy mode, it is not ready for the full-data pa
 
 ### Phase 0: Program framing and kill criteria
 
-Execution status as of March 25, 2026:
+Execution status as of March 30, 2026:
 
 - completed
 - the original first-target decision was EEG-fNIRS
@@ -668,11 +700,11 @@ Exit criteria:
 
 ### Phase 1: Data audit and dataset intake
 
-Execution status as of March 25, 2026:
+Execution status as of March 30, 2026:
 
 - partially complete at the program level
 - substantially complete for `DS004514`
-- still incomplete for the public EEG-PPG candidates and for Athena internal completion work
+- still incomplete for Athena internal completion work and for the rest-specific EEG-PPG branch
 
 Completed so far:
 
@@ -680,13 +712,15 @@ Completed so far:
 - Athena intake template and intake note
 - source-backed `DS004514` intake packet, including ingest note, split plan, normalization note, and intake report
 - source-backed `DS003838` intake packet, including worksheet, ingest note, and intake report
-- candidate manifests for `DS006848` and `DREAMT`
+- source-backed `DS006848` intake packet, including worksheet, ingest note, and intake report
+- executable `DS003838` and `DS006848` EEG-PPG verbalwm Phase 2 artifacts
+- candidate manifest for `DREAMT`
 
 Still needed before Phase 1 can be called complete for the EEG-PPG branch:
 
-- source-backed intake for `DS006848`
 - decision on whether `DREAMT` enters the first EEG-PPG benchmark set
 - real Athena recording specification completion, including internal PPG layout and session storage details
+- decision on whether `DS006848` now becomes the primary public EEG-PPG development set
 
 Duration: 2 to 3 weeks
 
