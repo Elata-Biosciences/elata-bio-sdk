@@ -519,6 +519,74 @@ push_release_tags() {
     git push origin "${tags_to_push[@]}"
 }
 
+release_commit_and_push_version_changes() {
+    local raw_target="${1:-all}"
+    local dist_tag="${2:-next}"
+    local target
+
+    target="$(normalize_release_target "$raw_target")" || exit 1
+    require_cmds git node
+
+    # Avoid surprising/accidental commits when the user has staged work.
+    if ! git diff --cached --quiet >/dev/null; then
+        die "Refusing to auto-commit during release: you have staged changes already."
+    fi
+
+    local branch
+    branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+    if [[ -z "$branch" || "$branch" == "HEAD" ]]; then
+        echo "Skipping git commit/push: detached HEAD."
+        return 0
+    fi
+
+    local -a pkg_entries=()
+    local pkg
+    for pkg in $(release_targets_for "$target"); do
+        local pkg_name version
+        pkg_name="$(package_name_for_target "$pkg")"
+        version="$(package_version_for_target "$pkg")"
+        pkg_entries+=("${pkg_name}@${version}")
+    done
+
+    local version_part
+    version_part="$(IFS=", "; echo "${pkg_entries[*]}")"
+    local commit_message="chore(release ${dist_tag}): ${version_part}"
+
+    local -a to_add=()
+    # Repo-level version bumps (changesets / pnpm version) often update these.
+    [[ -f "$ROOT_DIR/package.json" ]] && to_add+=("$ROOT_DIR/package.json")
+    [[ -f "$ROOT_DIR/pnpm-lock.yaml" ]] && to_add+=("$ROOT_DIR/pnpm-lock.yaml")
+
+    for pkg in $(release_targets_for "$target"); do
+        local pkg_dir
+        pkg_dir="$(package_dir_for_target "$pkg")"
+        [[ -f "$ROOT_DIR/$pkg_dir/package.json" ]] && to_add+=("$ROOT_DIR/$pkg_dir/package.json")
+        [[ -f "$ROOT_DIR/$pkg_dir/CHANGELOG.md" ]] && to_add+=("$ROOT_DIR/$pkg_dir/CHANGELOG.md")
+    done
+
+    if [[ ${#to_add[@]} -eq 0 ]]; then
+        echo "No version-related files found to commit."
+        return 0
+    fi
+
+    git add "${to_add[@]}" >/dev/null 2>&1 || true
+    if git diff --cached --quiet >/dev/null; then
+        echo "No version-related changes to commit."
+        return 0
+    fi
+
+    echo "Committing version bump(s): ${version_part}"
+    git commit -m "$commit_message"
+
+    local upstream
+    upstream="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || true)"
+    if [[ -n "$upstream" ]]; then
+        git push
+    else
+        git push -u origin "$branch"
+    fi
+}
+
 build_release_artifacts_for_target() {
     local target="$1"
     require_cmds node
@@ -556,6 +624,10 @@ release_packages() {
 
     release_check_for_target "$target"
     publish_packages "$target" "$dist_tag" 1
+    # Any automated version patch-bumps that happen during publish (or
+    # repo maintenance that syncs embedded fallback SDK versions) should be
+    # committed so tags and git history line up.
+    release_commit_and_push_version_changes "$target" "$dist_tag"
     create_release_tags "$target" "HEAD"
     push_release_tags "$target"
 }
