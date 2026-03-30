@@ -104,6 +104,12 @@ Wrong turns to avoid:
 - Do not treat in-repo dev demos as the normal consumer install path; they are reference and SDK-development surfaces.
 - If you scaffold inside another `pnpm` workspace, check the `--ignore-workspace` flow before assuming the template is broken.
 
+## Example applications
+
+Open source browser apps that use `@elata-biosciences/eeg-web`, `eeg-web-ble`, and `rppg-web` together
+(with live GitHub Pages demos) are listed in [docs/guides/example-apps.md](docs/guides/example-apps.md).
+The Mintlify site exposes the same content as **Example applications** under `external/docs-site/example-apps.mdx`.
+
 ## Packages
 
 - `@elata-biosciences/eeg-web`: EEG WASM wrapper and re-export surface
@@ -207,6 +213,7 @@ local EEG package against an app you already have.
 - [docs/dev_setup.md](docs/dev_setup.md): local setup and iteration tips
 - [docs/guides/README.md](docs/guides/README.md): consumer guide index
 - [docs/guides/getting-started.md](docs/guides/getting-started.md): fastest path to a running app
+- [docs/guides/example-apps.md](docs/guides/example-apps.md): example apps on GitHub Pages
 - [docs/guides/choose-the-right-package.md](docs/guides/choose-the-right-package.md): package selection help
 - [docs/guides/using-eeg-in-a-browser-app.md](docs/guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
 - [docs/guides/using-web-bluetooth-with-supported-devices.md](docs/guides/using-web-bluetooth-with-supported-devices.md): supported browser BLE flow

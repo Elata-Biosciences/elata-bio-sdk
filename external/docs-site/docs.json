@@ -21,7 +21,7 @@
     "groups": [
       {
         "group": "Start Here",
-        "pages": ["index", "quickstart", "browser-apps", "package-selection"]
+        "pages": ["index", "quickstart", "browser-apps", "package-selection", "example-apps"]
       },
       {
         "group": "New App",
