@@ -55,21 +55,24 @@ Completed or materially implemented:
   - dual-view EEG windows plus dual-view PPG windows
   - per-window PPG morphology-quality metadata
   - second preprocessing distortion ledger entry, now including a cleaned PPG path
+  - the default pilot split has been expanded to 4 subjects and 2048 paired windows
+  - a first explicit PPG target artifact now exists on top of that pilot split, with target-validity masks and coverage reporting
 - Phase 3 has only a preview implementation so far:
   - routed and canonicalized negative-control baselines exist for `DS004514`
   - these are useful for de-risking, but they are not yet the serious baseline suite the plan calls for
   - `DS003838` now has the first EEG-PPG pilot baseline preview:
     - ridge baselines over `eeg_event` and `eeg_clean` branches
-    - aggregate standardized error beats null on the two-subject pilot split after strong regularization
-    - pulse amplitude and rising-edge slope beat null on MSE
+    - aggregate standardized error beats null on the 4-subject pilot split after retuning regularization
+    - pulse amplitude range, rising-edge slope, and dominant-beat amplitude beat null on MSE
     - mean inter-beat interval does not yet beat null
+    - dominant-beat rise time and width do not yet beat null
 
 Still incomplete:
 
 - Phase 1 is still partial for the EEG-PPG public datasets. `DS003838` is now source-backed, but `DS006848` is still only a candidate manifest.
-- Phase 2 is still pilot-scale for EEG-PPG. `DS003838` now has a two-subject pilot artifact, but not yet a broader paired-cohort default artifact.
+- Phase 2 is still pilot-scale for EEG-PPG. `DS003838` now has a 4-subject pilot artifact plus a target-coverage layer, but not yet a broader paired-cohort default artifact.
 - Athena internal intake and preprocessing are still incomplete.
-- There is still no broad-cohort EEG-PPG baseline report yet; the current DS003838 result is pilot-only.
+- There is still no broad-cohort EEG-PPG baseline report yet; the current DS003838 result is still pilot-only.
 
 Operational interpretation:
 
@@ -121,20 +124,21 @@ Current execution note as of March 23, 2026:
 
 Given the EEG-PPG pivot, the recommended near-term sequence is:
 
-1. Expand the current `DS003838` EEG-PPG Phase 2 pilot beyond the two-subject split.
-   The first pilot artifact now exists and should be treated as the seed path rather than rebuilt from scratch.
+1. Expand the current `DS003838` EEG-PPG Phase 2 pilot beyond the current four-subject split.
+   The seed path now exists and should be iterated forward rather than rebuilt from scratch.
 
 2. Finish source-backed intake for `DS006848`.
    `DS003838` is now the first source-backed EEG-PPG reference, so `DS006848` should become the second public benchmark.
 
-3. Extend the current Phase 3 EEG->PPG baseline beyond the first pilot report.
+3. Extend the current Phase 3 EEG->PPG baseline beyond the current pilot report.
    Current pilot evidence suggests:
-   - pulse amplitude and rising-edge slope are learnable enough to beat null on MSE
-   - beat timing is not yet good enough
+   - pulse amplitude range, rising-edge slope, and dominant-beat amplitude are learnable enough to beat null on MSE
+   - dominant-beat targets now have near-complete coverage, but rise time and width are not yet beating null
+   - notch timing still has only `11` train-valid windows on the current split and should stay masked
    The next target additions should be:
-   - beat-synchronous targets
-   - notch timing where quality allows
    - better beat-timing targets before HR and HRV fallback summaries
+   - broader-split validation of the existing dominant-beat target family
+   - notch timing only after train-side valid coverage improves materially
 
 4. Bring `DS006848` in afterward as the second EEG-PPG benchmark.
    Use it for rest and working-memory protocol coverage, not as the first morphology dataset.
@@ -1521,7 +1525,7 @@ Suggested 26-week sequence:
 Recommended first major milestone:
 
 - original scientific milestone: prove that EEG -> fNIRS is learnable beyond linear baselines on held-out subjects
-- current business-priority milestone: prove that at least one EEG -> PPG event, morphology, or state target beats a null baseline on held-out subjects
+- current business-priority milestone: at pilot scope, at least one EEG -> PPG morphology target family already beats a null baseline on held-out subjects; the next bar is to reproduce that outside the narrow pilot split
 
 Recommended second major milestone:
 
