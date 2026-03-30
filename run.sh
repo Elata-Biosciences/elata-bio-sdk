@@ -549,15 +549,15 @@ release_check_for_target() {
 
 version_check() {
     local raw_target="${1:-all}"
-    local target pkg pkg_name pkg_dir local_ver npm_ver docs_ver
+    local target pkg pkg_name pkg_dir
+    local origin_main_ver local_main_ver npm_ver docs_ver
     local fail=0
 
     target="$(normalize_release_target "$raw_target")" || exit 1
-    require_cmds node
+    require_cmds node git
     require_package_manager
 
-    # Versions are hardcoded in the docs repo's overview table.
-    # Mintlify deploys on merge to main, so GitHub main = live docs site.
+    # Fetch docs once — Mintlify deploys on merge to main, so GitHub main = live docs site.
     local DOCS_RAW_URL="https://raw.githubusercontent.com/Elata-Biosciences/docs/main/sdk/overview.mdx"
     local docs_mdx=""
     docs_mdx="$(curl -fsSL "$DOCS_RAW_URL" 2>/dev/null || echo "")"
@@ -566,47 +566,56 @@ version_check() {
         pkg_name="$(package_name_for_target "$pkg")"
         pkg_dir="$(package_dir_for_target "$pkg")"
 
-        local_ver="$(node -p "require('./${pkg_dir}/package.json').version" 2>/dev/null || echo "")"
+        # 1. origin/main — what's on the remote SDK repo main branch
+        origin_main_ver="$(git show "origin/main:${pkg_dir}/package.json" 2>/dev/null | grep -m1 '"version"' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "")"
 
+        # 2. local main — local main branch (may differ from origin if not yet pushed/pulled)
+        local_main_ver="$(git show "main:${pkg_dir}/package.json" 2>/dev/null | grep -m1 '"version"' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "")"
+
+        # 3. npm — published registry version
         if [[ "$PKG_MGR" == "pnpm" ]]; then
             npm_ver="$(pnpm view "$pkg_name" version 2>/dev/null || echo "")"
         else
             npm_ver="$(npm view "$pkg_name" version 2>/dev/null || echo "")"
         fi
 
+        # 4. docs — version table in Elata-Biosciences/docs main (= live docs site)
+        if [[ -n "$docs_mdx" ]]; then
+            docs_ver="$(printf '%s' "$docs_mdx" | grep -F "$pkg_name" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "")"
+        else
+            docs_ver=""
+        fi
+
         printf "Package: %s\n" "$pkg_name"
-        printf "  Local : %s\n" "${local_ver:-not found}"
-        printf "  npm   : %s\n" "${npm_ver:-not found}"
+        printf "  origin/main : %s\n" "${origin_main_ver:-not found}"
+        printf "  local main  : %s\n" "${local_main_ver:-not found}"
+        printf "  npm         : %s\n" "${npm_ver:-not found}"
+        if [[ -n "$docs_mdx" ]]; then
+            printf "  docs        : %s\n" "${docs_ver:-not found}"
+        else
+            printf "  docs        : (could not fetch from GitHub)\n"
+        fi
 
         local pkg_fail=0
 
-        if [[ -z "$local_ver" ]]; then
-            printf "  [!!] Could not read local version\n"
-            pkg_fail=1
-        fi
-        if [[ -n "$local_ver" && -n "$npm_ver" && "$local_ver" != "$npm_ver" ]]; then
-            printf "  MISMATCH: local vs npm\n"
-            pkg_fail=1
-        fi
-
-        # Docs check: grep the published version table from GitHub main (= live docs site).
-        if [[ -n "$docs_mdx" ]]; then
-            docs_ver="$(printf '%s' "$docs_mdx" | grep -F "$pkg_name" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "")"
-            printf "  Docs  : %s\n" "${docs_ver:-not found}"
-            if [[ -n "$local_ver" && -n "$docs_ver" && "$local_ver" != "$docs_ver" ]]; then
-                printf "  MISMATCH: local vs docs\n"
-                pkg_fail=1
+        check_pair() {
+            local a_name="$1" a_val="$2" b_name="$3" b_val="$4"
+            if [[ -n "$a_val" && -n "$b_val" && "$a_val" != "$b_val" ]]; then
+                printf "  MISMATCH: %s (%s) vs %s (%s)\n" "$a_name" "$a_val" "$b_name" "$b_val"
+                return 1
             fi
-            if [[ -n "$npm_ver" && -n "$docs_ver" && "$npm_ver" != "$docs_ver" ]]; then
-                printf "  MISMATCH: npm vs docs\n"
-                pkg_fail=1
-            fi
-        else
-            printf "  Docs  : (could not fetch from GitHub)\n"
-        fi
+            return 0
+        }
 
-        if [[ $pkg_fail -eq 0 && -n "$local_ver" ]]; then
-            printf "  [OK] In sync: %s\n" "$local_ver"
+        check_pair "origin/main" "$origin_main_ver" "local main"  "$local_main_ver" || pkg_fail=1
+        check_pair "origin/main" "$origin_main_ver" "npm"         "$npm_ver"         || pkg_fail=1
+        check_pair "origin/main" "$origin_main_ver" "docs"        "$docs_ver"        || pkg_fail=1
+        check_pair "local main"  "$local_main_ver"  "npm"         "$npm_ver"         || pkg_fail=1
+        check_pair "local main"  "$local_main_ver"  "docs"        "$docs_ver"        || pkg_fail=1
+        check_pair "npm"         "$npm_ver"          "docs"        "$docs_ver"        || pkg_fail=1
+
+        if [[ $pkg_fail -eq 0 ]]; then
+            printf "  [OK] In sync: %s\n" "${origin_main_ver:-${local_main_ver:-${npm_ver:-unknown}}}"
         fi
         [[ $pkg_fail -eq 1 ]] && fail=1
         echo
