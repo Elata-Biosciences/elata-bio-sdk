@@ -16,6 +16,8 @@ Status: Source-Backed Candidate
 - Cross-modal waveform smoke: [../../../docs/cross-modal/ds004514-cross-modal-waveform-smoke.md](../../../docs/cross-modal/ds004514-cross-modal-waveform-smoke.md)
 - Variant summary: [../../../docs/cross-modal/ds004514-variant-summary.md](../../../docs/cross-modal/ds004514-variant-summary.md)
 - Variant-routed baseline: [../../../docs/cross-modal/ds004514-variant-routed-baseline.md](../../../docs/cross-modal/ds004514-variant-routed-baseline.md)
+- Canonicalized baseline: [../../../docs/cross-modal/ds004514-canonicalized-baseline.md](../../../docs/cross-modal/ds004514-canonicalized-baseline.md)
+- Phase 2 windowing: [../../../docs/cross-modal/ds004514-phase2-windowing.md](../../../docs/cross-modal/ds004514-phase2-windowing.md)
 - Subject quality policy: [../../../docs/cross-modal/ds004514-subject-quality-policy.md](../../../docs/cross-modal/ds004514-subject-quality-policy.md)
 - Intake owner: unassigned
 - Intake date: 2026-03-21
@@ -107,12 +109,15 @@ Decision rationale:
 
 - the frozen source tree and BIDS sidecars now support the candidate manifest with source-backed metadata
 - the dataset is clearly suitable for early EEG-fNIRS alignment and translation baselines
-- the dataset should remain `candidate` until the chosen routed-vs-canonicalized normalization path is encoded in baseline configs beyond the smoke stage
+- the routed-vs-canonicalized comparison is now implemented, and the canonicalized baseline is the better default cross-variant negative control
+- the first reusable Phase 2 window artifact now exists for the canonicalized four-subject path
+- the dataset should remain `candidate` until the Phase 2 artifact is widened beyond the current pilot cohort and the first non-null-improving baseline exists
 
 ## Next actions
 
-1. Compare the routed baseline against any future geometry-aware canonicalization path before committing to a unification strategy.
-2. Promote the subject-quality policy from smoke-stage documentation into the first non-smoke training configs.
+1. Promote the canonicalized path into the first non-smoke cross-variant training run instead of extending the weaker routed baseline.
+2. Extend the canonicalized Phase 2 window artifact beyond the current four-subject comparison while keeping the explicit subject-quality gating in place.
+3. Replace the current linear negative control with the first geometry-aware model that has a realistic chance of beating the null.
 
 ## Commands
 

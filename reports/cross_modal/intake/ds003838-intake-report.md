@@ -69,7 +69,7 @@ The current pass verifies snapshot metadata, root structure, sidecars, a selecti
 - Morphology preservation notes:
   - the sampled cardiovascular container has two channels, `PPG` and `ECG`
   - the waveform is available at raw sample rate, so morphology preservation is plausible
-  - the first pilot morphology benchmark now exists on `sub-032` train and `sub-033` eval, with `1024` quality-pass paired windows in the pilot subset
+  - the first pilot morphology benchmark now exists on a four-subject split, with `2048` quality-pass paired windows in the current pilot subset
   - morphology quality still needs a broader cohort benchmark before this dataset is promoted beyond candidate status
 
 ## Pairing and timing
@@ -80,7 +80,7 @@ The current pass verifies snapshot metadata, root structure, sidecars, a selecti
   - sampled `task-memory` and `task-rest` event tables for `sub-032` match exactly
 - Drift concerns:
   - no drift signal was observed in the sampled event tables
-  - the first pilot Phase 2 artifact shows `0.0 s` measured alignment RMSE and `0.0 s` max residual on the two-subject split
+  - the current pilot Phase 2 artifact shows `0.0 s` measured alignment RMSE and `0.0 s` max residual on the four-subject split
   - broader cohort verification is still needed before assuming this holds for all paired subjects
 - Canonical windowing risk notes:
   - the first EEG-PPG artifact should treat event-table equality and raw sample-count equality as required checks
@@ -89,21 +89,30 @@ The current pass verifies snapshot metadata, root structure, sidecars, a selecti
 ## Phase 2 pilot result
 
 - Pilot split:
-  - train `sub-032`
-  - eval `sub-033`
+  - train `sub-032`, `sub-034`
+  - eval `sub-033`, `sub-035`
   - task `memory`
 - Artifact outputs:
-  - `1024` paired windows
-  - EEG event tensor shape `1024 x 63 x 500`
-  - EEG clean tensor shape `1024 x 63 x 128`
-  - PPG native tensor shape `1024 x 2000`
-  - PPG clean tensor shape `1024 x 256`
+  - `2048` paired windows
+  - EEG event tensor shape `2048 x 63 x 500`
+  - EEG clean tensor shape `2048 x 63 x 128`
+  - PPG native tensor shape `2048 x 2000`
+  - PPG clean tensor shape `2048 x 256`
 - Pilot quality result:
-  - `1024 / 1024` windows pass the current quality gate
-  - mean detected PPG peak count per window: about `3.294`
+  - `2048 / 2048` windows pass the current quality gate
+  - mean detected PPG peak count per window: about `3.361`
 - Pilot benchmark result:
   - cleaned EEG path shows negligible off-notch attenuation and about `-20.604 dB` at `60 Hz`
   - cleaned PPG path keeps `1-10 Hz` probes near-neutral, is about `-6.004 dB` at `20 Hz`, and strongly suppresses `30 Hz` and `60 Hz`
+
+## Pilot baseline result
+
+- the current four-subject ridge baseline now beats the null on aggregate standardized MSE for both `eeg_event` and `eeg_clean` branches
+- pulse amplitude range, rising-edge slope max, and dominant-beat amplitude beat the null on MSE
+- mean inter-beat interval still does not beat the null
+- dominant-beat rise time and dominant-beat width also still fail to beat the null
+- a derived target artifact now exists with `2046` dominant-beat-valid windows but only `11` notch-valid train windows
+- the practical reading is that coarse morphology magnitude targets are learnable earlier than beat-timing or beat-width targets on this pilot path
 
 ## Labels and benchmark fit
 
@@ -161,8 +170,8 @@ Decision rationale:
 
 ## Next actions
 
-1. Expand the current pilot split into a broader default split policy for the `65` EEG+PPG paired subjects.
-2. Start the first EEG->PPG morphology and event baselines on top of the pilot Phase 2 artifact.
+1. Expand the current pilot split further toward a broader default split policy for the `65` EEG+PPG paired subjects.
+2. Keep the new beat-synchronous target artifact as the default target path and validate it on a broader split.
 3. Bring in `DS006848` as the second public EEG-PPG benchmark.
 
 ## Commands

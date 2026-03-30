@@ -18,6 +18,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from eeglab_hdf5 import channel_index_map, open_set_file, read_scalar, read_time_slice  # noqa: E402
+from ppg_targets import detect_ppg_peaks, rising_edge_slope_max  # noqa: E402
 
 import mne  # noqa: E402
 import numpy as np  # noqa: E402
@@ -156,28 +157,6 @@ def clean_ppg_window(
     return resample_rows(filtered, source_sfreq=source_sfreq, target_sfreq=target_sfreq)[0]
 
 
-def detect_ppg_peaks(signal: np.ndarray, sfreq: float, min_distance_seconds: float, threshold_std: float) -> list[int]:
-    centered = signal - float(np.median(signal))
-    scale = float(np.std(centered))
-    if scale <= 1e-9:
-        return []
-    threshold = threshold_std * scale
-    candidates = np.where(
-        (centered[1:-1] > centered[:-2])
-        & (centered[1:-1] >= centered[2:])
-        & (centered[1:-1] >= threshold)
-    )[0] + 1
-    min_distance = max(1, int(round(min_distance_seconds * sfreq)))
-    selected: list[int] = []
-    for candidate in candidates.tolist():
-        if not selected or (candidate - selected[-1]) >= min_distance:
-            selected.append(candidate)
-            continue
-        if centered[candidate] > centered[selected[-1]]:
-            selected[-1] = candidate
-    return selected
-
-
 def clipped_fraction(signal: np.ndarray) -> float:
     lo = float(np.min(signal))
     hi = float(np.max(signal))
@@ -187,14 +166,6 @@ def clipped_fraction(signal: np.ndarray) -> float:
     tolerance = span * 1e-4
     clipped = (np.abs(signal - lo) <= tolerance) | (np.abs(signal - hi) <= tolerance)
     return float(np.mean(clipped))
-
-
-def rising_edge_slope_max(signal: np.ndarray, sfreq: float) -> float:
-    if signal.size < 2:
-        return 0.0
-    return float(np.max(np.diff(signal)) * sfreq)
-
-
 def window_quality_flags(
     *,
     eeg_event: np.ndarray,

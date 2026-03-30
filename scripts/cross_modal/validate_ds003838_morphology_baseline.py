@@ -51,6 +51,8 @@ def main() -> int:
         failures.append(f"Expected branches {sorted(expected['branch_names'])}, found {sorted(branch_names)}.")
     if metrics.get("best_branch") not in branch_names:
         failures.append(f"Best branch {metrics.get('best_branch')} is not present in metrics.")
+    if metrics.get("aggregate_target_names") != list(config["baseline"].get("aggregate_target_names", metrics.get("target_names", []))):
+        failures.append("Aggregate target names in metrics do not match the config.")
 
     for branch_name, branch_metrics in metrics.get("branches", {}).items():
         for key in ["aggregate_model_mse_std", "aggregate_null_mse_std", "aggregate_model_mae_std", "aggregate_null_mae_std"]:
@@ -61,7 +63,13 @@ def main() -> int:
             if target is None:
                 failures.append(f"Missing target metrics for {branch_name}/{target_name}.")
                 continue
+            for key in ["train_windows", "eval_windows"]:
+                if not isinstance(target.get(key), (int, float)):
+                    failures.append(f"Target metric {branch_name}/{target_name}/{key} must be numeric.")
             for key in ["model_mse", "null_mse", "model_mae", "null_mae", "model_corr", "null_corr"]:
+                if not isinstance(target.get(key), (int, float)):
+                    failures.append(f"Target metric {branch_name}/{target_name}/{key} must be numeric.")
+            for key in ["model_mse_std", "null_mse_std", "model_mae_std", "null_mae_std"]:
                 if not isinstance(target.get(key), (int, float)):
                     failures.append(f"Target metric {branch_name}/{target_name}/{key} must be numeric.")
 
