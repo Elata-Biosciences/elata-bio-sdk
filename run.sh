@@ -140,7 +140,8 @@ Quality:
   verify-all   Run publish-grade verification for release artifacts and tarballs
   test         Run Rust and web test suites
   format       Format all files with Biome
-  format-check Run Biome format check (no write)
+  format-check   Run Biome format check (no write)
+  version-check  Check local, npm, and docs versions are in sync (default: target=all)
 
 Release:
   changeset     Add a changeset (interactive; run before opening a PR)
@@ -544,6 +545,74 @@ release_check_for_target() {
     target="$(normalize_release_target "$raw_target")" || exit 1
     build_release_artifacts_for_target "$target"
     verify_release_contract_for_target "$target"
+}
+
+version_check() {
+    local raw_target="${1:-all}"
+    local target pkg pkg_name pkg_dir local_ver npm_ver docs_ver
+    local fail=0
+
+    target="$(normalize_release_target "$raw_target")" || exit 1
+    require_cmds node
+    require_package_manager
+
+    # Versions are hardcoded in the docs repo's overview table.
+    # Mintlify deploys on merge to main, so GitHub main = live docs site.
+    local DOCS_RAW_URL="https://raw.githubusercontent.com/Elata-Biosciences/docs/main/sdk/overview.mdx"
+    local docs_mdx=""
+    docs_mdx="$(curl -fsSL "$DOCS_RAW_URL" 2>/dev/null || echo "")"
+
+    for pkg in $(release_targets_for "$target"); do
+        pkg_name="$(package_name_for_target "$pkg")"
+        pkg_dir="$(package_dir_for_target "$pkg")"
+
+        local_ver="$(node -p "require('./${pkg_dir}/package.json').version" 2>/dev/null || echo "")"
+
+        if [[ "$PKG_MGR" == "pnpm" ]]; then
+            npm_ver="$(pnpm view "$pkg_name" version 2>/dev/null || echo "")"
+        else
+            npm_ver="$(npm view "$pkg_name" version 2>/dev/null || echo "")"
+        fi
+
+        printf "Package: %s\n" "$pkg_name"
+        printf "  Local : %s\n" "${local_ver:-not found}"
+        printf "  npm   : %s\n" "${npm_ver:-not found}"
+
+        local pkg_fail=0
+
+        if [[ -z "$local_ver" ]]; then
+            printf "  [!!] Could not read local version\n"
+            pkg_fail=1
+        fi
+        if [[ -n "$local_ver" && -n "$npm_ver" && "$local_ver" != "$npm_ver" ]]; then
+            printf "  MISMATCH: local vs npm\n"
+            pkg_fail=1
+        fi
+
+        # Docs check: grep the published version table from GitHub main (= live docs site).
+        if [[ -n "$docs_mdx" ]]; then
+            docs_ver="$(printf '%s' "$docs_mdx" | grep -F "$pkg_name" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "")"
+            printf "  Docs  : %s\n" "${docs_ver:-not found}"
+            if [[ -n "$local_ver" && -n "$docs_ver" && "$local_ver" != "$docs_ver" ]]; then
+                printf "  MISMATCH: local vs docs\n"
+                pkg_fail=1
+            fi
+            if [[ -n "$npm_ver" && -n "$docs_ver" && "$npm_ver" != "$docs_ver" ]]; then
+                printf "  MISMATCH: npm vs docs\n"
+                pkg_fail=1
+            fi
+        else
+            printf "  Docs  : (could not fetch from GitHub)\n"
+        fi
+
+        if [[ $pkg_fail -eq 0 && -n "$local_ver" ]]; then
+            printf "  [OK] In sync: %s\n" "$local_ver"
+        fi
+        [[ $pkg_fail -eq 1 ]] && fail=1
+        echo
+    done
+
+    return $fail
 }
 
 release_packages() {
@@ -1311,6 +1380,12 @@ case "$cmd" in
         #   ./run.sh release-check rppg-web
         # Runs: build release artifacts -> verify publish contract -> validate tarballs
         release_check_for_target "${2:-all}"
+        ;;
+    version-check)
+        RUN_SH_TASK="version-check"
+        _vc_rc=0
+        version_check "${2:-all}" || _vc_rc=$?
+        exit $_vc_rc
         ;;
     release)
         RUN_SH_TASK="release"
