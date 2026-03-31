@@ -6,7 +6,7 @@ import {
   WasmAlphaBumpDetector,
   WasmAlphaPeakModel,
 } from '@elata-biosciences/eeg-web';
-import { MuseBleDevice } from '@elata-biosciences/eeg-web-ble';
+import { MuseBleDevice, checkWebBluetooth } from '@elata-biosciences/eeg-web-ble';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -255,6 +255,8 @@ export default function App() {
   const [sampleCount, setSampleCount] = useState(0);
   const [wasmReady, setWasmReady] = useState(false);
 
+  const bluetoothSupport = checkWebBluetooth();
+
   const deviceRef    = useRef<MuseBleDevice | null>(null);
   const rollingBuf   = useRef<number[]>([]);
   const waveformBuf  = useRef<number[]>([]);
@@ -435,14 +437,33 @@ export default function App() {
         <ModeToggle mode={mode} onChange={switchMode} />
         {mode === 'headband' && (
           <div className="connect-group">
-            <button type="button" className="connect-btn" onClick={connectHeadband}>
-              Connect Muse
-            </button>
-            {deviceName && (
-              <span className="connect-device">{deviceName}</span>
-            )}
-            {sampleCount > 0 && (
-              <span className="connect-samples">{sampleCount.toLocaleString()} samples</span>
+            {!bluetoothSupport.supported ? (
+              <div className="ble-unsupported-banner" role="alert">
+                <span className="ble-unsupported-icon" aria-hidden="true">⚠</span>
+                <span className="ble-unsupported-msg">{bluetoothSupport.message}</span>
+                {bluetoothSupport.isIOS && (
+                  <a
+                    className="ble-unsupported-link"
+                    href="https://apps.apple.com/app/bluefy-web-ble-browser/id1492822055"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Get Bluefy
+                  </a>
+                )}
+              </div>
+            ) : (
+              <>
+                <button type="button" className="connect-btn" onClick={connectHeadband}>
+                  Connect Muse
+                </button>
+                {deviceName && (
+                  <span className="connect-device">{deviceName}</span>
+                )}
+                {sampleCount > 0 && (
+                  <span className="connect-samples">{sampleCount.toLocaleString()} samples</span>
+                )}
+              </>
             )}
           </div>
         )}

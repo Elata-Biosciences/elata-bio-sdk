@@ -295,6 +295,36 @@ code {
   font-variant-numeric: tabular-nums;
 }
 
+.ble-unsupported-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  border-radius: 8px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
+  color: #fde68a;
+  flex-wrap: wrap;
+}
+
+.ble-unsupported-icon {
+  font-style: normal;
+  flex-shrink: 0;
+}
+
+.ble-unsupported-msg {
+  flex: 1;
+  min-width: 0;
+}
+
+.ble-unsupported-link {
+  color: #fbbf24;
+  font-weight: 600;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
 /* ——— Main layout ——— */
 
 .main {
