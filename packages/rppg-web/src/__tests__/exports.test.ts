@@ -71,6 +71,11 @@ describe('@elata-biosciences/rppg-web exports', () => {
     expect(typeof rppgWeb.computeWaveformPeriodicityProfile).toBe('function');
   });
 
+  test('exports analyzePulseWindow as a function', () => {
+    expect(rppgWeb.analyzePulseWindow).toBeDefined();
+    expect(typeof rppgWeb.analyzePulseWindow).toBe('function');
+  });
+
   test('exports normalizeRppgError as a function', () => {
     expect(rppgWeb.normalizeRppgError).toBeDefined();
     expect(typeof rppgWeb.normalizeRppgError).toBe('function');
@@ -118,6 +123,7 @@ describe('@elata-biosciences/rppg-web exports', () => {
       'createManagedRppgSession',
       'computeWaveformPeriodicityProfile',
       'computeTraceWaveformDebug',
+      'analyzePulseWindow',
       'normalizeRppgError',
       'createRppgAppAdapter',
       'createRppgAppMonitor',
