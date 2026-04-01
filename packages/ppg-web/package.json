@@ -1,0 +1,68 @@
+{
+	"name": "@elata-biosciences/ppg-web",
+	"version": "0.1.0",
+	"description": "TypeScript helpers for Muse PPG heart-rate and HRV estimation on the web",
+	"license": "MIT",
+	"author": "Elata",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Elata-Biosciences/elata-bio-sdk.git",
+		"directory": "packages/ppg-web"
+	},
+	"homepage": "https://github.com/Elata-Biosciences/elata-bio-sdk#readme",
+	"bugs": "https://github.com/Elata-Biosciences/elata-bio-sdk/issues",
+	"keywords": [
+		"ppg",
+		"hrv",
+		"heart-rate",
+		"muse",
+		"web-bluetooth",
+		"elata"
+	],
+	"engines": {
+		"node": ">=20"
+	},
+	"type": "module",
+	"sideEffects": false,
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"README.md"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"lint": "pnpm exec biome lint src jest.config.cjs",
+		"test": "jest --config ./jest.config.cjs --passWithNoTests",
+		"clean": "node ./scripts/clean.mjs",
+		"build": "tsc -p tsconfig.json && node ./scripts/fix-dist-import-specifiers.mjs && node ./scripts/verify-dist-esm.mjs",
+		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
+		"verify:publish": "pnpm run verify:build",
+		"prepare:publish": "pnpm run build",
+		"prepack": "pnpm run prepare:publish && pnpm run verify:publish"
+	},
+	"peerDependencies": {
+		"@elata-biosciences/eeg-web": "^0.1.0",
+		"@elata-biosciences/eeg-web-ble": "^0.1.0",
+		"@elata-biosciences/rppg-web": "^0.1.0"
+	},
+	"devDependencies": {
+		"@elata-biosciences/eeg-web": "workspace:*",
+		"@elata-biosciences/eeg-web-ble": "workspace:*",
+		"@elata-biosciences/rppg-web": "workspace:*",
+		"@types/jest": "29.5.14",
+		"esbuild": "0.25.10",
+		"jest": "29.7.0",
+		"jest-environment-jsdom": "29.7.0",
+		"ts-jest": "29.4.4",
+		"typescript": "5.9.3"
+	}
+}
