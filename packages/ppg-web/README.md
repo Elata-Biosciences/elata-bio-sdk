@@ -13,6 +13,7 @@ Browser-side Muse PPG heart-rate and HRV estimation built on the normalized
   - `sdnnMs`
   - `meanNnMs`
 - Exposes a simple session wrapper on top of `HeadbandTransport`.
+- Ships a simple in-repo demo at `./run.sh demo ppg`.
 
 ## Install
 

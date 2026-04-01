@@ -131,7 +131,7 @@ Build & Demo:
   build        Build release artifacts for 'eeg', 'rppg', or 'all' (default: all)
   bindings     Generate bindings from an existing build (default: release)
   docs         Run internal Mintlify docs tooling (default: 'mint dev --no-open')
-  demo         Run an in-repo dev demo - specify 'rppg' (default; temp-served), 'hal', or 'eeg' (example: 'run.sh demo eeg')
+  demo         Run an in-repo dev demo - specify 'rppg' (default; temp-served), 'ppg', 'hal', or 'eeg' (example: 'run.sh demo ppg')
   create       Scaffold a local app via packages/create-elata-demo (examples: './run.sh create rppg my-app', './run.sh create my-app')
   sync-to      Build eeg-web and install it into a local app (default app: ../my-app)
 
@@ -1093,6 +1093,50 @@ run_rppg_demo() {
     pnpm dlx http-server "$tmp_dir/demo" -p "$port" --silent
 }
 
+run_ppg_demo() {
+    require_cmds node
+    require_package_manager
+
+    run_pkg_script "packages/ppg-web" "build:demo"
+
+    local requested_port="${PORT:-8081}"
+    local port="$requested_port"
+    if port_in_use "$requested_port"; then
+        if [[ -n "${PORT:-}" ]]; then
+            echo "PORT $requested_port is already in use." >&2
+            echo "Stop the existing server or choose another port (example: PORT=$((requested_port + 1)) ./run.sh demo ppg)." >&2
+            exit 1
+        fi
+        port="$(find_available_port "$requested_port" 30)" || {
+            echo "No free port found in range $requested_port-$((requested_port + 29)). Set PORT explicitly and retry." >&2
+            exit 1
+        }
+        echo "Port $requested_port is in use; using http://127.0.0.1:$port"
+    fi
+
+    local tmp_root="${TMP_DIR:-}"
+    local tmp_dir=""
+    if [[ -n "$tmp_root" ]]; then
+        mkdir -p "$tmp_root"
+        tmp_dir="$(mktemp -d "$tmp_root/elata-ppg-demo.XXXXXX")"
+    else
+        tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/elata-ppg-demo.XXXXXX")"
+    fi
+
+    if [[ "${KEEP_TMP:-0}" != "1" ]]; then
+        trap 'rm -rf "$tmp_dir"' EXIT
+    fi
+
+    mkdir -p "$tmp_dir/demo"
+    cp -R "$ROOT_DIR/packages/ppg-web/demo/." "$tmp_dir/demo/"
+
+    echo "Serving ppg-web demo from temp dir: $tmp_dir"
+    echo "  http://127.0.0.1:$port/index.html"
+    echo "Tip: set KEEP_TMP=1 to keep the temp dir after exit."
+
+    pnpm dlx http-server "$tmp_dir/demo" -p "$port" --silent
+}
+
 run_eeg_demo() {
     require_cmds cargo wasm-bindgen node
     require_package_manager
@@ -1145,6 +1189,7 @@ run_demo() {
     local demo="$1"
     case "$demo" in
         rppg) run_rppg_demo ;;
+        ppg) run_ppg_demo ;;
         eeg) run_eeg_demo ;;
         hal) run_hal_demo ;;
         *) echo "Unknown demo: $demo" >&2; usage; exit 1 ;;
@@ -1551,6 +1596,13 @@ case "$cmd" in
             rppg_log="$(create_test_log)"
             run_and_capture "$rppg_log" run_pkg_script "packages/rppg-web" "test" "--runInBand"
             test_summaries+=("$(summarize_jest_log "rppg-web Jest suite" "$rppg_log")")
+        fi
+
+        if [[ -d "packages/ppg-web" ]]; then
+            echo "Running ppg-web Jest tests..."
+            ppg_log="$(create_test_log)"
+            run_and_capture "$ppg_log" run_pkg_script "packages/ppg-web" "test" "--runInBand"
+            test_summaries+=("$(summarize_jest_log "ppg-web Jest suite" "$ppg_log")")
         fi
 
         if [[ -d "packages/create-elata-demo" ]]; then

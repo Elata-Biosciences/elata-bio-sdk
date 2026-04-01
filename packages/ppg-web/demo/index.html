@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Elata PPG Demo</title>
+		<style>
+			:root {
+				--bg: #071119;
+				--panel: rgba(8, 23, 34, 0.82);
+				--panel-border: rgba(120, 164, 187, 0.2);
+				--accent: #5eead4;
+				--text: #e6fbff;
+				--muted: #8ab1bf;
+				--warning: #fbbf24;
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				margin: 0;
+				font-family: "IBM Plex Sans", system-ui, sans-serif;
+				background:
+					radial-gradient(circle at top, rgba(20, 184, 166, 0.2), transparent 35%),
+					linear-gradient(180deg, #061017 0%, #03080d 100%);
+				color: var(--text);
+				min-height: 100vh;
+			}
+
+			main {
+				max-width: 1080px;
+				margin: 0 auto;
+				padding: 32px 20px 48px;
+			}
+
+			.hero {
+				display: grid;
+				gap: 18px;
+				margin-bottom: 24px;
+			}
+
+			h1 {
+				margin: 0;
+				font-size: clamp(2.1rem, 5vw, 4rem);
+				line-height: 0.95;
+				letter-spacing: -0.04em;
+			}
+
+			p {
+				margin: 0;
+				color: var(--muted);
+				max-width: 52rem;
+			}
+
+			.toolbar {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 12px;
+				align-items: center;
+			}
+
+			button {
+				border: 0;
+				border-radius: 999px;
+				padding: 12px 18px;
+				font: inherit;
+				font-weight: 700;
+				cursor: pointer;
+				color: #022c22;
+				background: linear-gradient(135deg, var(--accent), #bae6fd);
+			}
+
+			#status {
+				color: var(--warning);
+				font-weight: 600;
+			}
+
+			.grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+				gap: 14px;
+				margin-bottom: 18px;
+			}
+
+			.card {
+				border: 1px solid var(--panel-border);
+				background: var(--panel);
+				backdrop-filter: blur(14px);
+				border-radius: 20px;
+				padding: 18px;
+			}
+
+			.label {
+				color: var(--muted);
+				font-size: 0.82rem;
+				text-transform: uppercase;
+				letter-spacing: 0.12em;
+			}
+
+			.value {
+				margin-top: 8px;
+				font-size: clamp(1.8rem, 5vw, 3.3rem);
+				font-weight: 700;
+				letter-spacing: -0.04em;
+			}
+
+			.subvalue {
+				margin-top: 10px;
+				color: var(--muted);
+			}
+
+			canvas {
+				width: 100%;
+				height: 260px;
+				border-radius: 24px;
+				background:
+					linear-gradient(180deg, rgba(94, 234, 212, 0.08), transparent),
+					rgba(6, 18, 26, 0.92);
+				border: 1px solid var(--panel-border);
+			}
+
+			.meta {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+				gap: 10px;
+				margin-top: 14px;
+			}
+
+			.meta div {
+				padding: 12px 14px;
+				background: rgba(4, 12, 18, 0.55);
+				border-radius: 14px;
+				border: 1px solid rgba(120, 164, 187, 0.12);
+			}
+
+			.meta strong {
+				display: block;
+				color: var(--muted);
+				margin-bottom: 4px;
+				font-size: 0.78rem;
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<section class="hero">
+				<h1>Muse PPG<br />HRV Demo</h1>
+				<p>
+					Connect a Muse device, stream its PPG path, and inspect the selected
+					channel, BPM, RMSSD, and live waveform from the same normalized BLE
+					frame pipeline the SDK uses elsewhere.
+				</p>
+				<div class="toolbar">
+					<button id="connect-btn" type="button">Connect Muse</button>
+					<div id="status">Idle</div>
+				</div>
+			</section>
+
+			<section class="grid">
+				<div class="card">
+					<div class="label">BPM</div>
+					<div id="bpm" class="value">--</div>
+					<div id="confidence" class="subvalue">Confidence --</div>
+				</div>
+				<div class="card">
+					<div class="label">RMSSD</div>
+					<div id="rmssd" class="value">--</div>
+					<div id="sdnn" class="subvalue">SDNN --</div>
+				</div>
+				<div class="card">
+					<div class="label">Signal</div>
+					<div id="quality" class="value">--</div>
+					<div id="channel" class="subvalue">Channel --</div>
+				</div>
+			</section>
+
+			<section class="card">
+				<canvas id="waveform" width="960" height="320"></canvas>
+				<div class="meta">
+					<div>
+						<strong>Source</strong>
+						<span id="source">--</span>
+					</div>
+					<div>
+						<strong>Sample Rate</strong>
+						<span id="sample-rate">--</span>
+					</div>
+					<div>
+						<strong>Reason Codes</strong>
+						<span id="reasons">--</span>
+					</div>
+					<div>
+						<strong>Transport</strong>
+						<span id="transport">--</span>
+					</div>
+				</div>
+			</section>
+		</main>
+		<script type="module" src="./main.js"></script>
+	</body>
+</html>

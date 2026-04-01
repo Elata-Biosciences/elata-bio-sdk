@@ -40,13 +40,16 @@
 		"access": "public"
 	},
 	"scripts": {
-		"lint": "pnpm exec biome lint src jest.config.cjs",
+		"lint": "pnpm exec biome lint src demo/main.ts jest.config.cjs scripts/build-demo.mjs",
 		"test": "jest --config ./jest.config.cjs --passWithNoTests",
 		"clean": "node ./scripts/clean.mjs",
 		"build": "tsc -p tsconfig.json && node ./scripts/fix-dist-import-specifiers.mjs && node ./scripts/verify-dist-esm.mjs",
+		"build:demo": "node ./scripts/build-demo.mjs",
 		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
 		"verify:publish": "pnpm run verify:build",
-		"prepare:publish": "pnpm run build",
+		"prepare:publish": "pnpm run build:demo && pnpm run build",
+		"start-demo": "pnpm run build:demo && pnpm dlx http-server demo -p 8081 --silent",
+		"start-demo:quick": "pnpm dlx http-server demo -p 8081 --silent",
 		"prepack": "pnpm run prepare:publish && pnpm run verify:publish"
 	},
 	"peerDependencies": {
