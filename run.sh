@@ -132,7 +132,7 @@ Build & Demo:
   bindings     Generate bindings from an existing build (default: release)
   docs         Run internal Mintlify docs tooling (default: 'mint dev --no-open')
   demo         Run an in-repo dev demo - specify 'rppg' (default; temp-served), 'ppg', 'hal', or 'eeg' (example: 'run.sh demo ppg')
-  create       Scaffold a local app via packages/create-elata-demo (examples: './run.sh create rppg my-app', './run.sh create my-app')
+  create       Scaffold a local app via packages/create-elata-demo (examples: './run.sh create ppg my-app', './run.sh create my-app')
   sync-to      Build eeg-web and install it into a local app (default app: ../my-app)
 
 Quality:
@@ -166,6 +166,7 @@ normalize_release_target() {
         eeg|eeg-web|@elata-biosciences/eeg-web) echo "eeg-web" ;;
         eeg-web-ble|ble|@elata-biosciences/eeg-web-ble) echo "eeg-web-ble" ;;
         rppg|rppg-web|@elata-biosciences/rppg-web) echo "rppg-web" ;;
+        ppg|ppg-web|@elata-biosciences/ppg-web) echo "ppg-web" ;;
         create-elata-demo|@elata-biosciences/create-elata-demo) echo "create-elata-demo" ;;
         *)
             echo "Unknown release target: $raw" >&2
@@ -179,6 +180,7 @@ package_dir_for_target() {
         eeg-web) echo "packages/eeg-web" ;;
         eeg-web-ble) echo "packages/eeg-web-ble" ;;
         rppg-web) echo "packages/rppg-web" ;;
+        ppg-web) echo "packages/ppg-web" ;;
         create-elata-demo) echo "packages/create-elata-demo" ;;
         *)
             echo "Unknown package target: $1" >&2
@@ -192,6 +194,7 @@ package_name_for_target() {
         eeg-web) echo "@elata-biosciences/eeg-web" ;;
         eeg-web-ble) echo "@elata-biosciences/eeg-web-ble" ;;
         rppg-web) echo "@elata-biosciences/rppg-web" ;;
+        ppg-web) echo "@elata-biosciences/ppg-web" ;;
         create-elata-demo) echo "@elata-biosciences/create-elata-demo" ;;
         *)
             echo "Unknown package target: $1" >&2
@@ -205,6 +208,7 @@ release_tag_prefix_for_target() {
         eeg-web) echo "eeg-web" ;;
         eeg-web-ble) echo "eeg-web-ble" ;;
         rppg-web) echo "rppg-web" ;;
+        ppg-web) echo "ppg-web" ;;
         create-elata-demo) echo "create-elata-demo" ;;
         *)
             echo "Unknown package target: $1" >&2
@@ -217,7 +221,7 @@ release_targets_for() {
     local target="$1"
     if [[ "$target" == "all" ]]; then
         # Keep repo-published dependency order.
-        echo "eeg-web eeg-web-ble rppg-web create-elata-demo"
+        echo "eeg-web eeg-web-ble rppg-web ppg-web create-elata-demo"
     else
         echo "$target"
     fi
@@ -240,10 +244,11 @@ sync_create_elata_demo_versions_if_needed() {
         return 0
     fi
 
-    local eeg_web_version eeg_web_ble_version rppg_web_version
+    local eeg_web_version eeg_web_ble_version rppg_web_version ppg_web_version
     eeg_web_version="$(package_version_for_target "eeg-web")"
     eeg_web_ble_version="$(package_version_for_target "eeg-web-ble")"
     rppg_web_version="$(package_version_for_target "rppg-web")"
+    ppg_web_version="$(package_version_for_target "ppg-web")"
 
     local changed="0"
     changed="$(node -e "
@@ -256,6 +261,7 @@ sync_create_elata_demo_versions_if_needed() {
         eegWeb: '$eeg_web_version',
         eegWebBle: '$eeg_web_ble_version',
         rppgWeb: '$rppg_web_version',
+        ppgWeb: '$ppg_web_version',
       };
       let didChange = false;
       for (const [k, v] of Object.entries(desired)) {
@@ -308,7 +314,7 @@ resolve_release_target_and_dist_tag() {
 
 verify_script_for_target() {
     case "$1" in
-        eeg-web|eeg-web-ble|rppg-web|create-elata-demo) echo "verify:publish" ;;
+        eeg-web|eeg-web-ble|rppg-web|ppg-web|create-elata-demo) echo "verify:publish" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -318,7 +324,7 @@ verify_script_for_target() {
 
 prepare_script_for_target() {
     case "$1" in
-        eeg-web|eeg-web-ble|rppg-web|create-elata-demo) echo "prepare:publish" ;;
+        eeg-web|eeg-web-ble|rppg-web|ppg-web|create-elata-demo) echo "prepare:publish" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -650,6 +656,7 @@ normalize_scaffold_template() {
     case "$raw" in
         "") printf "\n" ;;
         rppg|rppg-demo|rppg-web-demo) printf "rppg-demo\n" ;;
+        ppg|ppg-demo|muse-ppg) printf "ppg-demo\n" ;;
         eeg|eeg-demo|eeg-web-demo) printf "eeg-demo\n" ;;
         eeg-ble|eeg-web-ble-demo|ble) printf "eeg-ble\n" ;;
         *)
@@ -1340,6 +1347,7 @@ doctor() {
     check_dir "crates" "crates/: present" "crates/ missing" || repo_err=1
     check_dir "packages/eeg-web" "packages/eeg-web: present" "packages/eeg-web missing" || repo_err=1
     check_dir "packages/rppg-web" "packages/rppg-web: present" "packages/rppg-web missing" || repo_err=1
+    check_dir "packages/ppg-web" "packages/ppg-web: present" "packages/ppg-web missing" || repo_err=1
     check_dir "packages/create-elata-demo" "packages/create-elata-demo: present" "packages/create-elata-demo missing" || repo_err=1
 
     header "Repository Audit"
@@ -1362,6 +1370,7 @@ doctor() {
     check_file "packages/eeg-web/dist/index.js" "packages/eeg-web/dist/index.js: present" "packages/eeg-web/dist/index.js missing" "warn" || build_err=1
     check_file "packages/eeg-web/wasm/eeg_wasm_bg.wasm" "packages/eeg-web/wasm/eeg_wasm_bg.wasm: present" "packages/eeg-web/wasm/eeg_wasm_bg.wasm missing" "warn" || build_err=1
     check_file "packages/rppg-web/dist/index.js" "packages/rppg-web/dist/index.js: present" "packages/rppg-web/dist/index.js missing" "warn" || build_err=1
+    check_file "packages/ppg-web/dist/index.js" "packages/ppg-web/dist/index.js: present" "packages/ppg-web/dist/index.js missing" "warn" || build_err=1
     check_file "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm" "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm: present" "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm missing (optional; run './run.sh dev rppg' to generate)" "warn" || true
     check_file "packages/rppg-web/pkg/rppg_wasm.js" "packages/rppg-web/pkg/rppg_wasm.js: present (publishable loader)" "packages/rppg-web/pkg/rppg_wasm.js missing (run './run.sh build rppg' before publishing)" "warn" || build_err=1
     check_file "packages/rppg-web/pkg/rppg_wasm_bg.wasm" "packages/rppg-web/pkg/rppg_wasm_bg.wasm: present (publishable WASM)" "packages/rppg-web/pkg/rppg_wasm_bg.wasm missing (run './run.sh build rppg' before publishing)" "warn" || build_err=1

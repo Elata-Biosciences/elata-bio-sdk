@@ -6,7 +6,7 @@ import {
   WasmAlphaBumpDetector,
   WasmAlphaPeakModel,
 } from '@elata-biosciences/eeg-web';
-import { MuseBleDevice, checkWebBluetooth } from '@elata-biosciences/eeg-web-ble';
+import { MuseBleDevice } from '@elata-biosciences/eeg-web-ble';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -22,12 +22,48 @@ type AlphaPeak = {
   peakPower: number;
 };
 
+type BluetoothSupportResult = {
+  supported: boolean;
+  message: string;
+  isIOS: boolean;
+};
+
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const SAMPLE_RATE = 256;
 const WINDOW_SAMPLES = SAMPLE_RATE * 4;
 const WAVEFORM_DISPLAY = SAMPLE_RATE * 3; // 3s of samples shown in graph
 const SYNTH_TICK_MS = 32;                 // ~30 fps for synthetic animation
+
+function checkBrowserBluetoothSupport(): BluetoothSupportResult {
+  const nav = navigator as Navigator & { bluetooth?: unknown };
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua);
+
+  if (!window.isSecureContext) {
+    return {
+      supported: false,
+      message: 'Web Bluetooth requires HTTPS or localhost.',
+      isIOS,
+    };
+  }
+
+  if (!nav.bluetooth) {
+    return {
+      supported: false,
+      message: isIOS
+        ? 'Web Bluetooth is not available on iOS Safari.'
+        : 'This browser does not expose Web Bluetooth.',
+      isIOS,
+    };
+  }
+
+  return {
+    supported: true,
+    message: 'Web Bluetooth is available.',
+    isIOS,
+  };
+}
 
 // ── EEG processing ────────────────────────────────────────────────────────────
 
@@ -255,7 +291,7 @@ export default function App() {
   const [sampleCount, setSampleCount] = useState(0);
   const [wasmReady, setWasmReady] = useState(false);
 
-  const bluetoothSupport = checkWebBluetooth();
+  const bluetoothSupport = checkBrowserBluetoothSupport();
 
   const deviceRef    = useRef<MuseBleDevice | null>(null);
   const rollingBuf   = useRef<number[]>([]);

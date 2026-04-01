@@ -28,6 +28,9 @@ const eegWebBleVersion = JSON.parse(
 const rppgWebVersion = JSON.parse(
   readFileSync(join(__dirname, '..', 'rppg-web', 'package.json'), 'utf8'),
 ).version;
+const ppgWebVersion = JSON.parse(
+  readFileSync(join(__dirname, '..', 'ppg-web', 'package.json'), 'utf8'),
+).version;
 
 function runCli(args, cwd) {
   return spawnSync(process.execPath, [CLI, ...args], {
@@ -38,7 +41,14 @@ function runCli(args, cwd) {
 }
 
 function runCommand(cmd, args, cwd, timeoutMs = 5 * 60_000) {
-  const result = spawnSync(cmd, args, {
+  const resolved =
+    cmd === 'pnpm'
+      ? process.platform === 'win32'
+        ? { cmd: 'cmd.exe', args: ['/d', '/s', '/c', ['corepack', 'pnpm', ...args].join(' ')] }
+        : { cmd: 'corepack', args: ['pnpm', ...args] }
+      : { cmd, args };
+
+  const result = spawnSync(resolved.cmd, resolved.args, {
     cwd,
     stdio: 'inherit',
     timeout: timeoutMs,
@@ -51,7 +61,7 @@ function runCommand(cmd, args, cwd, timeoutMs = 5 * 60_000) {
   assert.strictEqual(
     result.status,
     0,
-    `Command failed: ${cmd} ${args.join(' ')}`,
+    `Command failed: ${resolved.cmd} ${resolved.args.join(' ')}`,
   );
 }
 
@@ -67,6 +77,8 @@ test('lists templates', () => {
   assert.match(result.stdout, /eeg-demo/);
   assert.match(result.stdout, /eeg-ble/);
   assert.match(result.stdout, /aliases: ble, eeg-web-ble-demo/);
+  assert.match(result.stdout, /ppg-demo/);
+  assert.match(result.stdout, /aliases: ppg, muse-ppg/);
   assert.doesNotMatch(result.stdout, /eeg-web-demo/);
 });
 
@@ -74,6 +86,7 @@ test('ships fallback SDK versions that match the repo package versions', () => {
   assert.equal(scaffolderPackage.elataSdkVersions.eegWeb, eegWebVersion);
   assert.equal(scaffolderPackage.elataSdkVersions.eegWebBle, eegWebBleVersion);
   assert.equal(scaffolderPackage.elataSdkVersions.rppgWeb, rppgWebVersion);
+  assert.equal(scaffolderPackage.elataSdkVersions.ppgWeb, ppgWebVersion);
 });
 
 test('scaffolds the default template', () => {
@@ -132,7 +145,7 @@ test('scaffolds correctly from packaged contents without monorepo siblings', () 
   }
 });
 
-test('smoke: each template scaffolds, installs, and builds', () => {
+test('smoke: each published template scaffolds, installs, and builds', () => {
   const templates = ['rppg-demo', 'eeg-demo', 'eeg-ble'];
 
   for (const templateName of templates) {
@@ -190,6 +203,24 @@ test('scaffolds the BLE template with current package versions', () => {
   }
 });
 
+test('scaffolds the PPG template with current package versions', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
+  try {
+    const result = runCli(['ppg-starter', '--template', 'ppg-demo'], tmp);
+    assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
+    const pkg = readFileSync(join(tmp, 'ppg-starter', 'package.json'), 'utf8');
+    assert.match(pkg, new RegExp(`"@elata-biosciences/ppg-web": "${ppgWebVersion}"`));
+    assert.match(pkg, new RegExp(`"@elata-biosciences/eeg-web": "${eegWebVersion}"`));
+    assert.match(
+      pkg,
+      new RegExp(`"@elata-biosciences/eeg-web-ble": "${eegWebBleVersion}"`),
+    );
+    assert.match(pkg, new RegExp(`"@elata-biosciences/rppg-web": "${rppgWebVersion}"`));
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
 test('warns when scaffolding inside a parent pnpm workspace', () => {
   const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-workspace-'));
   try {
@@ -227,6 +258,36 @@ test('accepts the BLE short alias', () => {
     assert.match(readme, /eeg-ble/);
     const app = readFileSync(join(tmp, 'ble-short-demo', 'src', 'App.tsx'), 'utf8');
     assert.match(app, /iOS native BLE reference/);
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('accepts the PPG short alias', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
+  try {
+    const result = runCli(['pulse-demo', '--template', 'ppg'], tmp);
+    assert.strictEqual(result.status, 0, `CLI failed:\n${result.stderr}`);
+    const readme = readFileSync(join(tmp, 'pulse-demo', 'README.md'), 'utf8');
+    assert.match(readme, /Muse PPG/);
+    const app = readFileSync(join(tmp, 'pulse-demo', 'src', 'App.tsx'), 'utf8');
+    assert.match(app, /createMusePpgSession/);
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('ppg-demo vite config excludes SDK packages from dep optimization', () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'create-elata-demo-'));
+  try {
+    const result = runCli(['pulse-demo', '--template', 'ppg-demo'], tmp);
+    assert.strictEqual(result.status, 0, result.stderr);
+    const viteConfig = readFileSync(join(tmp, 'pulse-demo', 'vite.config.ts'), 'utf8');
+    assert.match(viteConfig, /optimizeDeps/);
+    assert.match(viteConfig, /@elata-biosciences\/ppg-web/);
+    assert.match(viteConfig, /@elata-biosciences\/eeg-web/);
+    assert.match(viteConfig, /@elata-biosciences\/eeg-web-ble/);
+    assert.match(viteConfig, /@elata-biosciences\/rppg-web/);
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
