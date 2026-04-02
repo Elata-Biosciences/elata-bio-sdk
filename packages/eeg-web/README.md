@@ -84,7 +84,9 @@ console.log(pipeline.get_metrics());
 
 - `initEegWasm` and `initEegWasmSync`
 - `createRppgPipeline`
+- `createEegPreprocessor`
 - `band_powers`
+- `getEegChannelSamples` and `getEegInterleavedSamples`
 - `WasmAlphaBumpDetector`
 - `WasmAlphaPeakModel`
 - `WasmCalmnessModel`
