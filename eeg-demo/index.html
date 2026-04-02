@@ -307,9 +307,9 @@
             <div class="band-value" id="band-gamma">--</div>
           </div>
         </div>
-        <h3 style="margin-top: 16px;">Signal (EEG, Normalized)</h3>
+        <h3 style="margin-top: 16px;">Signal (EEG, Active Source)</h3>
         <canvas id="signal-canvas"></canvas>
-        <h3 style="margin-top: 16px;">Signal (EEG, Raw)</h3>
+        <h3 style="margin-top: 16px;">Signal (EEG, Raw / Transport)</h3>
         <canvas id="signal-raw-canvas"></canvas>
         <h3 style="margin-top: 16px;"><span id="ppg-label">PPG (<span style="color:#e57373">IR</span>, <span style="color:#4db6ac">Near-IR</span>, <span style="color:#7986cb">Red</span>)</span></h3>
         <canvas id="ppg-canvas"></canvas>
@@ -324,14 +324,10 @@
         </div>
         <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px; color: var(--muted); font-size:12px;">
           <label style="display:flex; align-items:center; gap:6px;">
-            <input id="notch-toggle" type="checkbox" checked />
-            Notch 60 Hz
+            <input id="preprocessing-toggle" type="checkbox" checked />
+            Use processed EEG
           </label>
-          <label style="display:flex; align-items:center; gap:6px;">
-            <input id="hp-toggle" type="checkbox" checked />
-            High-pass 0.5 Hz
-          </label>
-          <span id="notch-info">Notch: --</span>
+          <span id="processing-info">Processing: --</span>
         </div>
         <pre id="validation-details">Waiting for data...</pre>
       </div>
@@ -405,6 +401,7 @@
 
       // Initialize on page load
       initWasm();
+      updateProcessingInfo();
 
       // ==================== EEG Band Definitions ====================
       const BANDS = {
@@ -1523,9 +1520,8 @@
       const ppgCtx = ppgCanvas.getContext("2d");
       const validationSummaryEl = document.getElementById("validation-summary");
       const validationDetailsEl = document.getElementById("validation-details");
-      const notchToggle = document.getElementById("notch-toggle");
-      const notchInfoEl = document.getElementById("notch-info");
-      const hpToggle = document.getElementById("hp-toggle");
+      const preprocessingToggle = document.getElementById("preprocessing-toggle");
+      const processingInfoEl = document.getElementById("processing-info");
 
       // ==================== State ====================
       let syntheticBoard = null;
@@ -1564,16 +1560,10 @@
       let athenaPacketCount = 0;
       let athenaLastPacketAt = 0;
       let athenaLastDecodedSamples = 0;
-      let notchEnabled = true;
-      const notchFreqHz = 60;
-      let notchCoeffs = null;
-      let notchStates = [];
-      let notch120Enabled = true;
-      let notch120Coeffs = null;
-      let notch120States = [];
-      let hpEnabled = true;
-      let hpCoeffs = null;
-      let hpStates = [];
+      let preprocessingEnabled = true;
+      let eegPreprocessor = null;
+      let eegPreprocessorKey = "";
+      let lastProcessingDetails = null;
 
       // Model state
       let alphaBaseline = null;
@@ -1585,22 +1575,11 @@
       startBtn.addEventListener("click", startStream);
       stopBtn.addEventListener("click", stopStream);
       deviceSource.addEventListener("change", onDeviceSourceChange);
-      if (notchToggle) {
-        notchToggle.addEventListener("change", () => {
-          notchEnabled = notchToggle.checked;
-          notchStates = [];
-          notchCoeffs = null;
-          notch120States = [];
-          notch120Coeffs = null;
-          updateNotchInfo();
-        });
-      }
-      if (hpToggle) {
-        hpToggle.addEventListener("change", () => {
-          hpEnabled = hpToggle.checked;
-          hpStates = [];
-          hpCoeffs = null;
-          updateNotchInfo();
+      if (preprocessingToggle) {
+        preprocessingToggle.addEventListener("change", () => {
+          preprocessingEnabled = preprocessingToggle.checked;
+          resetEegPreprocessor();
+          updateProcessingInfo();
         });
       }
       logPauseBtn.addEventListener("click", () => {
@@ -1649,13 +1628,8 @@
         athenaPacketCount = 0;
         athenaLastPacketAt = 0;
         athenaLastDecodedSamples = 0;
-        notchStates = [];
-        notchCoeffs = null;
-        notch120States = [];
-        notch120Coeffs = null;
-        hpStates = [];
-        hpCoeffs = null;
-        updateNotchInfo();
+        resetEegPreprocessor();
+        updateProcessingInfo();
         setPpgLabelForMode("classic");
         infoEl.textContent = "Not connected.";
         if (currentSource === "synthetic") {
@@ -1684,104 +1658,176 @@
         }
       }
 
-      function updateNotchInfo() {
-        if (!notchInfoEl) return;
-        const parts = [];
-        parts.push(notchEnabled ? `Notch: ${notchFreqHz} Hz${notch120Enabled ? " + 120 Hz" : ""}` : "Notch: OFF");
-        parts.push(hpEnabled ? "HP: 0.5 Hz" : "HP: OFF");
-        notchInfoEl.textContent = parts.join(" | ");
-      }
-
-      function updateNotchCoeffs(fs, freqHz, q = 20) {
-        const w0 = 2 * Math.PI * (freqHz / fs);
-        const cosw0 = Math.cos(w0);
-        const alpha = Math.sin(w0) / (2 * q);
-        const b0 = 1;
-        const b1 = -2 * cosw0;
-        const b2 = 1;
-        const a0 = 1 + alpha;
-        const a1 = -2 * cosw0;
-        const a2 = 1 - alpha;
+      function createProcessingDetails(overrides = {}) {
         return {
-          b0: b0 / a0,
-          b1: b1 / a0,
-          b2: b2 / a0,
-          a1: a1 / a0,
-          a2: a2 / a0
+          applied: false,
+          signalKind: "raw",
+          rawAvailable: false,
+          referenceMode: "none",
+          detrendMode: "off",
+          notchFrequenciesHz: [],
+          stageOrder: [],
+          ...overrides
         };
       }
 
-      function updateHighPassCoeffs(fs, freqHz = 0.5, q = 0.707) {
-        const w0 = 2 * Math.PI * (freqHz / fs);
-        const cosw0 = Math.cos(w0);
-        const alpha = Math.sin(w0) / (2 * q);
-        const b0 = (1 + cosw0) / 2;
-        const b1 = -(1 + cosw0);
-        const b2 = (1 + cosw0) / 2;
-        const a0 = 1 + alpha;
-        const a1 = -2 * cosw0;
-        const a2 = 1 - alpha;
-        hpCoeffs = {
-          b0: b0 / a0,
-          b1: b1 / a0,
-          b2: b2 / a0,
-          a1: a1 / a0,
-          a2: a2 / a0
-        };
+      function cloneRows(rows) {
+        return Array.isArray(rows) ? rows.map((row) => Array.isArray(row) ? row.slice() : []) : [];
       }
 
-      function applyNotchFilter(sample) {
-        let out = sample;
-
-        if (notchEnabled && notchCoeffs) {
-          if (notchStates.length !== out.length) {
-            notchStates = new Array(out.length).fill(0).map(() => ({ z1: 0, z2: 0 }));
-          }
-          const stage = new Array(out.length);
-          for (let ch = 0; ch < out.length; ch++) {
-            const x = out[ch] || 0;
-            const state = notchStates[ch];
-            const y = notchCoeffs.b0 * x + state.z1;
-            state.z1 = notchCoeffs.b1 * x - notchCoeffs.a1 * y + state.z2;
-            state.z2 = notchCoeffs.b2 * x - notchCoeffs.a2 * y;
-            stage[ch] = y;
-          }
-          out = stage;
+      function resetEegPreprocessor() {
+        if (eegPreprocessor && typeof eegPreprocessor.free === "function") {
+          eegPreprocessor.free();
         }
+        eegPreprocessor = null;
+        eegPreprocessorKey = "";
+        lastProcessingDetails = createProcessingDetails();
+      }
 
-        if (notch120Enabled && notch120Coeffs) {
-          if (notch120States.length !== out.length) {
-            notch120States = new Array(out.length).fill(0).map(() => ({ z1: 0, z2: 0 }));
-          }
-          const stage = new Array(out.length);
-          for (let ch = 0; ch < out.length; ch++) {
-            const x = out[ch] || 0;
-            const state = notch120States[ch];
-            const y = notch120Coeffs.b0 * x + state.z1;
-            state.z1 = notch120Coeffs.b1 * x - notch120Coeffs.a1 * y + state.z2;
-            state.z2 = notch120Coeffs.b2 * x - notch120Coeffs.a2 * y;
-            stage[ch] = y;
-          }
-          out = stage;
+      function describeProcessingDetails(details) {
+        if (!preprocessingEnabled) {
+          return details && details.rawAvailable
+            ? "Display: raw (processed data available)"
+            : "Display: raw";
         }
-
-        if (hpEnabled && hpCoeffs) {
-          if (hpStates.length !== out.length) {
-            hpStates = new Array(out.length).fill(0).map(() => ({ z1: 0, z2: 0 }));
-          }
-          const stage = new Array(out.length);
-          for (let ch = 0; ch < out.length; ch++) {
-            const x = out[ch] || 0;
-            const state = hpStates[ch];
-            const y = hpCoeffs.b0 * x + state.z1;
-            state.z1 = hpCoeffs.b1 * x - hpCoeffs.a1 * y + state.z2;
-            state.z2 = hpCoeffs.b2 * x - hpCoeffs.a2 * y;
-            stage[ch] = y;
-          }
-          out = stage;
+        if (!details || !details.applied) {
+          return wasmReady
+            ? "Display: raw (preprocessor unavailable for this source)"
+            : "Display: raw (WASM preprocessor loading)";
         }
+        const notchText = details.notchFrequenciesHz && details.notchFrequenciesHz.length > 0
+          ? `notch ${details.notchFrequenciesHz.map((freq) => `${Math.round(freq)} Hz`).join(", ")}`
+          : "notch off";
+        return `Display: processed | ${details.referenceMode} ref | ${details.detrendMode} detrend | ${notchText}`;
+      }
 
+      function updateProcessingInfo(details = lastProcessingDetails) {
+        if (!processingInfoEl) return;
+        processingInfoEl.textContent = describeProcessingDetails(details);
+      }
+
+      function rowsToInterleaved(rows, channels) {
+        const out = new Float32Array(rows.length * channels);
+        for (let sampleIdx = 0; sampleIdx < rows.length; sampleIdx++) {
+          const row = rows[sampleIdx] || [];
+          for (let ch = 0; ch < channels; ch++) {
+            out[sampleIdx * channels + ch] = row[ch] || 0;
+          }
+        }
         return out;
+      }
+
+      function interleavedToRows(values, channels) {
+        const rows = [];
+        const sampleCount = channels > 0 ? Math.floor(values.length / channels) : 0;
+        for (let sampleIdx = 0; sampleIdx < sampleCount; sampleIdx++) {
+          const row = new Array(channels);
+          const base = sampleIdx * channels;
+          for (let ch = 0; ch < channels; ch++) {
+            row[ch] = Number(values[base + ch] || 0);
+          }
+          rows.push(row);
+        }
+        return rows;
+      }
+
+      function ensureEegPreprocessor(currentSampleRate, currentChannelCount) {
+        if (!preprocessingEnabled || !wasmReady || typeof wasm.WasmEegPreprocessor !== "function") {
+          return null;
+        }
+        const nextKey = `${currentSampleRate}:${currentChannelCount}`;
+        if (!eegPreprocessor || eegPreprocessorKey !== nextKey) {
+          if (eegPreprocessor && typeof eegPreprocessor.free === "function") {
+            eegPreprocessor.free();
+          }
+          eegPreprocessor = new wasm.WasmEegPreprocessor(
+            currentSampleRate,
+            currentChannelCount,
+            JSON.stringify({
+              enabled: true,
+              preserve_raw: true,
+              reference: {
+                mode: "common-average",
+                channels: []
+              },
+              detrend: {
+                mode: "highpass",
+                cutoff_hz: 0.5,
+                q: 0.707
+              },
+              notch: {
+                mains_hz: 60,
+                harmonics: [1, 2],
+                q: 20
+              }
+            })
+          );
+          eegPreprocessorKey = nextKey;
+        } else if (typeof eegPreprocessor.update_layout === "function") {
+          eegPreprocessor.update_layout(currentSampleRate, currentChannelCount);
+        }
+        return eegPreprocessor;
+      }
+
+      function normalizeIncomingEeg(frame) {
+        const rawRows = cloneRows(frame && frame.eegRaw && frame.eegRaw.samples ? frame.eegRaw.samples : frame.eeg.samples || []);
+        const processedRows = cloneRows(frame && frame.eeg && frame.eeg.samples ? frame.eeg.samples : []);
+        if (frame && frame.eegProcessing) {
+          if (preprocessingEnabled && frame.eegProcessing.applied) {
+            return {
+              activeRows: processedRows,
+              rawRows: rawRows.length > 0 ? rawRows : processedRows,
+              details: frame.eegProcessing
+            };
+          }
+          return {
+            activeRows: rawRows.length > 0 ? rawRows : processedRows,
+            rawRows: rawRows.length > 0 ? rawRows : processedRows,
+            details: createProcessingDetails({
+              applied: frame.eegProcessing.applied,
+              rawAvailable: frame.eegProcessing.rawAvailable,
+              referenceMode: frame.eegProcessing.referenceMode,
+              detrendMode: frame.eegProcessing.detrendMode,
+              notchFrequenciesHz: frame.eegProcessing.notchFrequenciesHz || [],
+              stageOrder: frame.eegProcessing.stageOrder || []
+            })
+          };
+        }
+
+        const channels = Math.max(frame?.eeg?.channelCount || processedRows[0]?.length || 0, 0);
+        if (!preprocessingEnabled || channels === 0) {
+          return {
+            activeRows: processedRows,
+            rawRows: processedRows,
+            details: createProcessingDetails()
+          };
+        }
+
+        const processor = ensureEegPreprocessor(frame.eeg.sampleRateHz || sampleRate, channels);
+        if (!processor || typeof processor.process !== "function") {
+          return {
+            activeRows: processedRows,
+            rawRows: processedRows,
+            details: createProcessingDetails()
+          };
+        }
+
+        const activeRows = interleavedToRows(processor.process(rowsToInterleaved(processedRows, channels)), channels);
+        return {
+          activeRows,
+          rawRows: processedRows,
+          details: createProcessingDetails({
+            applied: true,
+            signalKind: "processed",
+            rawAvailable: true,
+            referenceMode: typeof processor.reference_mode === "function" ? processor.reference_mode() : "common-average",
+            detrendMode: typeof processor.detrend_mode === "function" ? processor.detrend_mode() : "highpass",
+            notchFrequenciesHz: typeof processor.notch_frequencies_hz === "function"
+              ? Array.from(processor.notch_frequencies_hz()).map((value) => Number(value))
+              : [],
+            stageOrder: ["notch", "detrend", "rereference"]
+          })
+        };
       }
 
       function setPpgLabelForMode(mode, opticsChannelCount = 0) {
@@ -1828,17 +1874,20 @@
 
       function onHeadbandFrame(frame) {
         if (!frame || frame.schemaVersion !== HEADBAND_FRAME_SCHEMA_VERSION) return;
-        if (frame.source === "synthetic") {
-          onSyntheticData(frame.eeg.samples, frame.sequenceId);
-          return;
-        }
         if (frame.eeg && typeof frame.eeg.sampleRateHz === "number") {
           sampleRate = frame.eeg.sampleRateHz;
         }
         if (frame.eeg && Array.isArray(frame.eeg.channelNames) && frame.eeg.channelNames.length > 0) {
           eegChannelNames = frame.eeg.channelNames.slice();
         }
-        onMuseData(frame.eeg.samples);
+        const normalized = normalizeIncomingEeg(frame);
+        lastProcessingDetails = normalized.details;
+        updateProcessingInfo(normalized.details);
+        if (frame.source === "synthetic") {
+          onSyntheticData(normalized.activeRows, normalized.rawRows, frame.sequenceId);
+          return;
+        }
+        onMuseData(normalized.activeRows, normalized.rawRows);
         if (frame.ppgRaw && frame.ppgRaw.samples && frame.ppgRaw.samples.length > 0) {
           for (const row of frame.ppgRaw.samples) {
             pushPpgSamples("PPG1", [row[0]]);
@@ -1954,13 +2003,15 @@
         athenaLastDecodedSamples = 0;
         alphaBaseline = null;
         calmnessSmoothed = 0.5;
+        resetEegPreprocessor();
+        updateProcessingInfo();
         // Reset WASM models for fresh stream
         wasmAlphaDetector = null;
         wasmAlphaPeakModel = null;
         wasmCalmnessModel = null;
 
         await activeTransport.start();
-        setStatus("Streaming synthetic data...");
+        setStatus(preprocessingEnabled ? "Streaming synthetic data with preprocessing..." : "Streaming synthetic raw EEG...");
       }
 
       async function stopSyntheticStream() {
@@ -1969,29 +2020,21 @@
         setStatus("Connected (stream stopped).");
       }
 
-      function onSyntheticData(samples, sequenceId) {
-        for (const eegValues of samples) {
-          rawSampleBuffer.push(eegValues);
+      function onSyntheticData(activeSamples, rawSamples, sequenceId) {
+        for (const eegValues of rawSamples) {
+          rawSampleBuffer.push(eegValues.slice());
           if (rawSampleBuffer.length > BUFFER_SIZE) {
             rawSampleBuffer.shift();
           }
-          if (!notchCoeffs && notchEnabled) {
-            notchCoeffs = updateNotchCoeffs(sampleRate, notchFreqHz, 20);
-            notch120Coeffs = updateNotchCoeffs(sampleRate, 120, 20);
-            updateNotchInfo();
-          }
-          if (!hpCoeffs && hpEnabled) {
-            updateHighPassCoeffs(sampleRate, 0.5, 0.707);
-            updateNotchInfo();
-          }
-          const filtered = applyNotchFilter(eegValues);
-          sampleBuffer.push(filtered);
+        }
+        for (const eegValues of activeSamples) {
+          sampleBuffer.push(eegValues.slice());
           if (sampleBuffer.length > BUFFER_SIZE) {
             sampleBuffer.shift();
           }
         }
-        if (samples.length > 0) {
-          recordSampleTimes(samples.length);
+        if (rawSamples.length > 0) {
+          recordSampleTimes(rawSamples.length);
           updateValidation();
         }
 
@@ -2005,8 +2048,8 @@
         drawRawSignal();
 
         // Log
-        if (samples.length > 0) {
-          const firstEeg = samples[0].slice(0, 4).map(v => v.toFixed(2));
+        if (activeSamples.length > 0) {
+          const firstEeg = activeSamples[0].slice(0, 4).map(v => v.toFixed(2));
           const seq = typeof sequenceId === "number" ? sequenceId : -1;
           appendLog(`seq=${seq} synthetic [${firstEeg.join(", ")}...]`);
         }
@@ -2093,15 +2136,10 @@
         athenaPacketCount = 0;
         athenaLastPacketAt = 0;
         athenaLastDecodedSamples = 0;
-        notchStates = [];
-        notchCoeffs = null;
-        notch120States = [];
-        notch120Coeffs = null;
-        hpStates = [];
-        hpCoeffs = null;
-        updateNotchInfo();
         alphaBaseline = null;
         calmnessSmoothed = 0.5;
+        resetEegPreprocessor();
+        updateProcessingInfo();
         // Reset WASM models for fresh stream
         wasmAlphaDetector = null;
         wasmAlphaPeakModel = null;
@@ -2110,9 +2148,9 @@
         try {
           await activeTransport.start();
           if (isMuseAthenaMode()) {
-            setStatus("Streaming Athena EEG + optics + IMU...");
+            setStatus(preprocessingEnabled ? "Streaming Athena EEG with preprocessing + optics + IMU..." : "Streaming Athena raw EEG + optics + IMU...");
           } else {
-            setStatus("Streaming Muse EEG + PPG data...");
+            setStatus(preprocessingEnabled ? "Streaming Muse EEG with preprocessing + PPG data..." : "Streaming Muse raw EEG + PPG data...");
           }
         } catch (err) {
           setStatus(`Muse stream error: ${err.message || err}`);
@@ -2167,15 +2205,10 @@
         athenaPacketCount = 0;
         athenaLastPacketAt = 0;
         athenaLastDecodedSamples = 0;
-        notchStates = [];
-        notchCoeffs = null;
-        notch120States = [];
-        notch120Coeffs = null;
-        hpStates = [];
-        hpCoeffs = null;
-        updateNotchInfo();
+        resetEegPreprocessor();
+        updateProcessingInfo();
         await activeTransport.start();
-        setStatus("Streaming WebSocket EEG frames...");
+        setStatus(preprocessingEnabled ? "Streaming WebSocket EEG with preprocessing..." : "Streaming raw WebSocket EEG...");
       }
 
       async function stopWsStream() {
@@ -2184,36 +2217,27 @@
         setStatus("WebSocket connected (stream stopped).");
       }
 
-      function onMuseData(samples) {
-        // Muse samples are already in [TP9, AF7, AF8, TP10] format
-        for (const sample of samples) {
-          rawSampleBuffer.push(sample);
+      function onMuseData(activeSamples, rawSamples) {
+        for (const sample of rawSamples) {
+          rawSampleBuffer.push(sample.slice());
           if (rawSampleBuffer.length > BUFFER_SIZE) {
             rawSampleBuffer.shift();
           }
-          if (!notchCoeffs && notchEnabled) {
-            notchCoeffs = updateNotchCoeffs(sampleRate, notchFreqHz, 20);
-            notch120Coeffs = updateNotchCoeffs(sampleRate, 120, 20);
-            updateNotchInfo();
-          }
-          if (!hpCoeffs && hpEnabled) {
-            updateHighPassCoeffs(sampleRate, 0.5, 0.707);
-            updateNotchInfo();
-          }
-          const filtered = applyNotchFilter(sample);
-          sampleBuffer.push(filtered);
+        }
+        for (const sample of activeSamples) {
+          sampleBuffer.push(sample.slice());
           if (sampleBuffer.length > BUFFER_SIZE) {
             sampleBuffer.shift();
           }
         }
-        if (samples.length > 0) {
-          channelCount = samples[0].length;
+        if (rawSamples.length > 0) {
+          channelCount = rawSamples[0].length;
           const names = currentMuseEegNames();
           if (names.length === channelCount) {
             eegChannelNames = names;
           }
           if (!(isMuseAthenaMode() && sampleTimeSource === "device")) {
-            recordSampleTimes(samples.length);
+            recordSampleTimes(rawSamples.length);
             updateValidation();
           }
         }
@@ -2228,8 +2252,8 @@
         drawRawSignal();
 
         // Log
-        if (samples.length > 0) {
-          const firstSample = samples[0];
+        if (activeSamples.length > 0) {
+          const firstSample = activeSamples[0];
           const values = firstSample.map(v => v.toFixed(2));
           const prefix = currentSource === "ws"
             ? "ws"
@@ -2781,9 +2805,6 @@
         const lastPacketAgo = athenaLastPacketAt ? `${Math.round(now - athenaLastPacketAt)} ms` : "--";
         const packetText = `Data: ${athenaPacketCount} pkts, last ${lastPacketAgo}`;
         const decodedText = `Decoded EEG: ${athenaLastDecodedSamples}`;
-        if (!notchEnabled) {
-          updateNotchInfo();
-        }
         validationSummaryEl.innerHTML = [
           `<span>Sample Rate: ${rateText}</span>`,
           `<span>Window: ${windowSize} samples</span>`,
@@ -2870,7 +2891,7 @@
             if (v > max) max = v;
           }
 
-          if (museDevice && museDevice.isAthena) {
+          if (isMuseAthenaMode()) {
             min = Math.min(min, 0);
             max = Math.max(max, 1450);
           } else if (min === max) {
