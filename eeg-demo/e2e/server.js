@@ -3,7 +3,8 @@ const fs = require("fs");
 const path = require("path");
 
 const PORT = Number(process.env.PORT || 4173);
-const ROOT = path.resolve(__dirname, "..");
+const DEMO_ROOT = path.resolve(__dirname, "..");
+const REPO_ROOT = path.resolve(__dirname, "..", "..");
 
 const MIME_TYPES = {
 	".html": "text/html; charset=utf-8",
@@ -18,21 +19,40 @@ const MIME_TYPES = {
 function resolvePath(urlPath) {
 	const rawPath = urlPath.split("?")[0];
 	const decoded = decodeURIComponent(rawPath);
+	if (decoded === "/favicon.ico") {
+		return { kind: "favicon" };
+	}
 	const requested = decoded === "/" ? "/index.html" : decoded;
-	const fullPath = path.resolve(ROOT, `.${requested}`);
-	if (!fullPath.startsWith(ROOT)) {
+
+	if (requested.startsWith("/packages/")) {
+		const fullPath = path.resolve(REPO_ROOT, `.${requested}`);
+		if (!fullPath.startsWith(REPO_ROOT)) {
+			return null;
+		}
+		return { kind: "file", filePath: fullPath };
+	}
+
+	const fullPath = path.resolve(DEMO_ROOT, `.${requested}`);
+	if (!fullPath.startsWith(DEMO_ROOT)) {
 		return null;
 	}
-	return fullPath;
+	return { kind: "file", filePath: fullPath };
 }
 
 const server = http.createServer((req, res) => {
-	const filePath = resolvePath(req.url || "/");
-	if (!filePath) {
+	const resolved = resolvePath(req.url || "/");
+	if (!resolved) {
 		res.writeHead(403);
 		res.end("Forbidden");
 		return;
 	}
+	if (resolved.kind === "favicon") {
+		res.writeHead(204);
+		res.end();
+		return;
+	}
+
+	const { filePath } = resolved;
 
 	fs.readFile(filePath, (err, content) => {
 		if (err) {

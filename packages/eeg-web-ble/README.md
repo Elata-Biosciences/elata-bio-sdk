@@ -69,6 +69,49 @@ By default, `frame.eeg` carries processed EEG and `frame.eegRaw` preserves the
 original transport samples. Pass `eegProcessing: false` if you want
 `frame.eeg` to remain raw.
 
+## EEG Signal Contract
+
+`BleTransport` now applies the SDK EEG preprocessing pipeline automatically by
+default. That keeps the transport aligned with the same Rust/WASM DSP used by
+the rest of the repo instead of forcing each app or demo to maintain its own
+notch, detrend, and rereference logic.
+
+Default transport behavior:
+
+- `frame.eeg` contains processed EEG
+- `frame.eegRaw` preserves the original decoded transport rows
+- `frame.eegProcessing` describes what was applied
+
+Default processing stages:
+
+- notch filtering at `60 Hz` and `120 Hz`
+- detrending via `0.5 Hz` high-pass cleanup
+- common-average rereferencing
+
+If you want raw transport samples as the primary signal, disable processing:
+
+```ts
+const transport = new BleTransport({
+  eegProcessing: false,
+});
+```
+
+If you want processing but need to tune it, pass options through to the
+underlying `@elata-biosciences/eeg-web` preprocessor:
+
+```ts
+const transport = new BleTransport({
+  eegProcessing: {
+    notch: { mainsHz: 50 },
+    detrend: { mode: "linear" },
+    reference: { mode: "custom-average", channels: ["TP9", "TP10"] },
+  },
+});
+```
+
+Signal-selection helpers such as `getEegChannelSamples(frame, 0, "raw")` come
+from `@elata-biosciences/eeg-web`.
+
 ## Key Exports
 
 - `BleTransport`
@@ -110,6 +153,7 @@ If you are working across repo workflows, prefer starting with:
 - If device selection never appears, confirm the site is running on `https://` or `localhost` and that Bluetooth is enabled on the machine.
 - If you are targeting Safari or iOS, this package is not the right browser-side transport; use a native or bridge strategy instead.
 - If Athena startup fails, verify that you passed an `athenaDecoderFactory` backed by `@elata-biosciences/eeg-web`.
+- If your analysis expects raw EEG, explicitly set `eegProcessing: false` or read from `frame.eegRaw`.
 
 ## Release Notes
 

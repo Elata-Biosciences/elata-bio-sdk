@@ -5,6 +5,17 @@ The browser demo supports two sources:
 - Synthetic Board (JS): runs fully in the browser.
 - Muse / Synthetic Bridge (BLE): connects to a BLE peripheral that emulates the Muse protocol.
 
+The demo now reflects the SDK preprocessing split:
+
+- the main EEG plot shows the active signal source used for analysis
+- the raw EEG plot shows the underlying transport/raw samples
+- the `Use processed EEG` toggle switches between processed and raw EEG without
+  changing the transport source
+
+When processed EEG is enabled, the demo uses the same Rust/WASM preprocessing
+pipeline exposed by `@elata-biosciences/eeg-web` rather than its old
+demo-local JavaScript notch/high-pass implementation.
+
 To run the synthetic BLE bridge:
 
 ```bash

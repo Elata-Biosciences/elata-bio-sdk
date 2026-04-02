@@ -370,7 +370,7 @@
       let PackagedBleTransport = null;
       const bleTransportModuleReady = (async () => {
         try {
-          const mod = await import("../packages/eeg-web-ble/dist/index.js");
+          const mod = await import("/packages/eeg-web-ble/dist/index.js");
           if (mod && typeof mod.BleTransport === "function") {
             PackagedBleTransport = mod.BleTransport;
           }
@@ -401,7 +401,6 @@
 
       // Initialize on page load
       initWasm();
-      updateProcessingInfo();
 
       // ==================== EEG Band Definitions ====================
       const BANDS = {
@@ -1564,6 +1563,7 @@
       let eegPreprocessor = null;
       let eegPreprocessorKey = "";
       let lastProcessingDetails = null;
+      updateProcessingInfo();
 
       // Model state
       let alphaBaseline = null;

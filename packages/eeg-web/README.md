@@ -56,6 +56,65 @@ const powers = band_powers(eegData, 256);
 console.log(powers.alpha);
 ```
 
+## EEG Preprocessing
+
+`@elata-biosciences/eeg-web` now exposes the browser wrapper around the Rust EEG
+preprocessing pipeline. The DSP implementation lives in `crates/eeg-signal` and
+is surfaced through `eeg-wasm`; this package provides the stable TypeScript API
+for using it in browser code.
+
+Default processing stages:
+
+- notch filtering at `60 Hz` plus `120 Hz`
+- detrending via `0.5 Hz` high-pass cleanup
+- common-average rereferencing
+
+The wrapper preserves both views of the signal when processing is enabled:
+
+- `frame.eeg`: processed EEG
+- `frame.eegRaw`: raw transport samples when available
+- `frame.eegProcessing`: metadata describing the applied stages
+
+Example:
+
+```ts
+import {
+  createEegPreprocessor,
+  getEegChannelSamples,
+  processHeadbandFrame,
+} from "@elata-biosciences/eeg-web";
+
+const processor = await createEegPreprocessor({
+  notch: { mainsHz: 60 },
+  detrend: { mode: "highpass", cutoffHz: 0.5 },
+  reference: { mode: "common-average" },
+});
+
+const processedFrame = processor.processFrame(frame);
+const processedCh0 = getEegChannelSamples(processedFrame, 0);
+const rawCh0 = getEegChannelSamples(processedFrame, 0, "raw");
+
+processor.dispose();
+```
+
+Available configuration surfaces:
+
+- `enabled: false` to bypass processing entirely
+- `preserveRaw: false` to omit `eegRaw`
+- `notch: false` to disable mains suppression
+- `notch.mainsHz: 50 | 60 | null`
+- `reference.mode: "none" | "common-average" | "custom-average"`
+- `reference.channels` for a custom rereference subset
+- `detrend.mode: "off" | "highpass" | "linear"`
+
+Helper functions:
+
+- `createEegPreprocessor(options)`
+- `processHeadbandFrame(frame, options)`
+- `getEegSignalBlock(frame, source)`
+- `getEegChannelSamples(frame, channelIndex, source)`
+- `getEegInterleavedSamples(frame, source)`
+
 ## Recommended Vs Advanced
 
 Recommended:
@@ -85,7 +144,9 @@ console.log(pipeline.get_metrics());
 - `initEegWasm` and `initEegWasmSync`
 - `createRppgPipeline`
 - `createEegPreprocessor`
+- `processHeadbandFrame`
 - `band_powers`
+- `getEegSignalBlock`
 - `getEegChannelSamples` and `getEegInterleavedSamples`
 - `WasmAlphaBumpDetector`
 - `WasmAlphaPeakModel`
