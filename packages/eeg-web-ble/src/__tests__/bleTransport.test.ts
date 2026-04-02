@@ -74,7 +74,9 @@ describe('BleTransport', () => {
     ]);
     expect(frames).toHaveLength(1);
     expect(frames[0].source).toBe('test-ble');
-    expect(frames[0].eeg.samples).toEqual([[1, 2, 3, 4]]);
+    expect(frames[0].eeg.samples).toEqual([[-1.5, -0.5, 0.5, 1.5]]);
+    expect(frames[0].eegRaw?.samples).toEqual([[1, 2, 3, 4]]);
+    expect(frames[0].eegProcessing?.signalKind).toBe('processed');
     expect(frames[0].eeg.clockSource).toBe('local');
   });
 
@@ -142,6 +144,27 @@ describe('BleTransport', () => {
 
     expect(frames).toHaveLength(1);
     expect(frames[0].source).toBe('muse-ble');
+  });
+
+  test('can disable EEG preprocessing to access raw transport data directly', async () => {
+    const device = createFakeBleDevice();
+    const transport = new BleTransport({
+      device: device as any,
+      eegProcessing: false,
+    });
+    const frames: HeadbandFrameV1[] = [];
+    transport.onFrame = (frame: HeadbandFrameV1) => frames.push(frame);
+
+    await transport.start();
+    device.emitEeg([[1, 2, 3, 4]]);
+
+    expect(frames).toHaveLength(1);
+    expect(frames[0].eeg.samples).toEqual([[1, 2, 3, 4]]);
+    expect(frames[0].eegRaw).toBeUndefined();
+    expect(frames[0].eegProcessing).toMatchObject({
+      applied: false,
+      signalKind: 'raw',
+    });
   });
 
   test('does not emit frame for empty EEG samples', async () => {

@@ -41,16 +41,20 @@ npm install @elata-biosciences/eeg-web-ble @elata-biosciences/eeg-web
 
 ```ts
 import { BleTransport } from "@elata-biosciences/eeg-web-ble";
-import { AthenaWasmDecoder } from "@elata-biosciences/eeg-web";
+import {
+  AthenaWasmDecoder,
+  getEegChannelSamples,
+} from "@elata-biosciences/eeg-web";
 
 const transport = new BleTransport({
   deviceOptions: {
     athenaDecoderFactory: () => new AthenaWasmDecoder()
-  }
+  },
+  // Set eegProcessing: false if you want raw transport data in frame.eeg.
 });
 
 transport.onFrame = (frame) => {
-  console.log(frame.eeg.samples.length);
+  console.log(getEegChannelSamples(frame, 0).length, frame.eegRaw?.samples.length);
 };
 
 transport.onStatus = (status) => {
@@ -60,6 +64,10 @@ transport.onStatus = (status) => {
 await transport.connect();
 await transport.start();
 ```
+
+By default, `frame.eeg` carries processed EEG and `frame.eegRaw` preserves the
+original transport samples. Pass `eegProcessing: false` if you want
+`frame.eeg` to remain raw.
 
 ## Key Exports
 
