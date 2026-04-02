@@ -7,6 +7,7 @@ interface FakeDeviceShape {
   eegNames: string[];
   numEegChannels: number;
   opticsChannelCount: number;
+  availablePpgNames: string[];
   prepareSession: jest.Mock;
   releaseSession: jest.Mock;
   stopStream: jest.Mock;
@@ -26,6 +27,7 @@ function createFakeBleDevice(): FakeDeviceShape {
     eegNames: ['TP9', 'AF7', 'AF8', 'TP10'],
     numEegChannels: 4,
     opticsChannelCount: 0,
+    availablePpgNames: ['PPG1', 'PPG2', 'PPG3'],
     prepareSession: jest.fn(async () => {}),
     releaseSession: jest.fn(async () => {}),
     stopStream: jest.fn(async () => {}),
@@ -231,6 +233,29 @@ describe('BleTransport', () => {
     expect(frames[0].ppgRaw!.samples).toEqual([
       [100, 300, 500],
       [200, 400, 600],
+    ]);
+  });
+
+  test('per-channel PPG emits rows for two-channel devices', async () => {
+    const device = createFakeBleDevice();
+    device.availablePpgNames = ['PPG1', 'PPG2'];
+    const transport = new BleTransport({ device: device as any });
+    const frames: HeadbandFrameV1[] = [];
+    transport.onFrame = (frame: HeadbandFrameV1) => frames.push(frame);
+
+    await transport.start();
+
+    device.emitPpg('PPG1', { sequence: 1, samples: [100, 200] });
+    device.emitPpg('PPG2', { sequence: 1, samples: [300, 400] });
+    device.emitEeg([[1, 2, 3, 4]]);
+
+    expect(frames).toHaveLength(1);
+    expect(frames[0].ppgRaw).toBeDefined();
+    expect(frames[0].ppgRaw!.channelNames).toEqual(['PPG1', 'PPG2']);
+    expect(frames[0].ppgRaw!.channelCount).toBe(2);
+    expect(frames[0].ppgRaw!.samples).toEqual([
+      [100, 300],
+      [200, 400],
     ]);
   });
 

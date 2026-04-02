@@ -600,6 +600,70 @@ describe('MuseBleDevice', () => {
       await device.stopStream();
       await device.releaseSession();
     });
+
+    test('athena startStream accepts typed-array WASM outputs', async () => {
+      const env = createFakeBluetoothEnv({ isAthena: true });
+      setNavigatorBluetooth(env.fakeBluetooth);
+
+      const fakeDecoder = {
+        reset: jest.fn(),
+        decode: jest.fn()
+          .mockImplementationOnce(() => ({
+            eeg_samples: () => new Float32Array([1, 2, 3, 4, 5, 6, 7, 8]),
+            eeg_channel_count: () => 8,
+            optics_samples: () => new Float32Array([]),
+            optics_channel_count: () => 0,
+            optics_timestamps_ms: () => new Float64Array([]),
+            accgyro_samples: () => new Float32Array([]),
+            accgyro_timestamps_ms: () => new Float64Array([]),
+            battery_samples: () => new Float32Array([]),
+            battery_timestamps_ms: () => new Float64Array([]),
+          }))
+          .mockImplementationOnce(() => ({
+            eeg_samples: () => new Float32Array([]),
+            eeg_channel_count: () => 8,
+            optics_samples: () => new Float32Array([10, 20, 30, 40]),
+            optics_channel_count: () => 2,
+            optics_timestamps_ms: () => new Float64Array([100, 110]),
+            accgyro_samples: () => new Float32Array([1, 2, 3, 4, 5, 6]),
+            accgyro_timestamps_ms: () => new Float64Array([120]),
+            battery_samples: () => new Float32Array([95]),
+            battery_timestamps_ms: () => new Float64Array([130]),
+          })),
+        set_use_device_timestamps: jest.fn(),
+        set_clock_kind: jest.fn(),
+        set_reorder_window_ms: jest.fn(),
+      };
+
+      const device = new MuseBleDevice({
+        sleepMs: async () => {},
+        athenaDecoderFactory: () => fakeDecoder,
+      });
+      await device.prepareSession();
+
+      const received: number[][] = [];
+      const auxPackets: any[] = [];
+      await device.startStream(
+        (samples) => {
+          received.push(...samples);
+        },
+        (channelName, packet) => {
+          auxPackets.push({ channelName, packet });
+        },
+      );
+
+      env.chars[CHAR_UUIDS.athenaEeg]._emit('characteristicvaluechanged', new Uint8Array(20));
+      env.chars[CHAR_UUIDS.athenaOther]._emit('characteristicvaluechanged', new Uint8Array(20));
+
+      expect(received).toHaveLength(1);
+      expect(received[0]).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+      expect(auxPackets).toHaveLength(1);
+      expect(auxPackets[0].packet.optics.samples).toEqual([10, 20, 30, 40]);
+      expect(auxPackets[0].packet.optics.timestamps_ms).toEqual([100, 110]);
+
+      await device.stopStream();
+      await device.releaseSession();
+    });
   });
 
   describe('Athena decoder error handling', () => {
