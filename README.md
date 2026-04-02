@@ -76,7 +76,8 @@ Full details: [docs/create-elata-demo.md](docs/create-elata-demo.md)
 ### Add packages to an existing app
 
 Published JavaScript and TypeScript packages live under the
-[`@elata-biosciences` npm organization](https://www.npmjs.com/org/elata-biosciences).
+[`@elata-biosciences` scope on npm](https://www.npmjs.com/org/elata-biosciences)
+(org landing page: all packages in one place).
 
 ```bash
 pnpm add @elata-biosciences/eeg-web
@@ -90,10 +91,10 @@ Use this quick guide if you are starting from an existing app:
 
 | Goal | Start here | Notes |
 |------|------------|-------|
-| Scaffold a new app | `@elata-biosciences/create-elata-demo` | Fastest path for evaluation and onboarding |
-| Run EEG WASM APIs in the browser | `@elata-biosciences/eeg-web` | Signal processing, models, and WASM helpers |
-| Connect to a Muse-compatible EEG device in the browser | `@elata-biosciences/eeg-web-ble` | Requires `@elata-biosciences/eeg-web` and Web Bluetooth |
-| Run camera-based rPPG in a browser app | `@elata-biosciences/rppg-web` | Includes processor, backend loader, and demo helpers |
+| Scaffold a new app | [`@elata-biosciences/create-elata-demo`](https://www.npmjs.com/package/@elata-biosciences/create-elata-demo) | Fastest path for evaluation and onboarding |
+| Run EEG WASM APIs in the browser | [`@elata-biosciences/eeg-web`](https://www.npmjs.com/package/@elata-biosciences/eeg-web) | Signal processing, models, and WASM helpers |
+| Connect to a Muse-compatible EEG device in the browser | [`@elata-biosciences/eeg-web-ble`](https://www.npmjs.com/package/@elata-biosciences/eeg-web-ble) | Requires `@elata-biosciences/eeg-web` and Web Bluetooth |
+| Run camera-based rPPG in a browser app | [`@elata-biosciences/rppg-web`](https://www.npmjs.com/package/@elata-biosciences/rppg-web) | Includes processor, backend loader, and demo helpers |
 
 If you are trying the SDK for the first time, prefer `create-elata-demo` over
 manual package setup.
@@ -106,10 +107,12 @@ Wrong turns to avoid:
 
 ## Packages
 
-- `@elata-biosciences/eeg-web`: EEG WASM wrapper and re-export surface
-- `@elata-biosciences/eeg-web-ble`: Web Bluetooth transport for EEG headbands
-- `@elata-biosciences/rppg-web`: rPPG processing wrapper and demo helpers
-- `@elata-biosciences/create-elata-demo`: app scaffolder with multiple templates
+Scope overview: [@elata-biosciences on npm](https://www.npmjs.com/org/elata-biosciences) lists every published package in this workspace.
+
+- [@elata-biosciences/eeg-web](https://www.npmjs.com/package/@elata-biosciences/eeg-web): EEG WASM wrapper and re-export surface
+- [@elata-biosciences/eeg-web-ble](https://www.npmjs.com/package/@elata-biosciences/eeg-web-ble): Web Bluetooth transport for EEG headbands
+- [@elata-biosciences/rppg-web](https://www.npmjs.com/package/@elata-biosciences/rppg-web): rPPG processing wrapper and demo helpers
+- [@elata-biosciences/create-elata-demo](https://www.npmjs.com/package/@elata-biosciences/create-elata-demo): app scaffolder with multiple templates
 
 ## Compatibility Summary
 
@@ -128,10 +131,10 @@ Browser caveats:
 
 Package docs:
 
-- [packages/eeg-web/README.md](packages/eeg-web/README.md)
-- [packages/eeg-web-ble/README.md](packages/eeg-web-ble/README.md)
-- [packages/rppg-web/README.md](packages/rppg-web/README.md)
-- [packages/create-elata-demo/README.md](packages/create-elata-demo/README.md)
+- [packages/eeg-web/README.md](packages/eeg-web/README.md) · [npm](https://www.npmjs.com/package/@elata-biosciences/eeg-web)
+- [packages/eeg-web-ble/README.md](packages/eeg-web-ble/README.md) · [npm](https://www.npmjs.com/package/@elata-biosciences/eeg-web-ble)
+- [packages/rppg-web/README.md](packages/rppg-web/README.md) · [npm](https://www.npmjs.com/package/@elata-biosciences/rppg-web)
+- [packages/create-elata-demo/README.md](packages/create-elata-demo/README.md) · [npm](https://www.npmjs.com/package/@elata-biosciences/create-elata-demo)
 
 ## Common Repo Workflows
 
