@@ -8,11 +8,13 @@ use wasm_bindgen::prelude::*;
 
 mod athena;
 mod models;
+mod preprocess;
 mod rppg;
 mod signal;
 
 pub use athena::*;
 pub use models::*;
+pub use preprocess::*;
 pub use rppg::*;
 pub use signal::*;
 

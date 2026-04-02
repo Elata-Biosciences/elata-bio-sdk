@@ -10,3 +10,4 @@ homepage = "https://github.com/Elata-Biosciences/elata-bio-sdk#readme"
 
 [dependencies]
 eeg-hal = { path = "../eeg-hal" }
+serde = { version = "1.0", features = ["derive"] }
