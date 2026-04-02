@@ -1101,8 +1101,14 @@ run_rppg_demo() {
 }
 
 run_ppg_demo() {
-    require_cmds node
+    require_cmds cargo wasm-bindgen node
     require_package_manager
+
+    local eeg_profile
+    eeg_profile="$(normalize_profile "${PPG_DEMO_PROFILE:-${EEG_DEMO_PROFILE:-release}}")" || exit 1
+
+    echo "Preparing EEG WASM artifacts for PPG Athena decode support (profile: $eeg_profile)..."
+    build_eeg_web_package "$eeg_profile"
 
     run_pkg_script "packages/ppg-web" "build:demo"
 

@@ -48,8 +48,8 @@
 		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
 		"verify:publish": "pnpm run verify:build",
 		"prepare:publish": "pnpm run build:demo && pnpm run build",
-		"start-demo": "pnpm run build:demo && pnpm dlx http-server demo -p 8081 --silent",
-		"start-demo:quick": "pnpm dlx http-server demo -p 8081 --silent",
+		"start-demo": "node ./scripts/start-demo.mjs",
+		"start-demo:quick": "node ./scripts/start-demo.mjs --quick",
 		"prepack": "pnpm run prepare:publish && pnpm run verify:publish"
 	},
 	"peerDependencies": {

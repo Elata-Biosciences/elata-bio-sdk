@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pkgDir = path.resolve(__dirname, "..");
 
-for (const dir of ["dist"]) {
+for (const dir of ["dist", "demo/eeg-wasm"]) {
 	const full = path.join(pkgDir, dir);
 	if (fs.existsSync(full)) {
 		fs.rmSync(full, { recursive: true, force: true });

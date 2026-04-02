@@ -15,6 +15,30 @@ Browser-side Muse PPG heart-rate and HRV estimation built on the normalized
 - Exposes a simple session wrapper on top of `HeadbandTransport`.
 - Ships a simple in-repo demo at `./run.sh demo ppg`.
 
+## Run the in-repo demo
+
+If you have `bash` available in this repo:
+
+```bash
+./run.sh demo ppg
+```
+
+If you are on Windows PowerShell without `bash`, run the package directly:
+
+```powershell
+corepack pnpm --dir packages/ppg-web run start-demo
+```
+
+Then open `http://127.0.0.1:8081/index.html`.
+
+For Muse S Athena devices, build EEG WASM artifacts first so the demo can load
+`AthenaWasmDecoder`:
+
+```bash
+./run.sh build eeg
+./run.sh demo ppg
+```
+
 ## Install
 
 ```bash

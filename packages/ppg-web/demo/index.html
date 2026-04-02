@@ -197,9 +197,36 @@
 						<strong>Transport</strong>
 						<span id="transport">--</span>
 					</div>
+					<div>
+						<strong>Window</strong>
+						<span id="window">--</span>
+					</div>
+					<div>
+						<strong>Frames</strong>
+						<span id="frames">--</span>
+					</div>
 				</div>
 			</section>
 		</main>
+		<script type="module">
+			const demoWindow = window;
+			try {
+				const eegWasm = await import("./eeg-wasm/eeg_wasm.js");
+				await eegWasm.default();
+				if (typeof eegWasm.AthenaWasmDecoder === "function") {
+					demoWindow.__ppgAthenaDecoderFactory = () =>
+						new eegWasm.AthenaWasmDecoder();
+				}
+			} catch (error) {
+				const message =
+					error instanceof Error ? error.message : String(error);
+				demoWindow.__ppgAthenaInitError = message;
+				console.warn(
+					"[ppg-web demo] Athena decoder unavailable. Muse S Athena devices may fail to decode.",
+					error,
+				);
+			}
+		</script>
 		<script type="module" src="./main.js"></script>
 	</body>
 </html>
