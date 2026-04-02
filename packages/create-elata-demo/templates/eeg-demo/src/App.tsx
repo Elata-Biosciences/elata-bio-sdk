@@ -5,8 +5,9 @@ import {
   WasmCalmnessModel,
   WasmAlphaBumpDetector,
   WasmAlphaPeakModel,
+  AthenaWasmDecoder,
 } from '@elata-biosciences/eeg-web';
-import { MuseBleDevice } from '@elata-biosciences/eeg-web-ble';
+import { BleTransport } from '@elata-biosciences/eeg-web-ble';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -293,7 +294,7 @@ export default function App() {
 
   const bluetoothSupport = checkBrowserBluetoothSupport();
 
-  const deviceRef    = useRef<MuseBleDevice | null>(null);
+  const transportRef = useRef<BleTransport | null>(null);
   const rollingBuf   = useRef<number[]>([]);
   const waveformBuf  = useRef<number[]>([]);
   const synthPhase   = useRef(0);
@@ -310,9 +311,10 @@ export default function App() {
 
   async function teardownHeadband() {
     clearTick();
-    if (deviceRef.current) {
-      await deviceRef.current.releaseSession().catch(() => {});
-      deviceRef.current = null;
+    if (transportRef.current) {
+      await transportRef.current.stop().catch(() => {});
+      await transportRef.current.disconnect().catch(() => {});
+      transportRef.current = null;
     }
     rollingBuf.current = [];
   }
@@ -410,20 +412,26 @@ export default function App() {
     resetModels();
     try {
       setStatus('Requesting Bluetooth device…');
-      const device = new MuseBleDevice();
-      deviceRef.current = device;
-      await device.prepareSession();
-      const info = device.getBoardInfo();
-      setDeviceName(info.device_name);
-      setStatus(`Connected to ${info.device_name}. Streaming…`);
-      await device.startStream((rows) => {
-        const batch = rows.map((r) => r[0]);
+      const transport = new BleTransport({
+        deviceOptions: {
+          athenaDecoderFactory: () => new AthenaWasmDecoder(),
+        },
+        // Set eegProcessing: false if you want raw transport data in frame.eeg.
+      });
+      transportRef.current = transport;
+      transport.onFrame = (frame) => {
+        const batch = frame.eeg.samples.map((row) => row[0] ?? 0);
         for (const v of batch) rollingBuf.current.push(v);
         if (rollingBuf.current.length > WINDOW_SAMPLES)
           rollingBuf.current = rollingBuf.current.slice(-WINDOW_SAMPLES);
         pushWaveform(batch);
-        setSampleCount((c) => c + rows.length);
-      });
+        setSampleCount((c) => c + batch.length);
+      };
+      await transport.connect();
+      const info = transport.getBoardInfo() as { device_name: string };
+      setDeviceName(info.device_name);
+      setStatus(`Connected to ${info.device_name}. Streaming…`);
+      await transport.start();
       intervalRef.current = setInterval(() => {
         if (rollingBuf.current.length < SAMPLE_RATE) return;
         processWindow(new Float32Array(rollingBuf.current));
