@@ -48,6 +48,7 @@ before acting on it.
 - [implementation-plan-sdk-adoption.md](implementation-plan-sdk-adoption.md)
 - [implementation-plan-ios-safari-ble-bridge.md](implementation-plan-ios-safari-ble-bridge.md)
 - [implementation-plan-harmonic-selection.md](implementation-plan-harmonic-selection.md)
+- [implementation-plan-multi-modality-and-rppg.md](implementation-plan-multi-modality-and-rppg.md)
 
 ## Related Repo Guides
 
