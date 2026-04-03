@@ -139,6 +139,15 @@ That makes it much easier to:
 - process different sample rates cleanly, and
 - add new modalities without changing every consumer.
 
+**Typing strategy:** `samples` as `number[][]` plus `channelNames`, `modality`,
+and `metadata` is intentional: the shared shape stays a portable transport and
+rig boundary. For ergonomic pipelines, add **narrowing helpers or views** at the
+edge of a package (for example map an EEG block into existing WASM-facing types,
+or map `modality === "rppg"` blocks into current rPPG result structs) instead of
+encoding every modality’s sample layout in the shared interface. Keep richer
+domain types **package-local or app-local** until a second consumer needs the
+same shape; then promote the minimum stable slice into shared contracts.
+
 #### 4. Rig / Multi-Source Session
 
 A **Rig** or **MultiSourceSession** is the app-level fan-in layer.
@@ -313,6 +322,21 @@ Why `subscribeBlock()` instead of one `onBlock` property:
 - it composes better with adapters
 - it avoids handler clobbering
 - it makes a rig implementation straightforward
+
+---
+
+### Contract versioning
+
+- Use `schemaVersion` on `BiosignalBlockV1` (and successors) as the explicit
+  compatibility switch. Consumers should reject, bridge, or degrade gracefully
+  on unknown versions rather than assuming layout.
+- Prefer **additive** changes (new optional fields, new `modality` enum members
+  with documented semantics) within a schema version. If a layout or meaning
+  break is unavoidable, introduce `v2` (or higher) and keep adapters for at
+  least one release cycle where practical.
+- When contracts ship publicly, mark **stable vs experimental** exports in the
+  owning package README. Reserve major version bumps for renames or semantic
+  breaks, not for every new optional field.
 
 ---
 
