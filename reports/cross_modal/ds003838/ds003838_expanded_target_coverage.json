@@ -1,0 +1,429 @@
+{
+  "kind": "ds003838_target_coverage",
+  "config_path": "configs/cross_modal/ds003838_targets_expanded.toml",
+  "runtime_sec": 2.9141285000005155,
+  "peak_memory_mb": 2.48087215423584,
+  "source_dataset": "reports/cross_modal/ds003838/ds003838_phase2_expanded_windows.npz",
+  "source_branch": "ppg_clean_windows",
+  "window_count": 4096,
+  "quality_pass_counts": {
+    "train": 2048,
+    "eval": 2048
+  },
+  "target_names": [
+    "ppg_peak_count",
+    "mean_ibi_seconds",
+    "amplitude_range",
+    "rising_edge_slope_max",
+    "dominant_beat_amplitude",
+    "dominant_beat_rise_time_seconds",
+    "dominant_beat_width_seconds",
+    "dominant_beat_fall_time_seconds",
+    "dominant_beat_peak_time_seconds",
+    "dominant_beat_notch_delay_seconds"
+  ],
+  "per_target": {
+    "ppg_peak_count": {
+      "total_valid": 4096,
+      "train_valid": 2048,
+      "eval_valid": 2048,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-032": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-034": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-036": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-038": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-033": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-039": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-040": {
+          "split": "eval",
+          "valid": 512
+        }
+      }
+    },
+    "mean_ibi_seconds": {
+      "total_valid": 4096,
+      "train_valid": 2048,
+      "eval_valid": 2048,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-032": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-034": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-036": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-038": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-033": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-039": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-040": {
+          "split": "eval",
+          "valid": 512
+        }
+      }
+    },
+    "amplitude_range": {
+      "total_valid": 4096,
+      "train_valid": 2048,
+      "eval_valid": 2048,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-032": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-034": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-036": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-038": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-033": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-039": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-040": {
+          "split": "eval",
+          "valid": 512
+        }
+      }
+    },
+    "rising_edge_slope_max": {
+      "total_valid": 4096,
+      "train_valid": 2048,
+      "eval_valid": 2048,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-032": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-034": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-036": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-038": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-033": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-039": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-040": {
+          "split": "eval",
+          "valid": 512
+        }
+      }
+    },
+    "dominant_beat_amplitude": {
+      "total_valid": 4091,
+      "train_valid": 2045,
+      "eval_valid": 2046,
+      "train_valid_fraction": 0.99853515625,
+      "eval_valid_fraction": 0.9990234375,
+      "by_subject": {
+        "sub-032": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-034": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-036": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-038": {
+          "split": "train",
+          "valid": 509
+        },
+        "sub-033": {
+          "split": "eval",
+          "valid": 510
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-039": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-040": {
+          "split": "eval",
+          "valid": 512
+        }
+      }
+    },
+    "dominant_beat_rise_time_seconds": {
+      "total_valid": 4091,
+      "train_valid": 2045,
+      "eval_valid": 2046,
+      "train_valid_fraction": 0.99853515625,
+      "eval_valid_fraction": 0.9990234375,
+      "by_subject": {
+        "sub-032": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-034": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-036": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-038": {
+          "split": "train",
+          "valid": 509
+        },
+        "sub-033": {
+          "split": "eval",
+          "valid": 510
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-039": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-040": {
+          "split": "eval",
+          "valid": 512
+        }
+      }
+    },
+    "dominant_beat_width_seconds": {
+      "total_valid": 4091,
+      "train_valid": 2045,
+      "eval_valid": 2046,
+      "train_valid_fraction": 0.99853515625,
+      "eval_valid_fraction": 0.9990234375,
+      "by_subject": {
+        "sub-032": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-034": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-036": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-038": {
+          "split": "train",
+          "valid": 509
+        },
+        "sub-033": {
+          "split": "eval",
+          "valid": 510
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-039": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-040": {
+          "split": "eval",
+          "valid": 512
+        }
+      }
+    },
+    "dominant_beat_fall_time_seconds": {
+      "total_valid": 4091,
+      "train_valid": 2045,
+      "eval_valid": 2046,
+      "train_valid_fraction": 0.99853515625,
+      "eval_valid_fraction": 0.9990234375,
+      "by_subject": {
+        "sub-032": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-034": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-036": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-038": {
+          "split": "train",
+          "valid": 509
+        },
+        "sub-033": {
+          "split": "eval",
+          "valid": 510
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-039": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-040": {
+          "split": "eval",
+          "valid": 512
+        }
+      }
+    },
+    "dominant_beat_peak_time_seconds": {
+      "total_valid": 4091,
+      "train_valid": 2045,
+      "eval_valid": 2046,
+      "train_valid_fraction": 0.99853515625,
+      "eval_valid_fraction": 0.9990234375,
+      "by_subject": {
+        "sub-032": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-034": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-036": {
+          "split": "train",
+          "valid": 512
+        },
+        "sub-038": {
+          "split": "train",
+          "valid": 509
+        },
+        "sub-033": {
+          "split": "eval",
+          "valid": 510
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-039": {
+          "split": "eval",
+          "valid": 512
+        },
+        "sub-040": {
+          "split": "eval",
+          "valid": 512
+        }
+      }
+    },
+    "dominant_beat_notch_delay_seconds": {
+      "total_valid": 299,
+      "train_valid": 77,
+      "eval_valid": 222,
+      "train_valid_fraction": 0.03759765625,
+      "eval_valid_fraction": 0.1083984375,
+      "by_subject": {
+        "sub-032": {
+          "split": "train",
+          "valid": 3
+        },
+        "sub-034": {
+          "split": "train",
+          "valid": 8
+        },
+        "sub-038": {
+          "split": "train",
+          "valid": 66
+        },
+        "sub-033": {
+          "split": "eval",
+          "valid": 93
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 6
+        },
+        "sub-039": {
+          "split": "eval",
+          "valid": 123
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+[baseline]
+dataset = "reports/cross_modal/ds004514/ds004514_cross_modal_canonicalized_windows.npz"
+metadata = "reports/cross_modal/ds004514/ds004514_cross_modal_canonicalized_metadata.json"
+routed_metrics = "reports/cross_modal/ds004514/ds004514_variant_routed_baseline_metrics.json"
+ridge_lambda = 1.0
+
+[policy]
+subject_quality_policy = "configs/cross_modal/ds004514_subject_quality_policy.json"
+allowed_tier = "default_train_eval"
+
+[paths]
+report = "reports/cross_modal/ds004514/ds004514_canonicalized_baseline_report.md"
+metrics = "reports/cross_modal/ds004514/ds004514_canonicalized_baseline_metrics.json"

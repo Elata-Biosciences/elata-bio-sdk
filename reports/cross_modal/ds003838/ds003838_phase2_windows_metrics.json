@@ -1,0 +1,70 @@
+{
+  "kind": "ds003838_phase2_window_metrics",
+  "config_path": "configs/cross_modal/ds003838_phase2_windows.toml",
+  "runtime_sec": 194.36022769997362,
+  "peak_memory_mb": 403.9631290435791,
+  "subject_count": 4,
+  "train_subject_count": 2,
+  "eval_subject_count": 2,
+  "paired_window_count": 2048,
+  "quality_pass_window_count": 2048,
+  "eeg_event_tensor_shape": [
+    2048,
+    63,
+    500
+  ],
+  "eeg_clean_tensor_shape": [
+    2048,
+    63,
+    128
+  ],
+  "ppg_native_tensor_shape": [
+    2048,
+    2000
+  ],
+  "ppg_clean_tensor_shape": [
+    2048,
+    256
+  ],
+  "max_subject_rmse_seconds": 0.0,
+  "max_subject_abs_seconds": 0.0,
+  "mean_ppg_peak_count": 3.36083984375,
+  "per_subject": [
+    {
+      "subject_id": "sub-032",
+      "split": "train",
+      "paired_window_count": 512,
+      "quality_pass_window_count": 512,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.54296875
+    },
+    {
+      "subject_id": "sub-034",
+      "split": "train",
+      "paired_window_count": 512,
+      "quality_pass_window_count": 512,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.419921875
+    },
+    {
+      "subject_id": "sub-033",
+      "split": "eval",
+      "paired_window_count": 512,
+      "quality_pass_window_count": 512,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.044921875
+    },
+    {
+      "subject_id": "sub-035",
+      "split": "eval",
+      "paired_window_count": 512,
+      "quality_pass_window_count": 512,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.435546875
+    }
+  ]
+}

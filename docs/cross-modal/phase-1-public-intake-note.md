@@ -42,9 +42,28 @@ This note summarizes the current state of the public candidate manifests and wha
 - Intended role: EEG-PPG rest and working-memory benchmarking
 - What is verified:
   - official OpenNeuro DOI `10.18112/openneuro.ds006848.v1.0.0`
+  - snapshot metadata confirm dataset name, `BIDSVersion` `1.7.0`, and `CC0` license
+  - the source tree contains `30` subject folders and no session subdirectories
+  - all `30` subjects expose `eeg/` with BrainVision payloads plus CapTrak electrode and coordsystem sidecars
+  - EEG sidecars report `63` EEG channels at `1000 Hz`
+  - the same BrainVision container also carries one `PPG` channel and one `ECG` channel at `1000 Hz`
+  - `task-verbalwm` is present for all `30` subjects and has matching `beh/` files for all `30`
+  - `task-rest` is present for `22` subjects, and the missing-rest cohort matches `participants.tsv -> RS_excluded=yes`
+  - an executable verbalwm Phase 2 pilot artifact exists for `sub-001` train and `sub-007` eval
+  - that verbalwm pilot artifact emits `512` paired windows with zero measured alignment residual and full quality-pass
+  - an expanded verbalwm development artifact exists for `sub-001`, `sub-010` train and `sub-007`, `sub-012` eval, with `1024` aligned quality-pass windows
+  - a broader verbalwm development artifact exists for `sub-001`, `sub-010`, `sub-013`, `sub-015` train and `sub-007`, `sub-012`, `sub-016`, `sub-017` eval, with `2048` paired windows and `1983` quality-pass windows
+  - the broader target artifact keeps dominant-beat coverage dense (`1978` valid windows) and introduces the first nonzero DS006848 eval notch coverage (`123` valid windows)
+  - the broader morphology baseline no longer beats the null on aggregate standardized MSE for either EEG branch, with `eeg_clean` now the least-bad branch
+  - a first rest Phase 2 pilot now exists for `sub-001` train and `sub-007` eval, with `20` paired windows, full quality-pass, and explicit `Eyes_Closed`, `Eyes_Opened`, `Start_Cartoon`, and `End_Cartoon` marker coverage
+  - a machine-readable DS006848 verbalwm subject-quality policy now exists:
+    - `sub-016` is marked `stress_test_only`
+    - `sub-017` is marked `borderline_review`
+    - the remaining `22` verbalwm subjects stay `pending_review`
 - What remains:
-  - confirm exact modality layout
-  - normalize protocol labels into the benchmark taxonomy
+  - benchmark morphology-grade raw PPG quality on a broader representative subject subset
+  - derive the first DS006848 rest target artifact on top of the new rest Phase 2 pilot
+  - decide the long-term roles of DS006848 and DS003838 now that both broader verbalwm splits fail to beat null
 
 ### DREAMT
 

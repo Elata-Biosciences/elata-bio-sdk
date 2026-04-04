@@ -1,0 +1,79 @@
+{
+  "kind": "ds004514_cross_modal_canonicalized_metrics",
+  "config_path": "configs/cross_modal/ds004514_cross_modal_canonicalized.toml",
+  "subject_quality_policy_path": "configs/cross_modal/ds004514_subject_quality_policy.json",
+  "subject_quality_allowed_tier": "default_train_eval",
+  "subject_count": 4,
+  "train_subject_count": 2,
+  "eval_subject_count": 2,
+  "paired_window_count": 720,
+  "eeg_tensor_shape": [
+    720,
+    64,
+    1229
+  ],
+  "fnirs_tensor_shape": [
+    720,
+    12,
+    78
+  ],
+  "canonical_channel_count": 12,
+  "canonical_channel_names": [
+    "S1_D3 hbo",
+    "S1_D3 hbr",
+    "S2_D1 hbo",
+    "S2_D1 hbr",
+    "S3_D1 hbo",
+    "S3_D1 hbr",
+    "S3_D4 hbo",
+    "S3_D4 hbr",
+    "S4_D1 hbo",
+    "S4_D1 hbr",
+    "S6_D4 hbo",
+    "S6_D4 hbr"
+  ],
+  "max_subject_rmse_seconds": 0.03703923052877821,
+  "max_subject_abs_seconds": 0.06577501313813627,
+  "per_subject": [
+    {
+      "subject_id": "sub-01",
+      "split": "train",
+      "paired_window_count": 180,
+      "rmse_seconds": 0.03703923052877821,
+      "max_abs_seconds": 0.06482981278941224,
+      "original_fnirs_channel_count": 28,
+      "original_fnirs_sampling_rate_hz": 7.8125,
+      "subject_quality_tier": "default_train_eval"
+    },
+    {
+      "subject_id": "sub-10",
+      "split": "train",
+      "paired_window_count": 180,
+      "rmse_seconds": 0.03234415653729995,
+      "max_abs_seconds": 0.05802659964547274,
+      "original_fnirs_channel_count": 22,
+      "original_fnirs_sampling_rate_hz": 8.928571,
+      "subject_quality_tier": "default_train_eval"
+    },
+    {
+      "subject_id": "sub-03",
+      "split": "eval",
+      "paired_window_count": 180,
+      "rmse_seconds": 0.036929543797646694,
+      "max_abs_seconds": 0.06577501313813627,
+      "original_fnirs_channel_count": 28,
+      "original_fnirs_sampling_rate_hz": 7.8125,
+      "subject_quality_tier": "default_train_eval"
+    },
+    {
+      "subject_id": "sub-11",
+      "split": "eval",
+      "paired_window_count": 180,
+      "rmse_seconds": 0.032430810077060127,
+      "max_abs_seconds": 0.057377789395559375,
+      "original_fnirs_channel_count": 22,
+      "original_fnirs_sampling_rate_hz": 8.928571,
+      "subject_quality_tier": "default_train_eval"
+    }
+  ]
+}

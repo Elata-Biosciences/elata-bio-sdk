@@ -1,0 +1,106 @@
+{
+  "kind": "ds003838_phase2_window_metrics",
+  "config_path": "configs/cross_modal/ds003838_phase2_windows_expanded.toml",
+  "runtime_sec": 344.5925986999973,
+  "peak_memory_mb": 735.0166511535645,
+  "subject_count": 8,
+  "train_subject_count": 4,
+  "eval_subject_count": 4,
+  "paired_window_count": 4096,
+  "quality_pass_window_count": 4096,
+  "eeg_event_tensor_shape": [
+    4096,
+    63,
+    500
+  ],
+  "eeg_clean_tensor_shape": [
+    4096,
+    63,
+    128
+  ],
+  "ppg_native_tensor_shape": [
+    4096,
+    2000
+  ],
+  "ppg_clean_tensor_shape": [
+    4096,
+    256
+  ],
+  "max_subject_rmse_seconds": 0.0,
+  "max_subject_abs_seconds": 0.0,
+  "mean_ppg_peak_count": 3.377197265625,
+  "per_subject": [
+    {
+      "subject_id": "sub-032",
+      "split": "train",
+      "paired_window_count": 512,
+      "quality_pass_window_count": 512,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.54296875
+    },
+    {
+      "subject_id": "sub-034",
+      "split": "train",
+      "paired_window_count": 512,
+      "quality_pass_window_count": 512,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.419921875
+    },
+    {
+      "subject_id": "sub-036",
+      "split": "train",
+      "paired_window_count": 512,
+      "quality_pass_window_count": 512,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.166015625
+    },
+    {
+      "subject_id": "sub-038",
+      "split": "train",
+      "paired_window_count": 512,
+      "quality_pass_window_count": 512,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.375
+    },
+    {
+      "subject_id": "sub-033",
+      "split": "eval",
+      "paired_window_count": 512,
+      "quality_pass_window_count": 512,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.044921875
+    },
+    {
+      "subject_id": "sub-035",
+      "split": "eval",
+      "paired_window_count": 512,
+      "quality_pass_window_count": 512,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.435546875
+    },
+    {
+      "subject_id": "sub-039",
+      "split": "eval",
+      "paired_window_count": 512,
+      "quality_pass_window_count": 512,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.271484375
+    },
+    {
+      "subject_id": "sub-040",
+      "split": "eval",
+      "paired_window_count": 512,
+      "quality_pass_window_count": 512,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.76171875
+    }
+  ]
+}

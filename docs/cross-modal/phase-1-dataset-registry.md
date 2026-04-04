@@ -51,6 +51,7 @@ Registry file:
   Status: candidate
   Priority: high
   Verified source: `https://doi.org/10.18112/openneuro.ds006848.v1.0.0`
+  Intake report: [../../reports/cross_modal/intake/ds006848-intake-report.md](../../reports/cross_modal/intake/ds006848-intake-report.md)
 
 ### Public sleep EEG-PPG
 
@@ -80,3 +81,4 @@ python scripts/cross_modal/validate_manifest_file.py manifests/cross_modal/publi
 
 - These manifests are deliberately lightweight and may contain placeholder counts until real ingest is performed.
 - Public dataset modality dimensions and sampling rates should be confirmed during implementation, even when a candidate manifest already contains a provisional value.
+- `DS006848` now also has a first 2-subject rest Phase 2 pilot, so its next open question is broader waveform quality and rest-target derivation, not whether a rest branch can be built at all.

@@ -1,0 +1,55 @@
+{
+  "kind": "ds006848_phase2_window_metrics",
+  "config_path": "configs/cross_modal/ds006848_phase2_windows_rest.toml",
+  "task": "rest",
+  "runtime_sec": 5.6904204999882495,
+  "peak_memory_mb": 98.3541374206543,
+  "subject_count": 2,
+  "train_subject_count": 1,
+  "eval_subject_count": 1,
+  "paired_window_count": 20,
+  "quality_pass_window_count": 20,
+  "eeg_event_tensor_shape": [
+    20,
+    63,
+    500
+  ],
+  "eeg_clean_tensor_shape": [
+    20,
+    63,
+    128
+  ],
+  "ppg_native_tensor_shape": [
+    20,
+    2000
+  ],
+  "ppg_clean_tensor_shape": [
+    20,
+    256
+  ],
+  "max_subject_rmse_seconds": 0.0,
+  "max_subject_abs_seconds": 0.0,
+  "mean_ppg_peak_count": 3.15,
+  "per_subject": [
+    {
+      "subject_id": "sub-001",
+      "split": "train",
+      "candidate_event_count": 10,
+      "paired_window_count": 10,
+      "quality_pass_window_count": 10,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 2.8
+    },
+    {
+      "subject_id": "sub-007",
+      "split": "eval",
+      "candidate_event_count": 10,
+      "paired_window_count": 10,
+      "quality_pass_window_count": 10,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.5
+    }
+  ]
+}

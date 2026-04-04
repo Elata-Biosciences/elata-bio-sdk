@@ -1,0 +1,10 @@
+[analysis]
+baseline_config = "configs/cross_modal/ds006848_morphology_baseline_expanded.toml"
+
+[analysis.target_families]
+amplitude_family = ["amplitude_range", "rising_edge_slope_max", "dominant_beat_amplitude"]
+timing_family = ["mean_ibi_seconds", "dominant_beat_rise_time_seconds", "dominant_beat_width_seconds"]
+
+[paths]
+metrics = "reports/cross_modal/ds006848/ds006848_expanded_baseline_analysis_metrics.json"
+report = "reports/cross_modal/ds006848/ds006848_expanded_baseline_analysis_report.md"

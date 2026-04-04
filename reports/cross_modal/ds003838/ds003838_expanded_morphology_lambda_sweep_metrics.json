@@ -1,0 +1,133 @@
+{
+  "config": "configs/cross_modal/ds003838_morphology_sweep_expanded.toml",
+  "ridge_lambdas": [
+    100.0,
+    1000.0,
+    10000.0,
+    100000.0,
+    1000000.0,
+    10000000.0,
+    100000000.0
+  ],
+  "target_names": [
+    "mean_ibi_seconds",
+    "amplitude_range",
+    "rising_edge_slope_max",
+    "dominant_beat_amplitude",
+    "dominant_beat_rise_time_seconds",
+    "dominant_beat_width_seconds"
+  ],
+  "aggregate_target_names": [
+    "amplitude_range",
+    "rising_edge_slope_max",
+    "dominant_beat_amplitude",
+    "dominant_beat_rise_time_seconds",
+    "dominant_beat_width_seconds"
+  ],
+  "train_windows": 2048,
+  "eval_windows": 2048,
+  "branches": {
+    "eeg_event_windows": {
+      "aggregate_null_mse_std": 6.051847527847389,
+      "best_lambda": 100000000.0,
+      "best_aggregate_model_mse_std": 6.0570149592656595,
+      "beats_null_any_lambda": false,
+      "sweep": [
+        {
+          "ridge_lambda": 100.0,
+          "aggregate_model_mse_std": 284.4505335088878,
+          "aggregate_null_mse_std": 6.051847527847389,
+          "beats_null_std_mse": false
+        },
+        {
+          "ridge_lambda": 1000.0,
+          "aggregate_model_mse_std": 36.71102325846756,
+          "aggregate_null_mse_std": 6.051847527847389,
+          "beats_null_std_mse": false
+        },
+        {
+          "ridge_lambda": 10000.0,
+          "aggregate_model_mse_std": 7.1349181289047054,
+          "aggregate_null_mse_std": 6.051847527847389,
+          "beats_null_std_mse": false
+        },
+        {
+          "ridge_lambda": 100000.0,
+          "aggregate_model_mse_std": 6.12450919441933,
+          "aggregate_null_mse_std": 6.051847527847389,
+          "beats_null_std_mse": false
+        },
+        {
+          "ridge_lambda": 1000000.0,
+          "aggregate_model_mse_std": 6.094113958555398,
+          "aggregate_null_mse_std": 6.051847527847389,
+          "beats_null_std_mse": false
+        },
+        {
+          "ridge_lambda": 10000000.0,
+          "aggregate_model_mse_std": 6.081888839032418,
+          "aggregate_null_mse_std": 6.051847527847389,
+          "beats_null_std_mse": false
+        },
+        {
+          "ridge_lambda": 100000000.0,
+          "aggregate_model_mse_std": 6.0570149592656595,
+          "aggregate_null_mse_std": 6.051847527847389,
+          "beats_null_std_mse": false
+        }
+      ]
+    },
+    "eeg_clean_windows": {
+      "aggregate_null_mse_std": 6.051847527847389,
+      "best_lambda": 100000000.0,
+      "best_aggregate_model_mse_std": 6.052769751434508,
+      "beats_null_any_lambda": false,
+      "sweep": [
+        {
+          "ridge_lambda": 100.0,
+          "aggregate_model_mse_std": 84.7816596665411,
+          "aggregate_null_mse_std": 6.051847527847389,
+          "beats_null_std_mse": false
+        },
+        {
+          "ridge_lambda": 1000.0,
+          "aggregate_model_mse_std": 11.36112793997832,
+          "aggregate_null_mse_std": 6.051847527847389,
+          "beats_null_std_mse": false
+        },
+        {
+          "ridge_lambda": 10000.0,
+          "aggregate_model_mse_std": 6.154240994890149,
+          "aggregate_null_mse_std": 6.051847527847389,
+          "beats_null_std_mse": false
+        },
+        {
+          "ridge_lambda": 100000.0,
+          "aggregate_model_mse_std": 6.109355540136206,
+          "aggregate_null_mse_std": 6.051847527847389,
+          "beats_null_std_mse": false
+        },
+        {
+          "ridge_lambda": 1000000.0,
+          "aggregate_model_mse_std": 6.087663217198866,
+          "aggregate_null_mse_std": 6.051847527847389,
+          "beats_null_std_mse": false
+        },
+        {
+          "ridge_lambda": 10000000.0,
+          "aggregate_model_mse_std": 6.065614084029222,
+          "aggregate_null_mse_std": 6.051847527847389,
+          "beats_null_std_mse": false
+        },
+        {
+          "ridge_lambda": 100000000.0,
+          "aggregate_model_mse_std": 6.052769751434508,
+          "aggregate_null_mse_std": 6.051847527847389,
+          "beats_null_std_mse": false
+        }
+      ]
+    }
+  },
+  "runtime_sec": 118.39213699999891,
+  "peak_memory_mb": 3938.2699298858643
+}

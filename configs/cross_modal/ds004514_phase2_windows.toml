@@ -1,0 +1,70 @@
+[builder]
+pipeline = "ds004514_eeg_fnirs_phase2"
+
+[dataset]
+dataset_id = "ds004514"
+dataset_version = "1.1.2"
+dataset_name = "ds004514-simultaneous-eeg-fnirs-semantic-decoding"
+base_url = "https://s3.amazonaws.com/openneuro.org/ds004514"
+
+[subjects]
+train = ["sub-01", "sub-10"]
+eval = ["sub-03", "sub-11"]
+
+[policy]
+subject_quality_policy = "configs/cross_modal/ds004514_subject_quality_policy.json"
+allowed_tier = "default_train_eval"
+
+[fetch]
+include_code_examples = false
+raw_modalities = ["eeg", "fnirs"]
+force = false
+
+[window]
+event_trial_types = ["animal_image", "tool_image"]
+anchor = "matched_event_onset"
+eeg_event_tmin_seconds = 0.0
+eeg_event_tmax_seconds = 0.6
+eeg_clean_tmin_seconds = 0.0
+eeg_clean_tmax_seconds = 0.6
+eeg_event_channel_count = 64
+eeg_clean_resample_hz = 256.0
+fnirs_tmin_seconds = 0.0
+fnirs_tmax_seconds = 10.0
+fnirs_target_samples = 78
+
+[cleaning.eeg]
+notch_freq_hz = 60.0
+notch_method = "iir_zero_phase"
+
+[quality]
+max_alignment_rmse_seconds = 0.1
+max_alignment_abs_seconds = 0.15
+
+[benchmark]
+duration_seconds = 2.0
+probe_frequencies_hz = [10.0, 20.0, 40.0, 60.0, 80.0]
+transient_burst_frequency_hz = 40.0
+transient_sigma_seconds = 0.03
+pulse_rise_seconds = 0.04
+pulse_decay_seconds = 0.12
+compute_repeats = 20
+
+[expected]
+subject_ids = ["sub-01", "sub-03", "sub-10", "sub-11"]
+paired_window_count = 720
+eeg_event_window_shape = [64, 1229]
+eeg_clean_window_shape = [64, 154]
+fnirs_window_shape = [12, 78]
+canonical_channel_count = 12
+min_quality_pass_count = 720
+
+[paths]
+dataset_root = ".tmp/ds004514_cross_modal_canonicalized/source"
+fetch_report = "reports/cross_modal/ds004514/ds004514_phase2_fetch_report.json"
+dataset = "reports/cross_modal/ds004514/ds004514_phase2_windows.npz"
+metadata = "reports/cross_modal/ds004514/ds004514_phase2_windows_metadata.json"
+metrics = "reports/cross_modal/ds004514/ds004514_phase2_windows_metrics.json"
+summary = "reports/cross_modal/ds004514/ds004514_phase2_windows_summary.md"
+benchmark_metrics = "reports/cross_modal/ds004514/ds004514_phase2_filter_benchmark.json"
+benchmark_report = "reports/cross_modal/ds004514/ds004514_phase2_filter_benchmark.md"

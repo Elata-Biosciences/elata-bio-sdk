@@ -1,0 +1,27 @@
+[sweep]
+dataset = "reports/cross_modal/ds003838/ds003838_phase2_expanded_windows.npz"
+metadata = "reports/cross_modal/ds003838/ds003838_phase2_expanded_windows_metadata.json"
+targets = "reports/cross_modal/ds003838/ds003838_expanded_target_arrays.npz"
+feature_branches = ["eeg_event_windows", "eeg_clean_windows"]
+target_names = [
+  "mean_ibi_seconds",
+  "amplitude_range",
+  "rising_edge_slope_max",
+  "dominant_beat_amplitude",
+  "dominant_beat_rise_time_seconds",
+  "dominant_beat_width_seconds",
+]
+aggregate_target_names = [
+  "amplitude_range",
+  "rising_edge_slope_max",
+  "dominant_beat_amplitude",
+  "dominant_beat_rise_time_seconds",
+  "dominant_beat_width_seconds",
+]
+ridge_lambdas = [100.0, 1000.0, 10000.0, 100000.0, 1000000.0, 10000000.0, 100000000.0]
+min_train_windows_per_target = 1800
+min_eval_windows_per_target = 1800
+
+[paths]
+metrics = "reports/cross_modal/ds003838/ds003838_expanded_morphology_lambda_sweep_metrics.json"
+report = "reports/cross_modal/ds003838/ds003838_expanded_morphology_lambda_sweep_report.md"

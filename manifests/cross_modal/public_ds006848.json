@@ -2,7 +2,7 @@
   "kind": "cross_modal_dataset_manifest",
   "schema_version": "0.2",
   "identity": {
-    "dataset_name": "ds006848-eeg-ppg-rest-working-memory",
+    "dataset_name": "ds006848-eeg-ppg-rest-verbalwm",
     "dataset_version": "1.0.0",
     "source_type": "public",
     "intake_status": "candidate",
@@ -16,7 +16,7 @@
   "modalities": {
     "eeg": {
       "present": true,
-      "feature_dim": 64,
+      "feature_dim": 63,
       "sampling_rate_hz": 1000.0,
       "geometry_available": true
     },
@@ -34,42 +34,107 @@
     }
   },
   "split_summary": {
-    "train_windows": 0,
-    "eval_windows": 0,
-    "heldout_subjects": []
+    "train_windows": 1024,
+    "eval_windows": 959,
+    "heldout_subjects": [
+      "sub-007",
+      "sub-012",
+      "sub-016",
+      "sub-017"
+    ]
   },
   "coverage": {
-    "subject_ids": [],
+    "subject_ids": [
+      "sub-001",
+      "sub-002",
+      "sub-003",
+      "sub-004",
+      "sub-005",
+      "sub-006",
+      "sub-007",
+      "sub-008",
+      "sub-009",
+      "sub-010",
+      "sub-011",
+      "sub-012",
+      "sub-013",
+      "sub-015",
+      "sub-016",
+      "sub-017",
+      "sub-018",
+      "sub-020",
+      "sub-021",
+      "sub-022",
+      "sub-023",
+      "sub-024",
+      "sub-025",
+      "sub-026",
+      "sub-027",
+      "sub-028",
+      "sub-031",
+      "sub-032",
+      "sub-034",
+      "sub-035"
+    ],
     "session_ids": [],
     "protocols": [
       "rest",
-      "working_memory"
+      "verbalwm"
     ],
-    "shift_metadata_keys": []
+    "shift_metadata_keys": [
+      "age",
+      "sex",
+      "hand"
+    ],
+    "cohort_notes": [
+      "30 subjects have verbalwm EEG plus embedded PPG and ECG recordings",
+      "22 subjects also have rest EEG plus embedded PPG and ECG recordings",
+      "8 subjects are verbalwm-only and match participants.tsv RS_excluded=yes"
+    ]
   },
   "labels": {
-    "event_labels_present": false,
+    "event_labels_present": true,
     "ppg_morphology_targets_present": true,
     "task_labels_present": true
   },
   "quality": {
-    "quality_fields": [],
+    "quality_fields": [
+      "participants.EEG_excluded",
+      "participants.RS_excluded",
+      "participants.behavior_excluded",
+      "channels.status",
+      "channels.status_description"
+    ],
     "artifact_fields": []
   },
   "intake_review": {
-    "verification_status": "official_doi_verified_partial_metadata",
+    "verification_status": "source_tree_verified_phase2_verbalwm_broader_and_rest_pilot_with_subject_quality_policy",
     "accepted_for": [
-      "candidate_paired_alignment",
+      "candidate_eeg_ppg_alignment",
+      "candidate_ppg_morphology_benchmark",
       "candidate_rest_working_memory_benchmark"
     ],
     "blocked_on": [
-      "confirm exact EEG and PPG recording layout during ingest",
-      "confirm whether the protocol labels map cleanly into the planned benchmark taxonomy"
+      "quantify morphology-grade raw PPG quality on a broader representative subject subset",
+      "derive the first DS006848 rest target artifact on top of the rest Phase 2 pilot",
+      "decide the long-term roles of DS006848 and DS003838 now that both broader verbalwm splits fail to beat null"
     ]
   },
   "notes": [
-    "Candidate public EEG-PPG dataset for working-memory and resting-state experiments.",
-    "Based on verified DOI 10.18112/openneuro.ds006848.v1.0.0 checked on March 21, 2026.",
-    "Exact modality channel counts may vary by recording and should be normalized during ingest."
+    "Candidate public EEG-PPG dataset for rest and verbal working-memory experiments.",
+    "Based on source-backed verification of the OpenNeuro 1.0.0 snapshot on April 4, 2026.",
+    "The source tree contains 30 subject folders and no session subdirectories.",
+    "All 30 subjects expose an eeg subtree with BrainVision payloads plus CapTrak electrodes and coordsystem sidecars.",
+    "EEG is stored in BrainVision files with 63 EEG channels at 1000 Hz.",
+    "PPG is stored as the PPG channel inside the eeg BrainVision container, alongside a single ECG channel, both sampled at 1000 Hz.",
+    "Task labels use rest and verbalwm in the source tree, and verbalwm maps to the internal working-memory benchmark family.",
+    "Behavior files are present only for verbalwm and expose 200 trials per sampled subject across Simultaneous, Fast, Slow, and Fast+delay conditions.",
+    "A first DS006848 verbalwm Phase 2 pilot artifact exists for sub-001 train and sub-007 eval, with 512 paired windows, zero alignment residual, and full quality-pass.",
+    "An expanded DS006848 verbalwm development artifact exists for sub-001 and sub-010 train versus sub-007 and sub-012 eval, with 1024 paired quality-pass windows.",
+    "A broader DS006848 verbalwm development artifact exists for sub-001, sub-010, sub-013, and sub-015 train versus sub-007, sub-012, sub-016, and sub-017 eval, with 2048 paired windows and 1983 quality-pass windows.",
+    "The broader DS006848 target artifact keeps dominant-beat coverage dense with 1978 valid windows and introduces the first nonzero DS006848 eval notch coverage with 123 valid windows.",
+    "The broader DS006848 morphology baseline no longer beats the null on aggregate standardized MSE for either EEG branch, with eeg_clean now the least-bad branch.",
+    "A machine-readable subject-quality policy marks sub-016 as stress-test-only and sub-017 as borderline-review within the current reviewed verbalwm cohort, while the remaining verbalwm subjects stay pending review.",
+    "A first DS006848 rest Phase 2 pilot artifact now exists for sub-001 train and sub-007 eval, with 20 paired windows, zero alignment residual, and full quality-pass."
   ]
 }

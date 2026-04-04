@@ -1,0 +1,17 @@
+{
+  "config": "configs/cross_modal/ds004514_canonicalized_baseline.toml",
+  "subject_quality_policy_path": "configs/cross_modal/ds004514_subject_quality_policy.json",
+  "subject_quality_allowed_tier": "default_train_eval",
+  "runtime_sec": 1.4877989999949932,
+  "peak_memory_mb": 1086.5199918746948,
+  "train_windows": 360,
+  "eval_windows": 360,
+  "canonical_model_mse": 4.976584748710119e-06,
+  "canonical_null_mse": 2.7631432295672288e-09,
+  "canonical_model_corr": -0.13864402598973624,
+  "canonical_null_corr": -0.008911128448057611,
+  "canonical_mse_ratio_vs_null": 1801.0592775132998,
+  "routed_weighted_model_mse": 2.604476087511966e-05,
+  "routed_weighted_null_mse": 2.5779132826583397e-09,
+  "canonical_beats_routed_mse": true
+}

@@ -1,0 +1,60 @@
+{
+  "dataset_id": "ds006848",
+  "policy_version": "0.1",
+  "generated_from": [
+    "reports/cross_modal/ds006848/ds006848_phase2_broader_windows_metrics.json",
+    "reports/cross_modal/ds006848/ds006848_broader_baseline_analysis_metrics.json"
+  ],
+  "tiers": {
+    "default_train_eval": [
+      "sub-001",
+      "sub-007",
+      "sub-010",
+      "sub-012",
+      "sub-013",
+      "sub-015",
+      "sub-017"
+    ],
+    "borderline_review": [
+      "sub-017"
+    ],
+    "stress_test_only": [
+      "sub-016"
+    ],
+    "pending_review": [
+      "sub-002",
+      "sub-003",
+      "sub-004",
+      "sub-005",
+      "sub-006",
+      "sub-008",
+      "sub-009",
+      "sub-011",
+      "sub-018",
+      "sub-020",
+      "sub-021",
+      "sub-022",
+      "sub-023",
+      "sub-024",
+      "sub-025",
+      "sub-026",
+      "sub-027",
+      "sub-028",
+      "sub-031",
+      "sub-032",
+      "sub-034",
+      "sub-035"
+    ]
+  },
+  "rationale": {
+    "sub-016": "Broader verbalwm evaluation shows concentrated failure plus quality attrition, with 235 of 256 eval windows passing quality gates and aggregate standardized delta far worse than null.",
+    "sub-017": "Broader verbalwm evaluation shows meaningful quality attrition with 212 of 256 eval windows passing quality gates and consistent underperformance, but the failure is not severe enough for automatic exclusion."
+  },
+  "notes": [
+    "This policy currently covers the reviewed 8-subject DS006848 verbalwm development cohort plus the pending-review remainder of the 30-subject verbalwm pool.",
+    "Use default_train_eval as the default pool for current DS006848 verbalwm baselines and slice analyses.",
+    "Treat borderline_review subjects as eligible, but always surface their per-subject metrics separately.",
+    "Keep stress_test_only subjects out of default training and evaluation unless the experiment is explicitly about robustness or artifact correction.",
+    "Pending-review subjects are not excluded; they simply have not yet been promoted into the reviewed default cohort."
+  ]
+}

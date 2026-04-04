@@ -82,6 +82,41 @@ Current measured result:
   - pulse waveform RMSE of about `0.039175` versus resample-only
   - average CPU cost of about `4.242 ms` per window
 
+### DS006848 EEG-PPG Phase 2 paths
+
+- Verbalwm config: [ds006848_phase2_windows.toml](c:/Users/cwhit/Documents/elata-bio-sdk/configs/cross_modal/ds006848_phase2_windows.toml)
+- Rest config: [ds006848_phase2_windows_rest.toml](c:/Users/cwhit/Documents/elata-bio-sdk/configs/cross_modal/ds006848_phase2_windows_rest.toml)
+- Benchmark script: [benchmark_ds006848_filters.py](c:/Users/cwhit/Documents/elata-bio-sdk/scripts/cross_modal/benchmark_ds006848_filters.py)
+- Verbalwm report: [ds006848_phase2_filter_benchmark.md](c:/Users/cwhit/Documents/elata-bio-sdk/reports/cross_modal/ds006848/ds006848_phase2_filter_benchmark.md)
+- Rest report: [ds006848_phase2_rest_filter_benchmark.md](c:/Users/cwhit/Documents/elata-bio-sdk/reports/cross_modal/ds006848/ds006848_phase2_rest_filter_benchmark.md)
+
+Paths under test:
+
+- EEG cleaned path:
+  - zero-phase `50 Hz` IIR notch
+  - resample `1000 Hz -> 256 Hz`
+- PPG cleaned path:
+  - zero-phase `50 Hz` IIR notch
+  - zero-phase IIR bandpass `0.5-20 Hz`
+  - resample `1000 Hz -> 128 Hz`
+
+Current measured result:
+
+- EEG cleaned path:
+  - near-zero measured group delay at `10`, `20`, `40`, and `80 Hz`
+  - `50 Hz` attenuation of about `-21.898 dB`
+  - transient burst RMSE of about `0.006788` versus resample-only
+  - average CPU cost of about `18.334 ms` per `63`-channel window on the verbalwm config
+  - average CPU cost of about `15.701 ms` per `63`-channel window on the rest config
+- PPG cleaned path:
+  - near-zero measured group delay at `1-30 Hz` relative to resample-only
+  - about `-0.010 dB` at `1 Hz`, `-0.003 dB` at `2 Hz`, `-0.004 dB` at `5 Hz`, `-0.020 dB` at `10 Hz`
+  - about `-6.003 dB` at `20 Hz`, `-23.924 dB` at `30 Hz`, and `-21.084 dB` at `50 Hz`
+  - pulse rise-time error of `0.000000 s` versus resample-only
+  - pulse waveform RMSE of about `0.039175` versus resample-only
+  - average CPU cost of about `4.281 ms` per window on the verbalwm config
+  - average CPU cost of about `3.564 ms` per window on the rest config
+
 ## Rule
 
 If a cleaned path changes, its distortion report must be regenerated before that path is treated as the current default.

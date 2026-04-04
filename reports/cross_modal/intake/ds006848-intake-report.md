@@ -1,0 +1,344 @@
+# DS006848 Intake Report
+
+Status: Source-Backed Candidate
+
+## Required metadata
+
+- Dataset ID: `public_ds006848`
+- Manifest: [../../../manifests/cross_modal/public_ds006848.json](../../../manifests/cross_modal/public_ds006848.json)
+- Worksheet: [../../../docs/cross-modal/ds006848-intake-worksheet.md](../../../docs/cross-modal/ds006848-intake-worksheet.md)
+- Ingest note: [../../../docs/cross-modal/ds006848-ingest-note.md](../../../docs/cross-modal/ds006848-ingest-note.md)
+- Subject quality policy: [../../../docs/cross-modal/ds006848-subject-quality-policy.md](../../../docs/cross-modal/ds006848-subject-quality-policy.md)
+- Intake owner: unassigned
+- Intake date: 2026-04-04
+- Source version: `v1.0.0`
+- Current recommendation: keep as candidate and use as the cleaner public EEG-PPG reference path plus rest-branch candidate, not as an established positive baseline
+
+## Scope
+
+This report records the first source-backed findings from the official `1.0.0` OpenNeuro snapshot for `DS006848`.
+
+The current pass verifies snapshot metadata, root structure, full subject coverage, task coverage, sidecars, and the exact EEG-PPG layout used by the source tree.
+
+## Source access
+
+- Access path: `external://openneuro/ds006848`
+- Download or mount method: direct OpenNeuro S3 listing plus direct sidecar access
+- Snapshot or release tag: `v1.0.0`
+- License check: confirmed `CC0`
+
+## Raw layout findings
+
+- Top-level directories: `stimuli/` plus `30` subject folders
+- Subject naming pattern: `sub-XXX`
+- Session naming pattern: no session subdirectories observed in the snapshot tree
+- File formats:
+  - BrainVision `.vhdr`, `.vmrk`, `.eeg`
+  - `.json`
+  - `.tsv`
+- BIDS compliance notes:
+  - snapshot metadata reports `BIDSVersion` `1.7.0`
+  - all subjects expose `eeg/`
+  - all subjects expose `sub-XXX_scans.tsv`
+  - behavior files exist only for `task-verbalwm`
+
+## Modality findings
+
+### EEG
+
+- Confirmed present: yes for all `30` subjects
+- Confirmed raw format: BrainVision
+- Confirmed channel count: `63`
+- Confirmed sampling rate: `1000 Hz`
+- Channel naming and montage notes:
+  - the montage uses an extended 10/20 layout
+  - geometry sidecars are present for every subject via `*_electrodes.tsv` and `*_coordsystem.json`
+- Auxiliary channel notes:
+  - the task sidecars report `EEGChannelCount=63`, `ECGChannelCount=1`, and `MiscChannelCount=1`
+  - the extra two channels are `PPG` and `ECG`
+
+### fNIRS
+
+- Confirmed present: no
+- Confirmed raw format: not applicable
+- Confirmed sampling rate: not applicable
+- Source-detector geometry notes: not applicable
+- HbO/HbR conversion notes: not applicable
+
+### PPG
+
+- Confirmed present: yes, but not as a dedicated BIDS subtree
+- Confirmed raw format: BrainVision channel inside the `eeg/` recording
+- Confirmed sampling rate: `1000 Hz`
+- Morphology preservation notes:
+  - the sampled channel table exposes `PPG` as `type=MISC`
+  - the same BrainVision container also holds a single `ECG` channel
+  - because PPG is stored at the native recording rate inside the shared task file, morphology preservation is plausible
+  - waveform-quality benchmarking has not yet been run on a representative subject subset
+
+## Pairing and timing
+
+- Simultaneous recording confirmed: yes
+- Alignment field or trigger source:
+  - EEG, PPG, and ECG are recorded in the same BrainVision file for each task
+  - events are stored in the same task subtree under `eeg/`
+- Drift concerns:
+  - the first DS006848 artifact should not require cross-file alignment logic
+  - alignment risk is lower than `DS003838` because the signals are already co-recorded in one file
+- Canonical windowing risk notes:
+  - the first DS006848 Phase 2 artifact should still verify sample-count equality and task-sidecar consistency
+  - the default first benchmark should be verbalwm-only because rest is absent for `8` subjects
+
+## Phase 2 pilot result
+
+- Pilot split:
+  - train `sub-001`
+  - eval `sub-007`
+  - task `verbalwm`
+- Artifact outputs:
+  - `512` paired windows
+  - EEG event tensor shape `512 x 63 x 500`
+  - EEG clean tensor shape `512 x 63 x 128`
+  - PPG native tensor shape `512 x 2000`
+  - PPG clean tensor shape `512 x 256`
+- Pilot quality result:
+  - `512 / 512` windows pass the current quality gate
+  - mean detected PPG peak count per window: about `3.268`
+  - measured alignment RMSE and max residual are both `0.0 s` because the signals share one task file
+- Pilot benchmark result:
+  - cleaned EEG path shows near-zero measured off-notch delay and attenuation, with about `-21.898 dB` at `50 Hz`
+  - cleaned PPG path keeps `1-10 Hz` probes near-neutral, is about `-6.003 dB` at `20 Hz`, and strongly suppresses `30 Hz` and `50 Hz`
+  - the DS006848 cleaned PPG branch has a smaller absolute amplitude scale than the earlier DS003838 pilot, so the `ppg_clean_std` quality gate is dataset-specific here
+
+## First verbalwm development result
+
+- Expanded split:
+  - train `sub-001`, `sub-010`
+  - eval `sub-007`, `sub-012`
+  - task `verbalwm`
+- Artifact outputs:
+  - `1024` paired windows
+  - `1024 / 1024` quality-pass windows
+  - EEG event tensor shape `1024 x 63 x 500`
+  - EEG clean tensor shape `1024 x 63 x 128`
+  - PPG native tensor shape `1024 x 2000`
+  - PPG clean tensor shape `1024 x 256`
+- Expanded quality result:
+  - measured alignment RMSE and max residual remain `0.0 s`
+  - mean detected peak count per window stays about `3.270`
+  - per-subject peak-count means now show real subject variation:
+    - `sub-001` train: about `3.008`
+    - `sub-010` train: about `2.965`
+    - `sub-007` eval: about `3.527`
+    - `sub-012` eval: about `3.578`
+
+## Pilot target result
+
+- quality-pass train windows: `256`
+- quality-pass eval windows: `256`
+- dominant-beat-valid train windows: `252`
+- dominant-beat-valid eval windows: `256`
+- notch-valid train windows: `28`
+- notch-valid eval windows: `0`
+
+Practical reading:
+
+- dominant-beat morphology targets are already viable on essentially the full current DS006848 pilot
+- notch timing remains a masked diagnostic target and is more asymmetric here than on the early DS003838 pilot
+- the next useful step is subject expansion, not immediate promotion of notch timing
+
+## First expanded target result
+
+- quality-pass train windows: `512`
+- quality-pass eval windows: `512`
+- dominant-beat-valid train windows: `508`
+- dominant-beat-valid eval windows: `512`
+- notch-valid train windows: `54`
+- notch-valid eval windows: `0`
+
+Practical reading:
+
+- dominant-beat morphology targets stay effectively dense under mild subject expansion
+- notch timing remains entirely train-side and is still not a credible primary target
+- the main remaining unknown is generalization, not target availability
+
+## First expanded baseline and slice-analysis result
+
+- Both EEG branches beat null on aggregate standardized MSE on the 4-subject verbalwm split
+- `eeg_event_windows` is currently the best branch
+- the aggregate win is still narrow:
+  - `amplitude_range` and `dominant_beat_amplitude` beat null on MSE
+  - `rising_edge_slope_max`, mean IBI, dominant-beat rise time, and dominant-beat width do not
+- the first slice-analysis pass now shows:
+  - `sub-012` carries most of the current amplitude-family gain
+  - `sub-007` still loses overall because timing-family errors dominate
+  - the lower two `ppg_clean_std` eval quartiles remain worse than null
+
+Practical reading:
+
+- the earlier 4-subject DS006848 result was promising enough to justify wider expansion
+- it was useful as a positive-check result, but it was never broad enough to justify deeper modeling on its own
+
+## Broader verbalwm development result
+
+- Broader split:
+  - train `sub-001`, `sub-010`, `sub-013`, `sub-015`
+  - eval `sub-007`, `sub-012`, `sub-016`, `sub-017`
+  - task `verbalwm`
+- Artifact outputs:
+  - `2048` paired windows
+  - `1983 / 2048` quality-pass windows
+  - EEG event tensor shape `2048 x 63 x 500`
+  - EEG clean tensor shape `2048 x 63 x 128`
+  - PPG native tensor shape `2048 x 2000`
+  - PPG clean tensor shape `2048 x 256`
+- Broader quality result:
+  - measured alignment RMSE and max residual remain `0.0 s`
+  - train quality-pass windows remain dense at `1024 / 1024`
+  - eval quality-pass windows drop to `959 / 1024`
+  - that quality attrition is concentrated in:
+    - `sub-016`: `235 / 256`
+    - `sub-017`: `212 / 256`
+
+## Broader target result
+
+- quality-pass train windows: `1024`
+- quality-pass eval windows: `959`
+- dominant-beat-valid train windows: `1019`
+- dominant-beat-valid eval windows: `959`
+- notch-valid train windows: `55`
+- notch-valid eval windows: `123`
+
+Practical reading:
+
+- dominant-beat morphology targets remain dense on the broader split
+- the broader DS006848 failure is not driven by target sparsity
+- notch timing is no longer train-only, but it is still too sparse and uneven to promote
+
+## Broader baseline and slice-analysis result
+
+- Neither EEG branch beats null on aggregate standardized MSE on the broader 8-subject verbalwm split
+- `eeg_clean_windows` is now the least-bad branch
+- all tracked targets fail to beat null on MSE on the broader split
+- the broader slice-analysis pass now shows:
+  - `sub-016` is the dominant failure case by a wide margin
+  - `sub-017` also underperforms, though less severely
+  - all peak-count and `ppg_clean_std` quality slices remain worse than null
+  - amplitude-family targets still carry the largest error concentration
+- the reviewed verbalwm cohort now has an explicit subject-quality policy:
+  - `sub-016` is `stress_test_only`
+  - `sub-017` is `borderline_review`
+  - the remaining `22` verbalwm subjects stay `pending_review`
+
+Practical reading:
+
+- the earlier 4-subject DS006848 win does not survive the next subject expansion
+- DS006848 is still the cleaner public EEG-PPG intake path in the repo
+- but it is no longer defensible to treat DS006848 as a standing positive baseline
+
+## Rest Phase 2 pilot result
+
+- Rest split:
+  - train `sub-001`
+  - eval `sub-007`
+  - task `rest`
+- Artifact outputs:
+  - `20` paired windows
+  - `20 / 20` quality-pass windows
+  - EEG event tensor shape `20 x 63 x 500`
+  - EEG clean tensor shape `20 x 63 x 128`
+  - PPG native tensor shape `20 x 2000`
+  - PPG clean tensor shape `20 x 256`
+- Rest event-family result:
+  - `rest_state`: `16` windows from `Eyes_Closed` and `Eyes_Opened`
+  - `rest_cartoon`: `4` windows from `Start_Cartoon` and `End_Cartoon`
+
+Practical reading:
+
+- the first rest branch is now real, not planned
+- alignment remains `0.0 s` because EEG, PPG, and ECG share one BrainVision recording
+- the next missing step for rest is no longer Phase 2 windowing; it is target definition and broader waveform-quality review
+
+## Protocol coverage
+
+- `task-verbalwm`:
+  - present for all `30` subjects
+  - behavior files present for all `30` subjects
+  - sampled behavior tables have `200` rows and conditions `Simultaneous`, `Fast`, `Slow`, and `Fast+delay`
+  - sampled event tables contain rich event structure, including baseline, digit encoding, retention, retrieval, and experiment markers
+- `task-rest`:
+  - present for `22` subjects
+  - the `8` missing-rest subjects match `participants.tsv -> RS_excluded=yes`
+  - sampled rest event tables expose eyes-closed, eyes-opened, and cartoon markers
+
+## Labels and benchmark fit
+
+- Task labels present: yes
+- Event labels present: yes
+- Internal benchmark mapping:
+  - `eeg_ppg_alignment`
+  - `ppg_morphology_benchmark`
+  - `rest_state_benchmark`
+  - `cognitive_load_benchmark`
+- Recommended accepted roles:
+  - second public EEG-PPG paired benchmark
+  - rest plus verbal working-memory protocol benchmark
+  - PPG morphology and state-target benchmark
+
+## Quality and exclusions
+
+- Known quality fields:
+  - `participants.EEG_excluded`
+  - `participants.RS_excluded`
+  - `participants.behavior_excluded`
+  - `channels.status`
+  - `channels.status_description`
+- Known artifact fields:
+  - no waveform-level artifact summary fields were confirmed in this pass
+- Candidate exclusion rules:
+  - use the full `30`-subject cohort for the first verbalwm benchmark
+  - use only subjects with `RS_excluded=no` for the first rest benchmark
+- Distribution shift notes:
+  - subjects: `30`
+  - verbalwm EEG+PPG cohort: `30`
+  - rest EEG+PPG cohort: `22`
+  - age range: `18-32`
+  - sex distribution: `25F / 5M`
+  - handedness: `24 right / 5 left / 1 both`
+
+## Manifest updates required
+
+- [x] modality metadata confirmed
+- [x] counts populated at the source-tree and task-coverage level
+- [x] first worksheet attached
+- [x] ingest note attached
+- [x] task naming corrected from generic working-memory to `verbalwm`
+- [x] split plan attached
+- [x] first verbalwm Phase 2 artifact built
+- [x] first rest Phase 2 artifact built
+
+## Acceptance decision
+
+Current decision:
+
+- keep as candidate
+
+Decision rationale:
+
+- the dataset is now source-backed enough to act as the second public EEG-PPG intake reference
+- the shared BrainVision container simplifies the first EEG-PPG Phase 2 path relative to DS003838
+- the remaining blocker is no longer modality ambiguity or first-artifact feasibility; it is extending waveform-quality evidence beyond the reviewed verbalwm cohort and deciding how the new rest pilot should grow
+
+## Next actions
+
+1. Keep the broader slice-analysis pass and explicit subject-quality policy as the reference for what to watch: amplitude-family concentration, eval quality attrition, and subject-specific failure.
+2. Benchmark morphology-grade raw waveform quality on a broader DS006848 subject subset.
+3. Derive the first rest target artifact on top of the new 2-subject rest pilot.
+4. Decide whether any `pending_review` verbalwm subjects should be promoted into the default DS006848 development cohort.
+
+## Commands
+
+```powershell
+python scripts/cross_modal/validate_manifest_file.py manifests/cross_modal/public_ds006848.json
+python scripts/cross_modal/validate_registry.py --registry manifests/cross_modal/registry.json
+```

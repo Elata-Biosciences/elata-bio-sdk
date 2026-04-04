@@ -1,0 +1,38 @@
+{
+  "config_path": "configs/cross_modal/ds004514_phase2_windows.toml",
+  "cleaned_path": "zero_phase_iir_notch_60hz_plus_resample_2048_to_256",
+  "frequency_rows": [
+    {
+      "frequency_hz": 10.0,
+      "group_delay_seconds": 0.0,
+      "attenuation_db_vs_resample_only": -4.465265686625021e-06
+    },
+    {
+      "frequency_hz": 20.0,
+      "group_delay_seconds": 0.0,
+      "attenuation_db_vs_resample_only": -1.0767535640789173e-05
+    },
+    {
+      "frequency_hz": 40.0,
+      "group_delay_seconds": 0.0,
+      "attenuation_db_vs_resample_only": 0.0001363584672044635
+    },
+    {
+      "frequency_hz": 60.0,
+      "group_delay_seconds": null,
+      "attenuation_db_vs_resample_only": -25.732405188243206
+    },
+    {
+      "frequency_hz": 80.0,
+      "group_delay_seconds": 0.0,
+      "attenuation_db_vs_resample_only": 0.0002060128730503287
+    }
+  ],
+  "transient_burst_frequency_hz": 40.0,
+  "transient_rmse_vs_resample_only": 3.523374383908657e-05,
+  "pulse_rise_time_error_seconds_vs_resample_only": 0.0,
+  "pulse_waveform_rmse_vs_resample_only": 0.0002150406464671164,
+  "average_notch_cpu_ms_per_window": 19.852645025821403,
+  "average_resample_cpu_ms_per_window": 5.807149986503646,
+  "average_combined_cpu_ms_per_window": 25.611715018749237
+}

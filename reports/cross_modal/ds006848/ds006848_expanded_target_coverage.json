@@ -1,0 +1,269 @@
+{
+  "kind": "ds006848_target_coverage",
+  "config_path": "configs/cross_modal/ds006848_targets_expanded.toml",
+  "runtime_sec": 0.5956402000010712,
+  "peak_memory_mb": 1.3754405975341797,
+  "source_dataset": "reports/cross_modal/ds006848/ds006848_phase2_expanded_windows.npz",
+  "source_branch": "ppg_clean_windows",
+  "window_count": 1024,
+  "quality_pass_counts": {
+    "train": 512,
+    "eval": 512
+  },
+  "target_names": [
+    "ppg_peak_count",
+    "mean_ibi_seconds",
+    "amplitude_range",
+    "rising_edge_slope_max",
+    "dominant_beat_amplitude",
+    "dominant_beat_rise_time_seconds",
+    "dominant_beat_width_seconds",
+    "dominant_beat_fall_time_seconds",
+    "dominant_beat_peak_time_seconds",
+    "dominant_beat_notch_delay_seconds"
+  ],
+  "per_target": {
+    "ppg_peak_count": {
+      "total_valid": 1024,
+      "train_valid": 512,
+      "eval_valid": 512,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "mean_ibi_seconds": {
+      "total_valid": 1024,
+      "train_valid": 512,
+      "eval_valid": 512,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "amplitude_range": {
+      "total_valid": 1024,
+      "train_valid": 512,
+      "eval_valid": 512,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "rising_edge_slope_max": {
+      "total_valid": 1024,
+      "train_valid": 512,
+      "eval_valid": 512,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "dominant_beat_amplitude": {
+      "total_valid": 1020,
+      "train_valid": 508,
+      "eval_valid": 512,
+      "train_valid_fraction": 0.9921875,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 252
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "dominant_beat_rise_time_seconds": {
+      "total_valid": 1020,
+      "train_valid": 508,
+      "eval_valid": 512,
+      "train_valid_fraction": 0.9921875,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 252
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "dominant_beat_width_seconds": {
+      "total_valid": 1020,
+      "train_valid": 508,
+      "eval_valid": 512,
+      "train_valid_fraction": 0.9921875,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 252
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "dominant_beat_fall_time_seconds": {
+      "total_valid": 1020,
+      "train_valid": 508,
+      "eval_valid": 512,
+      "train_valid_fraction": 0.9921875,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 252
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "dominant_beat_peak_time_seconds": {
+      "total_valid": 1020,
+      "train_valid": 508,
+      "eval_valid": 512,
+      "train_valid_fraction": 0.9921875,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 252
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "dominant_beat_notch_delay_seconds": {
+      "total_valid": 54,
+      "train_valid": 54,
+      "eval_valid": 0,
+      "train_valid_fraction": 0.10546875,
+      "eval_valid_fraction": 0.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 28
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 26
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
-# Cross-Modal Biosignal Model Implementation Plan (v2)
+﻿# Cross-Modal Biosignal Model Implementation Plan (v2)
 
-Status: Active plan (v2, revised after feedback, annotated with execution status through March 30, 2026)
+Status: Active plan (v2, revised after feedback, annotated with execution status through April 4, 2026)
 
 ## Summary
 
@@ -36,7 +36,7 @@ The recommended execution order is:
 
 ## Execution Status
 
-As of March 30, 2026, the repo is no longer at the pure-planning stage.
+As of April 4, 2026, the repo is no longer at the pure-planning stage.
 
 Completed or materially implemented:
 
@@ -69,6 +69,13 @@ Completed or materially implemented:
   - a first DS006848 target artifact now exists on top of that pilot split, with `508` dominant-beat-valid windows and train-only notch coverage
   - an expanded verbalwm development split now exists with `sub-001`, `sub-010` train and `sub-007`, `sub-012` eval, with `1024` paired quality-pass windows
   - an expanded target artifact now exists on top of that development split, with `1020` dominant-beat-valid windows and notch coverage still entirely concentrated in train
+  - a broader verbalwm development split now exists with `sub-001`, `sub-010`, `sub-013`, `sub-015` train and `sub-007`, `sub-012`, `sub-016`, `sub-017` eval, with `2048` paired windows and `1983` quality-pass windows
+  - a broader target artifact now exists on top of that split, with `1978` dominant-beat-valid windows and the first nonzero DS006848 eval notch coverage (`123` valid windows)
+  - a first rest pilot now exists with `sub-001` train and `sub-007` eval, with `20` paired windows, `20` quality-pass windows, and zero measured alignment residual
+  - a machine-readable DS006848 verbalwm subject-quality policy now exists for the reviewed broader cohort:
+    - `sub-016` is `stress_test_only`
+    - `sub-017` is `borderline_review`
+    - the remaining verbalwm subjects stay `pending_review`
 - Phase 3 has only a preview implementation so far:
   - routed and canonicalized negative-control baselines exist for `DS004514`
   - these are useful for de-risking, but they are not yet the serious baseline suite the plan calls for
@@ -87,7 +94,7 @@ Completed or materially implemented:
       - the remaining positive signal is amplitude-heavy, not timing-heavy
       - the failure is not explained by target sparsity for the dominant-beat family
       - the highest `ppg_clean_std` quartile is the only eval-quality slice that is slightly better than null
-  - `DS006848` now also has the first broader positive-check baseline:
+  - `DS006848` now also has both a first positive-check baseline and a broader follow-up:
     - the 4-subject verbalwm split stays clean at the data, alignment, and target-coverage levels
     - both `eeg_event` and `eeg_clean` beat the null on aggregate standardized MSE
     - `eeg_event` is currently the best branch
@@ -97,19 +104,26 @@ Completed or materially implemented:
       - `sub-012` carries most of the current amplitude-family gain
       - timing-family targets still underperform
       - the lower two `ppg_clean_std` eval quartiles remain worse than null
+    - the broader 8-subject verbalwm split no longer beats the null on aggregate standardized MSE for either branch
+    - `eeg_clean` becomes the least-bad branch on that broader split
+    - the broader slice-analysis pass now shows:
+      - `sub-016` is the dominant failure case by a wide margin
+      - `sub-017` also underperforms, though less severely
+      - all peak-count and `ppg_clean_std` quartile slices are worse than null
+      - the failure is still concentrated most heavily in amplitude-family targets
 
 Still incomplete:
 
-- Phase 2 for `DS006848` is now development-scale for verbalwm, but it is still incomplete at the dataset level because the rest-specific branch does not yet exist and the verbalwm path has not yet expanded beyond the current 4-subject check.
+- Phase 2 for `DS006848` now covers development-scale verbalwm plus a first rest pilot, but it is still incomplete at the dataset level because rest targets do not yet exist and morphology-grade waveform quality has not yet been benchmarked on a broader representative subset.
 - Phase 2 is still development-scale for EEG-PPG. `DS003838` now has a 4-subject smoke artifact, an 8-subject development artifact, and target-coverage layers for both, but not yet a broader paired-cohort default artifact.
 - Athena internal intake and preprocessing are still incomplete.
-- There is still no broad-cohort EEG-PPG positive baseline result; `DS006848` now has a positive 4-subject development check, but it is still too small and too asymmetric to count as established.
+- There is still no broad-cohort EEG-PPG positive baseline result; the earlier DS006848 4-subject positive check does not survive the broader 8-subject follow-up.
 
 Operational interpretation:
 
 - `DS004514` should still be treated as the completed reference path for ingest, synchronization, windowing, and distortion benchmarking.
 - `DS003838` should now be treated as the harder EEG-PPG stress-test and negative-check path.
-- `DS006848` should now be treated as the provisional primary EEG-PPG development path.
+- `DS006848` should now be treated as the cleaner EEG-PPG reference path for intake, synchronization, and future rest-branch work, not as an established positive baseline.
 - The next execution track should stay on EEG-PPG rather than extending EEG-fNIRS research depth immediately.
 
 ---
@@ -156,11 +170,11 @@ Current execution note as of March 23, 2026:
 
 Given the EEG-PPG pivot, the recommended near-term sequence is:
 
-1. Treat the current `DS006848` 4-subject verbalwm split as the default EEG-PPG positive-check path.
-   Keep the 2-subject path as the DS006848 smoke contract only.
+1. Treat the current `DS006848` 8-subject verbalwm split as the default EEG-PPG development check.
+   Keep the 2-subject verbalwm path as the DS006848 smoke contract and the earlier 4-subject result as historical only.
 
-2. Expand the `DS006848` verbalwm path beyond the current 4-subject development split before starting a deeper model.
-   The current question is no longer “is there any signal,” but “does the current aggregate win survive the next subject expansion.”
+2. Stop treating the current EEG-PPG branch as model-ready.
+   The current question is no longer whether a small split can beat null; it is whether the broader failure is driven by specific DS006848 quality and subject slices that should be gated explicitly.
 
 3. Treat the `DS003838` failure analysis as complete enough to change priorities.
    Current evidence now says:
@@ -170,12 +184,24 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    - the surviving positive signal is concentrated in amplitude-style targets
    - the current simple baseline is not robust enough under mild subject expansion
 
-4. Treat the first `DS006848` morphology baseline as encouraging but not decisive.
-   The current slice analysis says the gain is concentrated in `sub-012` and in the upper half of the `ppg_clean_std` distribution, so the next move is wider subject coverage rather than a larger architecture.
+4. Use the explicit DS006848 verbalwm subject-quality policy as the current cohort gate.
+   The broader split now says:
+   - `sub-016` is `stress_test_only`
+   - `sub-017` is `borderline_review`
+   - the remaining verbalwm subjects stay `pending_review` until a broader waveform-quality pass promotes them
 
-5. Add the 22-subject DS006848 rest branch only after the next broader verbalwm split is stable enough to interpret.
+5. Treat the current 2-subject DS006848 rest path as the rest smoke contract.
+   The first rest Phase 2 branch now exists for `sub-001` train and `sub-007` eval, with:
+   - `20` paired windows
+   - `20 / 20` quality-pass windows
+   - `Eyes_Closed`, `Eyes_Opened`, `Start_Cartoon`, and `End_Cartoon` marker coverage
 
-6. Treat raw EEG -> raw PPG waveform generation and deeper architectures as explicitly out of scope until at least one broader EEG-PPG split beats null.
+6. Benchmark morphology-grade raw PPG quality on a broader DS006848 subject subset next.
+   That is now the highest-value missing DS006848 quality question.
+
+7. Derive the first DS006848 rest target artifact only after that broader waveform-quality pass is stable enough to interpret.
+
+8. Treat raw EEG -> raw PPG waveform generation and deeper architectures as explicitly out of scope until at least one broader EEG-PPG split beats null.
 
 This is the shortest path from current repo state to the new business goal.
 
@@ -1632,3 +1658,4 @@ The following papers and datasets are good starting points for implementation an
 - OpenNeuro DS003838: `https://doi.org/10.18112/openneuro.ds003838.v1.0.6`
 - OpenNeuro DS006848: `https://doi.org/10.18112/openneuro.ds006848.v1.0.0`
 - PhysioNet DREAMT: `https://physionet.org/content/dreamt/`
+

@@ -1,0 +1,248 @@
+{
+  "kind": "ds003838_fetch_report",
+  "config_path": "configs/cross_modal/ds003838_phase2_windows.toml",
+  "dataset_root": ".tmp/ds003838_phase2/source",
+  "subject_count": 4,
+  "subjects": [
+    "sub-032",
+    "sub-034",
+    "sub-033",
+    "sub-035"
+  ],
+  "tasks": [
+    "memory"
+  ],
+  "raw_modalities": [
+    "ecg",
+    "eeg"
+  ],
+  "raw_head_sizes": {
+    "ecg": {
+      "memory": 62735210
+    },
+    "eeg": {
+      "memory": 1541437462
+    }
+  },
+  "downloaded_file_count": 16,
+  "skipped_file_count": 20,
+  "downloaded_bytes": 3146151957,
+  "files": [
+    {
+      "relative_path": "README",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/README",
+      "status": "skipped_existing",
+      "bytes": 1918
+    },
+    {
+      "relative_path": "dataset_description.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/dataset_description.json",
+      "status": "skipped_existing",
+      "bytes": 1175
+    },
+    {
+      "relative_path": "participants.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/participants.json",
+      "status": "skipped_existing",
+      "bytes": 3281
+    },
+    {
+      "relative_path": "participants.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/participants.tsv",
+      "status": "skipped_existing",
+      "bytes": 7123
+    },
+    {
+      "relative_path": "sub-032/eeg/sub-032_task-memory_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-032/eeg/sub-032_task-memory_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 743
+    },
+    {
+      "relative_path": "sub-032/eeg/sub-032_task-memory_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-032/eeg/sub-032_task-memory_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 933
+    },
+    {
+      "relative_path": "sub-032/eeg/sub-032_task-memory_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-032/eeg/sub-032_task-memory_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 178296
+    },
+    {
+      "relative_path": "sub-032/ecg/sub-032_task-memory_ecg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-032/ecg/sub-032_task-memory_ecg.json",
+      "status": "skipped_existing",
+      "bytes": 742
+    },
+    {
+      "relative_path": "sub-032/ecg/sub-032_task-memory_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-032/ecg/sub-032_task-memory_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 41
+    },
+    {
+      "relative_path": "sub-032/ecg/sub-032_task-memory_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-032/ecg/sub-032_task-memory_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 178296
+    },
+    {
+      "relative_path": "sub-032/ecg/sub-032_task-memory_ecg.set",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-032/ecg/sub-032_task-memory_ecg.set",
+      "status": "skipped_existing",
+      "bytes": 62735210
+    },
+    {
+      "relative_path": "sub-032/eeg/sub-032_task-memory_eeg.set",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-032/eeg/sub-032_task-memory_eeg.set",
+      "status": "skipped_existing",
+      "bytes": 1541437462
+    },
+    {
+      "relative_path": "sub-034/eeg/sub-034_task-memory_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-034/eeg/sub-034_task-memory_eeg.json",
+      "status": "downloaded",
+      "bytes": 743
+    },
+    {
+      "relative_path": "sub-034/eeg/sub-034_task-memory_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-034/eeg/sub-034_task-memory_channels.tsv",
+      "status": "downloaded",
+      "bytes": 933
+    },
+    {
+      "relative_path": "sub-034/eeg/sub-034_task-memory_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-034/eeg/sub-034_task-memory_events.tsv",
+      "status": "downloaded",
+      "bytes": 179003
+    },
+    {
+      "relative_path": "sub-034/ecg/sub-034_task-memory_ecg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-034/ecg/sub-034_task-memory_ecg.json",
+      "status": "downloaded",
+      "bytes": 742
+    },
+    {
+      "relative_path": "sub-034/ecg/sub-034_task-memory_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-034/ecg/sub-034_task-memory_channels.tsv",
+      "status": "downloaded",
+      "bytes": 41
+    },
+    {
+      "relative_path": "sub-034/ecg/sub-034_task-memory_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-034/ecg/sub-034_task-memory_events.tsv",
+      "status": "downloaded",
+      "bytes": 179003
+    },
+    {
+      "relative_path": "sub-034/ecg/sub-034_task-memory_ecg.set",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-034/ecg/sub-034_task-memory_ecg.set",
+      "status": "downloaded",
+      "bytes": 58596522
+    },
+    {
+      "relative_path": "sub-034/eeg/sub-034_task-memory_eeg.set",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-034/eeg/sub-034_task-memory_eeg.set",
+      "status": "downloaded",
+      "bytes": 1494254561
+    },
+    {
+      "relative_path": "sub-033/eeg/sub-033_task-memory_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-033/eeg/sub-033_task-memory_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 753
+    },
+    {
+      "relative_path": "sub-033/eeg/sub-033_task-memory_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-033/eeg/sub-033_task-memory_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 933
+    },
+    {
+      "relative_path": "sub-033/eeg/sub-033_task-memory_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-033/eeg/sub-033_task-memory_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 175885
+    },
+    {
+      "relative_path": "sub-033/ecg/sub-033_task-memory_ecg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-033/ecg/sub-033_task-memory_ecg.json",
+      "status": "skipped_existing",
+      "bytes": 752
+    },
+    {
+      "relative_path": "sub-033/ecg/sub-033_task-memory_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-033/ecg/sub-033_task-memory_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 41
+    },
+    {
+      "relative_path": "sub-033/ecg/sub-033_task-memory_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-033/ecg/sub-033_task-memory_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 175885
+    },
+    {
+      "relative_path": "sub-033/ecg/sub-033_task-memory_ecg.set",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-033/ecg/sub-033_task-memory_ecg.set",
+      "status": "skipped_existing",
+      "bytes": 70918065
+    },
+    {
+      "relative_path": "sub-033/eeg/sub-033_task-memory_eeg.set",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-033/eeg/sub-033_task-memory_eeg.set",
+      "status": "skipped_existing",
+      "bytes": 1774673538
+    },
+    {
+      "relative_path": "sub-035/eeg/sub-035_task-memory_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-035/eeg/sub-035_task-memory_eeg.json",
+      "status": "downloaded",
+      "bytes": 743
+    },
+    {
+      "relative_path": "sub-035/eeg/sub-035_task-memory_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-035/eeg/sub-035_task-memory_channels.tsv",
+      "status": "downloaded",
+      "bytes": 933
+    },
+    {
+      "relative_path": "sub-035/eeg/sub-035_task-memory_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-035/eeg/sub-035_task-memory_events.tsv",
+      "status": "downloaded",
+      "bytes": 176766
+    },
+    {
+      "relative_path": "sub-035/ecg/sub-035_task-memory_ecg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-035/ecg/sub-035_task-memory_ecg.json",
+      "status": "downloaded",
+      "bytes": 742
+    },
+    {
+      "relative_path": "sub-035/ecg/sub-035_task-memory_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-035/ecg/sub-035_task-memory_channels.tsv",
+      "status": "downloaded",
+      "bytes": 41
+    },
+    {
+      "relative_path": "sub-035/ecg/sub-035_task-memory_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-035/ecg/sub-035_task-memory_events.tsv",
+      "status": "downloaded",
+      "bytes": 176766
+    },
+    {
+      "relative_path": "sub-035/ecg/sub-035_task-memory_ecg.set",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-035/ecg/sub-035_task-memory_ecg.set",
+      "status": "downloaded",
+      "bytes": 59035151
+    },
+    {
+      "relative_path": "sub-035/eeg/sub-035_task-memory_eeg.set",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds003838/sub-035/eeg/sub-035_task-memory_eeg.set",
+      "status": "downloaded",
+      "bytes": 1533549267
+    }
+  ]
+}
