@@ -1,0 +1,77 @@
+[review]
+pipeline = "ds006848_ppg_quality_review"
+
+[dataset]
+dataset_id = "ds006848"
+dataset_version = "1.0.0"
+dataset_name = "ds006848-eeg-ppg-rest-verbalwm"
+base_url = "https://s3.amazonaws.com/openneuro.org/ds006848"
+
+[subjects]
+train = [
+  "sub-001",
+  "sub-002",
+  "sub-007",
+  "sub-010",
+  "sub-011",
+  "sub-012",
+  "sub-013",
+  "sub-015",
+  "sub-016",
+  "sub-017",
+  "sub-025",
+  "sub-035",
+]
+eval = []
+
+[tasks]
+include = ["verbalwm"]
+
+[fetch]
+raw_modalities = ["eeg"]
+force = false
+retry_attempts = 3
+retry_backoff_seconds = 2.0
+timeout_seconds = 1800
+
+[window]
+task = "verbalwm"
+exclude_trial_types = ["Boundary", "Experiment_End", "Rest"]
+max_events_per_subject = 128
+ppg_channel_name = "PPG"
+ppg_native_tmin_seconds = 0.0
+ppg_native_tmax_seconds = 2.0
+ppg_clean_resample_hz = 128.0
+
+[cleaning.ppg]
+notch_freq_hz = 50.0
+bandpass_low_hz = 0.5
+bandpass_high_hz = 20.0
+
+[quality]
+ppg_min_peak_count = 1
+ppg_max_peak_count = 6
+ppg_clean_min_std = 0.00015
+ppg_max_clip_fraction = 0.2
+ppg_peak_min_distance_seconds = 0.3
+ppg_peak_threshold_std = 0.1
+
+[targets]
+dominant_beat_min_rise_seconds = 0.03
+dominant_beat_max_rise_seconds = 0.8
+dominant_beat_min_width_seconds = 0.1
+dominant_beat_max_width_seconds = 1.5
+notch_min_delay_seconds = 0.05
+notch_max_delay_seconds = 0.45
+notch_min_rebound_fraction = 0.02
+
+[expected]
+subject_count = 12
+min_sampled_windows_total = 1200
+min_quality_pass_windows_total = 1000
+
+[paths]
+dataset_root = ".tmp/ds006848_ppg_quality/source"
+fetch_report = "reports/cross_modal/ds006848/ds006848_ppg_quality_fetch_report.json"
+metrics = "reports/cross_modal/ds006848/ds006848_ppg_quality_review_metrics.json"
+report = "reports/cross_modal/ds006848/ds006848_ppg_quality_review_report.md"

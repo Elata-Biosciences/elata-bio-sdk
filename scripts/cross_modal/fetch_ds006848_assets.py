@@ -134,22 +134,35 @@ def download_file(
 
     ensure_parent(destination)
     temp_path = destination.with_suffix(destination.suffix + ".part")
-    with urlopen_with_retries(
-        request=url,
-        timeout=timeout_seconds,
-        retry_attempts=retry_attempts,
-        retry_backoff_seconds=retry_backoff_seconds,
-    ) as response:
-        with temp_path.open("wb") as handle:
-            total_bytes = 0
-            while True:
-                chunk = response.read(1024 * 1024)
-                if not chunk:
-                    break
-                handle.write(chunk)
-                total_bytes += len(chunk)
-    temp_path.replace(destination)
-    return ("downloaded", total_bytes)
+    last_error: Exception | None = None
+    for attempt in range(1, retry_attempts + 1):
+        try:
+            with urlopen_with_retries(
+                request=url,
+                timeout=timeout_seconds,
+                retry_attempts=retry_attempts,
+                retry_backoff_seconds=retry_backoff_seconds,
+            ) as response:
+                with temp_path.open("wb") as handle:
+                    total_bytes = 0
+                    while True:
+                        chunk = response.read(1024 * 1024)
+                        if not chunk:
+                            break
+                        handle.write(chunk)
+                        total_bytes += len(chunk)
+            temp_path.replace(destination)
+            return ("downloaded", total_bytes)
+        except Exception as error:  # pragma: no cover - network failures are environment-specific.
+            last_error = error
+            if temp_path.exists():
+                temp_path.unlink()
+            if attempt == retry_attempts:
+                raise
+            time.sleep(retry_backoff_seconds * attempt)
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError("Unreachable download retry path.")
 
 
 def main() -> int:

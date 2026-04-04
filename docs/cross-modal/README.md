@@ -12,6 +12,21 @@
 - [Dataset Manifest Template](dataset-manifest-template.json)
 - [Phase 1 Dataset Registry](phase-1-dataset-registry.md)
 - [Phase 1 Public Intake Note](phase-1-public-intake-note.md)
+- [DS003838 Intake Worksheet](ds003838-intake-worksheet.md)
+- [DS003838 Ingest Note](ds003838-ingest-note.md)
+- [DS003838 Phase 2 Windowing](ds003838-phase2-windowing.md)
+- [DS003838 Targets](ds003838-targets.md)
+- [DS003838 Morphology Baseline](ds003838-morphology-baseline.md)
+- [DS003838 Failure Analysis](ds003838-failure-analysis.md)
+- [DS006848 Intake Worksheet](ds006848-intake-worksheet.md)
+- [DS006848 Ingest Note](ds006848-ingest-note.md)
+- [DS006848 Split Plan](ds006848-split-plan.md)
+- [DS006848 Phase 2 Windowing](ds006848-phase2-windowing.md)
+- [DS006848 Targets](ds006848-targets.md)
+- [DS006848 Morphology Baseline](ds006848-morphology-baseline.md)
+- [DS006848 Baseline Analysis](ds006848-baseline-analysis.md)
+- [DS006848 Subject Quality Policy](ds006848-subject-quality-policy.md)
+- [DS006848 PPG Quality Review](ds006848-ppg-quality-review.md)
 - [DS004514 Intake Worksheet](ds004514-intake-worksheet.md)
 - [DS004514 Ingest Note](ds004514-ingest-note.md)
 - [DS004514 Split Plan](ds004514-split-plan.md)
@@ -30,6 +45,8 @@ Phase 1 reports:
 
 - [../../reports/cross_modal/intake/README.md](../../reports/cross_modal/intake/README.md)
 - [../../reports/cross_modal/intake/ds004514-intake-report.md](../../reports/cross_modal/intake/ds004514-intake-report.md)
+- [../../reports/cross_modal/intake/ds003838-intake-report.md](../../reports/cross_modal/intake/ds003838-intake-report.md)
+- [../../reports/cross_modal/intake/ds006848-intake-report.md](../../reports/cross_modal/intake/ds006848-intake-report.md)
 
 Primary plan:
 

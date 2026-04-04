@@ -58,12 +58,22 @@ Current broader 8-subject development result:
 - notch-valid train windows: `55`
 - notch-valid eval windows: `123`
 
+Current 2-subject rest smoke result:
+
+- quality-pass train windows: `10`
+- quality-pass eval windows: `10`
+- dominant-beat-valid train windows: `10`
+- dominant-beat-valid eval windows: `10`
+- notch-valid train windows: `2`
+- notch-valid eval windows: `0`
+
 Practical interpretation:
 
 - dominant-beat morphology targets remain dense even after the broader expansion
 - unlike the 4-subject result, notch timing is no longer train-only, but coverage is still too sparse and uneven to promote as a primary target
 - the main problem on the broader split is not target availability; it is the combination of eval quality attrition and cross-subject failure
 - that broader failure now has an explicit cohort policy attached, with `sub-016` demoted to stress-test-only and `sub-017` retained as borderline-review
+- the rest smoke branch is now target-complete at pilot scope, but still too small to treat as a modeling benchmark
 
 ## Commands
 
@@ -76,6 +86,9 @@ python scripts/cross_modal/validate_ds006848_targets.py --config configs/cross_m
 
 python scripts/cross_modal/derive_ds006848_targets.py --config configs/cross_modal/ds006848_targets_broader.toml
 python scripts/cross_modal/validate_ds006848_targets.py --config configs/cross_modal/ds006848_targets_broader.toml
+
+python scripts/cross_modal/derive_ds006848_targets.py --config configs/cross_modal/ds006848_targets_rest.toml
+python scripts/cross_modal/validate_ds006848_targets.py --config configs/cross_modal/ds006848_targets_rest.toml
 ```
 
 ## Artifacts
@@ -92,3 +105,7 @@ python scripts/cross_modal/validate_ds006848_targets.py --config configs/cross_m
 - [../../reports/cross_modal/ds006848/ds006848_broader_target_arrays.npz](../../reports/cross_modal/ds006848/ds006848_broader_target_arrays.npz)
 - [../../reports/cross_modal/ds006848/ds006848_broader_target_coverage.json](../../reports/cross_modal/ds006848/ds006848_broader_target_coverage.json)
 - [../../reports/cross_modal/ds006848/ds006848_broader_target_summary.md](../../reports/cross_modal/ds006848/ds006848_broader_target_summary.md)
+- [../../configs/cross_modal/ds006848_targets_rest.toml](../../configs/cross_modal/ds006848_targets_rest.toml)
+- [../../reports/cross_modal/ds006848/ds006848_rest_target_arrays.npz](../../reports/cross_modal/ds006848/ds006848_rest_target_arrays.npz)
+- [../../reports/cross_modal/ds006848/ds006848_rest_target_coverage.json](../../reports/cross_modal/ds006848/ds006848_rest_target_coverage.json)
+- [../../reports/cross_modal/ds006848/ds006848_rest_target_summary.md](../../reports/cross_modal/ds006848/ds006848_rest_target_summary.md)

@@ -72,10 +72,18 @@ Completed or materially implemented:
   - a broader verbalwm development split now exists with `sub-001`, `sub-010`, `sub-013`, `sub-015` train and `sub-007`, `sub-012`, `sub-016`, `sub-017` eval, with `2048` paired windows and `1983` quality-pass windows
   - a broader target artifact now exists on top of that split, with `1978` dominant-beat-valid windows and the first nonzero DS006848 eval notch coverage (`123` valid windows)
   - a first rest pilot now exists with `sub-001` train and `sub-007` eval, with `20` paired windows, `20` quality-pass windows, and zero measured alignment residual
+  - a first rest target artifact now exists on top of that pilot, with `10 / 10` dominant-beat-valid windows in both train and eval, and train-only notch coverage (`2` valid windows)
   - a machine-readable DS006848 verbalwm subject-quality policy now exists for the reviewed broader cohort:
     - `sub-016` is `stress_test_only`
     - `sub-017` is `borderline_review`
     - the remaining verbalwm subjects stay `pending_review`
+  - a broader `12`-subject DS006848 verbalwm waveform-quality review now exists:
+    - `1536` sampled windows
+    - `1509` quality-pass windows
+    - `1526` dominant-beat-valid windows
+    - `131` notch-valid windows
+    - strongest current pending-review promotion candidates: `sub-002`, `sub-035`
+    - weakest reviewed cases remain `sub-016`, `sub-017`, and `sub-025`
 - Phase 3 has only a preview implementation so far:
   - routed and canonicalized negative-control baselines exist for `DS004514`
   - these are useful for de-risking, but they are not yet the serious baseline suite the plan calls for
@@ -114,7 +122,7 @@ Completed or materially implemented:
 
 Still incomplete:
 
-- Phase 2 for `DS006848` now covers development-scale verbalwm plus a first rest pilot, but it is still incomplete at the dataset level because rest targets do not yet exist and morphology-grade waveform quality has not yet been benchmarked on a broader representative subset.
+- Phase 2 for `DS006848` now covers development-scale verbalwm plus a first rest target-complete smoke branch, but it is still incomplete at the dataset level because the reviewed pending-subject shortlist has not yet been tested in a model-aware cohort-swap experiment and the long-term role of the rest branch is still undecided.
 - Phase 2 is still development-scale for EEG-PPG. `DS003838` now has a 4-subject smoke artifact, an 8-subject development artifact, and target-coverage layers for both, but not yet a broader paired-cohort default artifact.
 - Athena internal intake and preprocessing are still incomplete.
 - There is still no broad-cohort EEG-PPG positive baseline result; the earlier DS006848 4-subject positive check does not survive the broader 8-subject follow-up.
@@ -190,18 +198,28 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    - `sub-017` is `borderline_review`
    - the remaining verbalwm subjects stay `pending_review` until a broader waveform-quality pass promotes them
 
-5. Treat the current 2-subject DS006848 rest path as the rest smoke contract.
-   The first rest Phase 2 branch now exists for `sub-001` train and `sub-007` eval, with:
+5. Treat the current 2-subject DS006848 rest path as a target-complete smoke contract, not a benchmark yet.
+   The first rest branch now has:
    - `20` paired windows
    - `20 / 20` quality-pass windows
-   - `Eyes_Closed`, `Eyes_Opened`, `Start_Cartoon`, and `End_Cartoon` marker coverage
+   - `10 / 10` dominant-beat-valid windows in both train and eval
+   - train-only notch coverage (`2` valid windows)
 
-6. Benchmark morphology-grade raw PPG quality on a broader DS006848 subject subset next.
-   That is now the highest-value missing DS006848 quality question.
+6. Treat the broader DS006848 waveform-quality pass as complete enough to define the next verbalwm cohort experiment.
+   Current evidence now says:
+   - strongest pending-review promotion candidates: `sub-002`, `sub-035`
+   - verbalwm-only secondary candidate: `sub-011`
+   - keep `sub-025` pending
+   - keep `sub-016` as `stress_test_only`
+   - keep `sub-017` as `borderline_review`
 
-7. Derive the first DS006848 rest target artifact only after that broader waveform-quality pass is stable enough to interpret.
+7. Run a model-aware cohort-swap experiment next.
+   The concrete question is whether replacing the weakest broader verbalwm subjects with the strongest pending-review waveform candidates recovers a broader null-beating result.
 
-8. Treat raw EEG -> raw PPG waveform generation and deeper architectures as explicitly out of scope until at least one broader EEG-PPG split beats null.
+8. Keep the rest branch in smoke-contract mode until that verbalwm cohort question is answered.
+   Do not treat the current 2-subject rest path as a modeling benchmark yet.
+
+9. Treat raw EEG -> raw PPG waveform generation and deeper architectures as explicitly out of scope until at least one broader EEG-PPG split beats null.
 
 This is the shortest path from current repo state to the new business goal.
 

@@ -108,15 +108,15 @@
     "artifact_fields": []
   },
   "intake_review": {
-    "verification_status": "source_tree_verified_phase2_verbalwm_broader_and_rest_pilot_with_subject_quality_policy",
+    "verification_status": "source_tree_verified_phase2_verbalwm_broader_rest_targets_and_broader_ppg_quality_review",
     "accepted_for": [
       "candidate_eeg_ppg_alignment",
       "candidate_ppg_morphology_benchmark",
       "candidate_rest_working_memory_benchmark"
     ],
     "blocked_on": [
-      "quantify morphology-grade raw PPG quality on a broader representative subject subset",
-      "derive the first DS006848 rest target artifact on top of the rest Phase 2 pilot",
+      "run a model-aware cohort-swap experiment using the waveform-quality shortlist before promoting more verbalwm subjects",
+      "decide whether the DS006848 rest branch should stay smoke-only or expand into a real rest benchmark",
       "decide the long-term roles of DS006848 and DS003838 now that both broader verbalwm splits fail to beat null"
     ]
   },
@@ -135,6 +135,8 @@
     "The broader DS006848 target artifact keeps dominant-beat coverage dense with 1978 valid windows and introduces the first nonzero DS006848 eval notch coverage with 123 valid windows.",
     "The broader DS006848 morphology baseline no longer beats the null on aggregate standardized MSE for either EEG branch, with eeg_clean now the least-bad branch.",
     "A machine-readable subject-quality policy marks sub-016 as stress-test-only and sub-017 as borderline-review within the current reviewed verbalwm cohort, while the remaining verbalwm subjects stay pending review.",
-    "A first DS006848 rest Phase 2 pilot artifact now exists for sub-001 train and sub-007 eval, with 20 paired windows, zero alignment residual, and full quality-pass."
+    "A first DS006848 rest Phase 2 pilot artifact now exists for sub-001 train and sub-007 eval, with 20 paired windows, zero alignment residual, and full quality-pass.",
+    "A first DS006848 rest target artifact now exists on top of that rest pilot, with dense dominant-beat coverage in both train and eval and train-only notch coverage.",
+    "A broader 12-subject DS006848 verbalwm waveform-quality review now exists, with 1536 sampled windows, 1509 quality-pass windows, and a pending-review shortlist led by sub-002 and sub-035."
   ]
 }

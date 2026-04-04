@@ -74,7 +74,7 @@ The current pass verifies snapshot metadata, root structure, full subject covera
   - the sampled channel table exposes `PPG` as `type=MISC`
   - the same BrainVision container also holds a single `ECG` channel
   - because PPG is stored at the native recording rate inside the shared task file, morphology preservation is plausible
-  - waveform-quality benchmarking has not yet been run on a representative subject subset
+  - broader verbalwm waveform-quality benchmarking now confirms that morphology-grade PPG is available for most of a representative `12`-subject subset, but weak cases still cluster around `sub-016`, `sub-017`, and `sub-025`
 
 ## Pairing and timing
 
@@ -257,7 +257,48 @@ Practical reading:
 
 - the first rest branch is now real, not planned
 - alignment remains `0.0 s` because EEG, PPG, and ECG share one BrainVision recording
-- the next missing step for rest is no longer Phase 2 windowing; it is target definition and broader waveform-quality review
+- the rest branch is now target-complete at smoke scope; the next question is whether it should stay a smoke contract or expand into a real rest benchmark
+
+## Broader verbalwm waveform-quality review result
+
+- Reviewed verbalwm subjects:
+  - `sub-001`, `sub-002`, `sub-007`, `sub-010`, `sub-011`, `sub-012`, `sub-013`, `sub-015`, `sub-016`, `sub-017`, `sub-025`, `sub-035`
+- Aggregate outputs:
+  - `1536` sampled windows
+  - `1509 / 1536` quality-pass windows
+  - `1526 / 1536` dominant-beat-valid windows
+  - `131 / 1536` notch-valid windows
+- Highest composite-quality subjects:
+  - `sub-012`
+  - `sub-002`
+  - `sub-015`
+  - `sub-013`
+- Lowest composite-quality subjects:
+  - `sub-017`
+  - `sub-016`
+  - `sub-025`
+
+Practical reading:
+
+- the broader DS006848 verbalwm issue is not a universal lack of morphology-grade PPG
+- the weak cases reinforce the existing subject-quality policy rather than contradicting it
+- the strongest current pending-review verbalwm promotion candidates are `sub-002` and `sub-035`
+- `sub-011` is a reasonable verbalwm-only secondary candidate because waveform quality is acceptable, but it remains unsuitable for rest-branch planning because `RS_excluded=yes`
+
+## Rest target result
+
+- quality-pass train windows: `10`
+- quality-pass eval windows: `10`
+- dominant-beat-valid train windows: `10`
+- dominant-beat-valid eval windows: `10`
+- notch-valid train windows: `2`
+- notch-valid eval windows: `0`
+
+Practical reading:
+
+- the rest branch is now target-complete at 2-subject smoke scope
+- dominant-beat morphology is dense enough to support rest-branch plumbing and future smoke baselines
+- notch timing remains a masked diagnostic target and should not drive rest decisions yet
 
 ## Protocol coverage
 
@@ -332,9 +373,12 @@ Decision rationale:
 ## Next actions
 
 1. Keep the broader slice-analysis pass and explicit subject-quality policy as the reference for what to watch: amplitude-family concentration, eval quality attrition, and subject-specific failure.
-2. Benchmark morphology-grade raw waveform quality on a broader DS006848 subject subset.
-3. Derive the first rest target artifact on top of the new 2-subject rest pilot.
-4. Decide whether any `pending_review` verbalwm subjects should be promoted into the default DS006848 development cohort.
+2. Use the completed broader waveform-quality review to define the first pending-review cohort-swap experiment:
+   - primary candidates: `sub-002`, `sub-035`
+   - secondary verbalwm-only candidate: `sub-011`
+   - keep `sub-025` pending
+3. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
+4. Decide whether any `pending_review` verbalwm subjects should be promoted into the default DS006848 development cohort after the cohort-swap follow-up.
 
 ## Commands
 

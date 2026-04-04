@@ -10,8 +10,10 @@ Related files:
 
 - [../../configs/cross_modal/ds006848_subject_quality_policy.json](../../configs/cross_modal/ds006848_subject_quality_policy.json)
 - [ds006848-baseline-analysis.md](ds006848-baseline-analysis.md)
+- [ds006848-ppg-quality-review.md](ds006848-ppg-quality-review.md)
 - [../../reports/cross_modal/ds006848/ds006848_phase2_broader_windows_metrics.json](../../reports/cross_modal/ds006848/ds006848_phase2_broader_windows_metrics.json)
 - [../../reports/cross_modal/ds006848/ds006848_broader_baseline_analysis_metrics.json](../../reports/cross_modal/ds006848/ds006848_broader_baseline_analysis_metrics.json)
+- [../../reports/cross_modal/ds006848/ds006848_ppg_quality_review_metrics.json](../../reports/cross_modal/ds006848/ds006848_ppg_quality_review_metrics.json)
 
 ## Scope
 
@@ -83,6 +85,26 @@ The broader DS006848 verbalwm pass already gave enough evidence to stop treating
 
 The remaining work is no longer to define the reviewed verbalwm cohort. It is to:
 
-- benchmark morphology-grade waveform quality on a broader representative DS006848 subset
-- add the `22`-subject rest branch
-- decide whether any `pending_review` subjects should be promoted into the default verbalwm pool
+- use the completed broader waveform-quality review to choose the first pending-review promotion experiment
+- keep building the `22`-subject rest branch beyond the current smoke contract
+- decide whether any `pending_review` subjects should be promoted into the default verbalwm pool after a model-aware follow-up
+
+## Broader waveform-quality review result
+
+The broader `12`-subject verbalwm waveform-quality pass did not overturn the current policy. It strengthened it.
+
+What it reinforced:
+
+- `sub-016` still looks like a stress-test subject, not a default-train subject
+- `sub-017` still looks borderline rather than default-clean
+
+What it added:
+
+- the strongest pending-review promotion candidates are now `sub-002` and `sub-035`
+- `sub-011` is a reasonable verbalwm-only secondary candidate, but not a rest candidate because `RS_excluded=yes`
+- `sub-025` should stay pending because morphology amplitude remains weak even though the coarse quality-pass rate stays high
+
+Operational reading:
+
+- keep the machine-readable cohort policy unchanged for now
+- use the waveform-quality review to decide the next cohort-swap experiment rather than promoting subjects blindly

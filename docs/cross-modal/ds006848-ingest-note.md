@@ -106,5 +106,9 @@ The next engineering step should be:
 - use the current 8-subject verbalwm split as the development default
 - use the explicit DS006848 verbalwm subject-quality policy as the default cohort gate
 - keep the new 2-subject rest pilot as the rest smoke contract
-- benchmark morphology-grade raw PPG quality on a broader DS006848 subset before promoting more rest or verbalwm subjects
-- derive the first rest target artifact only after that broader waveform-quality pass is stable enough to interpret
+- treat the broader verbalwm waveform-quality pass as complete enough to create a pending-review shortlist:
+  - strongest current promotion candidates: `sub-002`, `sub-035`
+  - verbalwm-only secondary candidate: `sub-011`
+  - keep `sub-025` pending
+- treat the first rest target artifact as the next completed smoke-layer output on top of the 2-subject rest pilot
+- run a model-aware cohort-swap experiment before promoting more verbalwm subjects into the default pool

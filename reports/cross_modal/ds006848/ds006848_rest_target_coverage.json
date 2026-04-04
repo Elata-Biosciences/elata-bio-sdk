@@ -1,0 +1,193 @@
+{
+  "kind": "ds006848_target_coverage",
+  "config_path": "configs/cross_modal/ds006848_targets_rest.toml",
+  "runtime_sec": 0.02326319999701809,
+  "peak_memory_mb": 1.0140810012817383,
+  "source_dataset": "reports/cross_modal/ds006848/ds006848_phase2_rest_windows.npz",
+  "source_branch": "ppg_clean_windows",
+  "window_count": 20,
+  "quality_pass_counts": {
+    "train": 10,
+    "eval": 10
+  },
+  "target_names": [
+    "ppg_peak_count",
+    "mean_ibi_seconds",
+    "amplitude_range",
+    "rising_edge_slope_max",
+    "dominant_beat_amplitude",
+    "dominant_beat_rise_time_seconds",
+    "dominant_beat_width_seconds",
+    "dominant_beat_fall_time_seconds",
+    "dominant_beat_peak_time_seconds",
+    "dominant_beat_notch_delay_seconds"
+  ],
+  "per_target": {
+    "ppg_peak_count": {
+      "total_valid": 20,
+      "train_valid": 10,
+      "eval_valid": 10,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 10
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 10
+        }
+      }
+    },
+    "mean_ibi_seconds": {
+      "total_valid": 20,
+      "train_valid": 10,
+      "eval_valid": 10,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 10
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 10
+        }
+      }
+    },
+    "amplitude_range": {
+      "total_valid": 20,
+      "train_valid": 10,
+      "eval_valid": 10,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 10
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 10
+        }
+      }
+    },
+    "rising_edge_slope_max": {
+      "total_valid": 20,
+      "train_valid": 10,
+      "eval_valid": 10,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 10
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 10
+        }
+      }
+    },
+    "dominant_beat_amplitude": {
+      "total_valid": 20,
+      "train_valid": 10,
+      "eval_valid": 10,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 10
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 10
+        }
+      }
+    },
+    "dominant_beat_rise_time_seconds": {
+      "total_valid": 20,
+      "train_valid": 10,
+      "eval_valid": 10,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 10
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 10
+        }
+      }
+    },
+    "dominant_beat_width_seconds": {
+      "total_valid": 20,
+      "train_valid": 10,
+      "eval_valid": 10,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 10
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 10
+        }
+      }
+    },
+    "dominant_beat_fall_time_seconds": {
+      "total_valid": 20,
+      "train_valid": 10,
+      "eval_valid": 10,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 10
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 10
+        }
+      }
+    },
+    "dominant_beat_peak_time_seconds": {
+      "total_valid": 20,
+      "train_valid": 10,
+      "eval_valid": 10,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 10
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 10
+        }
+      }
+    },
+    "dominant_beat_notch_delay_seconds": {
+      "total_valid": 2,
+      "train_valid": 2,
+      "eval_valid": 0,
+      "train_valid_fraction": 0.2,
+      "eval_valid_fraction": 0.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 2
+        }
+      }
+    }
+  }
+}

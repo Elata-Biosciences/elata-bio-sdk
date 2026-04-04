@@ -56,13 +56,15 @@ This note summarizes the current state of the public candidate manifests and wha
   - the broader target artifact keeps dominant-beat coverage dense (`1978` valid windows) and introduces the first nonzero DS006848 eval notch coverage (`123` valid windows)
   - the broader morphology baseline no longer beats the null on aggregate standardized MSE for either EEG branch, with `eeg_clean` now the least-bad branch
   - a first rest Phase 2 pilot now exists for `sub-001` train and `sub-007` eval, with `20` paired windows, full quality-pass, and explicit `Eyes_Closed`, `Eyes_Opened`, `Start_Cartoon`, and `End_Cartoon` marker coverage
+  - a first rest target artifact now exists on top of that rest pilot, with `10 / 10` dominant-beat-valid windows in both train and eval, and train-only notch coverage (`2` valid windows)
   - a machine-readable DS006848 verbalwm subject-quality policy now exists:
     - `sub-016` is marked `stress_test_only`
     - `sub-017` is marked `borderline_review`
     - the remaining `22` verbalwm subjects stay `pending_review`
+  - a broader `12`-subject verbalwm PPG waveform-quality review now exists, with `1536` sampled windows, `1509` quality-pass windows, and a pending-review shortlist led by `sub-002` and `sub-035`
 - What remains:
-  - benchmark morphology-grade raw PPG quality on a broader representative subject subset
-  - derive the first DS006848 rest target artifact on top of the new rest Phase 2 pilot
+  - run a model-aware cohort-swap experiment using the new waveform-quality shortlist before promoting more verbalwm subjects
+  - decide whether the first rest branch should stay smoke-only or expand into a real rest benchmark
   - decide the long-term roles of DS006848 and DS003838 now that both broader verbalwm splits fail to beat null
 
 ### DREAMT

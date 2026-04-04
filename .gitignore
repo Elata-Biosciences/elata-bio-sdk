@@ -48,6 +48,11 @@ __pycache__/
 # Local scratch / intake inspection clones
 .tmp/
 
+# Large generated cross-modal artifacts
+reports/cross_modal/**/*_windows.npz
+reports/cross_modal/**/*_target_arrays.npz
+reports/cross_modal/**/*_metadata.json
+
 # Generated bindings (keep in git for easier onboarding)
 # Web demo/package generated WASM glue and bundles
 eeg-demo/pkg/
