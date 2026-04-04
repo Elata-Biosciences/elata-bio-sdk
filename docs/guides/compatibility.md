@@ -18,7 +18,7 @@ published Elata SDK surfaces.
 |----------|----------------|--------------|------------|-------|
 | `create-elata-demo` | n/a | n/a | n/a | scaffolder runs in Node |
 | EEG WASM with `eeg-web` | Supported | Supported | Supported | requires packaged `wasm/` assets |
-| Muse browser BLE with `eeg-web-ble` | Supported in secure context | Not supported for this workflow | Not supported for this workflow | requires Web Bluetooth |
+| Web Bluetooth EEG with `eeg-web-ble` | Supported in secure context | Not supported for this workflow | Not supported for this workflow | requires Web Bluetooth |
 | rPPG with `rppg-web` | Supported | Supported | Supported with camera permissions | requires packaged `pkg/` assets |
 
 ## Web Bluetooth Support
@@ -32,11 +32,15 @@ Current browser BLE expectations:
 
 ## Supported Device Classes
 
-Current device classes referenced by this repo:
+**Built into `@elata-biosciences/eeg-web-ble` today:**
 
 - Muse 2 and Muse S classic BLE devices
 - Muse S Athena protocol v2 devices
 - the synthetic Muse-compatible BLE bridge used for testing
+
+Other headsets can be integrated by contributors or app authors using the same
+`HeadbandTransport` contract; see
+[contributing-eeg-transports.md](../contributing-eeg-transports.md).
 
 ## Safari And iOS Notes
 

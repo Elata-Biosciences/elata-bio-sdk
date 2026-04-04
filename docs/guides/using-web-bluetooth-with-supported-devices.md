@@ -20,15 +20,23 @@ app.
 - Chrome or Edge
 - `https://` or `localhost`
 - Bluetooth enabled on the machine
-- a supported Muse-compatible EEG device
+- a supported headset for the **built-in** transport (see below), or a custom
+  `BleTransport` `device` you provide
 
-Supported device classes in this repo today:
+**Built-in device classes in this repo today** (via `MuseBleDevice` / default
+`BleTransport`):
 
 - Muse 2 and Muse S classic BLE devices
 - Muse S Athena protocol v2 devices
 - the synthetic Muse-compatible BLE bridge used for testing
 
-Safari and iOS do not support this browser BLE workflow.
+`@elata-biosciences/eeg-web-ble` is the **shared Web Bluetooth transport
+package** for the Elata EEG web stack; it is **not limited to Muse** for
+[in-repo or app-level extensions](../contributing-eeg-transports.md).
+
+Safari and the system iOS browser do not support this Web Bluetooth workflow.
+Use Chrome or Edge on desktop, Chrome on Android, or **Bluefy** on iOS. Do not
+expect Safari itself to handle this path.
 
 ## Install
 
@@ -89,3 +97,4 @@ Prefer the scaffolded `eeg-demo` app, via the `eeg-ble` alias when helpful, when
 - For raw EEG browser APIs, read [using-eeg-in-a-browser-app.md](using-eeg-in-a-browser-app.md).
 - For setup failures, read [troubleshooting.md](troubleshooting.md).
 - For package details, see [packages/eeg-web-ble/README.md](../../packages/eeg-web-ble/README.md).
+- For adding other headsets, read [contributing-eeg-transports.md](../contributing-eeg-transports.md).

@@ -12,8 +12,8 @@ the scaffold path, use [Quickstart](/quickstart).
 
 EEG is **optional** in the usual Elata journey: **camera rPPG** is the primary
 browser integration for many apps. Add `eeg-web` when you need brain-signal
-analysis; add **`eeg-web-ble`** alongside it when you need **Web Bluetooth** for a
-Muse-compatible headset.
+analysis; add **`eeg-web-ble`** alongside it when you need **Web Bluetooth**
+headset transport (Muse built-in; [more devices](/maintainers/contributing-eeg-transports)).
 
 EEG measures electrical activity from the brain using a wearable headset.
 In browser apps, developers usually use EEG to stream headset samples, compute
@@ -37,7 +37,8 @@ Concrete app examples include:
 - shared types and contracts used by higher-level browser integrations
 
 This package does not handle Bluetooth device connection by itself. Add
-`@elata-biosciences/eeg-web-ble` if you also need browser BLE transport.
+`@elata-biosciences/eeg-web-ble` (or another `HeadbandTransport`) if you also
+need live headset transport.
 
 ## How Apps Usually Use EEG
 

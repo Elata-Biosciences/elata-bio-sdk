@@ -1,6 +1,6 @@
 ---
 title: eeg-web-ble
-description: Browser BLE transport for Muse-compatible EEG devices.
+description: Web Bluetooth transport for EEG headbands in the browser (built-in Muse; open to more devices).
 ---
 
 ## What This Package Is
@@ -8,7 +8,8 @@ description: Browser BLE transport for Muse-compatible EEG devices.
 This package owns:
 
 - browser-side Web Bluetooth device and session lifecycle
-- classic and Athena packet handling
+- a **built-in** Muse 2 / Muse S implementation (classic BLE and Athena protocol)
+- optional hooks for **other headsets** via a pluggable `device` on `BleTransport`
 - emission of normalized `HeadbandFrameV1` frames
 
 It intentionally depends on `@elata-biosciences/eeg-web` for shared transport
@@ -18,11 +19,14 @@ and frame contracts.
 
 Use this package when your app needs:
 
-- browser-side discovery of Muse-compatible devices
+- browser-side discovery and streaming for **supported** headsets (Muse 2, Muse S classic, Muse S Athena out of the box)
 - live EEG streaming over Web Bluetooth
 - normalized headband frames for app logic or downstream analysis
 
 Install it alongside `@elata-biosciences/eeg-web`.
+
+Contributors and vendors can extend transport for additional hardware; see
+[Contributing EEG Transports](/maintainers/contributing-eeg-transports).
 
 ## Install
 
@@ -74,13 +78,14 @@ because it wraps `connect()` and `start()` together.
 ## Key Exports
 
 - `BleTransport`
+- `MuseBleDevice` (default built-in device)
 - transport and frame types
 
 ## Platform Caveats
 
 - Safari and iOS do not provide usable Web Bluetooth support for this workflow.
 - Athena startup requires an `athenaDecoderFactory`.
-- Firmware variants may differ in command behavior.
+- Muse firmware variants may differ in command behavior.
 
 For Safari and iOS, prefer a native BLE shell, companion bridge, or hybrid
 WebView strategy with `@elata-biosciences/eeg-web` frame contracts as the
@@ -91,3 +96,4 @@ boundary.
 - Live-stream tutorial: [Stream Muse-Compatible EEG Over Web Bluetooth](/tutorials/eeg-ble-live-stream)
 - Browser BLE guide: [Web Bluetooth With Supported Devices](/guides/web-bluetooth)
 - EEG runtime reference: [eeg-web](/reference/eeg-web)
+- Contributor guide: [Contributing EEG Transports](/maintainers/contributing-eeg-transports)

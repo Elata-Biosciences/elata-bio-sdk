@@ -1,6 +1,6 @@
 ---
 title: Web Bluetooth With Supported Devices
-description: Stream Muse-compatible EEG devices from supported Chromium browsers.
+description: Web Bluetooth EEG headset transport from supported Chromium browsers; Muse built-in, extensible for more devices.
 ---
 
 Use this page if you want the transport model and platform constraints, not a
@@ -12,17 +12,19 @@ If you want the scaffold path, use [Quickstart](/quickstart).
 
 **Role in the SDK:** camera **rPPG** is the usual first app. **EEG** is optional
 when you need brain signals. **Web Bluetooth** (`eeg-web-ble` with `eeg-web`)
-**enables a live Muse-compatible headset**—it is transport for EEG, not a
-parallel primary product to rPPG.
+provides **headset transport** for the EEG stack — today with **built-in Muse**
+support, and open to **additional devices** via the same package or sibling
+integrations ([contributing guide](/maintainers/contributing-eeg-transports)).
 
 ## Requirements
 
 - Chrome or Edge
 - `https://` or `localhost`
 - Bluetooth enabled on the machine
-- a supported Muse-compatible EEG device
+- a **supported** headset for the default `BleTransport`, or a custom `device`
+  you supply (see contributor guide)
 
-Supported device classes in this repo today:
+**Built-in device classes in this repo today:**
 
 - Muse 2 and Muse S classic BLE devices
 - Muse S Athena protocol v2 devices
@@ -87,4 +89,5 @@ await transport.startStreaming();
 - Existing-app walkthrough: [Stream Muse-Compatible EEG Over Web Bluetooth](/tutorials/eeg-ble-live-stream)
 - EEG package details: [eeg-web](/reference/eeg-web)
 - BLE package details: [eeg-web-ble](/reference/eeg-web-ble)
+- Adding headsets: [Contributing EEG Transports](/maintainers/contributing-eeg-transports)
 - Platform expectations: [Compatibility](/operations/compatibility)

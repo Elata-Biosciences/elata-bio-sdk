@@ -1,0 +1,133 @@
+---
+title: Example applications
+description: Open source browser apps built with Elata EEG, Web Bluetooth, and rPPG packages.
+---
+
+These projects are **full applications** that ship on GitHub Pages. They complement the
+[`create-elata-demo`](/reference/create-elata-demo) scaffolder and the
+[Build A Browser App](/browser-apps) chooser: use those for the fastest evaluation, then study
+these repos when you want routing, game loops, session summaries, or multi-package wiring in a real
+product-shaped codebase.
+
+Screenshots below are **WebP** gameplay captures (desktop and mobile). Each repo’s
+`docs/store-assets/` holds additional sizes (`full`, `1200w`, `800w`, …) for listings and docs.
+Regenerate from PNG masters with `npm run process-screenshots` in the **`app-store-assets`**
+folder (sibling to the SDK in the Elata apps workspace).
+
+## Apps
+
+| App | What it shows | Live demo | Source |
+| --- | --- | --- | --- |
+| Breathwork Trainer | Guided breathing protocols with live EEG and rPPG session UI | [Play](https://wkyleg.github.io/breathwork-trainer/) | [wkyleg/breathwork-trainer](https://github.com/wkyleg/breathwork-trainer) |
+| NeuroFlight | 3D flight sim with AI opponent and post-session neural analytics | [Play](https://wkyleg.github.io/neuroflight/) | [wkyleg/neuroflight](https://github.com/wkyleg/neuroflight) |
+| Monkey Mind: Inner Invaders | Canvas arcade with brain-reactive gameplay and level reports | [Play](https://wkyleg.github.io/monkey-mind/) | [wkyleg/monkey-mind](https://github.com/wkyleg/monkey-mind) |
+| Neuro Chess | Chess vs Stockfish with live neuro HUD and post-game charts | [Play](https://wkyleg.github.io/neuro-chess/) | [wkyleg/neuro-chess](https://github.com/wkyleg/neuro-chess) |
+| Reaction Trainer | Reaction game with stress-modulated difficulty and results analytics | [Play](https://wkyleg.github.io/reaction-trainer/) | [wkyleg/reaction-trainer](https://github.com/wkyleg/reaction-trainer) |
+
+## Gameplay previews
+
+### Breathwork Trainer
+
+<a href="https://wkyleg.github.io/breathwork-trainer/" target="_blank" rel="noreferrer">
+  <img
+    src="/images/examples/breathwork-trainer-desktop.webp"
+    alt="Breathwork Trainer — session UI with breathing guide and live biometrics"
+    style={{ borderRadius: '8px', width: '100%', maxWidth: '720px' }}
+  />
+</a>
+
+<img
+  src="/images/examples/breathwork-trainer-mobile.webp"
+  alt="Breathwork Trainer — mobile layout"
+  style={{ borderRadius: '8px', width: '100%', maxWidth: '280px', marginTop: '12px' }}
+/>
+
+### NeuroFlight
+
+<a href="https://wkyleg.github.io/neuroflight/" target="_blank" rel="noreferrer">
+  <img
+    src="/images/examples/neuroflight-desktop.webp"
+    alt="NeuroFlight — 3D flight gameplay"
+    style={{ borderRadius: '8px', width: '100%', maxWidth: '720px' }}
+  />
+</a>
+
+<img
+  src="/images/examples/neuroflight-mobile.webp"
+  alt="NeuroFlight — mobile view"
+  style={{ borderRadius: '8px', width: '100%', maxWidth: '280px', marginTop: '12px' }}
+/>
+
+### Monkey Mind: Inner Invaders
+
+<a href="https://wkyleg.github.io/monkey-mind/" target="_blank" rel="noreferrer">
+  <img
+    src="/images/examples/monkey-mind-desktop.webp"
+    alt="Monkey Mind — arcade gameplay with neuro HUD"
+    style={{ borderRadius: '8px', width: '100%', maxWidth: '720px' }}
+  />
+</a>
+
+<img
+  src="/images/examples/monkey-mind-mobile.webp"
+  alt="Monkey Mind — mobile gameplay"
+  style={{ borderRadius: '8px', width: '100%', maxWidth: '280px', marginTop: '12px' }}
+/>
+
+### Neuro Chess
+
+<a href="https://wkyleg.github.io/neuro-chess/" target="_blank" rel="noreferrer">
+  <img
+    src="/images/examples/neuro-chess-desktop.webp"
+    alt="Neuro Chess — chess board with neuro analytics"
+    style={{ borderRadius: '8px', width: '100%', maxWidth: '720px' }}
+  />
+</a>
+
+<img
+  src="/images/examples/neuro-chess-mobile.webp"
+  alt="Neuro Chess — mobile view"
+  style={{ borderRadius: '8px', width: '100%', maxWidth: '280px', marginTop: '12px' }}
+/>
+
+### Reaction Trainer
+
+<a href="https://wkyleg.github.io/reaction-trainer/" target="_blank" rel="noreferrer">
+  <img
+    src="/images/examples/reaction-trainer-desktop.webp"
+    alt="Reaction Trainer — reaction task UI"
+    style={{ borderRadius: '8px', width: '100%', maxWidth: '720px' }}
+  />
+</a>
+
+<img
+  src="/images/examples/reaction-trainer-mobile.webp"
+  alt="Reaction Trainer — mobile view"
+  style={{ borderRadius: '8px', width: '100%', maxWidth: '280px', marginTop: '12px' }}
+/>
+
+## Packages used
+
+All five apps consume published npm packages from `@elata-biosciences`:
+
+| Package | Role in these apps |
+| --- | --- |
+| `@elata-biosciences/eeg-web` | WASM-backed EEG analysis, band powers, derived features |
+| `@elata-biosciences/eeg-web-ble` | Web Bluetooth headset streaming (Muse built-in) |
+| `@elata-biosciences/rppg-web` | Camera-based pulse and related metrics without a wearable |
+
+Not every app uses every package in the same way; open the repo that matches your use case.
+
+## Store listing copy and art
+
+Each linked repository includes **`docs/store-assets/`** with `listing.json` (marketing copy),
+PNG exports sized for store-style listings, and **WebP derivatives** for faster loading in READMEs
+and docs (`preview-desktop-01-1200w.webp`, `preview-mobile-01-800w.webp`, `banner-800w.webp`,
+`icon-512.webp`, etc.).
+
+## Where to go next
+
+- [Quickstart](/quickstart): scaffold a minimal demo first
+- [Build A Browser App](/browser-apps): main chooser for tutorials and paths
+- [Package Selection](/package-selection): choose packages for your own app
+- [EEG In A Browser App](/guides/eeg-browser) and [rPPG In A Browser App](/guides/rppg-browser): integration detail

@@ -32,7 +32,9 @@ Use `@elata-biosciences/eeg-web` when you want:
 - low-level rPPG pipeline access without managed-session overhead
 
 Use `@elata-biosciences/eeg-web-ble` in addition if you also need browser BLE
-device transport.
+headset transport (built-in Muse support today; additional devices via the same
+package with contributor extensions — see
+[docs/contributing-eeg-transports.md](../../docs/contributing-eeg-transports.md)).
 
 ## Install
 
@@ -93,11 +95,20 @@ console.log(pipeline.get_metrics());
 
 ## Device Support
 
-Current supported EEG headband integrations in this repo include:
+**Contract:** live headset data in browser apps should flow through a
+**`HeadbandTransport`** implementation (from this package’s types) that emits
+**`HeadbandFrameV1`**. That is the stable boundary for signal processing and
+demos.
+
+**Shipped in `@elata-biosciences/eeg-web-ble` today:**
 
 - Muse 2 and Muse S classic BLE devices
 - Muse S Athena protocol v2 devices
 - the synthetic Muse-compatible BLE bridge for testing
+
+Additional headsets belong in `eeg-web-ble` (or a sibling transport package) as
+long as they implement the same transport contract. See
+[docs/contributing-eeg-transports.md](../../docs/contributing-eeg-transports.md).
 
 ## Build And Dev Notes
 
@@ -133,7 +144,7 @@ recommended path for starting a new app.
 - If the pipeline instance has no `push_sample` or `get_metrics` API, switch to `createRppgPipeline()` instead of constructing generated classes directly.
 - If you hit `wasmrppgpipeline_new` errors, make sure you called `await initEegWasm()` before creating the pipeline and avoid bypassing the wrapper helpers.
 - If you are testing local repo changes in another app, prefer `./run.sh sync-to ../my-app` instead of manually copying build outputs.
-- If you need device connection, this package alone is not enough; add `@elata-biosciences/eeg-web-ble` or another transport layer.
+- If you need device connection, this package alone is not enough; add `@elata-biosciences/eeg-web-ble`, another `HeadbandTransport`, or a bridge-backed transport.
 
 ## Release Notes
 

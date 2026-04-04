@@ -60,6 +60,15 @@ path.
    - Reference associated issues.
    - Summarize what changed and why.
 
+### EEG headset transports (Web Bluetooth and beyond)
+
+If you are adding or changing how a **headset** delivers data to the browser EEG
+stack, read [docs/contributing-eeg-transports.md](docs/contributing-eeg-transports.md)
+first. New hardware should converge on **`HeadbandTransport`** /
+**`HeadbandFrameV1`** from `@elata-biosciences/eeg-web`. Prefer extending
+`packages/eeg-web-ble` or adding a focused sibling package under `packages/`
+rather than forking consumer demos.
+
 ### Coding Guidelines
 
 - Prefer **small, composable modules** and clear interfaces.
