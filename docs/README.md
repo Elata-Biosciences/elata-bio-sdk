@@ -15,7 +15,7 @@ Use this page to find the right document quickly.
 - [guides/getting-started.md](guides/getting-started.md): fastest path to a running app
 - [guides/choose-the-right-package.md](guides/choose-the-right-package.md): package decision guide
 - [guides/using-eeg-in-a-browser-app.md](guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
-- [guides/using-web-bluetooth-with-supported-devices.md](guides/using-web-bluetooth-with-supported-devices.md): supported browser BLE flow
+- [guides/using-web-bluetooth-with-supported-devices.md](guides/using-web-bluetooth-with-supported-devices.md): Web Bluetooth headset flow (built-in Muse; extensible)
 - [guides/using-rppg-in-a-browser-app.md](guides/using-rppg-in-a-browser-app.md): browser rPPG integration guide
 - [guides/compatibility.md](guides/compatibility.md): browser, device, and tooling expectations
 - [guides/troubleshooting.md](guides/troubleshooting.md): common failures and fixes

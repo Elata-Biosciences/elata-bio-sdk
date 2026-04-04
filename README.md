@@ -210,6 +210,7 @@ local EEG package against an app you already have.
 - [docs/dev_setup.md](docs/dev_setup.md): local setup and iteration tips
 - [docs/guides/README.md](docs/guides/README.md): consumer guide index
 - [docs/guides/getting-started.md](docs/guides/getting-started.md): fastest path to a running app
+- [external/docs-site/example-apps.mdx](external/docs-site/example-apps.mdx): example applications (Mintlify source; rendered on the docs portal as **Example applications**)
 - [docs/guides/choose-the-right-package.md](docs/guides/choose-the-right-package.md): package selection help
 - [docs/guides/using-eeg-in-a-browser-app.md](docs/guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
 - [docs/guides/using-web-bluetooth-with-supported-devices.md](docs/guides/using-web-bluetooth-with-supported-devices.md): browser Web Bluetooth headset flow
