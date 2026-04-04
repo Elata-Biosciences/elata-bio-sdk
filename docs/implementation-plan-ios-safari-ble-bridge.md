@@ -21,7 +21,7 @@ Out of scope for first release:
 
 1. BLE layer (`CoreBluetooth`)
 - Discover/connect Muse service and characteristics.
-- Implement classic and Athena routing logic mirroring `packages/eeg-web-ble/src/museDevice.ts`.
+- Implement classic and Athena routing logic mirroring `packages/eeg-web-ble/src/devices/muse/museDevice.ts`.
 
 2. Decode/normalize layer
 - Decode raw packets into channelized samples.

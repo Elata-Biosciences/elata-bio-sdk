@@ -39,7 +39,7 @@ docs.
 
 - `crates/`: Rust crates for EEG, rPPG, protocol support, FFI, and bridges
 - `packages/eeg-web`: TS wrapper around generated EEG WASM bindings
-- `packages/eeg-web-ble`: Web Bluetooth transport for EEG headbands (Muse built-in; open to additional devices)
+- `packages/eeg-web-ble`: Web Bluetooth transport for EEG headbands — `src/transport/` (`BleTransport`) vs `src/devices/muse/` (Muse protocol); open to additional `src/devices/` modules
 - `packages/rppg-web`: TS wrapper and demo tooling for the rPPG pipeline
 - `packages/create-elata-demo`: published scaffolder for demo apps
 - `eeg-demo/`: in-repo EEG browser demo

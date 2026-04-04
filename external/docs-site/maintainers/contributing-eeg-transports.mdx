@@ -10,6 +10,7 @@ The canonical, detailed guide lives in the monorepo:
 ## Summary
 
 - **`@elata-biosciences/eeg-web-ble`** is the shared **Web Bluetooth** transport package. It includes a **built-in Muse** implementation and is **not limited to Muse** for contributions.
+- **Layout:** `src/transport/` (`BleTransport`) vs `src/devices/muse/` (Muse protocol) — add new vendors under `src/devices/<vendor>/`.
 - New hardware should converge on **`HeadbandTransport`** and **`HeadbandFrameV1`** from **`@elata-biosciences/eeg-web`**.
 - Prefer a **new device module** in `eeg-web-ble`, a **`BleTransport` `device` adapter**, or a **sibling package** under `packages/` when the integration is large or needs a bridge.
 

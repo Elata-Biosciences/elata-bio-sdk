@@ -1,5 +1,5 @@
-import { MuseBleDevice } from '../museDevice';
-import type { MuseBoardInfo, MuseCharacteristicInfo } from '../museDevice';
+import { MuseBleDevice } from '../devices/muse/museDevice';
+import type { MuseBoardInfo, MuseCharacteristicInfo } from '../devices/muse/museDevice';
 
 const CHAR_UUIDS = {
   command: '273e0001-4c4d-454d-96be-f03bac821358',

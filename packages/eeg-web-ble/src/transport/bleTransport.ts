@@ -10,8 +10,8 @@ import type {
 	HeadbandTransport,
 	HeadbandTransportStatus,
 } from "@elata-biosciences/eeg-web";
-import type { AthenaAuxPacket, MuseDeviceOptions } from "./museDevice";
-import { MuseBleDevice } from "./museDevice";
+import type { AthenaAuxPacket, MuseDeviceOptions } from "../devices/muse/museDevice";
+import { MuseBleDevice } from "../devices/muse/museDevice";
 
 interface PpgPacket {
 	sequence: number;

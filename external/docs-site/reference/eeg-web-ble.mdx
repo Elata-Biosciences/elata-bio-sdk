@@ -3,17 +3,24 @@ title: eeg-web-ble
 description: Web Bluetooth transport for EEG headbands in the browser (built-in Muse; open to more devices).
 ---
 
+## Bluetooth vs built-in devices
+
+- **Transport:** **`BleTransport`** (`src/transport/`) — Web Bluetooth session and
+  **`HeadbandFrameV1`** assembly; uses **`HeadbandTransport`** types from `eeg-web`.
+- **Built-in protocol:** **`MuseBleDevice`** (`src/devices/muse/`) — Muse 2 / Muse S
+  classic + Athena GATT handling. Other headsets: new `src/devices/...` modules or
+  `new BleTransport({ device })`.
+
 ## What This Package Is
 
 This package owns:
 
-- browser-side Web Bluetooth device and session lifecycle
-- a **built-in** Muse 2 / Muse S implementation (classic BLE and Athena protocol)
-- optional hooks for **other headsets** via a pluggable `device` on `BleTransport`
-- emission of normalized `HeadbandFrameV1` frames
+- Web Bluetooth–oriented transport and frame emission (`BleTransport`)
+- a **built-in** Muse implementation (classic BLE and Athena protocol)
+- optional **other headsets** via `device` on `BleTransport`
 
 It intentionally depends on `@elata-biosciences/eeg-web` for shared transport
-and frame contracts.
+and frame contracts. **Import from the package root** — do not rely on deep paths.
 
 ## When To Use It
 

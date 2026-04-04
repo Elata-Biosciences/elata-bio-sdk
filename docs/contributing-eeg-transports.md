@@ -21,13 +21,15 @@ Pick one of these patterns and discuss larger additions in a GitHub issue first.
 
 ### 1. New device module inside `eeg-web-ble` (typical for Web Bluetooth)
 
-Add a new device class (for example next to `museDevice.ts`) that implements Web
-Bluetooth discovery, GATT I/O, and decoding for your hardware. Wire it into
-`BleTransport` by letting apps pass `new BleTransport({ device: yourDevice })`, or
-add a small factory if that improves ergonomics.
+Add a new device class under `packages/eeg-web-ble/src/devices/<vendor>/` (mirror
+`devices/muse/`) that implements Web Bluetooth discovery, GATT I/O, and decoding
+for your hardware. Wire it into **`BleTransport`** by letting apps pass
+`new BleTransport({ device: yourDevice })`, or add a small factory if that
+improves ergonomics.
 
-**Reference implementation:** `packages/eeg-web-ble/src/museDevice.ts` and
-`packages/eeg-web-ble/src/bleTransport.ts`.
+**Reference implementation:** `packages/eeg-web-ble/src/devices/muse/museDevice.ts`
+(protocol-specific) and `packages/eeg-web-ble/src/transport/bleTransport.ts`
+(transport + Muse-oriented aux merge).
 
 ### 2. Custom `device` with existing `BleTransport`
 
@@ -35,8 +37,8 @@ add a small factory if that improves ergonomics.
 must satisfy the same **lifecycle and metadata** shape that `MuseBleDevice`
 implements (prepare session, start/stop stream, channel counts, names, sample
 rate). The TypeScript type for that shape is currently internal to
-`bleTransport.ts`; match `MuseBleDevice`’s public fields and methods, or open a
-PR to export a named interface for contributors.
+`transport/bleTransport.ts`; match `MuseBleDevice`’s public fields and methods, or
+open a PR to export a named interface for contributors.
 
 **EEG samples:** the stream callback should pass `number[][]` where each **row**
 is one time step and row length equals `numEegChannels`, consistent with

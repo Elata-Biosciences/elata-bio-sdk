@@ -107,7 +107,9 @@ demos.
 - the synthetic Muse-compatible BLE bridge for testing
 
 Additional headsets belong in `eeg-web-ble` (or a sibling transport package) as
-long as they implement the same transport contract. See
+long as they implement the same transport contract. In this monorepo,
+`eeg-web-ble` separates **`src/transport/`** (`BleTransport`) from
+**`src/devices/muse/`** (built-in Muse protocol). See
 [docs/contributing-eeg-transports.md](../../docs/contributing-eeg-transports.md).
 
 ## Build And Dev Notes

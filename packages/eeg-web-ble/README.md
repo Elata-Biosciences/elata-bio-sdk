@@ -3,17 +3,42 @@
 Web Bluetooth transport package for EEG headbands in the browser. It emits
 normalized **`HeadbandFrameV1`** frames for the Elata EEG web stack.
 
+## Bluetooth vs built-in devices
+
+Keep two ideas separate:
+
+1. **Web Bluetooth + transport** — Chromium `navigator.bluetooth`, secure
+   context, GATT connect/disconnect, and turning peripheral data into
+   **`HeadbandFrameV1`** via **`BleTransport`**. That contract comes from
+   **`@elata-biosciences/eeg-web`** (`HeadbandTransport`, frame types). It is
+   not tied to a single vendor.
+2. **Device protocol** — service UUIDs, characteristics, packet decode, and
+   channel maps for a **specific** headset. Today the repo ships **Muse 2 /
+   Muse S (classic + Athena)** under `src/devices/muse/`. Other protocols belong
+   in new modules (or a custom `device` passed into `BleTransport`).
+
 ## What This Package Is
 
 This package owns:
 
-- browser-side Web Bluetooth device and session lifecycle
-- a **built-in** Muse 2 / Muse S implementation (classic BLE and Athena protocol)
-- optional hooks for **other headsets** via a pluggable `device` on `BleTransport`
+- **`BleTransport`** (`src/transport/`) — session lifecycle and frame assembly
+  for Web Bluetooth (default device: `MuseBleDevice`)
+- **`MuseBleDevice`** (`src/devices/muse/`) — Muse classic + Athena GATT handling
+- optional hooks for **other headsets** via `new BleTransport({ device })`
 - emission of normalized `HeadbandFrameV1` frames
 
 It intentionally depends on `@elata-biosciences/eeg-web` for shared transport
 and frame contracts.
+
+## Source layout (maintainers)
+
+| Path | Role |
+|------|------|
+| `src/transport/bleTransport.ts` | Web Bluetooth–oriented transport; merges EEG + Muse-shaped PPG/aux into frames |
+| `src/devices/muse/museDevice.ts` | Muse 2 / Muse S classic and Athena protocol |
+| `src/index.ts` | Public exports only — **import from the package root**, not deep paths |
+
+Tests live under `src/__tests__/`.
 
 ## When To Use It
 

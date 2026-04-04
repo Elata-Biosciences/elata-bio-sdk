@@ -34,9 +34,9 @@ Use this package when you need:
 
 Owns:
 
-- browser-side Web Bluetooth transport for EEG headbands (Muse 2 / Muse S classic
-  and Athena built-in; additional devices via contributor extensions)
-- normalized `HeadbandFrameV1` emission for web clients
+- **`src/transport/`** — `BleTransport`: Web Bluetooth session + `HeadbandFrameV1` assembly
+- **`src/devices/muse/`** — `MuseBleDevice`: Muse 2 / Muse S classic + Athena GATT protocol
+- additional devices via `BleTransport({ device })` or new modules under `src/devices/`
 
 Use this package when you need:
 
