@@ -783,11 +783,11 @@ summarize_jest_log() {
     tests="$(sed -nE 's/^Tests:[[:space:]]+([0-9]+) passed, ([0-9]+) total/\2/p' "$logfile" | tail -n 1)"
 
     if [[ -n "$suites" && -n "$tests" ]]; then
-        printf "%s: %s suites, %s tests\n" "$label" "$suites" "$tests"
+        printf "PASS  %s (%s suites, %s tests)\n" "$label" "$suites" "$tests"
         return 0
     fi
 
-    printf "%s\n" "$label"
+    printf "PASS  %s\n" "$label"
 }
 
 summarize_node_test_log() {
@@ -799,11 +799,29 @@ summarize_node_test_log() {
     passed="$(sed -nE 's/^ℹ pass ([0-9]+)/\1/p' "$logfile" | tail -n 1)"
 
     if [[ -n "$total" && -n "$passed" ]]; then
-        printf "%s: %s/%s\n" "$label" "$passed" "$total"
+        printf "PASS  %s (%s/%s)\n" "$label" "$passed" "$total"
         return 0
     fi
 
-    printf "%s\n" "$label"
+    printf "PASS  %s\n" "$label"
+}
+
+run_test_command() {
+    local logfile="$1"
+    shift
+
+    if [[ "${RUN_TEST_VERBOSE:-0}" == "1" ]]; then
+        run_and_capture "$logfile" "$@"
+        return $?
+    fi
+
+    if "$@" >"$logfile" 2>&1; then
+        return 0
+    fi
+
+    # On failure, always print full captured output for diagnosis.
+    cat "$logfile"
+    return 1
 }
 
 install_local_package_into_app() {
@@ -1429,6 +1447,36 @@ case "$cmd" in
         require_package_manager
         declare -a test_summaries=()
         declare -a test_logs=()
+        c_reset=""
+        c_bold=""
+        c_cyan=""
+        c_green=""
+        c_yellow=""
+        if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+            c_reset=$'\033[0m'
+            c_bold=$'\033[1m'
+            c_cyan=$'\033[36m'
+            c_green=$'\033[32m'
+            c_yellow=$'\033[33m'
+        fi
+        print_test_section() {
+            local title="$1"
+            printf "\n${c_bold}${c_cyan}==> %s${c_reset}\n" "$title"
+        }
+        print_test_summary_line() {
+            local line="$1"
+            case "$line" in
+                PASS*)
+                    printf "${c_green}%s${c_reset}\n" "$line"
+                    ;;
+                SKIP*)
+                    printf "${c_yellow}%s${c_reset}\n" "$line"
+                    ;;
+                *)
+                    printf "%s\n" "$line"
+                    ;;
+            esac
+        }
 
         create_test_log() {
             local logfile
@@ -1453,64 +1501,72 @@ case "$cmd" in
 
         if [[ "${2:-}" == "create-elata-demo" ]]; then
             if [[ ! -d "node_modules" ]]; then
+                print_test_section "Installing workspace dependencies"
                 echo "node_modules/ missing; running pnpm install at workspace root..."
                 pnpm install
             fi
 
-            echo "Running create-elata-demo tests (including template smoke builds)..."
+            print_test_section "RUNS  create-elata-demo tests (including template smoke builds)"
             log_file="$(create_test_log)"
-            run_and_capture "$log_file" run_pkg_script "packages/create-elata-demo" "test"
+            run_test_command "$log_file" run_pkg_script "packages/create-elata-demo" "test"
             test_summaries+=("$(summarize_node_test_log "create-elata-demo full smoke/build tests" "$log_file")")
-            printf "\nTest summary\n"
-            printf "%s\n" "${test_summaries[@]}"
+            printf "\n${c_bold}Test summary${c_reset}\n"
+            summary_line=""
+            for summary_line in "${test_summaries[@]}"; do
+                print_test_summary_line "$summary_line"
+            done
             exit 0
         fi
 
         require_cmds cargo node
         local_jobs="${BUILD_JOBS:-$DEFAULT_JOBS}"
 
-        echo "Running Rust workspace tests (unit + integration + doc)..."
+        print_test_section "RUNS  Rust workspace tests (unit + integration + doc)"
         rust_log="$(create_test_log)"
-        run_and_capture "$rust_log" cargo test --workspace -j "$local_jobs"
-        test_summaries+=("Rust workspace unit/integration/doc tests")
+        run_test_command "$rust_log" cargo test --workspace -j "$local_jobs"
+        test_summaries+=("PASS  Rust workspace (unit/integration/doc)")
 
         if [[ -d "packages/rppg-web" ]]; then
-            echo "Running rppg-web Jest tests..."
+            print_test_section "RUNS  rppg-web Jest"
             rppg_log="$(create_test_log)"
-            run_and_capture "$rppg_log" run_pkg_script "packages/rppg-web" "test" "--runInBand"
+            run_test_command "$rppg_log" run_pkg_script "packages/rppg-web" "test" "--runInBand"
             test_summaries+=("$(summarize_jest_log "rppg-web Jest suite" "$rppg_log")")
         fi
 
         if [[ -d "packages/create-elata-demo" ]]; then
-            echo "Running create-elata-demo tests..."
+            print_test_section "RUNS  create-elata-demo smoke/build tests"
             create_demo_log="$(create_test_log)"
-            run_and_capture "$create_demo_log" run_pkg_script "packages/create-elata-demo" "test"
+            run_test_command "$create_demo_log" run_pkg_script "packages/create-elata-demo" "test"
             test_summaries+=("$(summarize_node_test_log "create-elata-demo full smoke/build tests" "$create_demo_log")")
         fi
 
         if [[ -d "packages/eeg-web" ]]; then
-            echo "Running eeg-web Jest tests..."
+            print_test_section "RUNS  eeg-web Jest"
             eeg_log="$(create_test_log)"
-            run_and_capture "$eeg_log" run_pkg_script "packages/eeg-web" "test" "--runInBand"
+            run_test_command "$eeg_log" run_pkg_script "packages/eeg-web" "test" "--runInBand"
             test_summaries+=("$(summarize_jest_log "eeg-web Jest suite" "$eeg_log")")
         fi
 
         if [[ -d "packages/eeg-web-ble" ]]; then
-            echo "Running eeg-web-ble Jest tests..."
+            print_test_section "RUNS  eeg-web-ble Jest"
             eeg_ble_log="$(create_test_log)"
-            run_and_capture "$eeg_ble_log" run_pkg_script "packages/eeg-web-ble" "test" "--runInBand"
+            run_test_command "$eeg_ble_log" run_pkg_script "packages/eeg-web-ble" "test" "--runInBand"
             test_summaries+=("$(summarize_jest_log "eeg-web-ble Jest suite" "$eeg_ble_log")")
         fi
 
         if [[ "${RUN_E2E:-0}" == "1" ]]; then
-            echo "Running rppg-web Playwright e2e tests..."
+            print_test_section "RUNS  rppg-web Playwright e2e"
             run_pkg_script "packages/rppg-web" "ci:e2e"
+            test_summaries+=("PASS  rppg-web Playwright e2e")
         else
-            echo "Skipping Playwright e2e tests (set RUN_E2E=1 to enable)."
+            test_summaries+=("SKIP  rppg-web Playwright e2e (set RUN_E2E=1 to enable)")
         fi
 
-        printf "\nTest summary\n"
-        printf "%s\n" "${test_summaries[@]}"
+        printf "\n${c_bold}Test summary${c_reset}\n"
+        summary_line=""
+        for summary_line in "${test_summaries[@]}"; do
+            print_test_summary_line "$summary_line"
+        done
         ;;
     clean)
         RUN_SH_TASK="clean"
