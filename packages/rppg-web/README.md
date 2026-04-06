@@ -15,9 +15,7 @@ This package provides:
 
 **Abstraction level: managed session.** This package owns the camera capture
 loop, WASM loading, face ROI, diagnostics, and lifecycle for you — you call
-`createRppgSession()` and poll `getMetrics()`. If you want raw pipeline
-primitives to compose yourself, use `createRppgPipeline()` from `eeg-web`
-instead.
+`createRppgSession()` and poll `getMetrics()`.
 
 Use `@elata-biosciences/rppg-web` when you want:
 
@@ -77,11 +75,6 @@ your-app/
 The built assets live in `node_modules/@elata-biosciences/rppg-web/pkg/` after
 an npm install. Copy or symlink that directory into your app's `public/` folder,
 or use the import-based options below to let Vite manage the asset URLs instead.
-
-**Already using `@elata-biosciences/eeg-web`?** You don't need rppg-web's WASM
-at all. The session loader tries `/pkg/eeg_wasm.js` as a fallback, and eeg-web's
-WASM exports `RppgPipeline`. Copy `node_modules/@elata-biosciences/eeg-web/wasm/`
-to `public/pkg/` instead — it satisfies the interface automatically.
 
 ### Dynamic import restriction
 
@@ -228,15 +221,15 @@ Recommended:
 
 - Use `createRppgSession()` for browser apps that need camera capture, packaged WASM loading, ROI handling, diagnostics, and cleanup.
 - Use `createManagedRppgSession()` when you also want automatic restart after terminal processor failures.
-- Use `createRppgPipeline()` from `@elata-biosciences/eeg-web` only when you intentionally want low-level sample ingestion and already own the surrounding orchestration.
+- Use `RppgProcessor` only when you intentionally want low-level sample ingestion and already own the surrounding orchestration.
 
 Advanced:
 
 - Drop to `RppgProcessor`, `DemoRunner`, frame sources, or generated WASM bindings only when you need custom orchestration that the session helper does not cover.
 - If you are debugging the SDK itself, compare against `createRppgSession()` first so you know whether the problem is in your app wiring or lower-level runtime behavior.
 
-`loadWasmBackend()` still looks for packaged WASM bundles at common paths such
-as `/pkg/rppg_wasm.js` and the legacy `/pkg/eeg_wasm.js`.
+`loadWasmBackend()` looks for packaged WASM bundles at common paths such as
+`/pkg/rppg_wasm.js` and `/rppg_wasm.js`.
 
 If you want to inject your own backend, it must expose
 `newPipeline(sampleRate, windowSec)` and return an object with `push_sample`

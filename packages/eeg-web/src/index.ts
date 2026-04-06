@@ -58,50 +58,6 @@ export function initEegWasmSync(
 	return initSyncWasm(normalizeInitEegWasmSyncInput(module));
 }
 
-export type EegWebRppgPipeline = {
-	push_sample(timestampMs: bigint | number, intensity: number): void;
-	get_metrics(): string;
-	free(): void;
-};
-
-export function createRppgPipeline(
-	sampleRate: number,
-	windowSec: number,
-): EegWebRppgPipeline {
-	const Constructor =
-		(wasm as any).WasmRppgPipeline ?? (wasm as any).RppgPipeline;
-	if (typeof Constructor !== "function") {
-		throw new Error("rPPG pipeline constructor is not available in eeg-web.");
-	}
-	const instance = new Constructor(sampleRate, windowSec);
-	const prototypeCandidates = [
-		(wasm as any).WasmRppgPipeline?.prototype,
-		(wasm as any).RppgPipeline?.prototype,
-	];
-	if (
-		typeof instance?.push_sample !== "function" ||
-		typeof instance?.get_metrics !== "function"
-	) {
-		for (const prototype of prototypeCandidates) {
-			if (!prototype) continue;
-			Object.setPrototypeOf(instance, prototype);
-			if (
-				typeof instance?.push_sample === "function" &&
-				typeof instance?.get_metrics === "function"
-			) {
-				break;
-			}
-		}
-	}
-	if (
-		typeof instance?.push_sample !== "function" ||
-		typeof instance?.get_metrics !== "function"
-	) {
-		throw new Error("Unable to normalize the eeg-web rPPG pipeline export.");
-	}
-	return instance as EegWebRppgPipeline;
-}
-
 export type { InitInput, InitOutput };
 export * from "./headband";
 export * from "./errors";

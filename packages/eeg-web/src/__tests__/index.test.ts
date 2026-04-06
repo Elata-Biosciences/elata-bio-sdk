@@ -1,4 +1,4 @@
-import { initEegWasm, initEegWasmSync, createRppgPipeline, wasm, HEADBAND_FRAME_SCHEMA_VERSION, HeadbandTransportState } from '../index';
+import { initEegWasm, initEegWasmSync, wasm, HEADBAND_FRAME_SCHEMA_VERSION, HeadbandTransportState } from '../index';
 
 describe('packages/eeg-web — index.ts', () => {
   beforeEach(() => {
@@ -33,21 +33,6 @@ describe('packages/eeg-web — index.ts', () => {
     expect(HeadbandTransportState).toBeDefined();
     expect(HeadbandTransportState.Idle).toBe('idle');
     expect(HeadbandTransportState.Error).toBe('error');
-  });
-
-  test('createRppgPipeline normalizes the generated wasm constructor shape', () => {
-    const pipeline = createRppgPipeline(30, 5);
-    expect(typeof pipeline.push_sample).toBe('function');
-    expect(typeof pipeline.get_metrics).toBe('function');
-    pipeline.push_sample(1000, 0.5);
-    expect(typeof pipeline.get_metrics()).toBe('string');
-  });
-
-  test('initEegWasm plus createRppgPipeline yields the normalized rPPG API surface', async () => {
-    await initEegWasm('safe-path');
-    const pipeline = createRppgPipeline(30, 10);
-    expect(typeof pipeline.push_sample).toBe('function');
-    expect(typeof pipeline.get_metrics).toBe('function');
   });
 
   // --- NEW TESTS ---
