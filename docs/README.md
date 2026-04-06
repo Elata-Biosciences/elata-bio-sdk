@@ -30,6 +30,7 @@ Use this page to find the right document quickly.
 - [maintainers.md](maintainers.md): maintainer-focused operational guide
 - [releasing.md](releasing.md): release, tagging, and bad-release recovery
 - [contributing-eeg-transports.md](contributing-eeg-transports.md): adding headset transports beyond the built-in Muse path
+- [vendor-headset-onboarding-checklist.md](vendor-headset-onboarding-checklist.md): step-by-step vendor onboarding checklist
 
 ## Architecture
 

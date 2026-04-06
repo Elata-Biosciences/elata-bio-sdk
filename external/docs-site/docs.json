@@ -21,7 +21,7 @@
     "groups": [
       {
         "group": "Start Here",
-        "pages": ["index", "quickstart", "browser-apps", "package-selection"]
+        "pages": ["index", "quickstart", "browser-apps", "package-selection", "example-apps"]
       },
       {
         "group": "New App",
@@ -63,6 +63,7 @@
           "maintainers/repo-workflows",
           "maintainers/related-repos",
           "maintainers/contributing-eeg-transports",
+          "maintainers/vendor-headset-onboarding",
           "maintainers/releasing"
         ]
       }

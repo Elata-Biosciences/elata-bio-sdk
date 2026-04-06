@@ -19,6 +19,10 @@ UUIDs or packet layouts.
 
 Pick one of these patterns and discuss larger additions in a GitHub issue first.
 
+**Recommendation:** if a device integration is generally useful to the wider SDK
+audience, prefer an upstream contribution in `packages/eeg-web-ble` using the
+layout and checklist below.
+
 ### 1. New device module inside `eeg-web-ble` (typical for Web Bluetooth)
 
 Add a new device class under `packages/eeg-web-ble/src/devices/<vendor>/` (mirror
@@ -36,9 +40,8 @@ improves ergonomics.
 `BleTransport` accepts an optional `device` in its constructor options. The object
 must satisfy the same **lifecycle and metadata** shape that `MuseBleDevice`
 implements (prepare session, start/stop stream, channel counts, names, sample
-rate). The TypeScript type for that shape is currently internal to
-`transport/bleTransport.ts`; match `MuseBleDevice`’s public fields and methods, or
-open a PR to export a named interface for contributors.
+rate). Use the exported **`BleDeviceLike`** interface from
+`@elata-biosciences/eeg-web-ble` to type your adapter.
 
 **EEG samples:** the stream callback should pass `number[][]` where each **row**
 is one time step and row length equals `numEegChannels`, consistent with
@@ -86,3 +89,4 @@ only.
 - [packages/eeg-web-ble/README.md](../packages/eeg-web-ble/README.md)
 - [packages/eeg-web/README.md](../packages/eeg-web/README.md) (transport types)
 - [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [vendor-headset-onboarding-checklist.md](vendor-headset-onboarding-checklist.md) (vendor handoff checklist)

@@ -97,6 +97,7 @@ await transport.start();
 ## Key Exports
 
 - `BleTransport`
+- `BleDeviceLike` (adapter contract for custom headset integrations)
 - `MuseBleDevice` (reference implementation and default device)
 - `HeadbandTransport` types (re-exported usage flows align with `@elata-biosciences/eeg-web`)
 

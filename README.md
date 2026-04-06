@@ -215,6 +215,7 @@ local EEG package against an app you already have.
 - [docs/guides/using-eeg-in-a-browser-app.md](docs/guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
 - [docs/guides/using-web-bluetooth-with-supported-devices.md](docs/guides/using-web-bluetooth-with-supported-devices.md): browser Web Bluetooth headset flow
 - [docs/contributing-eeg-transports.md](docs/contributing-eeg-transports.md): contributing new headset transports
+- [docs/vendor-headset-onboarding-checklist.md](docs/vendor-headset-onboarding-checklist.md): vendor onboarding checklist for new headset support
 - [docs/guides/using-rppg-in-a-browser-app.md](docs/guides/using-rppg-in-a-browser-app.md): browser rPPG integration guide
 - [docs/guides/compatibility.md](docs/guides/compatibility.md): browser, device, and tooling expectations
 - [docs/guides/troubleshooting.md](docs/guides/troubleshooting.md): common setup and runtime failures
