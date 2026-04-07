@@ -59,7 +59,10 @@ npm install @elata-biosciences/eeg-web-ble @elata-biosciences/eeg-web
 
 ```ts
 import { BleTransport } from "@elata-biosciences/eeg-web-ble";
-import { AthenaWasmDecoder } from "@elata-biosciences/eeg-web";
+import { AthenaWasmDecoder, initEegWasm } from "@elata-biosciences/eeg-web";
+
+// Initialize WASM before connecting (required for AthenaWasmDecoder).
+await initEegWasm();
 
 const transport = new BleTransport({
   deviceOptions: {
@@ -75,12 +78,13 @@ transport.onStatus = (status) => {
   console.log(status.state, status.reason);
 };
 
-await transport.connect();
-await transport.start();
+// startStreaming() calls connect() + start() in one step.
+await transport.startStreaming();
 ```
 
-For the common case, `startStreaming()` is usually the friendlier app API
-because it wraps `connect()` and `start()` together.
+If you need finer-grained control (e.g. reconnect without re-pairing), you
+can call `connect()` and `start()` separately — but both are required;
+omitting `start()` produces silence with no error.
 
 ## Key Exports
 

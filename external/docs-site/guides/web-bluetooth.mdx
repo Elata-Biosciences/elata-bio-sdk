@@ -89,9 +89,11 @@ await transport.startStreaming();
   `start()` in one step and skips re-pairing if already connected. If you call
   `connect()` and `start()` separately, both are required — omitting `start()`
   produces silence with no error.
-- `frame.eeg.samples` is `number[][]` laid out as `[channelIdx][sampleIdx]`.
-  Each inner array is one channel. If you need interleaved format for WASM
-  models, convert manually.
+- `frame.eeg.samples` is `number[][]` laid out as `[timeIdx][channelIdx]`.
+  Each row is one time point across all channels. To get a single channel's
+  time series for `band_powers`, map across rows:
+  `new Float32Array(frame.eeg.samples.map(row => row[channelIdx]))`.
+  For a Muse headband the channel order is TP9=0, AF7=1, AF8=2, TP10=3.
 - If `navigator.bluetooth` is missing, you are likely in an unsupported browser
   or non-secure context.
 - If the device chooser never appears, confirm Bluetooth is enabled and the page
