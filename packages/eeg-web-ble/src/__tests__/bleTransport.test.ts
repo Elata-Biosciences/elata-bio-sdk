@@ -59,7 +59,11 @@ describe('BleTransport', () => {
 
     await transport.connect();
     await transport.start();
-    device.emitEeg([[1, 2, 3, 4]]);
+    // 2 time points × 4 channels (TP9, AF7, AF8, TP10)
+    device.emitEeg([
+      [1, 2, 3, 4], // t0: TP9=1, AF7=2, AF8=3, TP10=4
+      [5, 6, 7, 8], // t1: TP9=5, AF7=6, AF8=7, TP10=8
+    ]);
     await transport.stop();
     await transport.disconnect();
 
@@ -72,7 +76,11 @@ describe('BleTransport', () => {
     ]);
     expect(frames).toHaveLength(1);
     expect(frames[0].source).toBe('test-ble');
-    expect(frames[0].eeg.samples).toEqual([[1, 2, 3, 4]]);
+    // Layout is [timeIdx][channelIdx]: outer = time points, inner = channels.
+    expect(frames[0].eeg.samples).toEqual([
+      [1, 2, 3, 4],
+      [5, 6, 7, 8],
+    ]);
     expect(frames[0].eeg.clockSource).toBe('local');
   });
 
@@ -140,6 +148,41 @@ describe('BleTransport', () => {
 
     expect(frames).toHaveLength(1);
     expect(frames[0].source).toBe('muse-ble');
+  });
+
+  test('eeg.samples layout is [timeIdx][channelIdx] — outer index is time, inner is channel', async () => {
+    const device = createFakeBleDevice();
+    // eegNames: TP9=0, AF7=1, AF8=2, TP10=3
+    const transport = new BleTransport({ device: device as any });
+    const frames: HeadbandFrameV1[] = [];
+    transport.onFrame = (frame: HeadbandFrameV1) => frames.push(frame);
+
+    await transport.start();
+    // 3 time points, each with a unique value per channel.
+    // If the layout were [channelIdx][sampleIdx] instead of [timeIdx][channelIdx],
+    // the assertions below would fail: samples[0] would be [10, 20, 30] (TP9 over time)
+    // rather than [10, 40, 70, 100] (all channels at t0).
+    device.emitEeg([
+      [10, 40, 70, 100], // t0: TP9=10, AF7=40, AF8=70, TP10=100
+      [20, 50, 80, 110], // t1: TP9=20, AF7=50, AF8=80, TP10=110
+      [30, 60, 90, 120], // t2: TP9=30, AF7=60, AF8=90, TP10=120
+    ]);
+
+    expect(frames).toHaveLength(1);
+    const { samples } = frames[0].eeg;
+
+    // Outer dimension is time: 3 time points.
+    expect(samples).toHaveLength(3);
+    // Each row is all channels at one time point.
+    expect(samples[0]).toEqual([10, 40, 70, 100]); // t0
+    expect(samples[1]).toEqual([20, 50, 80, 110]); // t1
+    expect(samples[2]).toEqual([30, 60, 90, 120]); // t2
+
+    // Extracting a channel time series works by mapping across rows.
+    const tp9 = samples.map(row => row[0]);
+    const af7 = samples.map(row => row[1]);
+    expect(tp9).toEqual([10, 20, 30]);
+    expect(af7).toEqual([40, 50, 60]);
   });
 
   test('does not emit frame for empty EEG samples', async () => {

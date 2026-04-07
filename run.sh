@@ -139,6 +139,7 @@ Quality:
   doctor       Run fast repository health checks (toolchain, repo audit, deps, artifact presence)
   verify-all   Run publish-grade verification for release artifacts and tarballs
   test         Run Rust and web test suites
+  ai-test      Run AI-based documentation quality tests (5 prompt scenarios; requires claude CLI)
   format       Format all files with Biome
   format-check Run Biome format check (no write)
 
@@ -1576,6 +1577,10 @@ case "$cmd" in
         rm -rf "$ROOT_DIR/eeg-demo/pkg"
         echo "Cleaning build artifacts for wasm crates..."
         cargo clean -p eeg-wasm -p rppg-wasm
+        ;;
+    ai-test)
+        RUN_SH_TASK="ai-test"
+        bash "$ROOT_DIR/scripts/ai-test.sh"
         ;;
     format)
         RUN_SH_TASK="format"
