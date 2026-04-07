@@ -64,10 +64,23 @@ This note summarizes the current state of the public candidate manifests and wha
   - a broader `12`-subject verbalwm PPG waveform-quality review now exists, with `1536` sampled windows, `1509` quality-pass windows, and a pending-review shortlist led by `sub-002` and `sub-035`
   - a first model-aware cohort-swap artifact now exists for `sub-001`, `sub-010`, `sub-013`, `sub-015` train and `sub-002`, `sub-007`, `sub-012`, `sub-035` eval, with `2048 / 2048` quality-pass windows
   - that cohort swap sharply reduces the broader DS006848 failure but still does not recover a null-beating aggregate baseline, with `eeg_clean` remaining the least-bad branch
+  - a shift-aware cohort-swap baseline now also exists:
+    - `oracle_subject_zscore` still does not beat null
+    - `calibrated_subject_zscore` on `eeg_clean` edges past null on aggregate MSE
+    - the first recovered targets are `amplitude_range` and `rising_edge_slope_max`
+  - a calibrated absolute-unit cohort-swap baseline now also exists:
+    - `calibrated_absolute` on `eeg_clean` beats null on aggregate relative MSE
+    - the first recovered real-unit targets are `amplitude_range`, `rising_edge_slope_max`, and `dominant_beat_rise_time_seconds`
+  - a first one-subject calibrated cohort expansion now also exists:
+    - it adds `sub-011` to the cohort-swap eval side
+    - the data path stays fully clean with `2304 / 2304` quality-pass windows
+    - the full calibrated morphology aggregate no longer beats null
+    - amplitude-family calibrated behavior stays below null, but timing-family behavior collapses
 - What remains:
-  - run a shift-aware or scale-robust baseline on the cohort-swap split before promoting more verbalwm subjects
+  - decide whether DS006848 should now be treated primarily as an amplitude-family calibrated EEG-PPG benchmark
+  - keep `sub-011` out of the default full-morphology calibrated cohort until the timing-family failure is understood
   - decide whether the first rest branch should stay smoke-only or expand into a real rest benchmark
-  - decide the long-term roles of DS006848 and DS003838 now that both broader verbalwm splits fail to beat null
+  - decide the long-term zero-shot versus calibrated roles of DS006848 and DS003838 now that both broader verbalwm splits fail to beat null
 
 ### DREAMT
 

@@ -1,0 +1,125 @@
+{
+  "kind": "ds006848_phase2_window_metrics",
+  "config_path": "configs/cross_modal/ds006848_phase2_windows_cohort_plus_sub011.toml",
+  "task": "verbalwm",
+  "runtime_sec": 269.67158670001663,
+  "peak_memory_mb": 2333.421667098999,
+  "subject_count": 9,
+  "train_subject_count": 4,
+  "eval_subject_count": 5,
+  "paired_window_count": 2304,
+  "quality_pass_window_count": 2304,
+  "eeg_event_tensor_shape": [
+    2304,
+    63,
+    500
+  ],
+  "eeg_clean_tensor_shape": [
+    2304,
+    63,
+    128
+  ],
+  "ppg_native_tensor_shape": [
+    2304,
+    2000
+  ],
+  "ppg_clean_tensor_shape": [
+    2304,
+    256
+  ],
+  "max_subject_rmse_seconds": 0.0,
+  "max_subject_abs_seconds": 0.0,
+  "mean_ppg_peak_count": 3.2213541666666665,
+  "per_subject": [
+    {
+      "subject_id": "sub-001",
+      "split": "train",
+      "candidate_event_count": 1699,
+      "paired_window_count": 256,
+      "quality_pass_window_count": 256,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.0078125
+    },
+    {
+      "subject_id": "sub-010",
+      "split": "train",
+      "candidate_event_count": 1700,
+      "paired_window_count": 256,
+      "quality_pass_window_count": 256,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 2.96484375
+    },
+    {
+      "subject_id": "sub-013",
+      "split": "train",
+      "candidate_event_count": 1700,
+      "paired_window_count": 256,
+      "quality_pass_window_count": 256,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.453125
+    },
+    {
+      "subject_id": "sub-015",
+      "split": "train",
+      "candidate_event_count": 1700,
+      "paired_window_count": 256,
+      "quality_pass_window_count": 256,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.38671875
+    },
+    {
+      "subject_id": "sub-002",
+      "split": "eval",
+      "candidate_event_count": 1700,
+      "paired_window_count": 256,
+      "quality_pass_window_count": 256,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 2.578125
+    },
+    {
+      "subject_id": "sub-007",
+      "split": "eval",
+      "candidate_event_count": 1700,
+      "paired_window_count": 256,
+      "quality_pass_window_count": 256,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.52734375
+    },
+    {
+      "subject_id": "sub-011",
+      "split": "eval",
+      "candidate_event_count": 1362,
+      "paired_window_count": 256,
+      "quality_pass_window_count": 256,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.4375
+    },
+    {
+      "subject_id": "sub-012",
+      "split": "eval",
+      "candidate_event_count": 1700,
+      "paired_window_count": 256,
+      "quality_pass_window_count": 256,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.578125
+    },
+    {
+      "subject_id": "sub-035",
+      "split": "eval",
+      "candidate_event_count": 1695,
+      "paired_window_count": 256,
+      "quality_pass_window_count": 256,
+      "rmse_seconds": 0.0,
+      "max_abs_seconds": 0.0,
+      "mean_ppg_peak_count": 3.05859375
+    }
+  ]
+}

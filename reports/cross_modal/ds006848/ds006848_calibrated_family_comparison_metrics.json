@@ -1,0 +1,173 @@
+{
+  "config": "configs/cross_modal/ds006848_calibrated_family_comparison.toml",
+  "mode": "calibrated_absolute",
+  "branch": "eeg_clean_windows",
+  "runs": {
+    "cohort_swap": {
+      "source_metrics": "reports/cross_modal/ds006848/ds006848_cohort_swap_calibrated_absolute_baseline_metrics.json",
+      "target_sets": {
+        "full": {
+          "target_names": [
+            "amplitude_range",
+            "rising_edge_slope_max",
+            "dominant_beat_amplitude",
+            "dominant_beat_rise_time_seconds",
+            "dominant_beat_width_seconds"
+          ],
+          "aggregate_relative_mse": 0.923777113294719,
+          "aggregate_relative_mae": 0.9160712683588926,
+          "beats_null_relative_mse": true
+        },
+        "amplitude_family": {
+          "target_names": [
+            "amplitude_range",
+            "rising_edge_slope_max",
+            "dominant_beat_amplitude"
+          ],
+          "aggregate_relative_mse": 0.8742521965894466,
+          "aggregate_relative_mae": 0.8995787865165777,
+          "beats_null_relative_mse": true
+        },
+        "timing_family": {
+          "target_names": [
+            "dominant_beat_rise_time_seconds",
+            "dominant_beat_width_seconds"
+          ],
+          "aggregate_relative_mse": 0.9980644883526275,
+          "aggregate_relative_mae": 0.9408099911223646,
+          "beats_null_relative_mse": true
+        }
+      },
+      "per_subject": {
+        "sub-002": {
+          "amplitude_family": {
+            "aggregate_relative_mse": 1.1201883201718212,
+            "beats_null_relative_mse": false
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 1.0498667204237422,
+            "beats_null_relative_mse": false
+          }
+        },
+        "sub-007": {
+          "amplitude_family": {
+            "aggregate_relative_mse": 1.4273883739580355,
+            "beats_null_relative_mse": false
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 1.207051699163683,
+            "beats_null_relative_mse": false
+          }
+        },
+        "sub-012": {
+          "amplitude_family": {
+            "aggregate_relative_mse": 0.8374379401653315,
+            "beats_null_relative_mse": true
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 0.7854047160133808,
+            "beats_null_relative_mse": true
+          }
+        },
+        "sub-035": {
+          "amplitude_family": {
+            "aggregate_relative_mse": 1.3835109599880562,
+            "beats_null_relative_mse": false
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 1.1485004197950741,
+            "beats_null_relative_mse": false
+          }
+        }
+      }
+    },
+    "cohort_plus_sub011": {
+      "source_metrics": "reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_calibrated_absolute_baseline_metrics.json",
+      "target_sets": {
+        "full": {
+          "target_names": [
+            "amplitude_range",
+            "rising_edge_slope_max",
+            "dominant_beat_amplitude",
+            "dominant_beat_rise_time_seconds",
+            "dominant_beat_width_seconds"
+          ],
+          "aggregate_relative_mse": 2.1957055914274677,
+          "aggregate_relative_mae": 1.259249396523904,
+          "beats_null_relative_mse": false
+        },
+        "amplitude_family": {
+          "target_names": [
+            "amplitude_range",
+            "rising_edge_slope_max",
+            "dominant_beat_amplitude"
+          ],
+          "aggregate_relative_mse": 0.9016807163799491,
+          "aggregate_relative_mae": 0.9654885407754462,
+          "beats_null_relative_mse": true
+        },
+        "timing_family": {
+          "target_names": [
+            "dominant_beat_rise_time_seconds",
+            "dominant_beat_width_seconds"
+          ],
+          "aggregate_relative_mse": 4.136742903998746,
+          "aggregate_relative_mae": 1.6998906801465905,
+          "beats_null_relative_mse": false
+        }
+      },
+      "per_subject": {
+        "sub-002": {
+          "amplitude_family": {
+            "aggregate_relative_mse": 1.120188320171821,
+            "beats_null_relative_mse": false
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 1.049866720423742,
+            "beats_null_relative_mse": false
+          }
+        },
+        "sub-007": {
+          "amplitude_family": {
+            "aggregate_relative_mse": 1.4273883739580322,
+            "beats_null_relative_mse": false
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 1.207051699163683,
+            "beats_null_relative_mse": false
+          }
+        },
+        "sub-011": {
+          "amplitude_family": {
+            "aggregate_relative_mse": 2.0504632583323077,
+            "beats_null_relative_mse": false
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 14.445097633363837,
+            "beats_null_relative_mse": false
+          }
+        },
+        "sub-012": {
+          "amplitude_family": {
+            "aggregate_relative_mse": 0.8374379401653309,
+            "beats_null_relative_mse": true
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 0.785404716013382,
+            "beats_null_relative_mse": true
+          }
+        },
+        "sub-035": {
+          "amplitude_family": {
+            "aggregate_relative_mse": 1.3835109599880564,
+            "beats_null_relative_mse": false
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 1.1485004197950746,
+            "beats_null_relative_mse": false
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+[comparison]
+mode = "calibrated_absolute"
+branch = "eeg_clean_windows"
+target_sets = ["full", "amplitude_family", "timing_family"]
+
+[comparison.runs]
+cohort_swap = "reports/cross_modal/ds006848/ds006848_cohort_swap_calibrated_absolute_baseline_metrics.json"
+cohort_plus_sub011 = "reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_calibrated_absolute_baseline_metrics.json"
+
+[comparison.target_families]
+amplitude_family = ["amplitude_range", "rising_edge_slope_max", "dominant_beat_amplitude"]
+timing_family = ["dominant_beat_rise_time_seconds", "dominant_beat_width_seconds"]
+
+[paths]
+metrics = "reports/cross_modal/ds006848/ds006848_calibrated_family_comparison_metrics.json"
+report = "reports/cross_modal/ds006848/ds006848_calibrated_family_comparison_report.md"

@@ -68,9 +68,21 @@ Practical interpretation:
 - the earlier 4-subject DS006848 win does not survive the next subject expansion
 - the branch preference flips back toward `eeg_clean`, which now matches the broader DS003838 pattern
 - the cohort gate matters materially, but subject filtering alone is not enough
-- the next step is not a deeper model; it is a shift-aware or scale-robust baseline on the cohort-swap split
+- the next step is not a deeper model; it is a calibration-aware absolute-unit baseline on the cohort-swap split
 
 The slice analysis in [ds006848-baseline-analysis.md](ds006848-baseline-analysis.md) now shows that the broader failure is dominated by `sub-016` and by amplitude-family errors. The current cohort gate is recorded in [ds006848-subject-quality-policy.md](ds006848-subject-quality-policy.md).
+
+The next diagnostic layer is now also complete in [ds006848-shift-aware-baseline.md](ds006848-shift-aware-baseline.md):
+
+- a short-calibration subject-zscore baseline on the cohort-swap split now edges past null on aggregate MSE for `eeg_clean`
+- `amplitude_range` and `rising_edge_slope_max` are the first targets to recover under that calibrated target space
+- that means the remaining DS006848 problem is no longer "no signal"; it is "how to turn calibrated relative signal into useful absolute predictions"
+
+That follow-on step is now also complete in [ds006848-calibrated-absolute-baseline.md](ds006848-calibrated-absolute-baseline.md):
+
+- a short-calibration absolute-unit baseline on the cohort-swap split now beats null on aggregate relative MSE for `eeg_clean`
+- `amplitude_range`, `rising_edge_slope_max`, and `dominant_beat_rise_time_seconds` beat null in real units on the calibrated eval segment
+- the strongest current DS006848 path is now a subject-calibrated `eeg_clean -> PPG morphology` path, not a zero-shot morphology predictor
 
 ## Commands
 

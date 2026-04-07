@@ -108,16 +108,17 @@
     "artifact_fields": []
   },
   "intake_review": {
-    "verification_status": "source_tree_verified_phase2_verbalwm_broader_rest_targets_quality_review_and_cohort_swap",
+    "verification_status": "source_tree_verified_phase2_verbalwm_broader_rest_targets_quality_review_cohort_swap_shift_aware_and_calibrated_absolute",
     "accepted_for": [
       "candidate_eeg_ppg_alignment",
       "candidate_ppg_morphology_benchmark",
       "candidate_rest_working_memory_benchmark"
     ],
     "blocked_on": [
-      "run a shift-aware or scale-robust baseline on the cohort-swap split before promoting more verbalwm subjects",
+      "decide whether DS006848 should now be treated primarily as an amplitude-family calibrated EEG-PPG benchmark",
+      "keep sub-011 out of the default full-morphology calibrated cohort until the timing-family failure is understood",
       "decide whether the DS006848 rest branch should stay smoke-only or expand into a real rest benchmark",
-      "decide the long-term roles of DS006848 and DS003838 now that both broader verbalwm splits fail to beat null"
+      "decide the long-term zero-shot versus calibrated roles of DS006848 and DS003838 now that both broader verbalwm splits fail to beat null"
     ]
   },
   "notes": [
@@ -139,6 +140,10 @@
     "A first DS006848 rest target artifact now exists on top of that rest pilot, with dense dominant-beat coverage in both train and eval and train-only notch coverage.",
     "A broader 12-subject DS006848 verbalwm waveform-quality review now exists, with 1536 sampled windows, 1509 quality-pass windows, and a pending-review shortlist led by sub-002 and sub-035.",
     "A first model-aware cohort-swap artifact now exists for sub-001, sub-010, sub-013, and sub-015 train versus sub-002, sub-007, sub-012, and sub-035 eval, with 2048 paired windows and 2048 quality-pass windows.",
-    "That cohort swap sharply reduces the broader DS006848 failure but still does not recover a null-beating aggregate baseline, with eeg_clean remaining the least-bad branch."
+    "That cohort swap sharply reduces the broader DS006848 failure but still does not recover a null-beating aggregate baseline, with eeg_clean remaining the least-bad branch.",
+    "A shift-aware cohort-swap baseline now exists; calibrated_subject_zscore on eeg_clean edges past null on aggregate MSE while oracle_subject_zscore still does not.",
+    "A calibrated absolute-unit cohort-swap baseline now also exists; calibrated_absolute on eeg_clean beats null on aggregate relative MSE, with the first recovered real-unit targets being amplitude_range, rising_edge_slope_max, and dominant_beat_rise_time_seconds.",
+    "A first one-subject calibrated cohort expansion now also exists; adding sub-011 keeps the data path fully clean but breaks the full calibrated morphology aggregate while leaving the amplitude-family calibrated aggregate below null.",
+    "Sub-011 should remain pending review for the default full-morphology calibrated cohort because the expansion failure is concentrated in the timing family."
   ]
 }

@@ -48,13 +48,15 @@
   },
   "rationale": {
     "sub-016": "Broader verbalwm evaluation shows concentrated failure plus quality attrition, with 235 of 256 eval windows passing quality gates and aggregate standardized delta far worse than null.",
-    "sub-017": "Broader verbalwm evaluation shows meaningful quality attrition with 212 of 256 eval windows passing quality gates and consistent underperformance, but the failure is not severe enough for automatic exclusion."
+    "sub-017": "Broader verbalwm evaluation shows meaningful quality attrition with 212 of 256 eval windows passing quality gates and consistent underperformance, but the failure is not severe enough for automatic exclusion.",
+    "sub-011": "The cohort-plus-sub011 calibrated expansion keeps all 256 windows quality-pass, but the full calibrated morphology aggregate no longer beats null and the failure is concentrated in dominant-beat timing targets. Keep sub-011 pending review for the default full-morphology calibrated cohort."
   },
   "notes": [
     "This policy currently covers the reviewed 8-subject DS006848 verbalwm development cohort plus the pending-review remainder of the 30-subject verbalwm pool.",
     "Use default_train_eval as the default pool for current DS006848 verbalwm baselines and slice analyses.",
     "Treat borderline_review subjects as eligible, but always surface their per-subject metrics separately.",
     "Keep stress_test_only subjects out of default training and evaluation unless the experiment is explicitly about robustness or artifact correction.",
-    "Pending-review subjects are not excluded; they simply have not yet been promoted into the reviewed default cohort."
+    "Pending-review subjects are not excluded; they simply have not yet been promoted into the reviewed default cohort.",
+    "Sub-011 now has an explicit negative note for the default full-morphology calibrated path, but it may still be usable in narrower amplitude-family experiments."
   ]
 }

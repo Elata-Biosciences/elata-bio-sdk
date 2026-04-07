@@ -1,0 +1,651 @@
+{
+  "kind": "ds006848_fetch_report",
+  "config_path": "configs/cross_modal/ds006848_phase2_windows_cohort_plus_sub011.toml",
+  "dataset_root": ".tmp/ds006848_phase2/source",
+  "subject_count": 9,
+  "subjects": [
+    "sub-001",
+    "sub-010",
+    "sub-013",
+    "sub-015",
+    "sub-002",
+    "sub-007",
+    "sub-011",
+    "sub-012",
+    "sub-035"
+  ],
+  "tasks": [
+    "verbalwm"
+  ],
+  "raw_modalities": [
+    "eeg"
+  ],
+  "raw_head_sizes": {
+    "eeg": {
+      "verbalwm": 1493882000
+    }
+  },
+  "downloaded_file_count": 11,
+  "skipped_file_count": 92,
+  "downloaded_bytes": 1189314469,
+  "files": [
+    {
+      "relative_path": "README",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/README",
+      "status": "skipped_existing",
+      "bytes": 2558
+    },
+    {
+      "relative_path": "dataset_description.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/dataset_description.json",
+      "status": "skipped_existing",
+      "bytes": 910
+    },
+    {
+      "relative_path": "participants.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/participants.json",
+      "status": "skipped_existing",
+      "bytes": 727
+    },
+    {
+      "relative_path": "participants.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/participants.tsv",
+      "status": "skipped_existing",
+      "bytes": 830
+    },
+    {
+      "relative_path": "sub-001/sub-001_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-001/sub-001_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 146
+    },
+    {
+      "relative_path": "sub-001/eeg/sub-001_space-CapTrak_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-001/eeg/sub-001_space-CapTrak_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 986
+    },
+    {
+      "relative_path": "sub-001/eeg/sub-001_space-CapTrak_electrodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-001/eeg/sub-001_space-CapTrak_electrodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 4540
+    },
+    {
+      "relative_path": "sub-001/eeg/sub-001_task-verbalwm_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-001/eeg/sub-001_task-verbalwm_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1003
+    },
+    {
+      "relative_path": "sub-001/eeg/sub-001_task-verbalwm_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-001/eeg/sub-001_task-verbalwm_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3963
+    },
+    {
+      "relative_path": "sub-001/eeg/sub-001_task-verbalwm_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-001/eeg/sub-001_task-verbalwm_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 75208
+    },
+    {
+      "relative_path": "sub-001/beh/sub-001_task-verbalwm_beh.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-001/beh/sub-001_task-verbalwm_beh.json",
+      "status": "skipped_existing",
+      "bytes": 1324
+    },
+    {
+      "relative_path": "sub-001/beh/sub-001_task-verbalwm_beh.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-001/beh/sub-001_task-verbalwm_beh.tsv",
+      "status": "skipped_existing",
+      "bytes": 10487
+    },
+    {
+      "relative_path": "sub-001/eeg/sub-001_task-verbalwm_eeg.vhdr",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-001/eeg/sub-001_task-verbalwm_eeg.vhdr",
+      "status": "skipped_existing",
+      "bytes": 1900
+    },
+    {
+      "relative_path": "sub-001/eeg/sub-001_task-verbalwm_eeg.vmrk",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-001/eeg/sub-001_task-verbalwm_eeg.vmrk",
+      "status": "skipped_existing",
+      "bytes": 60540
+    },
+    {
+      "relative_path": "sub-001/eeg/sub-001_task-verbalwm_eeg.eeg",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-001/eeg/sub-001_task-verbalwm_eeg.eeg",
+      "status": "skipped_existing",
+      "bytes": 1493882000
+    },
+    {
+      "relative_path": "sub-010/sub-010_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-010/sub-010_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 146
+    },
+    {
+      "relative_path": "sub-010/eeg/sub-010_space-CapTrak_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-010/eeg/sub-010_space-CapTrak_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 986
+    },
+    {
+      "relative_path": "sub-010/eeg/sub-010_space-CapTrak_electrodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-010/eeg/sub-010_space-CapTrak_electrodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 4531
+    },
+    {
+      "relative_path": "sub-010/eeg/sub-010_task-verbalwm_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-010/eeg/sub-010_task-verbalwm_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1003
+    },
+    {
+      "relative_path": "sub-010/eeg/sub-010_task-verbalwm_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-010/eeg/sub-010_task-verbalwm_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3963
+    },
+    {
+      "relative_path": "sub-010/eeg/sub-010_task-verbalwm_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-010/eeg/sub-010_task-verbalwm_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 75349
+    },
+    {
+      "relative_path": "sub-010/beh/sub-010_task-verbalwm_beh.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-010/beh/sub-010_task-verbalwm_beh.json",
+      "status": "skipped_existing",
+      "bytes": 1324
+    },
+    {
+      "relative_path": "sub-010/beh/sub-010_task-verbalwm_beh.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-010/beh/sub-010_task-verbalwm_beh.tsv",
+      "status": "skipped_existing",
+      "bytes": 10306
+    },
+    {
+      "relative_path": "sub-010/eeg/sub-010_task-verbalwm_eeg.vhdr",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-010/eeg/sub-010_task-verbalwm_eeg.vhdr",
+      "status": "skipped_existing",
+      "bytes": 1900
+    },
+    {
+      "relative_path": "sub-010/eeg/sub-010_task-verbalwm_eeg.vmrk",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-010/eeg/sub-010_task-verbalwm_eeg.vmrk",
+      "status": "skipped_existing",
+      "bytes": 60680
+    },
+    {
+      "relative_path": "sub-010/eeg/sub-010_task-verbalwm_eeg.eeg",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-010/eeg/sub-010_task-verbalwm_eeg.eeg",
+      "status": "skipped_existing",
+      "bytes": 1271114000
+    },
+    {
+      "relative_path": "sub-013/sub-013_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-013/sub-013_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 146
+    },
+    {
+      "relative_path": "sub-013/eeg/sub-013_space-CapTrak_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-013/eeg/sub-013_space-CapTrak_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 986
+    },
+    {
+      "relative_path": "sub-013/eeg/sub-013_space-CapTrak_electrodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-013/eeg/sub-013_space-CapTrak_electrodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 4517
+    },
+    {
+      "relative_path": "sub-013/eeg/sub-013_task-verbalwm_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-013/eeg/sub-013_task-verbalwm_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1003
+    },
+    {
+      "relative_path": "sub-013/eeg/sub-013_task-verbalwm_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-013/eeg/sub-013_task-verbalwm_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3963
+    },
+    {
+      "relative_path": "sub-013/eeg/sub-013_task-verbalwm_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-013/eeg/sub-013_task-verbalwm_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 75261
+    },
+    {
+      "relative_path": "sub-013/beh/sub-013_task-verbalwm_beh.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-013/beh/sub-013_task-verbalwm_beh.json",
+      "status": "skipped_existing",
+      "bytes": 1324
+    },
+    {
+      "relative_path": "sub-013/beh/sub-013_task-verbalwm_beh.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-013/beh/sub-013_task-verbalwm_beh.tsv",
+      "status": "skipped_existing",
+      "bytes": 10475
+    },
+    {
+      "relative_path": "sub-013/eeg/sub-013_task-verbalwm_eeg.vhdr",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-013/eeg/sub-013_task-verbalwm_eeg.vhdr",
+      "status": "skipped_existing",
+      "bytes": 1900
+    },
+    {
+      "relative_path": "sub-013/eeg/sub-013_task-verbalwm_eeg.vmrk",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-013/eeg/sub-013_task-verbalwm_eeg.vmrk",
+      "status": "skipped_existing",
+      "bytes": 60622
+    },
+    {
+      "relative_path": "sub-013/eeg/sub-013_task-verbalwm_eeg.eeg",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-013/eeg/sub-013_task-verbalwm_eeg.eeg",
+      "status": "skipped_existing",
+      "bytes": 1269179600
+    },
+    {
+      "relative_path": "sub-015/sub-015_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-015/sub-015_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 146
+    },
+    {
+      "relative_path": "sub-015/eeg/sub-015_space-CapTrak_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-015/eeg/sub-015_space-CapTrak_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 986
+    },
+    {
+      "relative_path": "sub-015/eeg/sub-015_space-CapTrak_electrodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-015/eeg/sub-015_space-CapTrak_electrodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 4494
+    },
+    {
+      "relative_path": "sub-015/eeg/sub-015_task-verbalwm_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-015/eeg/sub-015_task-verbalwm_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1003
+    },
+    {
+      "relative_path": "sub-015/eeg/sub-015_task-verbalwm_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-015/eeg/sub-015_task-verbalwm_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3963
+    },
+    {
+      "relative_path": "sub-015/eeg/sub-015_task-verbalwm_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-015/eeg/sub-015_task-verbalwm_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 75223
+    },
+    {
+      "relative_path": "sub-015/beh/sub-015_task-verbalwm_beh.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-015/beh/sub-015_task-verbalwm_beh.json",
+      "status": "skipped_existing",
+      "bytes": 1324
+    },
+    {
+      "relative_path": "sub-015/beh/sub-015_task-verbalwm_beh.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-015/beh/sub-015_task-verbalwm_beh.tsv",
+      "status": "skipped_existing",
+      "bytes": 10455
+    },
+    {
+      "relative_path": "sub-015/eeg/sub-015_task-verbalwm_eeg.vhdr",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-015/eeg/sub-015_task-verbalwm_eeg.vhdr",
+      "status": "skipped_existing",
+      "bytes": 1900
+    },
+    {
+      "relative_path": "sub-015/eeg/sub-015_task-verbalwm_eeg.vmrk",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-015/eeg/sub-015_task-verbalwm_eeg.vmrk",
+      "status": "skipped_existing",
+      "bytes": 60645
+    },
+    {
+      "relative_path": "sub-015/eeg/sub-015_task-verbalwm_eeg.eeg",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-015/eeg/sub-015_task-verbalwm_eeg.eeg",
+      "status": "skipped_existing",
+      "bytes": 1277645200
+    },
+    {
+      "relative_path": "sub-002/sub-002_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-002/sub-002_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 86
+    },
+    {
+      "relative_path": "sub-002/eeg/sub-002_space-CapTrak_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-002/eeg/sub-002_space-CapTrak_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 986
+    },
+    {
+      "relative_path": "sub-002/eeg/sub-002_space-CapTrak_electrodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-002/eeg/sub-002_space-CapTrak_electrodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 4538
+    },
+    {
+      "relative_path": "sub-002/eeg/sub-002_task-verbalwm_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-002/eeg/sub-002_task-verbalwm_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1003
+    },
+    {
+      "relative_path": "sub-002/eeg/sub-002_task-verbalwm_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-002/eeg/sub-002_task-verbalwm_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3963
+    },
+    {
+      "relative_path": "sub-002/eeg/sub-002_task-verbalwm_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-002/eeg/sub-002_task-verbalwm_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 75579
+    },
+    {
+      "relative_path": "sub-002/beh/sub-002_task-verbalwm_beh.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-002/beh/sub-002_task-verbalwm_beh.json",
+      "status": "skipped_existing",
+      "bytes": 1324
+    },
+    {
+      "relative_path": "sub-002/beh/sub-002_task-verbalwm_beh.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-002/beh/sub-002_task-verbalwm_beh.tsv",
+      "status": "skipped_existing",
+      "bytes": 10428
+    },
+    {
+      "relative_path": "sub-002/eeg/sub-002_task-verbalwm_eeg.vhdr",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-002/eeg/sub-002_task-verbalwm_eeg.vhdr",
+      "status": "skipped_existing",
+      "bytes": 1900
+    },
+    {
+      "relative_path": "sub-002/eeg/sub-002_task-verbalwm_eeg.vmrk",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-002/eeg/sub-002_task-verbalwm_eeg.vmrk",
+      "status": "skipped_existing",
+      "bytes": 60785
+    },
+    {
+      "relative_path": "sub-002/eeg/sub-002_task-verbalwm_eeg.eeg",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-002/eeg/sub-002_task-verbalwm_eeg.eeg",
+      "status": "skipped_existing",
+      "bytes": 1581070400
+    },
+    {
+      "relative_path": "sub-007/sub-007_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-007/sub-007_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 146
+    },
+    {
+      "relative_path": "sub-007/eeg/sub-007_space-CapTrak_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-007/eeg/sub-007_space-CapTrak_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 986
+    },
+    {
+      "relative_path": "sub-007/eeg/sub-007_space-CapTrak_electrodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-007/eeg/sub-007_space-CapTrak_electrodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 4548
+    },
+    {
+      "relative_path": "sub-007/eeg/sub-007_task-verbalwm_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-007/eeg/sub-007_task-verbalwm_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1003
+    },
+    {
+      "relative_path": "sub-007/eeg/sub-007_task-verbalwm_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-007/eeg/sub-007_task-verbalwm_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3963
+    },
+    {
+      "relative_path": "sub-007/eeg/sub-007_task-verbalwm_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-007/eeg/sub-007_task-verbalwm_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 75710
+    },
+    {
+      "relative_path": "sub-007/beh/sub-007_task-verbalwm_beh.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-007/beh/sub-007_task-verbalwm_beh.json",
+      "status": "skipped_existing",
+      "bytes": 1324
+    },
+    {
+      "relative_path": "sub-007/beh/sub-007_task-verbalwm_beh.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-007/beh/sub-007_task-verbalwm_beh.tsv",
+      "status": "skipped_existing",
+      "bytes": 10407
+    },
+    {
+      "relative_path": "sub-007/eeg/sub-007_task-verbalwm_eeg.vhdr",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-007/eeg/sub-007_task-verbalwm_eeg.vhdr",
+      "status": "skipped_existing",
+      "bytes": 1900
+    },
+    {
+      "relative_path": "sub-007/eeg/sub-007_task-verbalwm_eeg.vmrk",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-007/eeg/sub-007_task-verbalwm_eeg.vmrk",
+      "status": "skipped_existing",
+      "bytes": 60852
+    },
+    {
+      "relative_path": "sub-007/eeg/sub-007_task-verbalwm_eeg.eeg",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-007/eeg/sub-007_task-verbalwm_eeg.eeg",
+      "status": "skipped_existing",
+      "bytes": 1346800000
+    },
+    {
+      "relative_path": "sub-011/sub-011_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-011/sub-011_scans.tsv",
+      "status": "downloaded",
+      "bytes": 86
+    },
+    {
+      "relative_path": "sub-011/eeg/sub-011_space-CapTrak_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-011/eeg/sub-011_space-CapTrak_coordsystem.json",
+      "status": "downloaded",
+      "bytes": 986
+    },
+    {
+      "relative_path": "sub-011/eeg/sub-011_space-CapTrak_electrodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-011/eeg/sub-011_space-CapTrak_electrodes.tsv",
+      "status": "downloaded",
+      "bytes": 4542
+    },
+    {
+      "relative_path": "sub-011/eeg/sub-011_task-verbalwm_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-011/eeg/sub-011_task-verbalwm_eeg.json",
+      "status": "downloaded",
+      "bytes": 1003
+    },
+    {
+      "relative_path": "sub-011/eeg/sub-011_task-verbalwm_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-011/eeg/sub-011_task-verbalwm_channels.tsv",
+      "status": "downloaded",
+      "bytes": 3963
+    },
+    {
+      "relative_path": "sub-011/eeg/sub-011_task-verbalwm_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-011/eeg/sub-011_task-verbalwm_events.tsv",
+      "status": "downloaded",
+      "bytes": 61116
+    },
+    {
+      "relative_path": "sub-011/beh/sub-011_task-verbalwm_beh.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-011/beh/sub-011_task-verbalwm_beh.json",
+      "status": "downloaded",
+      "bytes": 1324
+    },
+    {
+      "relative_path": "sub-011/beh/sub-011_task-verbalwm_beh.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-011/beh/sub-011_task-verbalwm_beh.tsv",
+      "status": "downloaded",
+      "bytes": 10467
+    },
+    {
+      "relative_path": "sub-011/eeg/sub-011_task-verbalwm_eeg.vhdr",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-011/eeg/sub-011_task-verbalwm_eeg.vhdr",
+      "status": "downloaded",
+      "bytes": 1900
+    },
+    {
+      "relative_path": "sub-011/eeg/sub-011_task-verbalwm_eeg.vmrk",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-011/eeg/sub-011_task-verbalwm_eeg.vmrk",
+      "status": "downloaded",
+      "bytes": 48882
+    },
+    {
+      "relative_path": "sub-011/eeg/sub-011_task-verbalwm_eeg.eeg",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-011/eeg/sub-011_task-verbalwm_eeg.eeg",
+      "status": "downloaded",
+      "bytes": 1189180200
+    },
+    {
+      "relative_path": "sub-012/sub-012_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-012/sub-012_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 146
+    },
+    {
+      "relative_path": "sub-012/eeg/sub-012_space-CapTrak_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-012/eeg/sub-012_space-CapTrak_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 986
+    },
+    {
+      "relative_path": "sub-012/eeg/sub-012_space-CapTrak_electrodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-012/eeg/sub-012_space-CapTrak_electrodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 4530
+    },
+    {
+      "relative_path": "sub-012/eeg/sub-012_task-verbalwm_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-012/eeg/sub-012_task-verbalwm_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1003
+    },
+    {
+      "relative_path": "sub-012/eeg/sub-012_task-verbalwm_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-012/eeg/sub-012_task-verbalwm_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3963
+    },
+    {
+      "relative_path": "sub-012/eeg/sub-012_task-verbalwm_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-012/eeg/sub-012_task-verbalwm_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 75552
+    },
+    {
+      "relative_path": "sub-012/beh/sub-012_task-verbalwm_beh.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-012/beh/sub-012_task-verbalwm_beh.json",
+      "status": "skipped_existing",
+      "bytes": 1324
+    },
+    {
+      "relative_path": "sub-012/beh/sub-012_task-verbalwm_beh.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-012/beh/sub-012_task-verbalwm_beh.tsv",
+      "status": "skipped_existing",
+      "bytes": 10467
+    },
+    {
+      "relative_path": "sub-012/eeg/sub-012_task-verbalwm_eeg.vhdr",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-012/eeg/sub-012_task-verbalwm_eeg.vhdr",
+      "status": "skipped_existing",
+      "bytes": 1900
+    },
+    {
+      "relative_path": "sub-012/eeg/sub-012_task-verbalwm_eeg.vmrk",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-012/eeg/sub-012_task-verbalwm_eeg.vmrk",
+      "status": "skipped_existing",
+      "bytes": 60751
+    },
+    {
+      "relative_path": "sub-012/eeg/sub-012_task-verbalwm_eeg.eeg",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-012/eeg/sub-012_task-verbalwm_eeg.eeg",
+      "status": "skipped_existing",
+      "bytes": 1667556800
+    },
+    {
+      "relative_path": "sub-035/sub-035_scans.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-035/sub-035_scans.tsv",
+      "status": "skipped_existing",
+      "bytes": 146
+    },
+    {
+      "relative_path": "sub-035/eeg/sub-035_space-CapTrak_coordsystem.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-035/eeg/sub-035_space-CapTrak_coordsystem.json",
+      "status": "skipped_existing",
+      "bytes": 986
+    },
+    {
+      "relative_path": "sub-035/eeg/sub-035_space-CapTrak_electrodes.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-035/eeg/sub-035_space-CapTrak_electrodes.tsv",
+      "status": "skipped_existing",
+      "bytes": 4511
+    },
+    {
+      "relative_path": "sub-035/eeg/sub-035_task-verbalwm_eeg.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-035/eeg/sub-035_task-verbalwm_eeg.json",
+      "status": "skipped_existing",
+      "bytes": 1003
+    },
+    {
+      "relative_path": "sub-035/eeg/sub-035_task-verbalwm_channels.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-035/eeg/sub-035_task-verbalwm_channels.tsv",
+      "status": "skipped_existing",
+      "bytes": 3963
+    },
+    {
+      "relative_path": "sub-035/eeg/sub-035_task-verbalwm_events.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-035/eeg/sub-035_task-verbalwm_events.tsv",
+      "status": "skipped_existing",
+      "bytes": 75351
+    },
+    {
+      "relative_path": "sub-035/beh/sub-035_task-verbalwm_beh.json",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-035/beh/sub-035_task-verbalwm_beh.json",
+      "status": "skipped_existing",
+      "bytes": 1324
+    },
+    {
+      "relative_path": "sub-035/beh/sub-035_task-verbalwm_beh.tsv",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-035/beh/sub-035_task-verbalwm_beh.tsv",
+      "status": "skipped_existing",
+      "bytes": 10431
+    },
+    {
+      "relative_path": "sub-035/eeg/sub-035_task-verbalwm_eeg.vhdr",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-035/eeg/sub-035_task-verbalwm_eeg.vhdr",
+      "status": "skipped_existing",
+      "bytes": 1900
+    },
+    {
+      "relative_path": "sub-035/eeg/sub-035_task-verbalwm_eeg.vmrk",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-035/eeg/sub-035_task-verbalwm_eeg.vmrk",
+      "status": "skipped_existing",
+      "bytes": 60736
+    },
+    {
+      "relative_path": "sub-035/eeg/sub-035_task-verbalwm_eeg.eeg",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds006848/sub-035/eeg/sub-035_task-verbalwm_eeg.eeg",
+      "status": "skipped_existing",
+      "bytes": 1177061600
+    }
+  ]
+}

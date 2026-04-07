@@ -128,19 +128,44 @@ Completed or materially implemented:
       - the aggregate standardized delta drops sharply from the broader split, but the branch still does not beat null
       - `mean_ibi_seconds` now beats null on MSE for `eeg_clean`, while amplitude-family targets remain the main blocker
       - the remaining problem now looks more like target-scale and amplitude-shift mismatch than a single catastrophic-subject failure
+    - the next calibration-aware follow-ups now also exist on that same cohort-swap split:
+      - a shift-aware subject-zscore baseline exists
+      - `oracle_subject_zscore` still does not beat null
+      - `calibrated_subject_zscore` on `eeg_clean` edges past null on aggregate MSE
+      - `amplitude_range` and `rising_edge_slope_max` are the first targets to recover in subject-normalized space
+      - a calibrated absolute-unit baseline now also exists
+      - `calibrated_absolute` on `eeg_clean` beats null on aggregate relative MSE:
+        - aggregate relative MSE is about `0.9238`
+        - zero-shot best-branch aggregate relative MSE is about `1.6494`
+      - the first targets to recover in real units are:
+        - `amplitude_range`
+        - `rising_edge_slope_max`
+        - `dominant_beat_rise_time_seconds`
+      - this is the first broader DS006848-style null-beating result in real target units, but it is still a subject-calibrated result, not a zero-shot claim
+    - the first one-subject calibrated cohort expansion now also exists:
+      - it adds `sub-011` to the cohort-swap eval side
+      - the data path stays fully clean with `2304 / 2304` quality-pass windows
+      - dominant-beat coverage stays dense with `1274` eval-valid windows
+      - the full calibrated-absolute morphology result no longer beats null:
+        - full aggregate relative MSE rises to about `2.1957`
+      - the family comparison now shows:
+        - amplitude-family aggregate relative MSE stays below null at about `0.9017`
+        - timing-family aggregate relative MSE collapses to about `4.1367`
+      - `sub-011` is the dominant new timing-family failure, so it should not yet be promoted into the default full-morphology calibrated cohort
 
 Still incomplete:
 
-- Phase 2 for `DS006848` now covers development-scale verbalwm plus a first rest target-complete smoke branch, but it is still incomplete at the dataset level because the long-term role of the rest branch is still undecided and the residual cohort-swap failure has not yet been tested with a shift-aware baseline.
+- Phase 2 for `DS006848` now covers development-scale verbalwm plus a first rest target-complete smoke branch, but it is still incomplete at the dataset level because the long-term role of the rest branch is still undecided.
 - Phase 2 is still development-scale for EEG-PPG. `DS003838` now has a 4-subject smoke artifact, an 8-subject development artifact, and target-coverage layers for both, but not yet a broader paired-cohort default artifact.
 - Athena internal intake and preprocessing are still incomplete.
-- There is still no broad-cohort EEG-PPG positive baseline result; the earlier DS006848 4-subject positive check does not survive the broader 8-subject follow-up.
+- There is still no broad-cohort zero-shot EEG-PPG positive baseline result; the earlier DS006848 4-subject positive check does not survive the broader 8-subject follow-up.
+- There is still no stable wider-cohort full-morphology calibrated EEG-PPG result; the first positive calibrated path survives on the cohort-swap split but not after adding `sub-011`.
 
 Operational interpretation:
 
 - `DS004514` should still be treated as the completed reference path for ingest, synchronization, windowing, and distortion benchmarking.
 - `DS003838` should now be treated as the harder EEG-PPG stress-test and negative-check path.
-- `DS006848` should now be treated as the cleaner EEG-PPG reference path for intake, synchronization, and future rest-branch work, not as an established positive baseline.
+- `DS006848` should now be treated as the cleaner EEG-PPG reference path for intake, synchronization, future rest-branch work, and amplitude-first subject-calibrated EEG-PPG development.
 - The next execution track should stay on EEG-PPG rather than extending EEG-fNIRS research depth immediately.
 
 ---
@@ -187,11 +212,11 @@ Current execution note as of March 23, 2026:
 
 Given the EEG-PPG pivot, the recommended near-term sequence is:
 
-1. Treat the current `DS006848` 8-subject verbalwm split as the default EEG-PPG development check.
-   Keep the 2-subject verbalwm path as the DS006848 smoke contract and the earlier 4-subject result as historical only.
+1. Treat the current DS006848 cohort-swap split as the active full-morphology calibrated EEG-PPG development path.
+   Keep the broader reviewed split as the hard stress test, the 2-subject verbalwm path as the smoke contract, and the earlier 4-subject result as historical only.
 
-2. Stop treating the current EEG-PPG branch as model-ready.
-   The current question is no longer whether a small split can beat null; it is whether the broader failure is driven by specific DS006848 quality and subject slices that should be gated explicitly.
+2. Stop treating the current EEG-PPG branch as a zero-shot modeling problem.
+   The strongest current result is now subject-calibrated, not zero-shot.
 
 3. Treat the `DS003838` failure analysis as complete enough to change priorities.
    Current evidence now says:
@@ -201,11 +226,13 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    - the surviving positive signal is concentrated in amplitude-style targets
    - the current simple baseline is not robust enough under mild subject expansion
 
-4. Use the explicit DS006848 verbalwm subject-quality policy as the current cohort gate.
-   The broader split now says:
+4. Use the explicit DS006848 verbalwm subject-quality policy plus the cohort-swap shortlist as the current cohort gate.
+   The current DS006848 reading now says:
    - `sub-016` is `stress_test_only`
    - `sub-017` is `borderline_review`
-   - the remaining verbalwm subjects stay `pending_review` until a model-aware follow-up justifies promotion
+   - `sub-002` and `sub-035` are the strongest current promotion candidates
+   - `sub-011` should stay `pending_review` for the full-morphology calibrated path
+   - the remaining verbalwm subjects stay `pending_review` until a calibrated follow-up justifies promotion
 
 5. Treat the current 2-subject DS006848 rest path as a target-complete smoke contract, not a benchmark yet.
    The first rest branch now has:
@@ -222,16 +249,16 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    - keep `sub-016` as `stress_test_only`
    - keep `sub-017` as `borderline_review`
 
-7. Treat the cohort-swap result as a narrowing step, not a recovery.
-   Replacing `sub-016` and `sub-017` with `sub-002` and `sub-035` removes the catastrophic failure mode and restores a fully clean eval cohort, but it still does not recover an aggregate null-beating baseline.
+7. Treat the cohort-swap result as a real calibrated recovery, but not a zero-shot recovery.
+   Replacing `sub-016` and `sub-017` with `sub-002` and `sub-035` removes the catastrophic failure mode and restores a fully clean eval cohort. On top of that split, short subject calibration now produces the first broader DS006848-style null-beating result in real units.
 
-8. Run a shift-aware baseline next on the cohort-swap split.
-   The remaining failure is now most plausibly tied to amplitude-family scale mismatch across subjects, so the next experiment should test subject-normalized or scale-robust targets before any deeper model.
+8. Narrow the near-term DS006848 benchmark to amplitude-family calibrated targets before widening the full morphology cohort again.
+   The first one-subject expansion with `sub-011` shows that amplitude-family behavior stays below null while timing-family behavior collapses. The next experiment should either formalize the amplitude-family calibrated benchmark or test a different candidate without changing the model.
 
-9. Keep the rest branch in smoke-contract mode until the verbalwm shift question is answered.
+9. Keep the rest branch in smoke-contract mode until the calibrated verbalwm path is stable.
    Do not treat the current 2-subject rest path as a modeling benchmark yet.
 
-10. Treat raw EEG -> raw PPG waveform generation and deeper architectures as explicitly out of scope until at least one broader EEG-PPG split beats null.
+10. Treat raw EEG -> raw PPG waveform generation and deeper architectures as explicitly out of scope until either the amplitude-family calibrated path is stable under wider cohort expansion or the full calibrated morphology path survives the next cohort expansion.
 
 This is the shortest path from current repo state to the new business goal.
 

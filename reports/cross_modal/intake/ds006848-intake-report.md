@@ -393,7 +393,55 @@ Decision rationale:
 
 - the dataset is now source-backed enough to act as the second public EEG-PPG intake reference
 - the shared BrainVision container simplifies the first EEG-PPG Phase 2 path relative to DS003838
-- the remaining blocker is no longer modality ambiguity or first-artifact feasibility; it is resolving the residual amplitude-family shift problem on the cleaned verbalwm branch and deciding how the new rest pilot should grow
+- the remaining blocker is no longer modality ambiguity or first-artifact feasibility; it is deciding how far the new calibrated verbalwm path should be promoted and how the new rest pilot should grow
+
+## Shift-aware cohort-swap result
+
+- a short-calibration subject-zscore baseline now exists on the cohort-swap split
+- best branch remains `eeg_clean_windows`
+- zero-shot cohort-swap best-branch aggregate delta stays positive at about `+1.6269`
+- `oracle_subject_zscore` still does not beat null, with aggregate delta about `+0.9083`
+- `calibrated_subject_zscore` now edges past null on aggregate MSE, with delta about `-0.0083`
+- first recovered targets in subject-normalized space:
+  - `amplitude_range`
+  - `rising_edge_slope_max`
+
+Practical reading:
+
+- short subject calibration matters more than simple cohort cleanup alone
+- DS006848 now supports a plausible calibrated EEG-PPG path, not just a negative-check path
+
+## Calibrated absolute cohort-swap result
+
+- a short-calibration absolute-unit baseline now also exists on the cohort-swap split
+- best branch remains `eeg_clean_windows`
+- zero-shot best-branch aggregate relative MSE is about `1.6494`
+- `oracle_absolute` still does not beat null, with aggregate relative MSE about `2.1795`
+- `calibrated_absolute` now beats null, with aggregate relative MSE about `0.9238`
+- first recovered targets in real units:
+  - `amplitude_range`
+  - `rising_edge_slope_max`
+  - `dominant_beat_rise_time_seconds`
+
+Practical reading:
+
+- the DS006848 path is now stronger than a diagnostic-only calibration story
+- the first broader DS006848-style null-beating result in real units now exists
+- this is still a subject-calibrated result, not a zero-shot claim
+
+## First one-subject calibrated expansion result
+
+- a first one-subject calibrated expansion now exists on top of the cohort-swap path
+- the expansion adds `sub-011` to eval while keeping the reviewed train side fixed
+- the expanded data path stays fully clean:
+  - `2304 / 2304` quality-pass windows
+  - `1274` eval-valid dominant-beat windows
+- the full calibrated morphology aggregate no longer beats null:
+  - calibrated full aggregate relative MSE rises to about `2.1957`
+- the family-level comparison now shows the break is concentrated in timing-style morphology:
+  - amplitude-family aggregate relative MSE stays below null at about `0.9017`
+  - timing-family aggregate relative MSE rises to about `4.1367`
+- `sub-011` is the dominant new timing-family failure and should stay pending review for the default full-morphology calibrated cohort
 
 ## Next actions
 
@@ -401,8 +449,10 @@ Decision rationale:
 2. Treat the first cohort-swap pass as complete:
    - `sub-002` and `sub-035` are cleaner than `sub-016` and `sub-017`
    - that swap removes the catastrophic failure mode
-   - it still does not recover a null-beating DS006848 baseline
-3. Run a shift-aware or scale-robust baseline on the cohort-swap split next, focused on amplitude-family targets.
+   - short calibration on top of that swap now does recover a null-beating DS006848 baseline in real units
+3. Treat the first one-subject expansion as a boundary marker:
+   - `sub-011` should not yet be promoted into the default full-morphology calibrated cohort
+   - amplitude-family calibrated behavior is more stable than the full morphology aggregate under this expansion
 4. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
 
 ## Commands

@@ -101,7 +101,7 @@ What it reinforced:
 What it added:
 
 - the strongest pending-review promotion candidates are now `sub-002` and `sub-035`
-- `sub-011` is a reasonable verbalwm-only secondary candidate, but not a rest candidate because `RS_excluded=yes`
+- `sub-011` was a reasonable verbalwm-only secondary candidate, but the first calibrated expansion now shows it should stay pending for the default full-morphology calibrated cohort
 - `sub-025` should stay pending because morphology amplitude remains weak even though the coarse quality-pass rate stays high
 
 Operational reading:
@@ -109,5 +109,8 @@ Operational reading:
 - keep the machine-readable cohort policy unchanged for now
 - the completed cohort-swap run justifies that caution:
   - `sub-002` and `sub-035` are materially cleaner than `sub-016`
-  - but the swap still does not recover a null-beating aggregate baseline
-- use the waveform-quality review plus the cohort-swap result to decide the next shift-aware baseline rather than promoting subjects blindly
+  - and short calibration on top of that swap does recover a null-beating baseline in real units
+- the first one-subject calibrated expansion also justifies caution:
+  - adding `sub-011` keeps the data path fully clean
+  - but it breaks the full-morphology calibrated aggregate, with the failure concentrated in dominant-beat timing targets
+- use the waveform-quality review plus the calibrated expansion result to decide the next amplitude-family-first experiment rather than promoting subjects blindly

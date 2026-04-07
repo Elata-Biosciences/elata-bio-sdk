@@ -79,6 +79,62 @@ Shift interpretation on the cohort-swap split:
   - `rising_edge_slope_max`
   - `dominant_beat_amplitude`
 
+Current shift-aware finding:
+
+- a short-calibration subject-zscore baseline now exists on top of the cohort-swap split
+- `oracle_subject_zscore` still does not beat null, so this is not simply a metric artifact caused by removing absolute scale
+- `calibrated_subject_zscore` on `eeg_clean_windows` now edges past null on aggregate MSE
+- the first targets to recover are:
+  - `amplitude_range`
+  - `rising_edge_slope_max`
+- the calibrated path still does not recover:
+  - `dominant_beat_amplitude`
+  - dominant-beat timing family targets
+
+Interpretation:
+
+- the remaining DS006848 signal is real enough to benefit from short subject calibration
+- the strongest current path is no longer a zero-shot absolute predictor
+- it is a calibrated, scale-aware path focused first on the amplitude family
+
+Current calibrated-absolute finding:
+
+- a short-calibration absolute-unit baseline now exists on top of the same cohort-swap split
+- `calibrated_absolute` on `eeg_clean_windows` now beats null on aggregate relative MSE:
+  - calibrated aggregate relative MSE is about `0.9238`
+  - zero-shot best-branch aggregate relative MSE is about `1.6494`
+- the first targets to recover in real units are:
+  - `amplitude_range`
+  - `rising_edge_slope_max`
+  - `dominant_beat_rise_time_seconds`
+- `dominant_beat_amplitude`, `dominant_beat_width_seconds`, and `mean_ibi_seconds` still do not beat null in real units
+
+Interpretation:
+
+- the DS006848 path is now stronger than a diagnostic-only calibration story
+- short subject calibration is enough to recover a real broader-split-style null-beating result in absolute target units
+- the remaining problem is now narrower:
+  - broaden the calibrated path carefully
+  - decide whether DS006848 should now be treated as the primary subject-calibrated EEG-PPG benchmark
+
+Current cohort-plus-sub011 finding:
+
+- adding `sub-011` to the cohort-swap eval set keeps the data path fully clean:
+  - `2304 / 2304` quality-pass windows
+  - `1274` eval-valid dominant-beat windows
+- but the calibrated absolute full-morphology result no longer beats null:
+  - full aggregate relative MSE rises to about `2.1957`
+- the family-level comparison now shows the failure is not uniform:
+  - amplitude-family aggregate relative MSE stays below null at about `0.9017`
+  - timing-family aggregate relative MSE collapses to about `4.1367`
+- `sub-011` is the dominant new timing-family failure:
+  - timing-family relative MSE is about `14.4451`
+
+Interpretation:
+
+- `sub-011` should not be promoted into the default full-morphology calibrated cohort yet
+- the stable near-term DS006848 calibrated path is now best described as amplitude-family first, full morphology second
+
 ## Practical conclusion
 
 The current `DS006848` result is now better characterized:
@@ -87,7 +143,10 @@ The current `DS006848` result is now better characterized:
 - the target artifact is not sparse for the dominant-beat family
 - the earlier aggregate win was not stable under the next subject expansion
 - the cohort-swap run shows that subject filtering matters, but is not enough on its own
-- the next best step is a shift-aware or scale-robust baseline on the cohort-swap split, not a deeper model
+- the shift-aware run now shows that calibration helps enough to recover a small null-beating result in subject-normalized space
+- the calibrated-absolute run now shows that short calibration also recovers a null-beating result in real target units on the cohort-swap split
+- the first one-subject calibrated expansion now shows that full morphology is still brittle under subject expansion
+- the next best step is to stabilize the amplitude-family calibrated benchmark before widening the full morphology cohort again
 
 At this point, both `DS003838` and broader `DS006848` act more like stress-test datasets than positive baselines.
 
@@ -102,6 +161,16 @@ python scripts/cross_modal/validate_ds006848_baseline_analysis.py --config confi
 
 python scripts/cross_modal/analyze_ds006848_baseline.py --config configs/cross_modal/ds006848_baseline_analysis_cohort_swap.toml
 python scripts/cross_modal/validate_ds006848_baseline_analysis.py --config configs/cross_modal/ds006848_baseline_analysis_cohort_swap.toml
+
+python scripts/cross_modal/train_ds006848_shift_aware_baseline.py --config configs/cross_modal/ds006848_shift_aware_baseline_cohort_swap.toml
+python scripts/cross_modal/validate_ds006848_shift_aware_baseline.py --config configs/cross_modal/ds006848_shift_aware_baseline_cohort_swap.toml
+
+python scripts/cross_modal/train_ds006848_calibrated_absolute_baseline.py --config configs/cross_modal/ds006848_calibrated_absolute_baseline_cohort_swap.toml
+python scripts/cross_modal/validate_ds006848_calibrated_absolute_baseline.py --config configs/cross_modal/ds006848_calibrated_absolute_baseline_cohort_swap.toml
+
+python scripts/cross_modal/train_ds006848_calibrated_absolute_baseline.py --config configs/cross_modal/ds006848_calibrated_absolute_baseline_cohort_plus_sub011.toml
+python scripts/cross_modal/validate_ds006848_calibrated_absolute_baseline.py --config configs/cross_modal/ds006848_calibrated_absolute_baseline_cohort_plus_sub011.toml
+python scripts/cross_modal/analyze_ds006848_calibrated_family_comparison.py --config configs/cross_modal/ds006848_calibrated_family_comparison.toml
 ```
 
 ## Artifacts
@@ -115,3 +184,6 @@ python scripts/cross_modal/validate_ds006848_baseline_analysis.py --config confi
 - [../../configs/cross_modal/ds006848_baseline_analysis_cohort_swap.toml](../../configs/cross_modal/ds006848_baseline_analysis_cohort_swap.toml)
 - [../../reports/cross_modal/ds006848/ds006848_cohort_swap_baseline_analysis_metrics.json](../../reports/cross_modal/ds006848/ds006848_cohort_swap_baseline_analysis_metrics.json)
 - [../../reports/cross_modal/ds006848/ds006848_cohort_swap_baseline_analysis_report.md](../../reports/cross_modal/ds006848/ds006848_cohort_swap_baseline_analysis_report.md)
+- [ds006848-shift-aware-baseline.md](ds006848-shift-aware-baseline.md)
+- [ds006848-calibrated-absolute-baseline.md](ds006848-calibrated-absolute-baseline.md)
+- [ds006848-calibrated-family-comparison.md](ds006848-calibrated-family-comparison.md)
