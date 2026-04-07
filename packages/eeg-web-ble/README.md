@@ -3,6 +3,8 @@
 Web Bluetooth transport package for EEG headbands in the browser. It emits
 normalized **`HeadbandFrameV1`** frames for the Elata EEG web stack.
 
+**New to the SDK?** `npx @elata-biosciences/create-elata-demo my-app` scaffolds a working app with synthetic mode, correct Vite config, and WASM imports already set up — no hardware required to get started.
+
 ## Bluetooth vs built-in devices
 
 Keep two ideas separate:

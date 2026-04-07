@@ -2,6 +2,8 @@
 
 Web wrapper for the Elata EEG WASM bindings.
 
+**New to the SDK?** `npx @elata-biosciences/create-elata-demo my-app` scaffolds a working app with synthetic mode, correct Vite config, and WASM imports already set up — no hardware required to get started.
+
 ## What This Package Is
 
 `@elata-biosciences/eeg-web` is intentionally a thin wrapper:
