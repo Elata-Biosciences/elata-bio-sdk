@@ -193,6 +193,19 @@ How do I extract the AF7 channel data and pass it to band_powers()?" \
 4. Float32Array: wraps the extracted values in new Float32Array() before passing to band_powers
 5. No hallucination: does not reference methods absent from the reference"
 
+# ── Test F: Package selection ─────────────────────────────────────────────────
+
+run_test "F-package-selection" \
+"I want to add EEG to my browser app. I see there are two packages:
+@elata-biosciences/eeg-web and @elata-biosciences/eeg-web-ble.
+Which one do I need, and what is the difference between them?" \
+"$REPO_ROOT/packages/eeg-web/README.md" \
+"1. Correct split: explains eeg-web is for WASM/signal processing and eeg-web-ble is for Bluetooth transport
+2. eeg-web-only path: states eeg-web alone is sufficient if no live headset is needed
+3. BLE dependency: states eeg-web-ble requires eeg-web alongside it (not standalone)
+4. Does not conflate: does not suggest eeg-web-ble is required for all EEG use cases
+5. No hallucination: does not describe capabilities absent from the reference"
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 
 printf "\n${c_bold}==============================${c_reset}\n"
