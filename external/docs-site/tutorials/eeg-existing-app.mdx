@@ -101,11 +101,30 @@ This is the first thing to fix before adding more product logic.
 
 If you are using Vite, the two common fixes are:
 
-1. add `vite-plugin-wasm` and `vite-plugin-top-level-await`, then keep using
-   `await initEegWasm()`
-2. import the WASM asset URL directly and pass it to `initEegWasm(wasmUrl)`
+**Option 1 — add WASM plugins:**
 
-The guide at [EEG In A Browser App](/guides/eeg-browser) shows both patterns.
+```bash
+pnpm add -D vite-plugin-wasm vite-plugin-top-level-await
+```
+
+```ts vite.config.ts
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
+
+export default { plugins: [wasm(), topLevelAwait()] };
+```
+
+Then keep calling `await initEegWasm()` as normal.
+
+**Option 2 — pass the asset URL explicitly:**
+
+```ts
+import wasmUrl from "@elata-biosciences/eeg-web/wasm/eeg_wasm_bg.wasm?url";
+await initEegWasm(wasmUrl);
+```
+
+This avoids the plugins but requires the `?url` import to be resolvable by your
+bundler.
 
 If you are stuck, compare your app against the scaffolded `eeg-demo`
 app before assuming the package itself is broken.

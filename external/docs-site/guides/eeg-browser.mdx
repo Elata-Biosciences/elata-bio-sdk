@@ -82,8 +82,9 @@ console.log("alpha", powers.alpha);
   For a Muse headband (TP9=0, AF7=1, AF8=2, TP10=3), use AF7 or AF8 for
   cognitive state features, or average across channels.
 - `WasmCalmnessModel.process()` expects **interleaved** samples:
-  `[s0_ch0, s0_ch1, s1_ch0, s1_ch1, ...]`. The `frame.eeg.samples` layout is
-  per-channel — convert before passing.
+  `[s0_ch0, s0_ch1, s1_ch0, s1_ch1, ...]`. Since `frame.eeg.samples` is
+  `[timeIdx][channelIdx]`, you can flatten it directly:
+  `Float32Array.from(frame.eeg.samples.flat())`.
 - `WasmCalmnessModel` needs `channelCount` at construction, but `channelCount`
   only arrives on the first frame. Construct the model inside your first-frame
   handler.
