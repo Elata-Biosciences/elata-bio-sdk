@@ -300,6 +300,31 @@ Practical reading:
 - dominant-beat morphology is dense enough to support rest-branch plumbing and future smoke baselines
 - notch timing remains a masked diagnostic target and should not drive rest decisions yet
 
+## Verbalwm cohort-swap result
+
+- Cohort-swap split:
+  - train `sub-001`, `sub-010`, `sub-013`, `sub-015`
+  - eval `sub-002`, `sub-007`, `sub-012`, `sub-035`
+  - task `verbalwm`
+- Artifact outputs:
+  - `2048` paired windows
+  - `2048 / 2048` quality-pass windows
+  - dominant-beat-valid eval windows: `1020`
+  - notch-valid eval windows: `20`
+- Modeling result:
+  - `eeg_clean_windows` remains the best branch
+  - the branch still does not beat null on aggregate standardized MSE
+  - but the failure is much smaller than on the reviewed broader split:
+    - broader reviewed split aggregate standardized delta on `eeg_clean`: about `26.16`
+    - cohort-swap aggregate standardized delta on `eeg_clean`: about `1.63`
+  - `mean_ibi_seconds` now beats null on MSE for `eeg_clean`
+
+Practical reading:
+
+- removing `sub-016` and `sub-017` eliminates the catastrophic broader failure mode
+- the remaining DS006848 problem is no longer mainly about bad-subject filtering
+- the next blocker now looks like amplitude-family scale mismatch across subjects
+
 ## Protocol coverage
 
 - `task-verbalwm`:
@@ -368,17 +393,17 @@ Decision rationale:
 
 - the dataset is now source-backed enough to act as the second public EEG-PPG intake reference
 - the shared BrainVision container simplifies the first EEG-PPG Phase 2 path relative to DS003838
-- the remaining blocker is no longer modality ambiguity or first-artifact feasibility; it is extending waveform-quality evidence beyond the reviewed verbalwm cohort and deciding how the new rest pilot should grow
+- the remaining blocker is no longer modality ambiguity or first-artifact feasibility; it is resolving the residual amplitude-family shift problem on the cleaned verbalwm branch and deciding how the new rest pilot should grow
 
 ## Next actions
 
 1. Keep the broader slice-analysis pass and explicit subject-quality policy as the reference for what to watch: amplitude-family concentration, eval quality attrition, and subject-specific failure.
-2. Use the completed broader waveform-quality review to define the first pending-review cohort-swap experiment:
-   - primary candidates: `sub-002`, `sub-035`
-   - secondary verbalwm-only candidate: `sub-011`
-   - keep `sub-025` pending
-3. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
-4. Decide whether any `pending_review` verbalwm subjects should be promoted into the default DS006848 development cohort after the cohort-swap follow-up.
+2. Treat the first cohort-swap pass as complete:
+   - `sub-002` and `sub-035` are cleaner than `sub-016` and `sub-017`
+   - that swap removes the catastrophic failure mode
+   - it still does not recover a null-beating DS006848 baseline
+3. Run a shift-aware or scale-robust baseline on the cohort-swap split next, focused on amplitude-family targets.
+4. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
 
 ## Commands
 

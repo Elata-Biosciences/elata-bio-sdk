@@ -1,0 +1,49 @@
+[targets]
+dataset = "reports/cross_modal/ds006848/ds006848_phase2_cohort_swap_windows.npz"
+metadata = "reports/cross_modal/ds006848/ds006848_phase2_cohort_swap_windows_metadata.json"
+source_branch = "ppg_clean_windows"
+ppg_clean_sfreq_hz = 128.0
+ppg_peak_min_distance_seconds = 0.3
+ppg_peak_threshold_std = 0.1
+dominant_beat_min_rise_seconds = 0.03
+dominant_beat_max_rise_seconds = 0.8
+dominant_beat_min_width_seconds = 0.1
+dominant_beat_max_width_seconds = 1.5
+notch_min_delay_seconds = 0.05
+notch_max_delay_seconds = 0.45
+notch_min_rebound_fraction = 0.02
+target_names = [
+  "ppg_peak_count",
+  "mean_ibi_seconds",
+  "amplitude_range",
+  "rising_edge_slope_max",
+  "dominant_beat_amplitude",
+  "dominant_beat_rise_time_seconds",
+  "dominant_beat_width_seconds",
+  "dominant_beat_fall_time_seconds",
+  "dominant_beat_peak_time_seconds",
+  "dominant_beat_notch_delay_seconds",
+]
+
+[expected]
+window_count = 2048
+
+[expected.minimum_valid_total]
+dominant_beat_amplitude = 1900
+dominant_beat_rise_time_seconds = 1900
+dominant_beat_width_seconds = 1900
+
+[expected.minimum_valid_train]
+dominant_beat_amplitude = 950
+dominant_beat_rise_time_seconds = 950
+dominant_beat_width_seconds = 950
+
+[expected.minimum_valid_eval]
+dominant_beat_amplitude = 950
+dominant_beat_rise_time_seconds = 950
+dominant_beat_width_seconds = 950
+
+[paths]
+targets = "reports/cross_modal/ds006848/ds006848_cohort_swap_target_arrays.npz"
+coverage = "reports/cross_modal/ds006848/ds006848_cohort_swap_target_coverage.json"
+summary = "reports/cross_modal/ds006848/ds006848_cohort_swap_target_summary.md"

@@ -1,6 +1,6 @@
 ﻿# Cross-Modal Biosignal Model Implementation Plan (v2)
 
-Status: Active plan (v2, revised after feedback, annotated with execution status through April 4, 2026)
+Status: Active plan (v2, revised after feedback, annotated with execution status through April 6, 2026)
 
 ## Summary
 
@@ -36,7 +36,7 @@ The recommended execution order is:
 
 ## Execution Status
 
-As of April 4, 2026, the repo is no longer at the pure-planning stage.
+As of April 6, 2026, the repo is no longer at the pure-planning stage.
 
 Completed or materially implemented:
 
@@ -119,10 +119,19 @@ Completed or materially implemented:
       - `sub-017` also underperforms, though less severely
       - all peak-count and `ppg_clean_std` quartile slices are worse than null
       - the failure is still concentrated most heavily in amplitude-family targets
+    - the first model-aware cohort-swap experiment now also exists:
+      - it keeps the reviewed train cohort fixed
+      - it replaces eval `sub-016` and `sub-017` with pending-review shortlist subjects `sub-002` and `sub-035`
+      - the swapped split stays fully clean at the data layer with `2048 / 2048` quality-pass windows
+      - dominant-beat coverage stays dense with `1020` eval-valid windows
+      - `eeg_clean` remains the least-bad branch
+      - the aggregate standardized delta drops sharply from the broader split, but the branch still does not beat null
+      - `mean_ibi_seconds` now beats null on MSE for `eeg_clean`, while amplitude-family targets remain the main blocker
+      - the remaining problem now looks more like target-scale and amplitude-shift mismatch than a single catastrophic-subject failure
 
 Still incomplete:
 
-- Phase 2 for `DS006848` now covers development-scale verbalwm plus a first rest target-complete smoke branch, but it is still incomplete at the dataset level because the reviewed pending-subject shortlist has not yet been tested in a model-aware cohort-swap experiment and the long-term role of the rest branch is still undecided.
+- Phase 2 for `DS006848` now covers development-scale verbalwm plus a first rest target-complete smoke branch, but it is still incomplete at the dataset level because the long-term role of the rest branch is still undecided and the residual cohort-swap failure has not yet been tested with a shift-aware baseline.
 - Phase 2 is still development-scale for EEG-PPG. `DS003838` now has a 4-subject smoke artifact, an 8-subject development artifact, and target-coverage layers for both, but not yet a broader paired-cohort default artifact.
 - Athena internal intake and preprocessing are still incomplete.
 - There is still no broad-cohort EEG-PPG positive baseline result; the earlier DS006848 4-subject positive check does not survive the broader 8-subject follow-up.
@@ -196,7 +205,7 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    The broader split now says:
    - `sub-016` is `stress_test_only`
    - `sub-017` is `borderline_review`
-   - the remaining verbalwm subjects stay `pending_review` until a broader waveform-quality pass promotes them
+   - the remaining verbalwm subjects stay `pending_review` until a model-aware follow-up justifies promotion
 
 5. Treat the current 2-subject DS006848 rest path as a target-complete smoke contract, not a benchmark yet.
    The first rest branch now has:
@@ -205,7 +214,7 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    - `10 / 10` dominant-beat-valid windows in both train and eval
    - train-only notch coverage (`2` valid windows)
 
-6. Treat the broader DS006848 waveform-quality pass as complete enough to define the next verbalwm cohort experiment.
+6. Treat the broader DS006848 waveform-quality pass and the first cohort-swap run as completed evidence, not open questions.
    Current evidence now says:
    - strongest pending-review promotion candidates: `sub-002`, `sub-035`
    - verbalwm-only secondary candidate: `sub-011`
@@ -213,13 +222,16 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    - keep `sub-016` as `stress_test_only`
    - keep `sub-017` as `borderline_review`
 
-7. Run a model-aware cohort-swap experiment next.
-   The concrete question is whether replacing the weakest broader verbalwm subjects with the strongest pending-review waveform candidates recovers a broader null-beating result.
+7. Treat the cohort-swap result as a narrowing step, not a recovery.
+   Replacing `sub-016` and `sub-017` with `sub-002` and `sub-035` removes the catastrophic failure mode and restores a fully clean eval cohort, but it still does not recover an aggregate null-beating baseline.
 
-8. Keep the rest branch in smoke-contract mode until that verbalwm cohort question is answered.
+8. Run a shift-aware baseline next on the cohort-swap split.
+   The remaining failure is now most plausibly tied to amplitude-family scale mismatch across subjects, so the next experiment should test subject-normalized or scale-robust targets before any deeper model.
+
+9. Keep the rest branch in smoke-contract mode until the verbalwm shift question is answered.
    Do not treat the current 2-subject rest path as a modeling benchmark yet.
 
-9. Treat raw EEG -> raw PPG waveform generation and deeper architectures as explicitly out of scope until at least one broader EEG-PPG split beats null.
+10. Treat raw EEG -> raw PPG waveform generation and deeper architectures as explicitly out of scope until at least one broader EEG-PPG split beats null.
 
 This is the shortest path from current repo state to the new business goal.
 

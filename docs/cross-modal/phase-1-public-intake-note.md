@@ -62,8 +62,10 @@ This note summarizes the current state of the public candidate manifests and wha
     - `sub-017` is marked `borderline_review`
     - the remaining `22` verbalwm subjects stay `pending_review`
   - a broader `12`-subject verbalwm PPG waveform-quality review now exists, with `1536` sampled windows, `1509` quality-pass windows, and a pending-review shortlist led by `sub-002` and `sub-035`
+  - a first model-aware cohort-swap artifact now exists for `sub-001`, `sub-010`, `sub-013`, `sub-015` train and `sub-002`, `sub-007`, `sub-012`, `sub-035` eval, with `2048 / 2048` quality-pass windows
+  - that cohort swap sharply reduces the broader DS006848 failure but still does not recover a null-beating aggregate baseline, with `eeg_clean` remaining the least-bad branch
 - What remains:
-  - run a model-aware cohort-swap experiment using the new waveform-quality shortlist before promoting more verbalwm subjects
+  - run a shift-aware or scale-robust baseline on the cohort-swap split before promoting more verbalwm subjects
   - decide whether the first rest branch should stay smoke-only or expand into a real rest benchmark
   - decide the long-term roles of DS006848 and DS003838 now that both broader verbalwm splits fail to beat null
 

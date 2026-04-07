@@ -107,4 +107,7 @@ What it added:
 Operational reading:
 
 - keep the machine-readable cohort policy unchanged for now
-- use the waveform-quality review to decide the next cohort-swap experiment rather than promoting subjects blindly
+- the completed cohort-swap run justifies that caution:
+  - `sub-002` and `sub-035` are materially cleaner than `sub-016`
+  - but the swap still does not recover a null-beating aggregate baseline
+- use the waveform-quality review plus the cohort-swap result to decide the next shift-aware baseline rather than promoting subjects blindly

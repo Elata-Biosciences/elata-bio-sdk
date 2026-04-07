@@ -1,0 +1,79 @@
+{
+  "config_path": "configs/cross_modal/ds006848_phase2_windows_cohort_swap.toml",
+  "eeg": {
+    "cleaned_path": "zero_phase_iir_notch_50hz_plus_resample_1000_to_256",
+    "frequency_rows": [
+      {
+        "frequency_hz": 10.0,
+        "group_delay_seconds": 0.0,
+        "attenuation_db_vs_resample_only": 4.34831546143764e-06
+      },
+      {
+        "frequency_hz": 20.0,
+        "group_delay_seconds": 0.0,
+        "attenuation_db_vs_resample_only": -2.0124884867068594e-05
+      },
+      {
+        "frequency_hz": 40.0,
+        "group_delay_seconds": 0.0,
+        "attenuation_db_vs_resample_only": -0.0004911913202619096
+      },
+      {
+        "frequency_hz": 50.0,
+        "group_delay_seconds": null,
+        "attenuation_db_vs_resample_only": -21.898204116062807
+      },
+      {
+        "frequency_hz": 80.0,
+        "group_delay_seconds": 0.0,
+        "attenuation_db_vs_resample_only": -3.9800388457755686e-05
+      }
+    ],
+    "transient_burst_frequency_hz": 40.0,
+    "transient_rmse_vs_resample_only": 0.0067884785609574495,
+    "average_cpu_ms_per_63_channel_window": 18.866850004997104
+  },
+  "ppg": {
+    "cleaned_path": "zero_phase_iir_notch_50hz_plus_bandpass_0p5_20hz_plus_resample_1000_to_128",
+    "frequency_rows": [
+      {
+        "frequency_hz": 1.0,
+        "group_delay_seconds": 0.0,
+        "attenuation_db_vs_resample_only": -0.010185737247972
+      },
+      {
+        "frequency_hz": 2.0,
+        "group_delay_seconds": 0.0,
+        "attenuation_db_vs_resample_only": -0.002960004614499577
+      },
+      {
+        "frequency_hz": 5.0,
+        "group_delay_seconds": 0.0,
+        "attenuation_db_vs_resample_only": -0.004181361955914422
+      },
+      {
+        "frequency_hz": 10.0,
+        "group_delay_seconds": 0.0,
+        "attenuation_db_vs_resample_only": -0.02027907251086554
+      },
+      {
+        "frequency_hz": 20.0,
+        "group_delay_seconds": 0.0,
+        "attenuation_db_vs_resample_only": -6.00344971118794
+      },
+      {
+        "frequency_hz": 30.0,
+        "group_delay_seconds": 0.0,
+        "attenuation_db_vs_resample_only": -23.92363136903683
+      },
+      {
+        "frequency_hz": 50.0,
+        "group_delay_seconds": null,
+        "attenuation_db_vs_resample_only": -21.0840400647946
+      }
+    ],
+    "pulse_rise_time_error_seconds_vs_resample_only": 0.0,
+    "pulse_waveform_rmse_vs_resample_only": 0.0391753823805427,
+    "average_cpu_ms_per_window": 3.9585250022355467
+  }
+}
