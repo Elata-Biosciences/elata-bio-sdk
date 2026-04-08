@@ -1,0 +1,42 @@
+# Rust build artifacts (601MB)
+target/
+*.rs.bk
+Cargo.lock
+
+# Node dependencies (145MB)
+node_modules/
+.pnpm-store/
+pnpm-lock.yaml
+
+# Git
+.git/
+.github/
+
+# IDE
+.idea/
+.vscode/
+
+# Generated artifacts
+dist/
+coverage/
+.turbo/
+.parcel-cache/
+**/*.tsbuildinfo
+eeg-demo/pkg/
+packages/*/pkg/
+packages/*/demo/pkg/
+
+# Build outputs
+android-demo/.gradle/
+android-demo/build/
+ios-demo/*.xcframework/
+
+# Caches and temp
+.env
+brainflow/
+TradeLock/
+my-app/
+
+# Local package locks (packages have their own)
+packages/*/pnpm-lock.yaml
+packages/*/templates/**/pnpm-lock.yaml
