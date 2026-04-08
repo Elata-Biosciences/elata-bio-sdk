@@ -64,9 +64,10 @@ Before changing release docs, verify the package set against current
 - Release-tooling changes: run `./run.sh verify-all` if feasible
 - Docs that mention onboarding: verify `create-elata-demo` guidance and workspace caveats
 
-`./run.sh test create-elata-demo` currently runs the Node test suite in
-`packages/create-elata-demo`, and those tests also scaffold each template into a
-temporary directory, run `pnpm install`, and run `pnpm run build`.
+`./run.sh test create-elata-demo` runs the Node test suite in
+`packages/create-elata-demo`, including a smoke build for **each** of the three
+templates (`rppg-demo`, `eeg-demo`, `eeg-ble`): scaffold to a temp directory,
+`pnpm install`, and `pnpm run build`.
 
 ## Workspace Caveat
 
@@ -93,6 +94,7 @@ or use `npm` inside the generated app.
 
 - Root `README.md`: entry-point and high-level navigation
 - `docs/create-elata-demo.md`: scaffolding behavior and caveats
+- `docs/guides/ai-assisted-development.md`: map of `docs/` vs `elata-docs/` vs packages for AI-assisted workflows
 - `docs/releasing.md`: release mechanics and recovery
 - package READMEs: package-specific install and usage
 - `AGENTS.md`: repo interrogation and AI-agent workflow

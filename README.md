@@ -1,6 +1,6 @@
 # Elata SDK
 
-> AI-assisted integration? Start with the [getting started guide](docs/guides/getting-started.md), the [consumer guides index](docs/guides/README.md), or the [Mintlify docs submodule](elata-docs/quickstart.mdx).
+> AI-assisted integration? Start with the **[AI-assisted development map](docs/guides/ai-assisted-development.md)** (routes to tutorials, vendor checklists, and package `llms.txt`), then the [getting started guide](docs/guides/getting-started.md), [consumer guides](docs/guides/README.md), or [Mintlify docs](elata-docs/quickstart.mdx).
 
 A cross-platform biosignal SDK spanning EEG device pipelines, browser
 transports, and rPPG processing for web and native clients.

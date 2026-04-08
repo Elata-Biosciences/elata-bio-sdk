@@ -132,7 +132,7 @@ This command:
 
 1. Ensures `node_modules/` exists at the workspace root (`pnpm install` if needed).
 2. Runs the `packages/create-elata-demo` test suite.
-3. For each template (`rppg-demo`, `eeg-demo`):
+3. For each template (`rppg-demo`, `eeg-demo`, `eeg-ble`):
    - scaffolds into a temporary directory,
    - installs dependencies with `pnpm install`, and
    - runs `pnpm run build` (Vite + TypeScript).

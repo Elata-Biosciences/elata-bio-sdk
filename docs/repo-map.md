@@ -65,7 +65,7 @@ Use this package when you need:
 Owns:
 
 - published app scaffolding flow
-- template generation for `rppg-demo` and `eeg-demo`
+- template generation for `rppg-demo`, `eeg-demo`, and `eeg-ble`
 - template smoke-test coverage
 
 Use this package when you need:

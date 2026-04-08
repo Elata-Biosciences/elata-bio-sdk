@@ -15,6 +15,9 @@ Templates:
 
 - `rppg-demo`: camera-based rPPG starter app
 - `eeg-demo`: browser EEG starter app with synthetic data and optional Web Bluetooth (Muse built-in via `eeg-web-ble`)
+- `eeg-ble`: BLE-first EEG starter (pairing flow, Web Bluetooth, links to native demo references)
+
+Aliases include `rppg`, `eeg`, `ble`, and legacy names such as `rppg-web-demo` → `rppg-demo`. See [create-elata-demo.md](../create-elata-demo.md).
 
 ## Existing App Path
 

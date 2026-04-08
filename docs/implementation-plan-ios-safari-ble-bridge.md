@@ -1,5 +1,7 @@
 # Implementation Plan: Safari/iOS Muse BLE Bridge
 
+Status: **future / not done in-browser** — Web Bluetooth on Safari/iOS remains limited; this plan describes a **native bridge + WKWebView** approach. Validate milestones against **`ios-demo/`** and current `eeg-web-ble` before scheduling work.
+
 ## Goal
 
 Enable Muse headset streaming on Safari/iOS by moving BLE transport into native iOS (`CoreBluetooth`) while preserving the existing `HeadbandFrameV1` contract used by web consumers.

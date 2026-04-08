@@ -39,6 +39,7 @@ This short guide shows quick ways to speed up the Rust edit/build/test loop for 
 - Run the in-repo EEG demo: `./run.sh demo eeg`
 - Run the native HAL example: `./run.sh demo hal`
 - Run full workspace + web package tests: `./run.sh test`
+- Preview the Mintlify docs site in `elata-docs/` (defaults to `mint dev --no-open`): `./run.sh docs`
 
 ## In-Repo Demo Behavior
 

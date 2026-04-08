@@ -1,6 +1,6 @@
 # rPPG + Ocular Proxy Implementation Plan
 
-Status: In progress
+Status: In progress (core pipeline and **`packages/rppg-web`** are in heavy use; **browser apps should prefer `createRppgSession()`** per package README—this plan still describes crates and lower-level pieces.)
 
 This is a planning document with some historical checkpoints. For the current
 repo state, treat `crates/rppg-wasm`, `crates/rppg-ffi`, `packages/rppg-web`,
@@ -38,7 +38,7 @@ Deliver a hybrid system: cross-device rPPG DSP core in Rust with WASM/FFI bindin
 ## Phase 2.5: Web wrapper package
 - [x] Scaffold `packages/rppg-web` as a TS wrapper around WASM outputs. (estimator, demo, FrameSource, wasm loader implemented)
 - [x] Add a sync step / build step to copy generated wasm JS/.wasm into the wrapper package demo (`packages/rppg-web/scripts/build-demo.mjs` + CI job).
-- [x] Export a stable init helper and re-export WASM APIs (see `initDemo` + `wasmBackend` loader).
+- [x] Export a stable init helper and re-export WASM APIs (in-repo demo uses `initDemo` + `wasmBackend`; **consumer apps use `createRppgSession()`** and related session helpers).
 
 ## Phase 3: TS abstraction layer (hybrid)
 - [x] Implement interfaces:

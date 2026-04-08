@@ -24,6 +24,7 @@ When starting work, orient with these files first:
 - [README.md](README.md): repo overview, package list, build/demo commands
 - [run.sh](run.sh): canonical task runner for build, test, release, and local package workflows
 - [CONTRIBUTING.md](CONTRIBUTING.md): contribution and verification expectations
+- [docs/guides/ai-assisted-development.md](docs/guides/ai-assisted-development.md): map for AI agents—`docs/` vs `elata-docs/` tutorials vs package `README`/`llms.txt` (includes vendor headset paths)
 - [docs/releasing.md](docs/releasing.md): release flow and publish rules
 - [docs/create-elata-demo.md](docs/create-elata-demo.md): canonical scaffolding workflow
 
@@ -151,6 +152,7 @@ verify more broadly than the edited file suggests.
 ## When To Edit Which Doc
 
 - Edit [README.md](README.md) for repo entry points, package inventory, and high-level workflows.
+- Edit [docs/guides/ai-assisted-development.md](docs/guides/ai-assisted-development.md) when you add or rename **tutorial routes** in `elata-docs/`, change **vendor integration** entry points, or add new **published packages** that agents should discover via `llms.txt`/README.
 - Edit package READMEs for package-specific install/usage/build details.
 - Edit [docs/create-elata-demo.md](docs/create-elata-demo.md) for scaffolder workflows and caveats.
 - Edit [docs/releasing.md](docs/releasing.md) for release policy and maintainer flow.

@@ -1,11 +1,13 @@
 # Demo Scaffolding Implementation Plan
 
-Status: partially implemented historical plan
+Status: **mostly implemented** — this file is **historical design context**. Do not treat template IDs or CLI examples below as current unless they match the live CLI.
 
 Current source of truth:
 
 - `packages/create-elata-demo/index.mjs` for the live CLI
 - `docs/create-elata-demo.md` for current usage and caveats
+
+**Naming drift (important):** The live scaffolder uses canonical template IDs **`rppg-demo`**, **`eeg-demo`**, and **`eeg-ble`** (with aliases such as `rppg`, `eeg`, `ble`). Legacy names like **`rppg-web-demo`** and **`eeg-web-demo`** still resolve but are not the primary names. Examples below that say `rppg-web-demo` / `eeg-web-demo` / `eeg-web-ble-demo` reflect an older naming scheme.
 
 Notes:
 
@@ -24,17 +26,12 @@ Use the standard npm scaffolder convention for all app generators:
 - executable name: `create-<name>`
 - usage: `npm create <name>` or `npx create-<name>`
 
-Current repo convention after this cleanup:
+Implemented convention (see live CLI):
 
-- use `@elata-biosciences/create-elata-demo` as the canonical scaffolder
-- expose `rppg-web-demo`, `eeg-web-demo`, and `eeg-web-ble-demo` as templates
-- remove legacy standalone or nonstandard names in repo tooling
+- **`@elata-biosciences/create-elata-demo`** is the canonical scaffolder.
+- Templates: **`rppg-demo`**, **`eeg-demo`**, **`eeg-ble`** (plus aliases / legacy names for compatibility).
 
-If we later want a broader multi-template entry point, prefer:
-
-- `@elata-biosciences/create-elata-demo`
-
-That package can expose templates such as `rppg-web-demo`, `eeg-web-demo`, and `eeg-web-ble-demo`.
+The bullets that follow in older sections used placeholder names (`rppg-web-demo`, etc.); map them mentally to the IDs above.
 
 ## Product Direction
 
@@ -60,11 +57,11 @@ Responsibilities:
 - apply placeholder transforms such as app name and package versions
 - print next steps for install and run
 
-Suggested CLI:
+Suggested CLI (current IDs):
 
 ```bash
-npm create @elata-biosciences/elata-demo my-app -- --template rppg-web-demo
-pnpm dlx @elata-biosciences/create-elata-demo my-app --template eeg-web-ble-demo
+npm create @elata-biosciences/elata-demo my-app -- --template rppg-demo
+pnpm dlx @elata-biosciences/create-elata-demo my-app -- --template eeg-ble
 ```
 
 Deliverable:
@@ -73,11 +70,11 @@ Deliverable:
 
 ### Phase 2: Add First-Class Templates
 
-Start with a small, opinionated template set:
+Start with a small, opinionated template set (as implemented):
 
-- `rppg-web-demo`
-- `eeg-web-demo`
-- `eeg-web-ble-demo`
+- `rppg-demo`
+- `eeg-demo`
+- `eeg-ble`
 
 Each template should include:
 
@@ -98,8 +95,9 @@ Support adding a demo module into an existing codebase without creating a new ap
 Suggested CLI:
 
 ```bash
-npx @elata-biosciences/create-elata-demo inject --template rppg-web-demo --dir .
+npx @elata-biosciences/create-elata-demo inject --template rppg-demo --dir .
 ```
+*(Not implemented; `inject` remains hypothetical.)*
 
 Responsibilities:
 
@@ -153,10 +151,10 @@ For higher confidence, add smoke tests that:
 
 ## Rollout Plan
 
-1. Keep `create-elata-demo` as the single scaffold entry point.
-2. Keep `rppg-web-demo` as the default template for the first-run path.
-3. Add EEG web templates after the shared flow is proven.
-4. Update docs and release flow once the package is publishable.
+1. Keep `create-elata-demo` as the single scaffold entry point. **Done.**
+2. Default **`rppg-demo`** for non-interactive runs; interactive chooser lists all three. **Done.**
+3. EEG templates (`eeg-demo`, `eeg-ble`) ship alongside rPPG. **Done.**
+4. Package is publishable; docs live in `docs/create-elata-demo.md` and package README. **Done.**
 
 ## Open Decisions
 
@@ -168,10 +166,9 @@ Resolve these before implementation expands further:
 
 ## Recommendation
 
-Short term:
+Short term (implemented):
 
-- keep `create-elata-demo` as the only published scaffold package
-- keep `rppg-web-demo` as the default template
-- remove old standalone naming and package duplication
+- **`create-elata-demo`** is the only published scaffold package.
+- Default template **`rppg-demo`**; legacy template names still accepted by the CLI where listed in `index.mjs`.
 
-This gives us one clear user entry point and a coherent family of templates without duplicate packages.
+Open items from this plan: **`inject` mode** and optional **template/version pinning** policy remain product decisions.

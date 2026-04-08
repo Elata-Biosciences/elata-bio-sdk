@@ -2,6 +2,7 @@
 
 These guides are aimed at SDK consumers rather than repo maintainers.
 
+- [ai-assisted-development.md](ai-assisted-development.md): **map for AI agents and automation**—which `docs/` pages, `elata-docs/` tutorials, and package files to use per task (including vendors)
 - [getting-started.md](getting-started.md): the fastest way to try Elata
 - [example-apps.md](example-apps.md): open source browser apps on GitHub Pages built with the published packages
 - [choose-the-right-package.md](choose-the-right-package.md): pick the right package for your use case
