@@ -28,6 +28,7 @@
 - [DS006848 Shift-Aware Baseline](ds006848-shift-aware-baseline.md)
 - [DS006848 Calibrated Absolute Baseline](ds006848-calibrated-absolute-baseline.md)
 - [DS006848 Calibrated Family Comparison](ds006848-calibrated-family-comparison.md)
+- [DS006848 Amplitude Calibrated Benchmark](ds006848-amplitude-calibrated-benchmark.md)
 - [DS006848 Subject Quality Policy](ds006848-subject-quality-policy.md)
 - [DS006848 PPG Quality Review](ds006848-ppg-quality-review.md)
 - [DS004514 Intake Worksheet](ds004514-intake-worksheet.md)

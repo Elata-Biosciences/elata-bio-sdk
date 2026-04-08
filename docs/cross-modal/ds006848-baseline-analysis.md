@@ -135,6 +135,20 @@ Interpretation:
 - `sub-011` should not be promoted into the default full-morphology calibrated cohort yet
 - the stable near-term DS006848 calibrated path is now best described as amplitude-family first, full morphology second
 
+Current amplitude-benchmark finding:
+
+- the dedicated calibrated amplitude-family benchmark now exists on both:
+  - the original cohort-swap split
+  - the first `sub-011` expansion
+- it stays null-beating on both runs:
+  - cohort-swap aggregate relative MSE is about `0.8743`
+  - cohort-plus-sub011 aggregate relative MSE is about `0.9017`
+
+Interpretation:
+
+- the amplitude family is now the first DS006848 benchmark that survives cautious subject expansion
+- this should be treated as the active near-term benchmark, while full morphology stays as the harder secondary benchmark
+
 ## Practical conclusion
 
 The current `DS006848` result is now better characterized:
@@ -146,7 +160,8 @@ The current `DS006848` result is now better characterized:
 - the shift-aware run now shows that calibration helps enough to recover a small null-beating result in subject-normalized space
 - the calibrated-absolute run now shows that short calibration also recovers a null-beating result in real target units on the cohort-swap split
 - the first one-subject calibrated expansion now shows that full morphology is still brittle under subject expansion
-- the next best step is to stabilize the amplitude-family calibrated benchmark before widening the full morphology cohort again
+- the amplitude-family calibrated benchmark is now the stable near-term DS006848 benchmark
+- the next best step is to test one more pending-review subject against that amplitude benchmark before widening the full morphology cohort again
 
 At this point, both `DS003838` and broader `DS006848` act more like stress-test datasets than positive baselines.
 
@@ -171,6 +186,11 @@ python scripts/cross_modal/validate_ds006848_calibrated_absolute_baseline.py --c
 python scripts/cross_modal/train_ds006848_calibrated_absolute_baseline.py --config configs/cross_modal/ds006848_calibrated_absolute_baseline_cohort_plus_sub011.toml
 python scripts/cross_modal/validate_ds006848_calibrated_absolute_baseline.py --config configs/cross_modal/ds006848_calibrated_absolute_baseline_cohort_plus_sub011.toml
 python scripts/cross_modal/analyze_ds006848_calibrated_family_comparison.py --config configs/cross_modal/ds006848_calibrated_family_comparison.toml
+
+python scripts/cross_modal/train_ds006848_calibrated_absolute_baseline.py --config configs/cross_modal/ds006848_calibrated_absolute_amplitude_cohort_swap.toml
+python scripts/cross_modal/validate_ds006848_calibrated_absolute_baseline.py --config configs/cross_modal/ds006848_calibrated_absolute_amplitude_cohort_swap.toml
+python scripts/cross_modal/train_ds006848_calibrated_absolute_baseline.py --config configs/cross_modal/ds006848_calibrated_absolute_amplitude_cohort_plus_sub011.toml
+python scripts/cross_modal/validate_ds006848_calibrated_absolute_baseline.py --config configs/cross_modal/ds006848_calibrated_absolute_amplitude_cohort_plus_sub011.toml
 ```
 
 ## Artifacts
@@ -187,3 +207,4 @@ python scripts/cross_modal/analyze_ds006848_calibrated_family_comparison.py --co
 - [ds006848-shift-aware-baseline.md](ds006848-shift-aware-baseline.md)
 - [ds006848-calibrated-absolute-baseline.md](ds006848-calibrated-absolute-baseline.md)
 - [ds006848-calibrated-family-comparison.md](ds006848-calibrated-family-comparison.md)
+- [ds006848-amplitude-calibrated-benchmark.md](ds006848-amplitude-calibrated-benchmark.md)

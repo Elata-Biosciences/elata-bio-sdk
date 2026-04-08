@@ -152,6 +152,13 @@ Completed or materially implemented:
         - amplitude-family aggregate relative MSE stays below null at about `0.9017`
         - timing-family aggregate relative MSE collapses to about `4.1367`
       - `sub-011` is the dominant new timing-family failure, so it should not yet be promoted into the default full-morphology calibrated cohort
+    - the dedicated amplitude-family calibrated benchmark now also exists:
+      - it uses `amplitude_range`, `rising_edge_slope_max`, and `dominant_beat_amplitude`
+      - it remains null-beating on the cohort-swap split:
+        - aggregate relative MSE is about `0.8743`
+      - it also remains null-beating after adding `sub-011`:
+        - aggregate relative MSE is about `0.9017`
+      - this is now the first DS006848 benchmark that survives cautious subject expansion
 
 Still incomplete:
 
@@ -160,6 +167,7 @@ Still incomplete:
 - Athena internal intake and preprocessing are still incomplete.
 - There is still no broad-cohort zero-shot EEG-PPG positive baseline result; the earlier DS006848 4-subject positive check does not survive the broader 8-subject follow-up.
 - There is still no stable wider-cohort full-morphology calibrated EEG-PPG result; the first positive calibrated path survives on the cohort-swap split but not after adding `sub-011`.
+- The narrower amplitude-family calibrated benchmark is now stable under the first cautious subject expansion, but it still needs one more promotion test before it should be treated as the default program benchmark.
 
 Operational interpretation:
 
@@ -252,8 +260,8 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
 7. Treat the cohort-swap result as a real calibrated recovery, but not a zero-shot recovery.
    Replacing `sub-016` and `sub-017` with `sub-002` and `sub-035` removes the catastrophic failure mode and restores a fully clean eval cohort. On top of that split, short subject calibration now produces the first broader DS006848-style null-beating result in real units.
 
-8. Narrow the near-term DS006848 benchmark to amplitude-family calibrated targets before widening the full morphology cohort again.
-   The first one-subject expansion with `sub-011` shows that amplitude-family behavior stays below null while timing-family behavior collapses. The next experiment should either formalize the amplitude-family calibrated benchmark or test a different candidate without changing the model.
+8. Use the amplitude-family calibrated benchmark as the active DS006848 benchmark before widening the full morphology cohort again.
+   The first one-subject expansion with `sub-011` shows that amplitude-family behavior stays below null while timing-family behavior collapses. The next experiment should test one more pending-review subject against this same narrow benchmark without changing the model.
 
 9. Keep the rest branch in smoke-contract mode until the calibrated verbalwm path is stable.
    Do not treat the current 2-subject rest path as a modeling benchmark yet.
