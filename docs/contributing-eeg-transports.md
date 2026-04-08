@@ -79,8 +79,8 @@ only.
   with requirements, limitations, and setup. Do not commit API tokens or
   secrets.
 - **Consumer docs:** if behavior or install steps change for published users,
-  update the relevant guides under `docs/guides/` and mirrored Mintlify sources
-  under `external/docs-site/` when applicable.
+  update the relevant guides under `docs/guides/` and the Mintlify docs under
+  `elata-docs/` when applicable.
 - **Changesets:** for user-visible published packages, add a changeset
   (`./run.sh changeset`). See [releasing.md](releasing.md).
 

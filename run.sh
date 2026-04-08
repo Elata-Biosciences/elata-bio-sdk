@@ -1170,14 +1170,14 @@ run_demo() {
 }
 
 run_docs_site() {
-    local docs_dir="$ROOT_DIR/external/docs-site"
+    local docs_dir="$ROOT_DIR/elata-docs"
     local node_version="${ELATA_DOCS_NODE_VERSION:-22.22.1}"
     local -a mint_args=()
 
     require_package_manager
 
     if [[ ! -d "$docs_dir" ]]; then
-        die "Docs site directory not found: $docs_dir" "Expected Mintlify project at external/docs-site"
+        die "Docs site directory not found: $docs_dir" "Expected Mintlify project at elata-docs"
     fi
 
     echo "Validating Mintlify docs before launch..."

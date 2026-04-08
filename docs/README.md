@@ -4,7 +4,7 @@ Use this page to find the right document quickly.
 
 ## Operational Docs
 
-- [../external/docs-site/README.md](../external/docs-site/README.md): Mintlify docs-site source for the future `docs.elata.bio` developer portal
+- [../elata-docs/README.md](../elata-docs/README.md): Mintlify docs-site submodule for `docs.elata.bio`
 - [create-elata-demo.md](create-elata-demo.md): scaffold a new app from published templates
 - [dev_setup.md](dev_setup.md): local development setup and faster iteration tips
 - [repo-map.md](repo-map.md): repo layout, package ownership, and canonical workflows

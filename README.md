@@ -1,6 +1,6 @@
 # Elata SDK
 
-> AI-assisted integration? Start with the [getting started guide](docs/guides/getting-started.md), the [consumer guides index](docs/guides/README.md), or the [external docs site source](external/docs-site/quickstart.mdx).
+> AI-assisted integration? Start with the [getting started guide](docs/guides/getting-started.md), the [consumer guides index](docs/guides/README.md), or the [Mintlify docs submodule](elata-docs/quickstart.mdx).
 
 A cross-platform biosignal SDK spanning EEG device pipelines, browser
 transports, and rPPG processing for web and native clients.
@@ -112,7 +112,7 @@ Wrong turns to avoid:
 
 Open source browser apps that use `@elata-biosciences/eeg-web`, `eeg-web-ble`, and `rppg-web` together
 (with live GitHub Pages demos) are listed in [docs/guides/example-apps.md](docs/guides/example-apps.md).
-The Mintlify site exposes the same content as **Example applications** under `external/docs-site/example-apps.mdx`.
+The Mintlify site exposes the same content as **Example applications** under `elata-docs/sdk/guides/example-apps.mdx`.
 
 ## Packages
 
@@ -213,13 +213,13 @@ local EEG package against an app you already have.
 ## Docs Map
 
 - [docs/README.md](docs/README.md): docs index
-- [external/docs-site/README.md](external/docs-site/README.md): Mintlify docs site source for the next `docs.elata.bio`
+- [elata-docs/README.md](elata-docs/README.md): Mintlify docs site submodule for `docs.elata.bio`
 - [docs/repo-map.md](docs/repo-map.md): package ownership and repo layout
 - [docs/create-elata-demo.md](docs/create-elata-demo.md): scaffolding workflow
 - [docs/dev_setup.md](docs/dev_setup.md): local setup and iteration tips
 - [docs/guides/README.md](docs/guides/README.md): consumer guide index
 - [docs/guides/getting-started.md](docs/guides/getting-started.md): fastest path to a running app
-- [external/docs-site/example-apps.mdx](external/docs-site/example-apps.mdx): example applications (Mintlify source; rendered on the docs portal as **Example applications**)
+- [elata-docs/sdk/guides/example-apps.mdx](elata-docs/sdk/guides/example-apps.mdx): example applications on the docs portal as **Example Applications**
 - [docs/guides/choose-the-right-package.md](docs/guides/choose-the-right-package.md): package selection help
 - [docs/guides/using-eeg-in-a-browser-app.md](docs/guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
 - [docs/guides/using-web-bluetooth-with-supported-devices.md](docs/guides/using-web-bluetooth-with-supported-devices.md): browser Web Bluetooth headset flow

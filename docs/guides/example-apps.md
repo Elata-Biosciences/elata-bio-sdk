@@ -52,7 +52,7 @@ These apps use published packages from `@elata-biosciences`:
 - `@elata-biosciences/eeg-web-ble`
 - `@elata-biosciences/rppg-web`
 
-See [choose-the-right-package.md](choose-the-right-package.md). The Mintlify developer site mirrors this page as `external/docs-site/example-apps.mdx` for navigation on docs.elata.bio.
+See [choose-the-right-package.md](choose-the-right-package.md). The Mintlify developer site publishes the SDK version of this content from `elata-docs/sdk/guides/example-apps.mdx` on docs.elata.bio.
 
 ## Store assets
 

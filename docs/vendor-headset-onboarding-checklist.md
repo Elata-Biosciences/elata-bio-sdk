@@ -130,7 +130,7 @@ Update docs in the same PR:
 - user guide impact (`docs/guides/using-web-bluetooth-with-supported-devices.md`)
 - contributor guidance if expectations changed (`docs/contributing-eeg-transports.md`)
 
-If the docs site is touched, mirror updates under `external/docs-site/`.
+If the docs site is touched, update the `elata-docs/` submodule content as part of the same change.
 
 ### 7) Release prep
 
@@ -152,4 +152,3 @@ Copy this into the PR description:
 - Timestamp source (`device` or `local`):
 - Browser matrix tested:
 - Known limitations:
-

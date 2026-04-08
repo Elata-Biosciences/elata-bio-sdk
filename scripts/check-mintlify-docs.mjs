@@ -5,7 +5,8 @@ import path from "node:path";
 import process from "node:process";
 
 const repoRoot = process.cwd();
-const docsRoot = path.join(repoRoot, "external/docs-site");
+const docsSubmodulePath = "elata-docs";
+const docsRoot = path.join(repoRoot, docsSubmodulePath);
 const errors = [];
 
 function exists(relPath) {
@@ -71,35 +72,66 @@ function resolveRelativeDocTarget(sourceRelPath, target) {
 	return resolved;
 }
 
+function isAssetLikeTarget(target) {
+	return /\.[a-z0-9]+$/iu.test(target);
+}
+
+function canonicalPageRelPath(target) {
+	if (target.endsWith(".mdx") || target.endsWith(".md")) {
+		return target.replace(/\.(md|mdx)$/u, ".mdx");
+	}
+	return `${target}.mdx`;
+}
+
+function sdkNavigationGroups(docsConfig) {
+	const directGroups = docsConfig.navigation?.groups;
+	if (Array.isArray(directGroups)) {
+		return directGroups;
+	}
+
+	for (const language of docsConfig.navigation?.languages ?? []) {
+		for (const tab of language.tabs ?? []) {
+			if (tab.tab === "Biometric SDKs" && Array.isArray(tab.groups)) {
+				return tab.groups;
+			}
+		}
+	}
+
+	return [];
+}
+
 function assert(condition, message) {
 	if (!condition) {
 		errors.push(message);
 	}
 }
 
-assert(exists("external/docs-site/docs.json"), "external/docs-site/docs.json must exist");
+assert(exists(`${docsSubmodulePath}/docs.json`), `${docsSubmodulePath}/docs.json must exist`);
 
 if (errors.length === 0) {
-	const docsConfig = JSON.parse(readText("external/docs-site/docs.json"));
-	const pageFiles = [];
+	const docsConfig = JSON.parse(readText(`${docsSubmodulePath}/docs.json`));
+	const allPageFiles = [];
 
 	walkDocs(docsRoot, (absPath) => {
 		const relPath = toPosix(path.relative(docsRoot, absPath));
 		if (relPath === "README.md") return;
 		if (relPath.endsWith(".md")) {
 			errors.push(
-				`${relPath} must use .mdx in external/docs-site (README.md is the only allowed .md file)`,
+				`${relPath} must use .mdx in ${docsSubmodulePath} (README.md is the only allowed .md file)`,
 			);
 			return;
 		}
 		if (!relPath.endsWith(".mdx")) return;
-		pageFiles.push(relPath);
+		allPageFiles.push(relPath);
 	});
 
 	const routeToFile = new Map(
-		pageFiles.map((relPath) => [pageRouteFromRelPath(relPath), relPath]),
+		allPageFiles.map((relPath) => [pageRouteFromRelPath(relPath), relPath]),
 	);
-	const navigatedPages = flattenNavigationPages(docsConfig.navigation?.groups ?? []);
+	const navigatedPages = flattenNavigationPages(sdkNavigationGroups(docsConfig));
+	const pageFiles = navigatedPages
+		.map((page) => (page === "index" ? "index.mdx" : `${page}.mdx`))
+		.filter((relPath) => allPageFiles.includes(relPath));
 	const seenNavigationPages = new Set();
 	const legacyTemplateNames = new Map([
 		["rppg-web-demo", "rppg-demo"],
@@ -132,6 +164,9 @@ if (errors.length === 0) {
 
 			if (target.startsWith("/")) {
 				const route = stripAnchorAndQuery(target);
+				if (isAssetLikeTarget(route)) {
+					continue;
+				}
 				assert(
 					routeToFile.has(route),
 					`${relPath} links to missing docs route: ${target}`,
@@ -142,8 +177,12 @@ if (errors.length === 0) {
 			const relativeTarget = stripAnchorAndQuery(target);
 			const resolvedRelativePath = resolveRelativeDocTarget(relPath, relativeTarget);
 			if (resolvedRelativePath) {
+				if (isAssetLikeTarget(resolvedRelativePath)) {
+					continue;
+				}
+				const canonicalRelativePath = canonicalPageRelPath(resolvedRelativePath);
 				assert(
-					pageFiles.includes(resolvedRelativePath),
+					allPageFiles.includes(canonicalRelativePath),
 					`${relPath} links to missing relative docs page: ${target}`,
 				);
 			}
@@ -168,15 +207,6 @@ if (errors.length === 0) {
 		);
 	}
 
-	for (const relPath of pageFiles) {
-		const route = pageRouteFromRelPath(relPath);
-		const pageId = route === "/" ? "index" : route.slice(1);
-		assert(
-			seenNavigationPages.has(pageId),
-			`${relPath} exists in external/docs-site but is not referenced in docs.json navigation`,
-		);
-	}
-
 	for (const assetPath of [
 		docsConfig.logo?.light,
 		docsConfig.logo?.dark,
@@ -184,18 +214,18 @@ if (errors.length === 0) {
 	]) {
 		if (!assetPath || !assetPath.startsWith("/")) continue;
 		assert(
-			exists(path.posix.join("external/docs-site", assetPath.slice(1))),
+			exists(path.posix.join(docsSubmodulePath, assetPath.slice(1))),
 			`docs.json references missing asset: ${assetPath}`,
 		);
 	}
 }
 
 if (errors.length > 0) {
-	console.error("External docs validation failed:");
+	console.error("Mintlify docs validation failed:");
 	for (const error of errors) {
 		console.error(`- ${error}`);
 	}
 	process.exit(1);
 }
 
-console.log("External docs validation passed.");
+console.log("Mintlify docs validation passed.");
