@@ -1,6 +1,6 @@
 ---
 title: Elata SDK
-description: Build browser apps with camera rPPG first; add EEG when you need brain signals; use Web Bluetooth to connect a Muse-compatible headset.
+description: Build browser apps with camera rPPG first; add EEG when you need brain signals; use Web Bluetooth for headset transport (Muse built-in; open to more devices).
 ---
 
 Elata SDK is a mixed Rust and TypeScript monorepo for biosignal products.
@@ -38,9 +38,10 @@ only when they are the right tool.
 - **EEG** (optional, when your product needs brain signals) measures electrical
   activity from the brain using a wearable headset. In apps, that usually means
   streaming headset data, computing features such as band powers, and turning
-  those signals into app state. **Web Bluetooth** is how you connect a
-  Muse-compatible headset in supported browsers—see the BLE docs when you need
-  live headset streaming, not as a parallel “first app” to rPPG.
+  those signals into app state. **Web Bluetooth** (`eeg-web-ble` with `eeg-web`)
+  is how you connect a supported headset in Chromium-class browsers—see the BLE
+  docs when you need live headset streaming, not as a parallel “first app” to
+  rPPG.
 
 ## How Apps Typically Use Them
 
@@ -56,9 +57,10 @@ The SDK supports two sensor families in the browser:
 - **Camera-based rPPG (modern browsers + camera permissions)** — primary path
   for most evaluations and many products: run rPPG on video frames via
   WebAssembly.
-- **Muse-compatible EEG via Web Bluetooth (Chrome/Edge, secure contexts)** —
-  optional brain-signal workflow; **BLE connects the headset** to your EEG stack.
-  Muse 2, Muse S classic BLE, Muse S Athena protocol v2. Safari and iOS BLE
+- **EEG via Web Bluetooth (Chrome/Edge, secure contexts)** — optional
+  brain-signal workflow; **BLE connects the headset** to your EEG stack. **Built-in
+  support:** Muse 2, Muse S classic BLE, Muse S Athena protocol v2. Additional
+  headsets can be integrated via the same transport package. Safari and iOS BLE
   are not supported for this workflow.
 
 ## From Sensor To Package
@@ -67,7 +69,7 @@ The SDK supports two sensor families in the browser:
 | --- | --- | --- |
 | Camera-based rPPG | `@elata-biosciences/rppg-web` | `await createRppgSession({ video, ... })` |
 | EEG analysis (no live headset) | `@elata-biosciences/eeg-web` | `await initEegWasm()` + analysis functions (e.g. `band_powers`) |
-| Live Muse headset (Bluetooth enabled) | `@elata-biosciences/eeg-web` + `@elata-biosciences/eeg-web-ble` | `new BleTransport(...)` + `connect()` + `start()` |
+| Live headset over Web Bluetooth (Bluetooth enabled) | `@elata-biosciences/eeg-web` + `@elata-biosciences/eeg-web-ble` | `new BleTransport(...)` + `connect()` + `start()` |
 
 ## Recommended Reading Order
 
@@ -85,7 +87,7 @@ If you want the fastest route to value:
 Default to **camera rPPG** when you want biosignals without hardware or when
 you are still exploring the SDK. Add **EEG** when the product needs brain-signal
 features. Add **Web Bluetooth** (`eeg-web-ble` with `eeg-web`) when you need a
-**live Muse-compatible headset** in the browser.
+**live headset** in the browser (Muse built-in; [more devices](/maintainers/contributing-eeg-transports)).
 
 ## Start Here
 
@@ -98,7 +100,7 @@ features. Add **Web Bluetooth** (`eeg-web-ble` with `eeg-web`) when you need a
 | Follow end-to-end onboarding tutorials | [Build Your First Elata App](/tutorials/first-app) | Scaffold one template; next steps follow rPPG → EEG → Bluetooth |
 | rPPG integration overview (not a full walkthrough) | [rPPG In A Browser App](/guides/rppg-browser) | Starts with `createRppgSession()` and diagnostics |
 | EEG integration overview (not a full walkthrough) | [EEG In A Browser App](/guides/eeg-browser) | WASM setup, minimal snippet, package boundaries |
-| Enable Muse headset over Bluetooth (not a full walkthrough) | [Web Bluetooth With Supported Devices](/guides/web-bluetooth) | BLE transport on top of `eeg-web` |
+| Enable headset over Web Bluetooth (not a full walkthrough) | [Web Bluetooth With Supported Devices](/guides/web-bluetooth) | BLE transport on top of `eeg-web` |
 | Understand federated learning plans | [Federated Learning Roadmap And Privacy](/guides/federated-learning) | Explains roadmap direction and privacy posture |
 
 ## Published Packages
@@ -108,7 +110,7 @@ features. Add **Web Bluetooth** (`eeg-web-ble` with `eeg-web`) when you need a
 | `@elata-biosciences/create-elata-demo` | scaffolding demo apps | fastest way to get a working integration |
 | `@elata-biosciences/rppg-web` | browser rPPG processing | camera-driven rPPG with `createRppgSession()` |
 | `@elata-biosciences/eeg-web` | browser EEG WASM APIs | EEG processing + model exports (add `eeg-web-ble` for live headset) |
-| `@elata-biosciences/eeg-web-ble` | Web Bluetooth for headsets | enables Muse-compatible streaming alongside `eeg-web` |
+| `@elata-biosciences/eeg-web-ble` | Web Bluetooth for headsets | Muse built-in; extensible transport alongside `eeg-web` |
 
 ## Use The Right Workflow
 

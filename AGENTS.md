@@ -9,7 +9,7 @@ avoiding common mistakes.
 Elata SDK is a mixed Rust + TypeScript monorepo for biosignal tooling:
 
 - EEG core crates and WASM bindings
-- Web Bluetooth EEG transport
+- Web Bluetooth EEG headset transport (`eeg-web-ble`; Muse built-in, extensible)
 - rPPG processing for web
 - Native FFI layers for mobile/native clients
 - Demo scaffolding via `create-elata-demo`
@@ -39,7 +39,7 @@ docs.
 
 - `crates/`: Rust crates for EEG, rPPG, protocol support, FFI, and bridges
 - `packages/eeg-web`: TS wrapper around generated EEG WASM bindings
-- `packages/eeg-web-ble`: Web Bluetooth transport for Muse-compatible EEG devices
+- `packages/eeg-web-ble`: Web Bluetooth transport for EEG headbands — `src/transport/` (`BleTransport`) vs `src/devices/muse/` (Muse protocol); open to additional `src/devices/` modules
 - `packages/rppg-web`: TS wrapper and demo tooling for the rPPG pipeline
 - `packages/create-elata-demo`: published scaffolder for demo apps
 - `eeg-demo/`: in-repo EEG browser demo
@@ -154,6 +154,7 @@ verify more broadly than the edited file suggests.
 - Edit package READMEs for package-specific install/usage/build details.
 - Edit [docs/create-elata-demo.md](docs/create-elata-demo.md) for scaffolder workflows and caveats.
 - Edit [docs/releasing.md](docs/releasing.md) for release policy and maintainer flow.
+- Edit [docs/contributing-eeg-transports.md](docs/contributing-eeg-transports.md) when headset transport contribution expectations change.
 
 If a workflow changed in code, update the nearest doc in the same task when practical.
 

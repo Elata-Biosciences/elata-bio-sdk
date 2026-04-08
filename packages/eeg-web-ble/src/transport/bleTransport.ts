@@ -10,8 +10,8 @@ import type {
 	HeadbandTransport,
 	HeadbandTransportStatus,
 } from "@elata-biosciences/eeg-web";
-import type { AthenaAuxPacket, MuseDeviceOptions } from "./museDevice";
-import { MuseBleDevice } from "./museDevice";
+import type { AthenaAuxPacket, MuseDeviceOptions } from "../devices/muse/museDevice";
+import { MuseBleDevice } from "../devices/muse/museDevice";
 
 interface PpgPacket {
 	sequence: number;
@@ -33,7 +33,13 @@ export interface BleTransportOptions {
 	device?: BleDeviceLike;
 }
 
-interface BleDeviceLike {
+/**
+ * Contract for plugging a custom headset/device into BleTransport.
+ *
+ * Implement this in vendor adapters (e.g. src/devices/<vendor>/...) and pass
+ * it via `new BleTransport({ device })`.
+ */
+export interface BleDeviceLike {
 	isAthena: boolean;
 	samplingRate: number;
 	eegNames: string[];

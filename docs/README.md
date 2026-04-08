@@ -16,7 +16,7 @@ Use this page to find the right document quickly.
 - [guides/example-apps.md](guides/example-apps.md): open source apps using the SDK on GitHub Pages
 - [guides/choose-the-right-package.md](guides/choose-the-right-package.md): package decision guide
 - [guides/using-eeg-in-a-browser-app.md](guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
-- [guides/using-web-bluetooth-with-supported-devices.md](guides/using-web-bluetooth-with-supported-devices.md): supported browser BLE flow
+- [guides/using-web-bluetooth-with-supported-devices.md](guides/using-web-bluetooth-with-supported-devices.md): Web Bluetooth headset flow (built-in Muse; extensible)
 - [guides/using-rppg-in-a-browser-app.md](guides/using-rppg-in-a-browser-app.md): browser rPPG integration guide
 - [guides/compatibility.md](guides/compatibility.md): browser, device, and tooling expectations
 - [guides/troubleshooting.md](guides/troubleshooting.md): common failures and fixes
@@ -30,6 +30,8 @@ Use this page to find the right document quickly.
 
 - [maintainers.md](maintainers.md): maintainer-focused operational guide
 - [releasing.md](releasing.md): release, tagging, and bad-release recovery
+- [contributing-eeg-transports.md](contributing-eeg-transports.md): adding headset transports beyond the built-in Muse path
+- [vendor-headset-onboarding-checklist.md](vendor-headset-onboarding-checklist.md): step-by-step vendor onboarding checklist
 
 ## Architecture
 

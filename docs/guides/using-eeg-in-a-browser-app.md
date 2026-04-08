@@ -29,8 +29,11 @@ npm install @elata-biosciences/eeg-web
 - shared types and contracts used by higher-level browser integrations
 
 This package does not handle Bluetooth device connection by itself. If you also
-need browser BLE transport, add
-[`@elata-biosciences/eeg-web-ble`](../../packages/eeg-web-ble/README.md).
+need browser BLE headset transport, add
+[`@elata-biosciences/eeg-web-ble`](../../packages/eeg-web-ble/README.md) or
+another [`HeadbandTransport`](../../packages/eeg-web/README.md) implementation.
+For contributing new headsets, see
+[contributing-eeg-transports.md](../contributing-eeg-transports.md).
 
 ## Minimal Integration
 
@@ -49,7 +52,7 @@ console.log("alpha", powers.alpha);
 
 1. Initialize the packaged WASM runtime with `initEegWasm()`.
 2. Pass browser-side EEG sample buffers into the exported analysis functions.
-3. If you later need live device transport, combine this package with `eeg-web-ble`.
+3. If you later need live headset transport, combine this package with `eeg-web-ble` or any `HeadbandTransport`.
 
 ## When To Use The EEG Template Instead
 

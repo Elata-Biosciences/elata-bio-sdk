@@ -1,6 +1,6 @@
 ---
 title: Web Bluetooth With Supported Devices
-description: Stream Muse-compatible EEG devices from supported Chromium browsers.
+description: Web Bluetooth EEG headset transport from supported Chromium browsers; Muse built-in, extensible for more devices.
 ---
 
 Use this page if you want the transport model and platform constraints, not a
@@ -12,24 +12,42 @@ If you want the scaffold path, use [Quickstart](/quickstart).
 
 **Role in the SDK:** camera **rPPG** is the usual first app. **EEG** is optional
 when you need brain signals. **Web Bluetooth** (`eeg-web-ble` with `eeg-web`)
-**enables a live Muse-compatible headset**—it is transport for EEG, not a
-parallel primary product to rPPG.
+provides **headset transport** for the EEG stack — today with **built-in Muse**
+support, and open to **additional devices** via the same package or sibling
+integrations ([contributing guide](/maintainers/contributing-eeg-transports)).
 
-## Requirements
+## 1. Web Bluetooth and the transport layer
 
-- Chrome, or Bluefy on iOS
-- `https://` or `localhost`
-- Bluetooth enabled on the machine
-- a supported Muse-compatible EEG device
+This section is **vendor-agnostic**:
 
-Supported device classes in this repo today:
+- **Platform:** supported Chromium-class browsers, **secure context**
+  (`https://` or `localhost`), Bluetooth enabled. **Bluefy** on iOS if you stay
+  in-browser; **Safari** and the system iOS browser do **not** expose this API.
+- **Contract:** live data flows through **`HeadbandTransport`** →
+  **`HeadbandFrameV1`** from `@elata-biosciences/eeg-web`.
+- **Adapter:** **`BleTransport`** in `eeg-web-ble` implements that contract over
+  `navigator.bluetooth`. Pass a **custom `device`** or use the **default**
+  Muse implementation (§2).
+
+## 2. Built-in device support (Muse)
+
+The default `BleTransport` uses **`MuseBleDevice`** (Muse GATT: classic + Athena).
+
+**Built-in device classes in this repo today:**
 
 - Muse 2 and Muse S classic BLE devices
 - Muse S Athena protocol v2 devices
 - the synthetic Muse-compatible BLE bridge used for testing
 
-For browser BLE in this SDK, use Chrome on desktop or Android, or Bluefy on
-iOS. Do not expect Safari itself to handle this workflow.
+In the monorepo, **transport** code lives under `src/transport/` and the Muse
+protocol under `src/devices/muse/` — see [eeg-web-ble](/reference/eeg-web-ble).
+
+## Requirements
+
+- Chrome or Edge (desktop), or Chrome on Android, or Bluefy on iOS for in-browser BLE
+- `https://` or `localhost`
+- Bluetooth enabled on the machine
+- a **Muse-class** headset for the default transport, or a custom `device` you supply
 
 ## Minimal Shape
 
@@ -71,22 +89,24 @@ await transport.startStreaming();
   `start()` in one step and skips re-pairing if already connected. If you call
   `connect()` and `start()` separately, both are required — omitting `start()`
   produces silence with no error.
-- `frame.eeg.samples` is `number[][]` laid out as `[channelIdx][sampleIdx]`.
-  Each inner array is one channel. If you need interleaved format for WASM
-  models, convert manually.
+- `frame.eeg.samples` is `number[][]` laid out as `[timeIdx][channelIdx]`.
+  Each row is one time point across all channels. To get a single channel's
+  time series for `band_powers`, map across rows:
+  `new Float32Array(frame.eeg.samples.map(row => row[channelIdx]))`.
+  For a Muse headband the channel order is TP9=0, AF7=1, AF8=2, TP10=3.
 - If `navigator.bluetooth` is missing, you are likely in an unsupported browser
   or non-secure context.
 - If the device chooser never appears, confirm Bluetooth is enabled and the page
   is served from `https://` or `localhost`.
 - If Athena devices fail to decode, make sure you pass an
   `athenaDecoderFactory` backed by `@elata-biosciences/eeg-web`.
-- If you need a normal iOS browser path, plan for a native bridge or hybrid
-  strategy instead of Safari; the browser BLE guidance here assumes Bluefy on
-  iOS.
+- If you need Safari or stock iOS browser support, plan for a native bridge or hybrid
+  strategy instead of this path.
 
 ## Next Steps
 
 - Existing-app walkthrough: [Stream Muse-Compatible EEG Over Web Bluetooth](/tutorials/eeg-ble-live-stream)
 - EEG package details: [eeg-web](/reference/eeg-web)
 - BLE package details: [eeg-web-ble](/reference/eeg-web-ble)
+- Adding headsets: [Contributing EEG Transports](/maintainers/contributing-eeg-transports)
 - Platform expectations: [Compatibility](/operations/compatibility)

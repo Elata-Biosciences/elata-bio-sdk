@@ -9,7 +9,7 @@ transports, and rPPG processing for web and native clients.
 
 - EEG core crates, signal processing, and models
 - WebAssembly bindings for EEG and rPPG
-- Web Bluetooth transport for Muse-compatible EEG devices
+- Web Bluetooth EEG headset transport (`eeg-web-ble`; built-in Muse, open to more devices)
 - Native FFI layers for iOS and Android integration
 - App scaffolding and in-repo development demos
 
@@ -96,7 +96,7 @@ Use this quick guide if you are starting from an existing app:
 |------|------------|-------|
 | Scaffold a new app | [`@elata-biosciences/create-elata-demo`](https://www.npmjs.com/package/@elata-biosciences/create-elata-demo) | Fastest path for evaluation and onboarding |
 | Run EEG WASM APIs in the browser | [`@elata-biosciences/eeg-web`](https://www.npmjs.com/package/@elata-biosciences/eeg-web) | Signal processing, models, and WASM helpers |
-| Connect to a Muse-compatible EEG device in the browser | [`@elata-biosciences/eeg-web-ble`](https://www.npmjs.com/package/@elata-biosciences/eeg-web-ble) | Requires `@elata-biosciences/eeg-web` and Web Bluetooth |
+| Connect to an EEG headset over Web Bluetooth in the browser | [`@elata-biosciences/eeg-web-ble`](https://www.npmjs.com/package/@elata-biosciences/eeg-web-ble) | Requires `@elata-biosciences/eeg-web` and Web Bluetooth; Muse built-in; [extend for other headsets](docs/contributing-eeg-transports.md) |
 | Run camera-based rPPG in a browser app | [`@elata-biosciences/rppg-web`](https://www.npmjs.com/package/@elata-biosciences/rppg-web) | Includes processor, backend loader, and demo helpers |
 
 If you are trying the SDK for the first time, prefer `create-elata-demo` over
@@ -119,7 +119,7 @@ The Mintlify site exposes the same content as **Example applications** under `ex
 Scope overview: [@elata-biosciences on npm](https://www.npmjs.com/org/elata-biosciences) lists every published package in this workspace.
 
 - [@elata-biosciences/eeg-web](https://www.npmjs.com/package/@elata-biosciences/eeg-web): EEG WASM wrapper and re-export surface
-- [@elata-biosciences/eeg-web-ble](https://www.npmjs.com/package/@elata-biosciences/eeg-web-ble): Web Bluetooth transport for EEG headbands
+- [@elata-biosciences/eeg-web-ble](https://www.npmjs.com/package/@elata-biosciences/eeg-web-ble): Web Bluetooth transport for EEG headbands (Muse built-in; [contributor extensions](docs/contributing-eeg-transports.md))
 - [@elata-biosciences/rppg-web](https://www.npmjs.com/package/@elata-biosciences/rppg-web): rPPG processing wrapper and demo helpers
 - [@elata-biosciences/create-elata-demo](https://www.npmjs.com/package/@elata-biosciences/create-elata-demo): app scaffolder with multiple templates
 
@@ -135,7 +135,7 @@ Scope overview: [@elata-biosciences on npm](https://www.npmjs.com/org/elata-bios
 Browser caveats:
 
 - `eeg-web-ble` requires Web Bluetooth and an `https://` origin or `localhost`
-- for Muse browser BLE workflows, use Chrome or Bluefy on iOS; do not expect Safari itself to handle this path
+- Safari and the system iOS browser do not provide usable Web Bluetooth for this workflow; use Chrome or Edge on desktop, Chrome on Android, or **Bluefy** on iOS if you need in-browser BLE
 - `rppg-web` needs camera access and packaged WASM assets when using `loadWasmBackend()`
 
 Package docs:
@@ -219,10 +219,12 @@ local EEG package against an app you already have.
 - [docs/dev_setup.md](docs/dev_setup.md): local setup and iteration tips
 - [docs/guides/README.md](docs/guides/README.md): consumer guide index
 - [docs/guides/getting-started.md](docs/guides/getting-started.md): fastest path to a running app
-- [docs/guides/example-apps.md](docs/guides/example-apps.md): example apps on GitHub Pages
+- [external/docs-site/example-apps.mdx](external/docs-site/example-apps.mdx): example applications (Mintlify source; rendered on the docs portal as **Example applications**)
 - [docs/guides/choose-the-right-package.md](docs/guides/choose-the-right-package.md): package selection help
 - [docs/guides/using-eeg-in-a-browser-app.md](docs/guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
-- [docs/guides/using-web-bluetooth-with-supported-devices.md](docs/guides/using-web-bluetooth-with-supported-devices.md): supported browser BLE flow
+- [docs/guides/using-web-bluetooth-with-supported-devices.md](docs/guides/using-web-bluetooth-with-supported-devices.md): browser Web Bluetooth headset flow
+- [docs/contributing-eeg-transports.md](docs/contributing-eeg-transports.md): contributing new headset transports
+- [docs/vendor-headset-onboarding-checklist.md](docs/vendor-headset-onboarding-checklist.md): vendor onboarding checklist for new headset support
 - [docs/guides/using-rppg-in-a-browser-app.md](docs/guides/using-rppg-in-a-browser-app.md): browser rPPG integration guide
 - [docs/guides/compatibility.md](docs/guides/compatibility.md): browser, device, and tooling expectations
 - [docs/guides/troubleshooting.md](docs/guides/troubleshooting.md): common setup and runtime failures

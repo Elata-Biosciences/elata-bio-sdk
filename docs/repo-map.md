@@ -34,14 +34,17 @@ Use this package when you need:
 
 Owns:
 
-- browser-side Web Bluetooth transport for Muse-compatible EEG headbands
-- classic and Athena device handling
-- normalized frame emission for web clients
+- **`src/transport/`** — `BleTransport`: Web Bluetooth session + `HeadbandFrameV1` assembly
+- **`src/devices/muse/`** — `MuseBleDevice`: Muse 2 / Muse S classic + Athena GATT protocol
+- additional devices via `BleTransport({ device })` or new modules under `src/devices/`
 
 Use this package when you need:
 
 - headband connection and session lifecycle
 - browser BLE streaming of EEG frames
+
+See [contributing-eeg-transports.md](contributing-eeg-transports.md) for adding
+headsets beyond the built-in Muse path.
 
 ### `packages/rppg-web`
 

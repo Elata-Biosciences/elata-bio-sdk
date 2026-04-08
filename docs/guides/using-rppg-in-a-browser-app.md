@@ -37,7 +37,7 @@ Recommended:
 
 - Use `createRppgSession()` for browser apps.
 - Use `createManagedRppgSession()` when you want built-in restart behavior after a terminal processor failure.
-- Use `createRppgPipeline()` from `@elata-biosciences/eeg-web` only if you intentionally need low-level sample ingestion.
+- Use `RppgProcessor` only if you intentionally need low-level sample ingestion.
 
 Advanced:
 
@@ -243,9 +243,8 @@ Prefer the scaffolded `rppg-demo` template when you want:
 
 - If `session.backendMode` is `unavailable`, your app is probably not serving the packaged `pkg/` assets correctly.
 - If `session.state.status` is `failed`, treat that processor backend as terminal and recreate the session instead of continuing to poll metrics from it.
-- If you see "backend pipeline has no push_sample API", you likely bypassed the safe wrapper path. Start with `createRppgSession()` for browser apps, or `initEegWasm()` plus `createRppgPipeline()` for low-level ingestion.
-- If you hit `wasmrppgpipeline_new`, initialize the WASM module before creating low-level pipelines and avoid calling generated constructors directly.
-- If you see deprecated init warnings, route startup through `initEegWasm()` instead of forwarding raw strings, URLs, or buffers to the generated init exports.
+- If you see "backend pipeline has no push_sample API", you likely bypassed the safe wrapper path. Start with `createRppgSession()` for browser apps, or use `RppgProcessor` for low-level ingestion.
+- If you hit `wasmrppgpipeline_new`, verify your app is loading `rppg-web` WASM assets and avoid calling generated constructors directly.
 - If camera access fails, confirm the page has permission to use `getUserMedia`.
 - If `session.lastError` is non-null, use its `code` and `message` to surface the real capture or processor failure instead of retrying blindly.
 - If you are just evaluating the SDK, the scaffolded app is much faster than building the whole browser pipeline yourself.

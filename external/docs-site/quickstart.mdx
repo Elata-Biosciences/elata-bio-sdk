@@ -38,7 +38,7 @@ That is the default recommendation.
 Available templates:
 
 - `rppg-demo`: **primary** — camera-based rPPG starter app
-- `eeg-demo`: **optional** — browser EEG starter app with synthetic data and Muse-compatible Web Bluetooth support
+- `eeg-demo`: **optional** — browser EEG starter app with synthetic data and Web Bluetooth headset support (Muse built-in)
 
 If you are unsure, start with `rppg-demo`.
 
@@ -50,7 +50,7 @@ with live demos on GitHub Pages.
 | --- | --- |
 | Build the default camera-based app (no headset) | `rppg-demo` |
 | Add browser EEG without a headset yet | `eeg-demo` |
-| Turn on Bluetooth for a Muse-compatible headset (Chrome/Edge) | `eeg-ble` alias for `eeg-demo` |
+| Turn on Web Bluetooth for a headset (Chrome/Edge; Muse built-in) | `eeg-ble` alias for `eeg-demo` |
 
 ## Existing App Instead?
 
@@ -74,7 +74,7 @@ npm install @elata-biosciences/eeg-web-ble
 
 - `@elata-biosciences/rppg-web` for browser camera-based rPPG (typical first integration)
 - `@elata-biosciences/eeg-web` for browser EEG analysis APIs
-- `@elata-biosciences/eeg-web-ble` plus `eeg-web` to **enable** live Muse-compatible Bluetooth streaming
+- `@elata-biosciences/eeg-web-ble` plus `eeg-web` to **enable** live headset streaming over Web Bluetooth
 
 For the full map of where each path goes next, use [Build A Browser App](/browser-apps).
 

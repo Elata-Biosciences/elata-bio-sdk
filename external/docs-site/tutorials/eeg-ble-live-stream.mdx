@@ -27,6 +27,7 @@ You need:
 - Bluetooth enabled on the machine
 - a supported Muse-compatible device
 - `@elata-biosciences/eeg-web` installed alongside `@elata-biosciences/eeg-web-ble`
+- the EEG WASM runtime initialized before connecting (`initEegWasm()` from `eeg-web`) — `AthenaWasmDecoder` is a WASM class and will fail if the runtime is not ready
 
 Safari and iOS are not supported for this browser BLE workflow.
 
@@ -60,7 +61,7 @@ Use one module so imports, handlers, and lifecycle stay together (for example
 BLE requires a user gesture).
 
 ```ts headbandBle.ts
-import { AthenaWasmDecoder } from "@elata-biosciences/eeg-web";
+import { AthenaWasmDecoder, initEegWasm } from "@elata-biosciences/eeg-web";
 import { BleTransport } from "@elata-biosciences/eeg-web-ble";
 
 let transport: BleTransport | null = null;
@@ -84,6 +85,8 @@ export function createHeadbandTransport() {
 }
 
 export async function connectHeadband() {
+  // Initialize the EEG WASM runtime before connecting — required for AthenaWasmDecoder.
+  await initEegWasm();
   transport = createHeadbandTransport();
   try {
     await transport.startStreaming();
@@ -128,6 +131,12 @@ export async function stopHeadband() {
   transport = null;
 }
 ```
+
+**`stop()` vs `disconnect()`:** `stop()` ends the data stream but keeps the
+BLE connection alive — useful if you plan to call `startStreaming()` again
+shortly. `disconnect()` fully closes the BLE connection and removes the
+device pairing for this session. For a route or component exit, `stop()` is
+usually enough; call `disconnect()` if you want to fully release the device.
 
 If you prefer finer-grained lifecycle control, you can still call
 `connect()` and `start()` separately. The tutorial uses `startStreaming()`

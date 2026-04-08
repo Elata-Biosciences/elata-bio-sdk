@@ -87,12 +87,10 @@ function writeConsumerApp(appDir) {
 import {
   initEegWasm,
   initEegWasmSync,
-  createRppgPipeline,
 } from "@elata-biosciences/eeg-web";
 
 assert.equal(typeof initEegWasm, "function");
 assert.equal(typeof initEegWasmSync, "function");
-assert.equal(typeof createRppgPipeline, "function");
 
 console.log("[eeg-web] Consumer Node smoke passed.");
 `,

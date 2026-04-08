@@ -25,7 +25,7 @@ For open source apps that combine rPPG, EEG, and Web Bluetooth, see
 | Scaffold a new demo app | `@elata-biosciences/create-elata-demo` | recommended first step |
 | Run camera-based rPPG in a browser app | `@elata-biosciences/rppg-web` | primary integration; start with `createRppgSession()` |
 | Run EEG WASM APIs in the browser | `@elata-biosciences/eeg-web` | optional; signal processing, models, and WASM helpers |
-| Enable a Muse-compatible headset over Bluetooth | `@elata-biosciences/eeg-web-ble` | add **with** `eeg-web` |
+| Enable an EEG headset over Web Bluetooth | `@elata-biosciences/eeg-web-ble` | add **with** `eeg-web` (Muse built-in; [extend for more devices](/maintainers/contributing-eeg-transports)) |
 
 ## Camera-Based rPPG (Primary)
 
@@ -51,17 +51,18 @@ In app terms, this is the package you use when your product logic needs EEG
 features or analyses in the browser for things like meditation state, focus
 feedback, neurofeedback, or performance-style training loops.
 
-## Web Bluetooth: Enable A Muse-Compatible Headset
+## Web Bluetooth: EEG Headset Transport
 
 Use `@elata-biosciences/eeg-web-ble` when you need:
 
 - browser BLE discovery and streaming
-- normalized headband frames
-- a transport layer that plugs into the Elata EEG web stack
+- normalized headband frames (`HeadbandFrameV1`)
+- a `HeadbandTransport` that plugs into the Elata EEG web stack
 
 Install `@elata-biosciences/eeg-web` alongside it. This package **turns on
-Bluetooth** for supported headsets; it does not replace the EEG WASM APIs in
-`eeg-web`.
+Bluetooth** for supported headsets (Muse 2 / Muse S classic and Athena **built
+in**); it does not replace the EEG WASM APIs in `eeg-web`. Additional headsets
+can be integrated per [Contributing EEG Transports](/maintainers/contributing-eeg-transports).
 
 ## What This Page Is Not
 

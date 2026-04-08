@@ -24,8 +24,9 @@ Use this package when your app needs:
 - shared EEG web contracts used by higher-level integrations
 - browser-side access to Elata WASM models and signal-processing helpers
 
-If you also need live Muse-compatible browser transport, add
-`@elata-biosciences/eeg-web-ble`.
+If you also need live headset transport in the browser, add
+`@elata-biosciences/eeg-web-ble` (Muse built-in; [more devices](/maintainers/contributing-eeg-transports))
+or another `HeadbandTransport` implementation.
 
 ## Install
 
@@ -61,7 +62,7 @@ console.log(powers.alpha);
 Recommended:
 
 - Use the package helpers when they exist.
-- Add `@elata-biosciences/eeg-web-ble` if you also need browser BLE transport.
+- Add `@elata-biosciences/eeg-web-ble` if you also need browser Web Bluetooth headset transport.
 
 Advanced:
 
@@ -74,7 +75,6 @@ Advanced:
 
 - `initEegWasm`
 - `initEegWasmSync`
-- `createRppgPipeline`
 - `band_powers`
 - `WasmAlphaBumpDetector`
 - `WasmAlphaPeakModel`
@@ -84,7 +84,8 @@ Advanced:
 ## Common Misunderstanding
 
 `eeg-web` is not the package that discovers Bluetooth devices. It gives you the
-EEG runtime and analysis surface. Add `eeg-web-ble` when you need browser BLE.
+EEG runtime and analysis surface. Add `eeg-web-ble` when you need Web Bluetooth
+headset transport (or implement `HeadbandTransport` yourself).
 
 ## Build And Dev Notes
 

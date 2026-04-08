@@ -1,5 +1,5 @@
-export * from "./museDevice";
-export * from "./bleTransport";
+export * from "./devices/muse/museDevice";
+export * from "./transport/bleTransport";
 export * from "./browserCheck";
 
 // Re-exported from eeg-web for convenience — BleTransport requires

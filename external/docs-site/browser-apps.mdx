@@ -1,6 +1,6 @@
 ---
 title: Build A Browser App
-description: Start with camera rPPG; add browser EEG if you need brain signals; use Web Bluetooth to connect a Muse-compatible headset.
+description: Start with camera rPPG; add browser EEG if you need brain signals; use Web Bluetooth for headset transport (Muse built-in).
 ---
 
 Use this page when you need to choose the right path.
@@ -15,7 +15,7 @@ The recommended capability order stays the same:
 
 1. **rPPG first** for most browser apps
 2. **EEG second** when your product needs brain signals
-3. **Web Bluetooth third** when you need a live Muse-compatible headset in Chrome or Edge
+3. **Web Bluetooth third** when you need a live headset in Chrome or Edge (Muse built-in; [extensible](/maintainers/contributing-eeg-transports))
 
 ## How To Read This Site
 
@@ -35,7 +35,7 @@ This is the default browser path for most teams because it does not require a
 headset.
 
 | If you are... | Go here | Why |
-| --- | --- |
+| --- | --- | --- |
 | Starting a new app | [Quickstart](/quickstart) → `rppg-demo` | Fastest path to a known-good baseline |
 | Integrating into an existing app | [Add Camera-Based rPPG To An Existing Browser App](/tutorials/rppg-existing-app) | Numbered install → camera → session → cleanup path |
 | Learning the package model first | [rPPG In A Browser App](/guides/rppg-browser) | Short overview of `createRppgSession()` and app boundaries |
@@ -45,7 +45,7 @@ headset.
 Use EEG when your product specifically needs brain-signal analysis.
 
 | If you are... | Go here | Why |
-| --- | --- |
+| --- | --- | --- |
 | Starting a new app | [Quickstart](/quickstart) → `eeg-demo` | Proves the WASM runtime before hardware |
 | Integrating into an existing app | [Add EEG To An Existing Browser App](/tutorials/eeg-existing-app) | Numbered install → init → verify WASM path |
 | Learning the package model first | [EEG In A Browser App](/guides/eeg-browser) | Short overview of `initEegWasm()` and package boundaries |
@@ -56,8 +56,8 @@ This is not a separate primary workflow from EEG. It is the transport layer on
 top of the EEG stack.
 
 | If you are... | Go here | Why |
-| --- | --- |
-| Starting a new app | [Quickstart](/quickstart) → `eeg-ble` starter or `ble` alias | Known-good BLE reference app |
+| --- | --- | --- |
+| Starting a new app | [Quickstart](/quickstart) → `eeg-ble` alias for `eeg-demo` | Known-good BLE reference app |
 | Integrating into an existing app | [Stream Muse-Compatible EEG Over Web Bluetooth](/tutorials/eeg-ble-live-stream) | Numbered transport setup walkthrough |
 | Learning the transport model first | [Web Bluetooth With Supported Devices](/guides/web-bluetooth) | Short overview of `BleTransport` and platform constraints |
 
