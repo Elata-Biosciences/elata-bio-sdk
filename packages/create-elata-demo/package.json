@@ -39,7 +39,9 @@
   },
   "files": [
     "index.mjs",
-    "templates"
+    "templates",
+    "README.md",
+    "llms.txt"
   ],
   "publishConfig": {
     "access": "public"

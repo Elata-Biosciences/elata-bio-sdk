@@ -1,0 +1,23 @@
+# @elata-biosciences/rppg-web — context for tools and agents
+
+## Role
+Browser **rPPG** (camera photoplethysmography): WASM backend, optional MediaPipe face ROI, BPM / metrics. **Primary entrypoint: `createRppgSession()`**. Higher-level UI/gating: **`createRppgAppAdapter()`**, **`createRppgAppMonitor()`**; auto-retry failures: **`createManagedRppgSession()`**. Lower-level: **`RppgProcessor`**, **`DemoRunner`**, frame sources.
+
+## Requirements
+- **Node.js >= 20** for tooling. Browser: WebAssembly; camera via `getUserMedia` where applicable.
+- Published tarball includes **`dist/`** and **`pkg/`** (WASM). Local **`file:`** installs copy disk at install time — run `build:wasm` in the repo **before** installing if `pkg/` is missing.
+
+## Critical: WASM loading (especially Vite)
+Default loader fetches **`/pkg/rppg_wasm.js`** and **`.wasm`**. If the backend never loads, **`backendMode` is `"unavailable"`**, **`metrics.bpm` stays null**, and **no error may be thrown** — same symptom as warmup.
+
+Fixes (see README): copy `node_modules/.../rppg-web/pkg/` to **`public/pkg/`**, or use **`wasmImporter`** with a static import of `pkg/rppg_wasm.js`, or **`wasmJsUrl` / `wasmBinaryUrl`** with Vite **`?url`** imports. Vite 7 may block dynamic imports from `/public` — do not assume copying to `public/` is enough without the README patterns.
+
+## Session behavior
+- Roughly **~10 s warmup** before first BPM; during warmup diagnostics often include **`insufficient_window`**.
+- Check **`diagnostics.state`**, **`backendMode`**, and **`faceTrackingMode`** (`face_mesh` vs `video_frame` when `faceMesh: "auto"`).
+
+## Related
+If a project uses both **`rppg-web`** and **`eeg-web`**, prefer **matching published versions** unless release notes say otherwise.
+
+## Source of truth
+https://github.com/Elata-Biosciences/elata-bio-sdk/tree/main/packages/rppg-web

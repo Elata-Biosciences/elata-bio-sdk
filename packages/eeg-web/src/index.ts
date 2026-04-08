@@ -1,3 +1,8 @@
+/**
+ * Elata EEG WebAssembly bindings for the browser: WASM init, headband frame types,
+ * and transport-facing helpers. Prefer `initEegWasm` / `initEegWasmSync` over
+ * importing the raw wasm module directly.
+ */
 import initWasm, { initSync as initSyncWasm } from "../wasm/eeg_wasm.js";
 import * as wasm from "../wasm/eeg_wasm.js";
 import type {
@@ -43,6 +48,11 @@ function normalizeInitEegWasmSyncInput(
 	return { module };
 }
 
+/**
+ * Loads and initializes the EEG WASM module once (singleton). Pass a URL string,
+ * `fetch` Response, or `{ module_or_path }` as required by your bundler’s asset
+ * handling.
+ */
 export async function initEegWasm(
 	moduleOrPath?: EegWasmInitOptions | InitInput | Promise<InitInput>,
 ): Promise<InitOutput> {
@@ -52,6 +62,10 @@ export async function initEegWasm(
 	return initPromise;
 }
 
+/**
+ * Synchronous WASM init when the module bytes are already available (e.g. inlined
+ * `ArrayBuffer`). Prefer {@link initEegWasm} for typical app bundling.
+ */
 export function initEegWasmSync(
 	module: EegWasmSyncInitOptions | SyncInitInput,
 ): InitOutput {

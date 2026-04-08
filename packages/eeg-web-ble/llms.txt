@@ -1,0 +1,25 @@
+# @elata-biosciences/eeg-web-ble — context for tools and agents
+
+## Role
+Web Bluetooth transport for supported EEG headbands (built-in **Muse 2 / Muse S classic / Muse S Athena** under `MuseBleDevice`). **`BleTransport`** implements `HeadbandTransport` and emits normalized **`HeadbandFrameV1`** for `@elata-biosciences/eeg-web`. Custom headsets: implement **`BleDeviceLike`** and pass `new BleTransport({ device })`.
+
+## Requirements
+- Install **both** `@elata-biosciences/eeg-web-ble` and **`@elata-biosciences/eeg-web`** (peer).
+- **Chromium-class browser** with Web Bluetooth (typically Chrome or Edge). **Safari / iOS** do not support this browser BLE workflow — use native or bridge strategies; see package README.
+- **Secure context** (`https://` or `localhost`) and user gesture for device selection.
+- **Node.js >= 20** for local builds/tests.
+
+## Muse S Athena
+**Muse S Athena (protocol v2)** needs **`athenaDecoderFactory: () => new AthenaWasmDecoder()`** in `deviceOptions` (import `AthenaWasmDecoder` from **`eeg-web`**). Classic Muse traffic does not use that decoder. If you use the default `MuseBleDevice` without a custom `device`, omitting `athenaDecoderFactory` triggers a **constructor warning** and Athena streams will not decode.
+
+## Typical flow
+```ts
+const transport = new BleTransport({ deviceOptions: { athenaDecoderFactory: () => new AthenaWasmDecoder() } });
+transport.onFrame = (frame) => { /* HeadbandFrameV1 */ };
+transport.onStatus = (status) => { /* transport state */ };
+await transport.connect(); await transport.start();
+```
+Use **`browserCheck`** (exported from package root) for capability / secure-context checks where appropriate.
+
+## Source of truth
+https://github.com/Elata-Biosciences/elata-bio-sdk/tree/main/packages/eeg-web-ble

@@ -316,6 +316,11 @@ export class RppgSession {
 	}
 }
 
+/**
+ * Primary browser entrypoint for the rPPG pipeline: wires camera → ROI → WASM
+ * backend → {@link RppgSession}. Configure WASM loading with `wasmImporter` or
+ * `wasmJsUrl` / `wasmBinaryUrl` when your bundler cannot resolve default paths.
+ */
 export async function createRppgSession(
 	options: CreateRppgSessionOptions,
 ): Promise<RppgSession> {

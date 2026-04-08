@@ -1,3 +1,8 @@
+/**
+ * Elata rPPG for the browser: camera-based pulse estimation, WASM backend, and
+ * session helpers. Prefer {@link createRppgSession} for new apps; see `llms.txt`
+ * in the package root for constraints (secure context, Vite WASM patterns).
+ */
 export {
 	RppgProcessor,
 	MuseCalibrationModel,
