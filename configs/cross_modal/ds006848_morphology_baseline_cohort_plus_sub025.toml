@@ -1,0 +1,32 @@
+[baseline]
+dataset = "reports/cross_modal/ds006848/ds006848_phase2_cohort_plus_sub025_windows.npz"
+metadata = "reports/cross_modal/ds006848/ds006848_phase2_cohort_plus_sub025_windows_metadata.json"
+targets = "reports/cross_modal/ds006848/ds006848_cohort_plus_sub025_target_arrays.npz"
+ridge_lambda = 1000.0
+feature_branches = ["eeg_event_windows", "eeg_clean_windows"]
+target_names = [
+  "mean_ibi_seconds",
+  "amplitude_range",
+  "rising_edge_slope_max",
+  "dominant_beat_amplitude",
+  "dominant_beat_rise_time_seconds",
+  "dominant_beat_width_seconds",
+]
+aggregate_target_names = [
+  "amplitude_range",
+  "rising_edge_slope_max",
+  "dominant_beat_amplitude",
+  "dominant_beat_rise_time_seconds",
+  "dominant_beat_width_seconds",
+]
+min_train_windows_per_target = 950
+min_eval_windows_per_target = 1200
+
+[expected]
+train_windows = 1024
+eval_windows = 1280
+branch_names = ["eeg_event_windows", "eeg_clean_windows"]
+
+[paths]
+report = "reports/cross_modal/ds006848/ds006848_cohort_plus_sub025_morphology_baseline_report.md"
+metrics = "reports/cross_modal/ds006848/ds006848_cohort_plus_sub025_morphology_baseline_metrics.json"

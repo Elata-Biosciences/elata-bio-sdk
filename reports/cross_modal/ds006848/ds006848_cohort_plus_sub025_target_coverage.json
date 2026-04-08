@@ -1,0 +1,465 @@
+{
+  "kind": "ds006848_target_coverage",
+  "config_path": "configs/cross_modal/ds006848_targets_cohort_plus_sub025.toml",
+  "runtime_sec": 0.9877233000006527,
+  "peak_memory_mb": 1.8663568496704102,
+  "source_dataset": "reports/cross_modal/ds006848/ds006848_phase2_cohort_plus_sub025_windows.npz",
+  "source_branch": "ppg_clean_windows",
+  "window_count": 2304,
+  "quality_pass_counts": {
+    "train": 1024,
+    "eval": 1280
+  },
+  "target_names": [
+    "ppg_peak_count",
+    "mean_ibi_seconds",
+    "amplitude_range",
+    "rising_edge_slope_max",
+    "dominant_beat_amplitude",
+    "dominant_beat_rise_time_seconds",
+    "dominant_beat_width_seconds",
+    "dominant_beat_fall_time_seconds",
+    "dominant_beat_peak_time_seconds",
+    "dominant_beat_notch_delay_seconds"
+  ],
+  "per_target": {
+    "ppg_peak_count": {
+      "total_valid": 2304,
+      "train_valid": 1024,
+      "eval_valid": 1280,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-013": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-015": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-002": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-025": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "mean_ibi_seconds": {
+      "total_valid": 2304,
+      "train_valid": 1024,
+      "eval_valid": 1280,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-013": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-015": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-002": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-025": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "amplitude_range": {
+      "total_valid": 2304,
+      "train_valid": 1024,
+      "eval_valid": 1280,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-013": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-015": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-002": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-025": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "rising_edge_slope_max": {
+      "total_valid": 2304,
+      "train_valid": 1024,
+      "eval_valid": 1280,
+      "train_valid_fraction": 1.0,
+      "eval_valid_fraction": 1.0,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-013": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-015": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-002": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-025": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "dominant_beat_amplitude": {
+      "total_valid": 2292,
+      "train_valid": 1019,
+      "eval_valid": 1273,
+      "train_valid_fraction": 0.9951171875,
+      "eval_valid_fraction": 0.99453125,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 252
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-013": {
+          "split": "train",
+          "valid": 255
+        },
+        "sub-015": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-002": {
+          "split": "eval",
+          "valid": 252
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-025": {
+          "split": "eval",
+          "valid": 253
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "dominant_beat_rise_time_seconds": {
+      "total_valid": 2292,
+      "train_valid": 1019,
+      "eval_valid": 1273,
+      "train_valid_fraction": 0.9951171875,
+      "eval_valid_fraction": 0.99453125,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 252
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-013": {
+          "split": "train",
+          "valid": 255
+        },
+        "sub-015": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-002": {
+          "split": "eval",
+          "valid": 252
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-025": {
+          "split": "eval",
+          "valid": 253
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "dominant_beat_width_seconds": {
+      "total_valid": 2292,
+      "train_valid": 1019,
+      "eval_valid": 1273,
+      "train_valid_fraction": 0.9951171875,
+      "eval_valid_fraction": 0.99453125,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 252
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-013": {
+          "split": "train",
+          "valid": 255
+        },
+        "sub-015": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-002": {
+          "split": "eval",
+          "valid": 252
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-025": {
+          "split": "eval",
+          "valid": 253
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "dominant_beat_fall_time_seconds": {
+      "total_valid": 2292,
+      "train_valid": 1019,
+      "eval_valid": 1273,
+      "train_valid_fraction": 0.9951171875,
+      "eval_valid_fraction": 0.99453125,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 252
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-013": {
+          "split": "train",
+          "valid": 255
+        },
+        "sub-015": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-002": {
+          "split": "eval",
+          "valid": 252
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-025": {
+          "split": "eval",
+          "valid": 253
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "dominant_beat_peak_time_seconds": {
+      "total_valid": 2292,
+      "train_valid": 1019,
+      "eval_valid": 1273,
+      "train_valid_fraction": 0.9951171875,
+      "eval_valid_fraction": 0.99453125,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 252
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-013": {
+          "split": "train",
+          "valid": 255
+        },
+        "sub-015": {
+          "split": "train",
+          "valid": 256
+        },
+        "sub-002": {
+          "split": "eval",
+          "valid": 252
+        },
+        "sub-007": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-012": {
+          "split": "eval",
+          "valid": 256
+        },
+        "sub-025": {
+          "split": "eval",
+          "valid": 253
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 256
+        }
+      }
+    },
+    "dominant_beat_notch_delay_seconds": {
+      "total_valid": 87,
+      "train_valid": 55,
+      "eval_valid": 32,
+      "train_valid_fraction": 0.0537109375,
+      "eval_valid_fraction": 0.025,
+      "by_subject": {
+        "sub-001": {
+          "split": "train",
+          "valid": 28
+        },
+        "sub-010": {
+          "split": "train",
+          "valid": 26
+        },
+        "sub-015": {
+          "split": "train",
+          "valid": 1
+        },
+        "sub-002": {
+          "split": "eval",
+          "valid": 19
+        },
+        "sub-025": {
+          "split": "eval",
+          "valid": 12
+        },
+        "sub-035": {
+          "split": "eval",
+          "valid": 1
+        }
+      }
+    }
+  }
+}

@@ -443,6 +443,22 @@ Practical reading:
   - timing-family aggregate relative MSE rises to about `4.1367`
 - `sub-011` is the dominant new timing-family failure and should stay pending review for the default full-morphology calibrated cohort
 
+## Second one-subject calibrated amplitude stress test
+
+- a second one-subject calibrated amplitude stress test now exists on top of the same reviewed-train cohort
+- the expansion adds `sub-025` to eval while keeping `sub-011` out
+- the expanded data path stays fully clean:
+  - `2304 / 2304` quality-pass windows
+  - `1273` eval-valid dominant-beat windows
+- the narrowed amplitude-family calibrated benchmark still beats null:
+  - calibrated amplitude aggregate relative MSE is about `0.8753`
+  - aggregate delta relative MSE is about `-0.1247`
+- per-target reading stays consistent:
+  - `amplitude_range` beats null
+  - `rising_edge_slope_max` beats null
+  - `dominant_beat_amplitude` remains slightly worse than null
+- `sub-025` should stay pending for the default full-morphology calibrated cohort because waveform amplitude remains weak, but it no longer blocks the narrower amplitude-family benchmark
+
 ## Next actions
 
 1. Keep the broader slice-analysis pass and explicit subject-quality policy as the reference for what to watch: amplitude-family concentration, eval quality attrition, and subject-specific failure.
@@ -453,7 +469,9 @@ Practical reading:
 3. Treat the first one-subject expansion as a boundary marker:
    - `sub-011` should not yet be promoted into the default full-morphology calibrated cohort
    - amplitude-family calibrated behavior is more stable than the full morphology aggregate under this expansion
-4. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
+4. Treat the `sub-025` amplitude stress test as confirmation that the narrowed amplitude-family benchmark is now stable under both timing-heavy and weak-amplitude subject expansions.
+5. Freeze the narrowed DS006848 amplitude-family calibrated benchmark as the active development benchmark and compare the next model class against that fixed split before widening the full-morphology cohort again.
+6. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
 
 ## Commands
 

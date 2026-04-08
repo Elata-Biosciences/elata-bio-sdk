@@ -158,7 +158,10 @@ Completed or materially implemented:
         - aggregate relative MSE is about `0.8743`
       - it also remains null-beating after adding `sub-011`:
         - aggregate relative MSE is about `0.9017`
-      - this is now the first DS006848 benchmark that survives cautious subject expansion
+      - it also remains null-beating after adding the weak-amplitude `sub-025` stress-test subject:
+        - aggregate relative MSE is about `0.8753`
+      - `sub-025` should still stay pending for the default full-morphology cohort, but it no longer breaks the narrowed amplitude-family path
+      - this is now the first DS006848 benchmark that survives two cautious subject expansions
 
 Still incomplete:
 
@@ -167,7 +170,7 @@ Still incomplete:
 - Athena internal intake and preprocessing are still incomplete.
 - There is still no broad-cohort zero-shot EEG-PPG positive baseline result; the earlier DS006848 4-subject positive check does not survive the broader 8-subject follow-up.
 - There is still no stable wider-cohort full-morphology calibrated EEG-PPG result; the first positive calibrated path survives on the cohort-swap split but not after adding `sub-011`.
-- The narrower amplitude-family calibrated benchmark is now stable under the first cautious subject expansion, but it still needs one more promotion test before it should be treated as the default program benchmark.
+- The narrower amplitude-family calibrated benchmark is now stable under two cautious subject expansions, but it is still only a calibrated benchmark, not a zero-shot claim and not a full-morphology result.
 
 Operational interpretation:
 
@@ -220,8 +223,8 @@ Current execution note as of March 23, 2026:
 
 Given the EEG-PPG pivot, the recommended near-term sequence is:
 
-1. Treat the current DS006848 cohort-swap split as the active full-morphology calibrated EEG-PPG development path.
-   Keep the broader reviewed split as the hard stress test, the 2-subject verbalwm path as the smoke contract, and the earlier 4-subject result as historical only.
+1. Treat the DS006848 amplitude-family calibrated benchmark as the active EEG-PPG development path.
+   Keep the cohort-swap full-morphology calibrated path as the harder secondary benchmark, the broader reviewed split as the stress test, the 2-subject verbalwm path as the smoke contract, and the earlier 4-subject result as historical only.
 
 2. Stop treating the current EEG-PPG branch as a zero-shot modeling problem.
    The strongest current result is now subject-calibrated, not zero-shot.
@@ -240,6 +243,7 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    - `sub-017` is `borderline_review`
    - `sub-002` and `sub-035` are the strongest current promotion candidates
    - `sub-011` should stay `pending_review` for the full-morphology calibrated path
+   - `sub-025` should stay `pending_review` for the full-morphology calibrated path even though it now passes the narrower amplitude-family stress test
    - the remaining verbalwm subjects stay `pending_review` until a calibrated follow-up justifies promotion
 
 5. Treat the current 2-subject DS006848 rest path as a target-complete smoke contract, not a benchmark yet.
@@ -253,7 +257,7 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    Current evidence now says:
    - strongest pending-review promotion candidates: `sub-002`, `sub-035`
    - verbalwm-only secondary candidate: `sub-011`
-   - keep `sub-025` pending
+   - keep `sub-025` pending for full morphology, but no longer as a blocker for the narrowed amplitude benchmark
    - keep `sub-016` as `stress_test_only`
    - keep `sub-017` as `borderline_review`
 
@@ -261,7 +265,7 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    Replacing `sub-016` and `sub-017` with `sub-002` and `sub-035` removes the catastrophic failure mode and restores a fully clean eval cohort. On top of that split, short subject calibration now produces the first broader DS006848-style null-beating result in real units.
 
 8. Use the amplitude-family calibrated benchmark as the active DS006848 benchmark before widening the full morphology cohort again.
-   The first one-subject expansion with `sub-011` shows that amplitude-family behavior stays below null while timing-family behavior collapses. The next experiment should test one more pending-review subject against this same narrow benchmark without changing the model.
+   The `sub-011` and `sub-025` expansions show that amplitude-family behavior stays below null under both a timing-heavy and a weak-amplitude stress test. The next experiment should hold this cohort fixed and compare a slightly richer amplitude-only model against the existing calibrated linear baseline.
 
 9. Keep the rest branch in smoke-contract mode until the calibrated verbalwm path is stable.
    Do not treat the current 2-subject rest path as a modeling benchmark yet.

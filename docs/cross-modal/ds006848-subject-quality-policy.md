@@ -102,7 +102,8 @@ What it added:
 
 - the strongest pending-review promotion candidates are now `sub-002` and `sub-035`
 - `sub-011` was a reasonable verbalwm-only secondary candidate, but the first calibrated expansion now shows it should stay pending for the default full-morphology calibrated cohort
-- `sub-025` should stay pending because morphology amplitude remains weak even though the coarse quality-pass rate stays high
+- `sub-025` should stay pending for the default full-morphology calibrated cohort because morphology amplitude remains weak even though the coarse quality-pass rate stays high
+- the second calibrated amplitude stress test now shows that `sub-025` does not break the narrower amplitude-family benchmark
 
 Operational reading:
 
@@ -113,4 +114,7 @@ Operational reading:
 - the first one-subject calibrated expansion also justifies caution:
   - adding `sub-011` keeps the data path fully clean
   - but it breaks the full-morphology calibrated aggregate, with the failure concentrated in dominant-beat timing targets
-- use the waveform-quality review plus the calibrated expansion result to decide the next amplitude-family-first experiment rather than promoting subjects blindly
+- the second one-subject amplitude stress test sharpens that reading:
+  - adding `sub-025` keeps the data path fully clean
+  - and the narrowed amplitude-family calibrated benchmark stays below null
+- use the waveform-quality review plus the completed `sub-011` and `sub-025` calibrated expansions to decide the next model comparison rather than promoting subjects blindly

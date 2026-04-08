@@ -149,6 +149,29 @@ Interpretation:
 - the amplitude family is now the first DS006848 benchmark that survives cautious subject expansion
 - this should be treated as the active near-term benchmark, while full morphology stays as the harder secondary benchmark
 
+Current cohort-plus-sub025 finding:
+
+- a second one-subject amplitude stress test now exists on top of the same reviewed-train cohort
+- it adds `sub-025` to eval while keeping `sub-011` out
+- the expanded data path stays fully clean:
+  - `2304 / 2304` quality-pass windows
+  - `1273` eval-valid dominant-beat windows
+- the narrowed amplitude-family calibrated benchmark still beats null:
+  - aggregate relative MSE is about `0.8753`
+  - aggregate delta relative MSE is about `-0.1247`
+- per-target reading stays consistent:
+  - `amplitude_range` beats null
+  - `rising_edge_slope_max` beats null
+  - `dominant_beat_amplitude` remains slightly worse than null
+
+Interpretation:
+
+- `sub-025` should still stay pending for the full-morphology calibrated cohort because waveform amplitude remains weak
+- but `sub-025` no longer blocks the narrowed amplitude-family benchmark
+- the amplitude-family benchmark has now survived both:
+  - a timing-heavy stress test through `sub-011`
+  - a weak-amplitude stress test through `sub-025`
+
 ## Practical conclusion
 
 The current `DS006848` result is now better characterized:
@@ -160,8 +183,8 @@ The current `DS006848` result is now better characterized:
 - the shift-aware run now shows that calibration helps enough to recover a small null-beating result in subject-normalized space
 - the calibrated-absolute run now shows that short calibration also recovers a null-beating result in real target units on the cohort-swap split
 - the first one-subject calibrated expansion now shows that full morphology is still brittle under subject expansion
-- the amplitude-family calibrated benchmark is now the stable near-term DS006848 benchmark
-- the next best step is to test one more pending-review subject against that amplitude benchmark before widening the full morphology cohort again
+- the amplitude-family calibrated benchmark is now stable under two cautious subject expansions
+- the next best step is to keep that amplitude benchmark fixed and compare a slightly richer amplitude-only model against the current calibrated linear baseline before widening the full morphology cohort again
 
 At this point, both `DS003838` and broader `DS006848` act more like stress-test datasets than positive baselines.
 

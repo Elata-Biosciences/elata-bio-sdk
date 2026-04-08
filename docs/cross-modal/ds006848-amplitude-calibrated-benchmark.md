@@ -55,6 +55,13 @@ After adding `sub-011` to eval:
 - calibrated aggregate relative MSE: about `0.9017`
 - aggregate delta relative MSE: about `-0.0983`
 
+After adding the weak-amplitude `sub-025` stress-test subject to eval:
+
+- best branch: `eeg_clean_windows`
+- calibrated aggregate relative MSE: about `0.8753`
+- aggregate delta relative MSE: about `-0.1247`
+- this is effectively unchanged from the original cohort-swap run and slightly stronger than the `sub-011` expansion
+
 Per-target reading on both runs:
 
 - `amplitude_range` beats null
@@ -66,9 +73,11 @@ Per-target reading on both runs:
 This is the first DS006848 benchmark that is both:
 
 - subject-calibrated
-- stable under the first cautious cohort expansion
+- stable under two cautious cohort expansions
 
-That makes it the right near-term benchmark for EEG-to-PPG work in this repo.
+`sub-011` still blocks promotion into the default full-morphology calibrated cohort, and `sub-025` should still stay pending for full morphology because its waveform amplitude is weak. But neither subject now breaks the narrowed amplitude-family benchmark.
+
+That makes this the right active benchmark for EEG-to-PPG work in this repo.
 
 ## Commands
 
@@ -78,6 +87,9 @@ python scripts/cross_modal/validate_ds006848_calibrated_absolute_baseline.py --c
 
 python scripts/cross_modal/train_ds006848_calibrated_absolute_baseline.py --config configs/cross_modal/ds006848_calibrated_absolute_amplitude_cohort_plus_sub011.toml
 python scripts/cross_modal/validate_ds006848_calibrated_absolute_baseline.py --config configs/cross_modal/ds006848_calibrated_absolute_amplitude_cohort_plus_sub011.toml
+
+python scripts/cross_modal/train_ds006848_calibrated_absolute_baseline.py --config configs/cross_modal/ds006848_calibrated_absolute_amplitude_cohort_plus_sub025.toml
+python scripts/cross_modal/validate_ds006848_calibrated_absolute_baseline.py --config configs/cross_modal/ds006848_calibrated_absolute_amplitude_cohort_plus_sub025.toml
 ```
 
 ## Artifacts
@@ -88,3 +100,6 @@ python scripts/cross_modal/validate_ds006848_calibrated_absolute_baseline.py --c
 - [../../configs/cross_modal/ds006848_calibrated_absolute_amplitude_cohort_plus_sub011.toml](../../configs/cross_modal/ds006848_calibrated_absolute_amplitude_cohort_plus_sub011.toml)
 - [../../reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_calibrated_absolute_amplitude_metrics.json](../../reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_calibrated_absolute_amplitude_metrics.json)
 - [../../reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_calibrated_absolute_amplitude_report.md](../../reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_calibrated_absolute_amplitude_report.md)
+- [../../configs/cross_modal/ds006848_calibrated_absolute_amplitude_cohort_plus_sub025.toml](../../configs/cross_modal/ds006848_calibrated_absolute_amplitude_cohort_plus_sub025.toml)
+- [../../reports/cross_modal/ds006848/ds006848_cohort_plus_sub025_calibrated_absolute_amplitude_metrics.json](../../reports/cross_modal/ds006848/ds006848_cohort_plus_sub025_calibrated_absolute_amplitude_metrics.json)
+- [../../reports/cross_modal/ds006848/ds006848_cohort_plus_sub025_calibrated_absolute_amplitude_report.md](../../reports/cross_modal/ds006848/ds006848_cohort_plus_sub025_calibrated_absolute_amplitude_report.md)
