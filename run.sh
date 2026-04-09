@@ -335,6 +335,7 @@ verify_rust_crate_can_package() {
     local crate="$1"
     local prereqs
 
+    RUST_PACKAGE_CHECK_MODE="package"
     prereqs="$(rust_release_prereqs_for "$crate")" || return 1
     if [[ -z "$prereqs" ]]; then
         cargo package -p "$crate" --allow-dirty --offline
@@ -350,8 +351,10 @@ verify_rust_crate_can_package() {
     done
 
     if [[ "$missing" -eq 1 ]]; then
+        RUST_PACKAGE_CHECK_MODE="check-skip-prereq"
         cargo check -p "$crate"
     else
+        RUST_PACKAGE_CHECK_MODE="package"
         cargo package -p "$crate" --allow-dirty --offline
     fi
 }
@@ -359,17 +362,75 @@ verify_rust_crate_can_package() {
 rust_release_check_for_target() {
     local raw_target="${1:-all}"
     local target
-    local crate
+    local crate docs_rc package_rc package_mode failed=0
+    local docs_pass=0 docs_fail=0 package_pass=0 package_fail=0 package_skip=0
+    local c_reset="" c_bold="" c_cyan="" c_green="" c_yellow="" c_red=""
+    local -a check_summaries=()
 
     target="$(normalize_rust_release_target "$raw_target")" || exit 1
     require_cmds cargo rg
+    if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+        c_reset=$'\033[0m'
+        c_bold=$'\033[1m'
+        c_cyan=$'\033[36m'
+        c_green=$'\033[32m'
+        c_yellow=$'\033[33m'
+        c_red=$'\033[31m'
+    fi
 
     for crate in $(rust_release_targets_for "$target"); do
         echo "Checking Rust crate docs for ${crate}..."
+        set +e
         verify_rust_crate_docs "$crate"
+        docs_rc=$?
+        set -e
+        if [[ "$docs_rc" -eq 0 ]]; then
+            docs_pass=$((docs_pass + 1))
+            check_summaries+=("PASS  ${crate} docs")
+        else
+            docs_fail=$((docs_fail + 1))
+            failed=1
+            check_summaries+=("FAIL  ${crate} docs")
+            check_summaries+=("SKIP  ${crate} publishability (docs check failed)")
+            package_skip=$((package_skip + 1))
+            continue
+        fi
+
         echo "Checking Rust crate publishability for ${crate}..."
+        set +e
         verify_rust_crate_can_package "$crate"
+        package_rc=$?
+        package_mode="${RUST_PACKAGE_CHECK_MODE:-package}"
+        set -e
+        if [[ "$package_rc" -ne 0 ]]; then
+            package_fail=$((package_fail + 1))
+            failed=1
+            check_summaries+=("FAIL  ${crate} publishability")
+        elif [[ "$package_mode" == "check-skip-prereq" ]]; then
+            package_skip=$((package_skip + 1))
+            check_summaries+=("SKIP  ${crate} publishability (prerequisite crate(s) not on crates.io; ran cargo check)")
+        else
+            package_pass=$((package_pass + 1))
+            check_summaries+=("PASS  ${crate} publishability")
+        fi
     done
+
+    printf "\n${c_bold}${c_cyan}Rust release-check summary${c_reset}\n"
+    printf "  Docs checks: %s%d passed%s, %s%d failed%s\n" "$c_green" "$docs_pass" "$c_reset" "$c_red" "$docs_fail" "$c_reset"
+    printf "  Publish checks: %s%d passed%s, %s%d skipped%s, %s%d failed%s\n" "$c_green" "$package_pass" "$c_reset" "$c_yellow" "$package_skip" "$c_reset" "$c_red" "$package_fail" "$c_reset"
+    local summary_line=""
+    for summary_line in "${check_summaries[@]}"; do
+        case "$summary_line" in
+            PASS\ *) printf "  ${c_green}%s${c_reset}\n" "$summary_line" ;;
+            SKIP\ *) printf "  ${c_yellow}%s${c_reset}\n" "$summary_line" ;;
+            FAIL\ *) printf "  ${c_red}%s${c_reset}\n" "$summary_line" ;;
+            *) printf "  %s\n" "$summary_line" ;;
+        esac
+    done
+
+    if [[ "$failed" -ne 0 ]]; then
+        return 1
+    fi
 }
 
 publish_rust_crates() {
