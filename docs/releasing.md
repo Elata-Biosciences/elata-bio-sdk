@@ -84,6 +84,15 @@ Example publish commands:
 ./run.sh rust-publish elata-eeg-models
 ```
 
+`./run.sh rust-publish ...` supports token-based auth via `CRATES_TOKEN` in the
+repo-root `.env` (mapped to `CARGO_REGISTRY_TOKEN` for `cargo publish`), or a
+pre-set `CARGO_REGISTRY_TOKEN` environment variable.
+
+`./run.sh rust-publish ...` also mirrors the npm release ergonomics: it runs
+`rust-release-check`, publishes in dependency order, commits detected Rust
+version-file updates, creates crate-scoped tags (`<crate>-vX.Y.Z`), and pushes
+the commit/tags.
+
 ## Release workflow (maintainers)
 
 1. **Apply changesets** (bump versions and update CHANGELOGs):

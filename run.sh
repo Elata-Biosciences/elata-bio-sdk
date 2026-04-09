@@ -98,6 +98,41 @@ ensure_npm_token_from_dotenv() {
     done <"$env_file"
 }
 
+ensure_crates_token_from_dotenv() {
+    if [[ -n "${CRATES_TOKEN:-}" || -n "${CARGO_REGISTRY_TOKEN:-}" ]]; then
+        return 0
+    fi
+    local env_file="$ROOT_DIR/.env"
+    if [[ ! -f "$env_file" ]]; then
+        return 0
+    fi
+    local line key val
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        line="${line#"${line%%[![:space:]]*}"}"
+        line="${line%"${line##*[![:space:]]}"}"
+        [[ -z "$line" || "$line" == \#* ]] && continue
+        if [[ "$line" == export\ * ]]; then
+            line="${line#export }"
+        fi
+        [[ "$line" == *"="* ]] || continue
+        key="${line%%=*}"
+        val="${line#*=}"
+        if [[ "$key" != "CRATES_TOKEN" && "$key" != "crates_token" ]]; then
+            continue
+        fi
+        val="${val%$'\r'}"
+        if [[ "$val" == \"*\" ]]; then
+            val="${val#\"}"
+            val="${val%\"}"
+        elif [[ "$val" == \'*\' ]]; then
+            val="${val#\'}"
+            val="${val%\'}"
+        fi
+        export CRATES_TOKEN="$val"
+        return 0
+    done <"$env_file"
+}
+
 # Apply registry auth only when NPM_TOKEN is set. Avoids ${NPM_TOKEN} in repo .npmrc,
 # which makes pnpm warn on every command when the variable is unset.
 with_npm_registry_auth() {
@@ -113,6 +148,29 @@ with_npm_registry_auth() {
         unset NPM_CONFIG_USERCONFIG
         rm -f "$user_npmrc"
     fi
+    return "$rc"
+}
+
+with_cargo_registry_auth() {
+    local previous_token="${CARGO_REGISTRY_TOKEN:-}"
+    local had_previous=0
+    if [[ -n "${CARGO_REGISTRY_TOKEN:-}" ]]; then
+        had_previous=1
+    fi
+
+    if [[ -z "${CARGO_REGISTRY_TOKEN:-}" && -n "${CRATES_TOKEN:-}" ]]; then
+        export CARGO_REGISTRY_TOKEN="$CRATES_TOKEN"
+    fi
+
+    local rc=0
+    "$@" || rc=$?
+
+    if [[ "$had_previous" -eq 0 ]]; then
+        unset CARGO_REGISTRY_TOKEN
+    else
+        export CARGO_REGISTRY_TOKEN="$previous_token"
+    fi
+
     return "$rc"
 }
 EEG_PACKAGE="elata-eeg-wasm"
@@ -165,7 +223,7 @@ usage() {
     cmd "tag-release" "Create package-scoped git tag(s) from package.json versions"
     cmd "push-tags" "Push package-scoped git tag(s) for current package.json versions"
     cmd "rust-release-check" "Verify Rust crates are ready to publish to crates.io (default target: all)"
-    cmd "rust-publish" "Publish Rust crate(s) to crates.io in dependency order (default target: all)"
+    cmd "rust-publish" "Run Rust release flow: check, publish, commit, tag, and push (default target: all)"
 
     section "Maintenance"
     cmd "clean" "Remove generated bindings and clean build artifacts"
@@ -440,11 +498,159 @@ publish_rust_crates() {
 
     target="$(normalize_rust_release_target "$raw_target")" || exit 1
     require_cmds cargo rg
+    ensure_crates_token_from_dotenv
 
     for crate in $(rust_release_targets_for "$target"); do
         echo "Publishing Rust crate ${crate}..."
-        cargo publish -p "$crate"
+        with_cargo_registry_auth cargo publish -p "$crate"
     done
+}
+
+rust_crate_version_for_target() {
+    local crate="$1"
+    local crate_dir manifest version
+    crate_dir="$(rust_crate_dir_for "$crate")" || return 1
+    manifest="$crate_dir/Cargo.toml"
+    version="$(sed -n 's/^version = "\(.*\)"$/\1/p' "$manifest" | head -n1)"
+    if [[ -z "$version" ]]; then
+        echo "Unable to determine version for Rust crate: $crate" >&2
+        return 1
+    fi
+    printf "%s\n" "$version"
+}
+
+create_rust_release_tags() {
+    local raw_target="${1:-all}"
+    local commit="${2:-HEAD}"
+    local target
+    local crate
+    local -a created=()
+
+    target="$(normalize_rust_release_target "$raw_target")" || exit 1
+    require_cmds git
+
+    for crate in $(rust_release_targets_for "$target"); do
+        local version tag
+        version="$(rust_crate_version_for_target "$crate")"
+        tag="${crate}-v${version}"
+
+        if git rev-parse -q --verify "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Tag already exists, skipping: $tag"
+            continue
+        fi
+
+        git tag "$tag" "$commit"
+        created+=("$tag")
+        echo "Created tag: $tag -> $commit"
+    done
+
+    if [[ ${#created[@]} -gt 0 ]]; then
+        echo "Push tags with:"
+        echo "  git push origin ${created[*]}"
+    fi
+}
+
+push_rust_release_tags() {
+    local raw_target="${1:-all}"
+    local target
+    local crate
+    local -a tags_to_push=()
+
+    target="$(normalize_rust_release_target "$raw_target")" || exit 1
+    require_cmds git
+
+    for crate in $(rust_release_targets_for "$target"); do
+        local version tag
+        version="$(rust_crate_version_for_target "$crate")"
+        tag="${crate}-v${version}"
+
+        if ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Missing local tag, skipping: $tag"
+            continue
+        fi
+        tags_to_push+=("$tag")
+    done
+
+    if [[ ${#tags_to_push[@]} -eq 0 ]]; then
+        echo "No matching local Rust release tags to push."
+        return 0
+    fi
+
+    echo "Pushing Rust release tags to origin: ${tags_to_push[*]}"
+    git push origin "${tags_to_push[@]}"
+}
+
+rust_release_commit_and_push_version_changes() {
+    local raw_target="${1:-all}"
+    local target
+
+    target="$(normalize_rust_release_target "$raw_target")" || exit 1
+    require_cmds git
+
+    if ! git diff --cached --quiet >/dev/null; then
+        die "Refusing to auto-commit during Rust release: you have staged changes already."
+    fi
+
+    local branch
+    branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+    if [[ -z "$branch" || "$branch" == "HEAD" ]]; then
+        echo "Skipping git commit/push: detached HEAD."
+        return 0
+    fi
+
+    local -a crate_entries=()
+    local crate
+    for crate in $(rust_release_targets_for "$target"); do
+        local version
+        version="$(rust_crate_version_for_target "$crate")"
+        crate_entries+=("${crate}@${version}")
+    done
+
+    local version_part
+    version_part="$(IFS=", "; echo "${crate_entries[*]}")"
+    local commit_message="chore(rust-release): ${version_part}"
+
+    local -a to_add=()
+    [[ -f "$ROOT_DIR/Cargo.lock" ]] && to_add+=("$ROOT_DIR/Cargo.lock")
+    for crate in $(rust_release_targets_for "$target"); do
+        local crate_dir
+        crate_dir="$(rust_crate_dir_for "$crate")"
+        [[ -f "$crate_dir/Cargo.toml" ]] && to_add+=("$crate_dir/Cargo.toml")
+    done
+
+    if [[ ${#to_add[@]} -eq 0 ]]; then
+        echo "No Rust version-related files found to commit."
+        return 0
+    fi
+
+    git add "${to_add[@]}" >/dev/null 2>&1 || true
+    if git diff --cached --quiet >/dev/null; then
+        echo "No Rust version-related changes to commit."
+        return 0
+    fi
+
+    echo "Committing Rust version bump(s): ${version_part}"
+    git commit -m "$commit_message"
+
+    local upstream
+    upstream="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || true)"
+    if [[ -n "$upstream" ]]; then
+        git push
+    else
+        git push -u origin "$branch"
+    fi
+}
+
+release_rust_crates() {
+    local raw_target="${1:-all}"
+    local target
+
+    target="$(normalize_rust_release_target "$raw_target")" || exit 1
+    rust_release_check_for_target "$target"
+    publish_rust_crates "$target"
+    rust_release_commit_and_push_version_changes "$target"
+    create_rust_release_tags "$target" "HEAD"
+    push_rust_release_tags "$target"
 }
 
 package_version_for_target() {
@@ -1624,8 +1830,8 @@ case "$cmd" in
         # Examples:
         #   ./run.sh rust-publish all
         #   ./run.sh rust-publish elata-eeg-models
-        # Publishes Rust crates in dependency order to crates.io.
-        publish_rust_crates "${2:-all}"
+        # Runs: rust-release-check -> publish -> commit -> tag -> push-tags
+        release_rust_crates "${2:-all}"
         ;;
     changeset)
         RUN_SH_TASK="changeset"
