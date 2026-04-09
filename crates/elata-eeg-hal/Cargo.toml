@@ -7,5 +7,9 @@ description = "Hardware Abstraction Layer for EEG devices"
 license = "MIT"
 repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"
 homepage = "https://github.com/Elata-Biosciences/elata-bio-sdk#readme"
+documentation = "https://docs.rs/elata-eeg-hal"
+readme = "README.md"
+keywords = ["eeg", "biosignal", "hal", "signal"]
+categories = ["science", "algorithms"]
 
 [dependencies]

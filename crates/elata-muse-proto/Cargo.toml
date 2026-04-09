@@ -7,5 +7,9 @@ description = "EEG headband BLE protocol constants and packet encoding/decoding 
 license = "MIT"
 repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"
 homepage = "https://github.com/Elata-Biosciences/elata-bio-sdk#readme"
+documentation = "https://docs.rs/elata-muse-proto"
+readme = "README.md"
+keywords = ["eeg", "ble", "muse", "protocol"]
+categories = ["science", "encoding"]
 
 [dependencies]

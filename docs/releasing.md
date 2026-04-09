@@ -50,6 +50,13 @@ crate and is marked `publish = false`.
 ./run.sh rust-release-check all
 ```
 
+This check now validates crate documentation basics too:
+
+- declared crate `README.md` files must exist
+- `src/lib.rs` must include crate-level rustdoc
+- crate doctests must pass
+- `cargo package` still runs when dependency ordering allows it
+
 3. Publish in dependency order so crates that depend on internal crates can
    resolve the new versions from `crates.io`.
 

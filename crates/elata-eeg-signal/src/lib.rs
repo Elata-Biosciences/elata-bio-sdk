@@ -5,6 +5,20 @@
 //! - Band power extraction
 //! - Filtering
 //! - Windowing
+//!
+//! It is designed to work with samples buffered through `elata-eeg-hal`.
+//!
+//! # Example
+//!
+//! ```rust
+//! use elata_eeg_signal::{band_power, bands};
+//!
+//! let signal = vec![0.0; 256];
+//! let sample_rate = 256.0;
+//! let alpha_power = band_power(&signal, sample_rate, bands::ALPHA);
+//!
+//! assert!(alpha_power >= 0.0);
+//! ```
 
 mod fft;
 mod filter;

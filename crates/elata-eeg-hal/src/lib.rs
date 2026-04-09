@@ -2,6 +2,26 @@
 //!
 //! This crate provides a unified interface for EEG devices, allowing models
 //! to work with any supported device without knowing the underlying hardware.
+//!
+//! # Main concepts
+//!
+//! - [`EegDevice`] defines the device lifecycle and sample acquisition API
+//! - [`DeviceInfo`] and [`ChannelConfig`] describe a device's static capabilities
+//! - [`SampleBuffer`] stores multi-channel EEG samples for downstream processing
+//! - [`bands`] exposes standard EEG band ranges reused across the SDK
+//!
+//! # Example
+//!
+//! ```rust
+//! use elata_eeg_hal::{EegSample, SampleBuffer};
+//!
+//! let mut buffer = SampleBuffer::new(256, 4);
+//! let sample = EegSample::new(0, vec![1.0, 2.0, 3.0, 4.0]);
+//! buffer.push(&sample);
+//!
+//! assert_eq!(buffer.sample_count(), 1);
+//! assert_eq!(buffer.channel_data(0), &[1.0]);
+//! ```
 
 mod channel;
 mod device;

@@ -8,7 +8,10 @@ description = "Remote photoplethysmography (rPPG) core for Elata SDK"
 license = "MIT"
 repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"
 homepage = "https://github.com/Elata-Biosciences/elata-bio-sdk/tree/main/crates/elata-rppg"
+documentation = "https://docs.rs/elata-rppg"
 readme = "README.md"
+keywords = ["rppg", "dsp", "biosignal", "heart-rate"]
+categories = ["science", "algorithms"]
 
 [lib]
 name = "elata_rppg"

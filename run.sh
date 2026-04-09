@@ -122,43 +122,54 @@ DEFAULT_JOBS=""
 PKG_MGR=""
 
 usage() {
-    cat <<EOF
-Usage: $0 [command] [target]
+    local c_reset="" c_bold="" c_dim="" c_cyan="" c_green=""
+    if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+        c_reset=$'\033[0m'
+        c_bold=$'\033[1m'
+        c_dim=$'\033[2m'
+        c_cyan=$'\033[36m'
+        c_green=$'\033[32m'
+    fi
 
-Build & Demo:
-  install      Install/update workspace dependencies
-  dev          Build debug artifacts for 'eeg', 'rppg', or 'all' (default: all)
-  build        Build release artifacts for 'eeg', 'rppg', or 'all' (default: all)
-  bindings     Generate bindings from an existing build (default: release)
-  docs         Run internal Mintlify docs tooling (default: 'mint dev --no-open')
-  demo         Run an in-repo dev demo - specify 'rppg' (default; temp-served), 'hal', or 'eeg' (example: 'run.sh demo eeg')
-  create       Scaffold a local app via packages/create-elata-demo (examples: './run.sh create rppg my-app', './run.sh create my-app')
-  sync-to      Build eeg-web and install it into a local app (default app: ../my-app)
+    section() { printf "\n${c_bold}${c_cyan}%s${c_reset}\n" "$1"; }
+    cmd() { printf "  ${c_green}%-18s${c_reset} %s\n" "$1" "$2"; }
 
-Quality:
-  doctor       Run fast repository health checks (toolchain, repo audit, deps, artifact presence)
-  verify-all   Run publish-grade verification for release artifacts and tarballs
-  test         Run Rust and web test suites
-  format       Format all files with Biome
-  format-check Run Biome format check (no write)
+    printf "${c_bold}Usage:${c_reset} %s [command] [target]\n" "$0"
+    printf "${c_dim}(no args runs 'help')${c_reset}\n"
 
-Release:
-  changeset     Add a changeset (interactive; run before opening a PR)
-  bump         Apply changesets: bump versions and update CHANGELOGs (run before release)
-  release-check Run the full release preflight without publishing (default: target=all)
-  release      Build, publish, tag, and push (default: target=all, dist-tag=next)
-  publish      Publish package(s) to npm in repo release order (default: target=all, dist-tag=next)
-  rust-release-check Verify Rust crates are ready to publish to crates.io (default: target=all)
-  rust-publish Publish Rust crate(s) to crates.io in dependency order (default: target=all)
-  promote Promote currently bumped version(s) to 'latest' dist-tag on npm
-  tag-release  Create package-scoped git tag(s) from package.json versions (default: target=all, commit=HEAD)
-  push-tags    Push package-scoped git tag(s) for current package.json versions (default: target=all)
+    section "Build & Demo"
+    cmd "install" "Install/update workspace dependencies"
+    cmd "dev" "Build debug artifacts for 'eeg', 'rppg', or 'all' (default: all)"
+    cmd "build" "Build release artifacts for 'eeg', 'rppg', or 'all' (default: all)"
+    cmd "bindings" "Generate bindings from an existing build (default: release)"
+    cmd "docs" "Run internal Mintlify docs tooling (default: 'mint dev --no-open')"
+    cmd "demo" "Run in-repo demo: 'rppg' (default), 'hal', or 'eeg' (example: './run.sh demo eeg')"
+    cmd "create" "Scaffold app via create-elata-demo (examples: './run.sh create rppg my-app', './run.sh create my-app')"
+    cmd "sync-to" "Build eeg-web and install it into a local app (default app: ../my-app)"
 
-Maintenance:
-  clean        Remove generated bindings and clean build artifacts
-  help         Show this message
-  (no args)    Alias for 'doctor'
-EOF
+    section "Quality"
+    cmd "doctor" "Run fast health checks (toolchain, repo audit, deps, artifact presence)"
+    cmd "verify-all" "Run publish-grade verification for release artifacts and tarballs"
+    cmd "test" "Run Rust and web test suites"
+    cmd "format" "Format files with Biome"
+    cmd "format-check" "Run Biome format check (no write)"
+
+    section "Release"
+    cmd "changeset" "Add a changeset (interactive; run before opening a PR)"
+    cmd "bump" "Apply changesets: bump versions and update CHANGELOGs"
+    cmd "release-check" "Run full release preflight without publishing (default target: all)"
+    cmd "release" "Build, publish, tag, and push (default target: all, dist-tag: next)"
+    cmd "publish" "Publish package(s) to npm in repo release order (default target: all, dist-tag: next)"
+    cmd "promote" "Promote selected package version(s) to npm 'latest' dist-tag"
+    cmd "view" "Show latest published npm version(s) for selected package(s)"
+    cmd "tag-release" "Create package-scoped git tag(s) from package.json versions"
+    cmd "push-tags" "Push package-scoped git tag(s) for current package.json versions"
+    cmd "rust-release-check" "Verify Rust crates are ready to publish to crates.io (default target: all)"
+    cmd "rust-publish" "Publish Rust crate(s) to crates.io in dependency order (default target: all)"
+
+    section "Maintenance"
+    cmd "clean" "Remove generated bindings and clean build artifacts"
+    cmd "help" "Show this message"
 }
 
 normalize_release_target() {
@@ -266,6 +277,55 @@ rust_release_prereqs_for() {
     esac
 }
 
+rust_crate_dir_for() {
+    case "$1" in
+        elata-muse-proto) echo "$ROOT_DIR/crates/elata-muse-proto" ;;
+        elata-eeg-hal) echo "$ROOT_DIR/crates/elata-eeg-hal" ;;
+        elata-eeg-signal) echo "$ROOT_DIR/crates/elata-eeg-signal" ;;
+        elata-eeg-models) echo "$ROOT_DIR/crates/elata-eeg-models" ;;
+        elata-rppg) echo "$ROOT_DIR/crates/elata-rppg" ;;
+        *)
+            echo "Unknown Rust crate target: $1" >&2
+            return 1
+            ;;
+    esac
+}
+
+verify_rust_crate_docs() {
+    local crate="$1"
+    local crate_dir manifest readme_rel readme_path lib_rs
+
+    crate_dir="$(rust_crate_dir_for "$crate")" || return 1
+    manifest="$crate_dir/Cargo.toml"
+    lib_rs="$crate_dir/src/lib.rs"
+
+    if [[ ! -f "$manifest" ]]; then
+        echo "Missing Cargo.toml for ${crate}: ${manifest}" >&2
+        return 1
+    fi
+
+    readme_rel="$(sed -n 's/^readme = "\(.*\)"$/\1/p' "$manifest" | head -n1)"
+    if [[ -n "$readme_rel" ]]; then
+        readme_path="$crate_dir/$readme_rel"
+        if [[ ! -f "$readme_path" ]]; then
+            echo "Missing declared README for ${crate}: ${readme_path}" >&2
+            return 1
+        fi
+    fi
+
+    if [[ ! -f "$lib_rs" ]]; then
+        echo "Missing crate root for ${crate}: ${lib_rs}" >&2
+        return 1
+    fi
+
+    if ! rg -q '^//!' "$lib_rs"; then
+        echo "Missing crate-level rustdoc in ${lib_rs}" >&2
+        return 1
+    fi
+
+    cargo test --doc -p "$crate"
+}
+
 is_crate_published() {
     local crate="$1"
     cargo search "$crate" --limit 1 2>/dev/null | rg -q "^${crate} = "
@@ -305,6 +365,8 @@ rust_release_check_for_target() {
     require_cmds cargo rg
 
     for crate in $(rust_release_targets_for "$target"); do
+        echo "Checking Rust crate docs for ${crate}..."
+        verify_rust_crate_docs "$crate"
         echo "Checking Rust crate publishability for ${crate}..."
         verify_rust_crate_can_package "$crate"
     done
@@ -1467,7 +1529,7 @@ doctor() {
 DEFAULT_JOBS="${BUILD_JOBS:-$(cpu_cores)}"
 ensure_sccache
 
-cmd="${1:-doctor}"
+cmd="${1:-help}"
 case "$cmd" in
     install)
         RUN_SH_TASK="install"
