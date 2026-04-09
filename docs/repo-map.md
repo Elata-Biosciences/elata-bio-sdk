@@ -5,7 +5,7 @@ workflow is canonical for a given job.
 
 ## Top-Level Layout
 
-- `crates/`: Rust crates for EEG, rPPG, protocol support, FFI, and synthetic bridges
+- `crates/`: Rust crates for EEG, rPPG, protocol support, bindings, and internal synthetic bridges
 - `packages/`: published TypeScript packages and the app scaffolder
 - `eeg-demo/`: in-repo EEG browser dev demo
 - `ios-demo/`: Swift dev demo and package integration reference
@@ -101,6 +101,7 @@ Prefer these commands before creating new workflow docs or scripts:
 - `./run.sh test`
 - `./run.sh test create-elata-demo`
 - `./run.sh verify-all`
+- `./run.sh rust-release-check all`
 
 If a package-local command and `run.sh` overlap, `run.sh` is usually the better
 repo-level entry point.
@@ -131,9 +132,14 @@ Useful demo-specific environment variables:
 
 ## Generated Artifact Paths
 
-- EEG WASM build output is generated from `crates/eeg-wasm` and synced into `packages/eeg-web/wasm`
+- EEG WASM build output is generated from `crates/elata-eeg-wasm` and synced into `packages/eeg-web/wasm`
 - rPPG dev-demo and publishable WASM assets are built through `packages/rppg-web/scripts/build-demo.mjs`
 - publish verification relies on package `prepare:publish` and `verify:publish` scripts
+
+Public Rust crate support is intentionally narrower than the full workspace.
+Treat `elata-eeg-hal`, `elata-eeg-signal`, `elata-eeg-models`, `elata-muse-proto`, and
+`elata-rppg` as the current supported `crates.io` surfaces. Treat synthetic
+and packaging crates as internal unless release docs say otherwise.
 
 If a task affects packaging, demo assets, or WASM output, inspect both the
 package scripts and `run.sh` before editing documentation.

@@ -158,7 +158,13 @@ Use `run.sh` as the canonical task runner:
 ./run.sh test create-elata-demo
 ./run.sh test
 ./run.sh verify-all
+./run.sh rust-release-check all
 ```
+
+Public Rust crates currently intended for `crates.io`: `elata-eeg-hal`, `elata-eeg-signal`,
+`elata-eeg-models`, `elata-muse-proto`, and `elata-rppg`. Synthetic, binding-focused, and
+experimental crates in the workspace are internal unless the release docs
+explicitly say otherwise.
 
 ### In-Repo Dev Demos And Examples
 

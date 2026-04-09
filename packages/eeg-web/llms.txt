@@ -15,7 +15,7 @@ This package does **not** connect to headsets or Bluetooth. For browser BLE, add
 3. For Muse S **Athena** decode in a BLE stack, use `AthenaWasmDecoder` (often via `eeg-web-ble` + `athenaDecoderFactory`).
 
 ## New projects
-Evaluate with **`npx @elata-biosciences/create-elata-demo my-app`** — scaffolds Vite + WASM wiring (including synthetic paths without hardware).
+Evaluate with **`npm create @elata-biosciences/elata-demo my-app`** (recommended) or **`npx @elata-biosciences/create-elata-demo my-app`** — both scaffold Vite + WASM wiring (including synthetic paths without hardware).
 
 ## Related packages
 - **`@elata-biosciences/eeg-web-ble`** — Web Bluetooth transport (depends on this package; Muse 2 / Muse S classic + Athena today).

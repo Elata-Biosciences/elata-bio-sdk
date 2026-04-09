@@ -89,7 +89,7 @@ Examples:
 Recommended fields:
 
 - `streamId`
-- `modality`: `eeg`, `ppg`, `optics`, `fnirs`, `accgyro`, `battery`, `rppg`, `derived`
+- `modality`: `eeg`, `ppg`, `optics`, `fnirs`, `accgyro`, `battery`, `elata-rppg`, `derived`
 - channel metadata
 - sample rate when stable
 - clock source and units metadata where needed
@@ -264,7 +264,7 @@ Examples:
 
 Design consequence:
 
-- `rppg` belongs in the same multi-source world, but it should usually be
+- `elata-rppg` belongs in the same multi-source world, but it should usually be
   treated as a **derived stream or processor output**, not a substitute for
   raw hardware PPG types
 

@@ -2,7 +2,11 @@
 
 Web wrapper for the Elata EEG WASM bindings.
 
-**New to the SDK?** `npx @elata-biosciences/create-elata-demo my-app` scaffolds a working app with synthetic mode, correct Vite config, and WASM imports already set up — no hardware required to get started.
+**New to the SDK?** `npm create @elata-biosciences/elata-demo my-app` is the
+recommended start. You can also run
+`npx @elata-biosciences/create-elata-demo my-app`. Either path scaffolds a
+working app with synthetic mode, correct Vite config, and WASM imports already
+set up — no hardware required to get started.
 
 ## What This Package Is
 
@@ -100,7 +104,7 @@ From the repo root:
 ./run.sh build eeg
 ```
 
-This builds `eeg-wasm`, runs `wasm-bindgen`, syncs generated files into
+This builds `elata-eeg-wasm`, runs `wasm-bindgen`, syncs generated files into
 `packages/eeg-web/wasm`, and builds the TypeScript wrapper.
 
 For local iteration against an existing app, use:

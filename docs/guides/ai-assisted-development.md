@@ -43,6 +43,10 @@ Treat **package README + `llms.txt` + `package.json` (`exports`, `peerDependenci
 | rPPG / camera | [using-rppg-in-a-browser-app.md](using-rppg-in-a-browser-app.md) | `sdk/rppg-web/getting-started.mdx`, `sdk/guides/rppg-browser.mdx`, `sdk/guides/rppg-camera.mdx`, `sdk/tutorials/rppg-existing-app.mdx` |
 | Headband contract / transport | [contributing-eeg-transports.md](../contributing-eeg-transports.md) (contributor-focused) | `sdk/eeg-web/headband-transport.mdx` |
 
+For browser rPPG integrations, default to `createRppgSession()` from
+`@elata-biosciences/rppg-web` unless you are intentionally debugging lower-level
+WASM bindings.
+
 ### Vendors and headset integrators
 
 | Topic | Canonical in repo | On docs site |
@@ -68,6 +72,12 @@ Agents should implement against **`HeadbandTransport` + `HeadbandFrameV1`** from
 - **`elata-docs/`**: **Tutorials**, step-by-step walkthroughs, diagrams, and product-adjacent pages for **docs.elata.bio**. Same facts should agree with `docs/` and package READMEs; site pages are often **more verbose** and **tutorial-first**.
 
 If a tutorial exists only under `elata-docs/sdk/tutorials/`, agents should still follow **AGENTS.md** and **package READMEs** for commands and APIs—the tutorial is the narrative; the repo is the contract.
+
+## Wrong-path prevention
+
+- For new apps and evaluations, lead with `@elata-biosciences/create-elata-demo`.
+- Treat `./run.sh sync-to` and `scripts/dev-link.sh` as internal maintainer
+  flows for local `eeg-web` iteration, not consumer onboarding.
 
 ## Verification before you claim “done”
 

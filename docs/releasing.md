@@ -1,4 +1,4 @@
-# Releasing NPM Packages
+# Releasing Packages
 
 This repository publishes npm packages independently:
 
@@ -8,6 +8,10 @@ This repository publishes npm packages independently:
 - `@elata-biosciences/create-elata-demo`
 
 We use [Changesets](https://github.com/changesets/changesets) for versioning and changelogs. Contributors add changesets in PRs; maintainers bump versions and release.
+
+The repository also contains Rust crates that can be packaged and published to
+`crates.io`. Rust crate versioning is currently managed through the `Cargo.toml`
+files rather than Changesets.
 
 ## Quick reference
 
@@ -19,6 +23,59 @@ We use [Changesets](https://github.com/changesets/changesets) for versioning and
 | Build, publish, tag, push (maintainer) | `./run.sh release all next` or `./run.sh release all latest` |
 
 See also: `.changeset/README.md` in the repo root.
+
+## Rust crates
+
+Public Rust crates we intend to support on `crates.io`:
+
+- `elata-muse-proto`
+- `elata-eeg-hal`
+- `elata-eeg-signal`
+- `elata-eeg-models`
+- `elata-rppg`
+
+Internal or packaging-specific crates such as `elata-dev-eeg-synthetic`,
+`elata-dev-synthetic-ble-bridge`, `elata-eeg-wasm`, `elata-eeg-ffi`, `elata-rppg-wasm`,
+`elata-rppg-ffi`, and `elata-facial-affect` are marked `publish = false`.
+
+The workspace root crate `eeg-sdk` is also an internal workspace convenience
+crate and is marked `publish = false`.
+
+### Rust release checklist
+
+1. Update crate versions in the relevant `Cargo.toml` files.
+2. Verify packaging locally from the repo root:
+
+```bash
+./run.sh rust-release-check all
+```
+
+3. Publish in dependency order so crates that depend on internal crates can
+   resolve the new versions from `crates.io`.
+
+If a crate depends on another workspace crate that has not been published yet,
+`cargo package` may fail verification while trying to resolve that dependency
+from `crates.io`. In practice:
+
+- use `cargo package` normally for crates with no unpublished internal dependencies
+- publish the foundational crates first
+- then re-run `cargo package` or `cargo publish --dry-run` for dependent crates
+
+Recommended publish order:
+
+1. `elata-muse-proto`
+2. `elata-eeg-hal`
+3. `elata-rppg`
+4. `elata-eeg-signal`
+5. `elata-eeg-models`
+
+Example publish commands:
+
+```bash
+./run.sh rust-publish all
+./run.sh rust-publish elata-rppg
+./run.sh rust-publish elata-eeg-models
+```
 
 ## Release workflow (maintainers)
 

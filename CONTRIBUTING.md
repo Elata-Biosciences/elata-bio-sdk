@@ -81,7 +81,8 @@ rather than forking consumer demos.
 - `npm create @elata-biosciences/elata-demo` and direct `create-elata-demo`
   invocations should stay documented together when behavior changes.
 - The current scaffold flow supports interactive template selection, template
-  aliases (`rppg`, `eeg`, `eeg-ble`), and `--list-templates`.
+  aliases (`rppg`, `eeg`, `ble`; plus legacy `eeg-web-ble-demo`), and
+  `--list-templates`.
 - If you scaffold inside another `pnpm` workspace, verify the
   `pnpm --dir my-app --ignore-workspace ...` caveat before treating it as a
   scaffold failure.

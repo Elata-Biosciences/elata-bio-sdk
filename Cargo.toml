@@ -1,20 +1,27 @@
 [workspace]
 members = [
-    "crates/bridge-proto",
-    "crates/muse-proto",
-    "crates/eeg-hal",
-    "crates/eeg-signal",
-    "crates/rppg",
-    "crates/rppg-wasm",
-    "crates/rppg-ffi",
-    "crates/eeg-hal-synthetic",
-    "crates/eeg-models",
-    "crates/eeg-wasm",
-    "crates/eeg-ffi",
-    "crates/facial-affect",
-    "crates/synthetic-ble-bridge",
+    "crates/elata-muse-proto",
+    "crates/elata-eeg-hal",
+    "crates/elata-eeg-signal",
+    "crates/elata-rppg",
+    "crates/elata-rppg-wasm",
+    "crates/elata-rppg-ffi",
+    "crates/elata-dev-eeg-synthetic",
+    "crates/elata-eeg-models",
+    "crates/elata-eeg-wasm",
+    "crates/elata-eeg-ffi",
+    "crates/elata-facial-affect",
+    "crates/elata-dev-synthetic-ble-bridge",
 ]
 resolver = "2"
+
+[workspace.dependencies]
+elata-dev-eeg-synthetic = { version = "0.1.0", path = "crates/elata-dev-eeg-synthetic" }
+elata-eeg-hal = { version = "0.1.0", path = "crates/elata-eeg-hal" }
+elata-eeg-models = { version = "0.1.0", path = "crates/elata-eeg-models" }
+elata-eeg-signal = { version = "0.1.0", path = "crates/elata-eeg-signal" }
+elata-muse-proto = { version = "0.1.0", path = "crates/elata-muse-proto" }
+elata-rppg = { version = "0.1.0", path = "crates/elata-rppg" }
 
 [package]
 name = "eeg-sdk"
@@ -26,16 +33,17 @@ license = "MIT"
 repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"
 homepage = "https://github.com/Elata-Biosciences/elata-bio-sdk#readme"
 readme = "README.md"
+publish = false
 
 [[example]]
 name = "hal_demo"
 path = "examples/hal_demo.rs"
 
 [dependencies]
-eeg-hal = { path = "crates/eeg-hal" }
-eeg-hal-synthetic = { path = "crates/eeg-hal-synthetic" }
-eeg-models = { path = "crates/eeg-models" }
-eeg-signal = { path = "crates/eeg-signal" }
+elata-dev-eeg-synthetic = { workspace = true }
+elata-eeg-hal = { workspace = true }
+elata-eeg-models = { workspace = true }
+elata-eeg-signal = { workspace = true }
 
 # Developer profiles for faster iterative builds/tests
 [profile.dev]

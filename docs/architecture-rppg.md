@@ -50,8 +50,8 @@ Build a cross-device pipeline that extracts rPPG from camera video and optional 
 - Can be JS/ONNX or native ML; keep independent of rPPG core.
 
 ## Distribution strategy (hybrid)
-- Web: prefer dedicated Rust -> WASM bindings via `rppg-wasm`, wrapped by `packages/rppg-web` for a stable TS API. Compatibility constructors also remain available via `eeg-wasm` / `@elata-biosciences/eeg-web`.
-- Native: prefer dedicated Rust -> FFI bindings via `rppg-ffi`; compatibility `RppgPipelineFFI` also exists in `eeg-ffi`.
+- Web: prefer dedicated Rust -> WASM bindings via the internal `elata-rppg-wasm` crate, wrapped by `packages/rppg-web` for a stable TS API. Compatibility constructors also remain available via the internal `elata-eeg-wasm` crate and `@elata-biosciences/eeg-web`.
+- Native: prefer dedicated Rust -> FFI bindings via the internal `elata-rppg-ffi` crate; compatibility `RppgPipelineFFI` also exists in the internal `elata-eeg-ffi` crate.
 - Keep camera + MediaPipe outside WASM (browser/native APIs).
 
 ## Quality, calibration, and uncertainty
@@ -66,7 +66,7 @@ Build a cross-device pipeline that extracts rPPG from camera video and optional 
 - Use strict splits (leave-one-subject/context out).
 
 ## Implementation notes for this repo
-- Add `crates/rppg` (or extend `crates/eeg-signal` with rPPG DSP).
-- Expose `RppgPipeline` through `crates/rppg-wasm` and `crates/rppg-ffi`.
-- Keep compatibility exposure in `crates/eeg-wasm` and `crates/eeg-ffi` only where it helps shared SDK consumers.
+- Add `crates/elata-rppg` (or extend `crates/elata-eeg-signal` with rPPG DSP).
+- Expose `RppgPipeline` through internal packaging crates `crates/elata-rppg-wasm` and `crates/elata-rppg-ffi`.
+- Keep compatibility exposure in internal packaging crates `crates/elata-eeg-wasm` and `crates/elata-eeg-ffi` only where it helps shared SDK consumers.
 - Provide a TS wrapper (`packages/rppg-web`) for FrameSource + RppgProcessor interfaces.

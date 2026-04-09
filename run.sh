@@ -115,7 +115,7 @@ with_npm_registry_auth() {
     fi
     return "$rc"
 }
-EEG_PACKAGE="eeg-wasm"
+EEG_PACKAGE="elata-eeg-wasm"
 EEG_BINDINGS_OUT_DIR="$ROOT_DIR/eeg-demo/pkg"
 TARGET_DIR="${CARGO_TARGET_DIR:-$ROOT_DIR/target}"
 DEFAULT_JOBS=""
@@ -148,6 +148,8 @@ Release:
   release-check Run the full release preflight without publishing (default: target=all)
   release      Build, publish, tag, and push (default: target=all, dist-tag=next)
   publish      Publish package(s) to npm in repo release order (default: target=all, dist-tag=next)
+  rust-release-check Verify Rust crates are ready to publish to crates.io (default: target=all)
+  rust-publish Publish Rust crate(s) to crates.io in dependency order (default: target=all)
   promote Promote currently bumped version(s) to 'latest' dist-tag on npm
   tag-release  Create package-scoped git tag(s) from package.json versions (default: target=all, commit=HEAD)
   push-tags    Push package-scoped git tag(s) for current package.json versions (default: target=all)
@@ -221,6 +223,105 @@ release_targets_for() {
     else
         echo "$target"
     fi
+}
+
+normalize_rust_release_target() {
+    local raw="${1:-all}"
+    case "$raw" in
+        all) echo "all" ;;
+        elata-muse-proto|elata-eeg-hal|elata-eeg-signal|elata-eeg-models|elata-rppg)
+            echo "$raw"
+            ;;
+        *)
+            echo "Unknown Rust release target: $raw" >&2
+            return 1
+            ;;
+    esac
+}
+
+rust_release_targets_for() {
+    local target="$1"
+    if [[ "$target" == "all" ]]; then
+        echo "elata-muse-proto elata-eeg-hal elata-rppg elata-eeg-signal elata-eeg-models"
+    else
+        echo "$target"
+    fi
+}
+
+rust_release_prereqs_for() {
+    case "$1" in
+        elata-muse-proto|elata-eeg-hal|elata-rppg)
+            echo ""
+            ;;
+        elata-eeg-signal)
+            echo "elata-eeg-hal"
+            ;;
+        elata-eeg-models)
+            echo "elata-eeg-hal elata-eeg-signal"
+            ;;
+        *)
+            echo "Unknown Rust crate target: $1" >&2
+            return 1
+            ;;
+    esac
+}
+
+is_crate_published() {
+    local crate="$1"
+    cargo search "$crate" --limit 1 2>/dev/null | rg -q "^${crate} = "
+}
+
+verify_rust_crate_can_package() {
+    local crate="$1"
+    local prereqs
+
+    prereqs="$(rust_release_prereqs_for "$crate")" || return 1
+    if [[ -z "$prereqs" ]]; then
+        cargo package -p "$crate" --allow-dirty --offline
+        return 0
+    fi
+
+    local dep missing=0
+    for dep in $prereqs; do
+        if ! is_crate_published "$dep"; then
+            echo "Skipping full packaging verify for ${crate}: prerequisite crate '${dep}' is not published on crates.io yet."
+            missing=1
+        fi
+    done
+
+    if [[ "$missing" -eq 1 ]]; then
+        cargo check -p "$crate"
+    else
+        cargo package -p "$crate" --allow-dirty --offline
+    fi
+}
+
+rust_release_check_for_target() {
+    local raw_target="${1:-all}"
+    local target
+    local crate
+
+    target="$(normalize_rust_release_target "$raw_target")" || exit 1
+    require_cmds cargo rg
+
+    for crate in $(rust_release_targets_for "$target"); do
+        echo "Checking Rust crate publishability for ${crate}..."
+        verify_rust_crate_can_package "$crate"
+    done
+}
+
+publish_rust_crates() {
+    local raw_target="${1:-all}"
+    local target
+    local crate
+
+    target="$(normalize_rust_release_target "$raw_target")" || exit 1
+    require_cmds cargo rg
+
+    for crate in $(rust_release_targets_for "$target"); do
+        echo "Publishing Rust crate ${crate}..."
+        cargo publish -p "$crate"
+    done
 }
 
 package_version_for_target() {
@@ -1382,6 +1483,27 @@ case "$cmd" in
         # Run publish-level verification, including packaged wasm and tarball checks.
         run_root_script "verify:all"
         ;;
+    rust-release-check)
+        RUN_SH_TASK="rust-release-check"
+        # Usage:
+        #   ./run.sh rust-release-check [target]
+        # Examples:
+        #   ./run.sh rust-release-check all
+        #   ./run.sh rust-release-check elata-rppg
+        # Runs cargo package for standalone crates and cargo check when
+        # crates.io prerequisite crates are not published yet.
+        rust_release_check_for_target "${2:-all}"
+        ;;
+    rust-publish)
+        RUN_SH_TASK="rust-publish"
+        # Usage:
+        #   ./run.sh rust-publish [target]
+        # Examples:
+        #   ./run.sh rust-publish all
+        #   ./run.sh rust-publish elata-eeg-models
+        # Publishes Rust crates in dependency order to crates.io.
+        publish_rust_crates "${2:-all}"
+        ;;
     changeset)
         RUN_SH_TASK="changeset"
         require_cmds pnpm node
@@ -1647,7 +1769,7 @@ case "$cmd" in
         run_root_script "clean"
         rm -rf "$ROOT_DIR/eeg-demo/pkg"
         echo "Cleaning build artifacts for wasm crates..."
-        cargo clean -p eeg-wasm -p rppg-wasm
+        cargo clean -p elata-eeg-wasm -p elata-rppg-wasm
         ;;
     format)
         RUN_SH_TASK="format"

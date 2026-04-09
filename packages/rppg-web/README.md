@@ -541,7 +541,7 @@ page can also run `replayBayesSession()` on it and render the result.
 - If you hit `wasmrppgpipeline_new`, make sure the underlying WASM module was initialized before creating low-level pipelines and prefer the package helpers over raw generated constructors.
 - If you see deprecated init warnings, route startup through `initEegWasm()` instead of calling generated init exports with raw strings, URLs, or buffers.
 - If camera access fails, verify that the page has permission to use `getUserMedia` and that the browser supports the required APIs.
-- If you want a known-good starting point, scaffold the `rppg-web-demo` template with `create-elata-demo` and compare your setup against it.
+- If you want a known-good starting point, scaffold the `rppg-demo` template with `create-elata-demo` and compare your setup against it.
 
 ## Release Notes
 

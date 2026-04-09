@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Compare Athena EEG decode between OpenMuse (Python) and muse-proto (Rust).
+Compare Athena EEG decode between OpenMuse (Python) and elata-muse-proto (Rust).
 
 Usage:
   python scripts/compare_athena_decode.py --in path\\to\\log.tsv
@@ -206,7 +206,7 @@ def run_rust_decoder(log_path: Path, out_path: Path):
         "cargo",
         "run",
         "-p",
-        "muse-proto",
+        "elata-muse-proto",
         "--bin",
         "athena_decode",
         "--",
@@ -251,7 +251,7 @@ def main():
     print(f"OpenMuse OPTICS samples: {len(om_opt)}")
 
     rust_out = log_path.with_suffix(".rust_eeg.csv")
-    print("Decoding with muse-proto (Rust)...")
+    print("Decoding with elata-muse-proto (Rust)...")
     run_rust_decoder(log_path, rust_out)
     rust_eeg = load_rust_eeg_with_keys(rust_out)
     rust_acc = load_rust_accgyro_with_keys(rust_out)

@@ -40,9 +40,9 @@
 //! # Quick Start
 //!
 //! ```no_run
-//! use eeg_hal::{EegDevice, SampleBuffer};
-//! use eeg_hal_synthetic::SyntheticDevice;
-//! use eeg_models::{AlphaBumpDetector, CalmnessModel, Model};
+//! use elata_eeg_hal::{EegDevice, SampleBuffer};
+//! use elata_dev_eeg_synthetic::SyntheticDevice;
+//! use elata_eeg_models::{AlphaBumpDetector, CalmnessModel, Model};
 //!
 //! // Create a synthetic device for testing
 //! let mut device = SyntheticDevice::new();
@@ -63,13 +63,14 @@
 //!
 //! # Crates
 //!
-//! - `eeg-hal` - Core traits and types
-//! - `eeg-hal-synthetic` - Synthetic device for testing
-//! - `eeg-signal` - Signal processing utilities
-//! - `eeg-models` - Analysis models
-//! - `eeg-ffi` - iOS/Android bindings via UniFFI
-//! - `eeg-wasm` - Browser bindings via WebAssembly
-//! - `bridge-proto` - BLE protocol definitions
-//! - `synthetic-ble-bridge` - BLE bridge application
+//! - `elata-eeg-hal` - Core traits and types
+//! - `elata-eeg-signal` - Signal processing utilities
+//! - `elata-eeg-models` - Analysis models
+//! - `elata-muse-proto` - Muse protocol constants and packet helpers
+//! - `elata-rppg` - rPPG processing core
+//!
+//! Public `crates.io` support is intentionally narrower than the full workspace.
+//! The main public Rust surfaces are `elata-eeg-hal`, `elata-eeg-signal`, `elata-eeg-models`,
+//! `elata-muse-proto`, and `elata-rppg`.
 
-pub use eeg_hal::*;
+pub use elata_eeg_hal::*;
