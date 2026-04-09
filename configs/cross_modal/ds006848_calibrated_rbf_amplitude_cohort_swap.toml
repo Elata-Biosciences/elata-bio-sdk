@@ -1,0 +1,36 @@
+[baseline]
+dataset = "reports/cross_modal/ds006848/ds006848_phase2_cohort_swap_windows.npz"
+metadata = "reports/cross_modal/ds006848/ds006848_phase2_cohort_swap_windows_metadata.json"
+targets = "reports/cross_modal/ds006848/ds006848_cohort_swap_target_arrays.npz"
+reference_linear_metrics = "reports/cross_modal/ds006848/ds006848_cohort_swap_calibrated_absolute_amplitude_metrics.json"
+feature_branches = ["eeg_event_windows", "eeg_clean_windows"]
+target_names = [
+  "amplitude_range",
+  "rising_edge_slope_max",
+  "dominant_beat_amplitude",
+]
+aggregate_target_names = [
+  "amplitude_range",
+  "rising_edge_slope_max",
+  "dominant_beat_amplitude",
+]
+min_train_windows_per_target = 950
+min_eval_windows_per_target = 950
+
+[model]
+ridge_lambda = 1000.0
+gamma_scale = 1.0
+distance_floor = 1.0e-12
+
+[calibration]
+eval_windows_per_subject = 32
+subject_std_floor = 1.0e-6
+null_mse_floor = 1.0e-12
+
+[expected]
+min_eval_test_windows = 800
+branch_names = ["eeg_event_windows", "eeg_clean_windows"]
+
+[paths]
+report = "reports/cross_modal/ds006848/ds006848_cohort_swap_calibrated_rbf_amplitude_report.md"
+metrics = "reports/cross_modal/ds006848/ds006848_cohort_swap_calibrated_rbf_amplitude_metrics.json"

@@ -162,6 +162,13 @@ Completed or materially implemented:
         - aggregate relative MSE is about `0.8753`
       - `sub-025` should still stay pending for the default full-morphology cohort, but it no longer breaks the narrowed amplitude-family path
       - this is now the first DS006848 benchmark that survives two cautious subject expansions
+    - the first slightly richer amplitude-only model comparison now also exists:
+      - a calibrated median-heuristic RBF-kernel ridge baseline was tested on the fixed cohort-swap benchmark and the `sub-025` stress test
+      - it does not beat the calibrated linear amplitude benchmark on either run
+      - both RBF runs stay near null:
+        - cohort-swap aggregate relative MSE is about `0.9986`
+        - cohort-plus-sub025 aggregate relative MSE is about `0.9986`
+      - the DS006848 amplitude benchmark should therefore remain anchored to the calibrated linear baseline, not generic kernelized nonlinearity
 
 Still incomplete:
 
@@ -265,7 +272,7 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    Replacing `sub-016` and `sub-017` with `sub-002` and `sub-035` removes the catastrophic failure mode and restores a fully clean eval cohort. On top of that split, short subject calibration now produces the first broader DS006848-style null-beating result in real units.
 
 8. Use the amplitude-family calibrated benchmark as the active DS006848 benchmark before widening the full morphology cohort again.
-   The `sub-011` and `sub-025` expansions show that amplitude-family behavior stays below null under both a timing-heavy and a weak-amplitude stress test. The next experiment should hold this cohort fixed and compare a slightly richer amplitude-only model against the existing calibrated linear baseline.
+   The `sub-011` and `sub-025` expansions show that amplitude-family behavior stays below null under both a timing-heavy and a weak-amplitude stress test. The first generic nonlinear comparison now shows that naive RBF kernelization does not beat the calibrated linear baseline. The next experiment should hold this cohort fixed and compare feature-space or low-rank amplitude models, not a generic deeper/nonlinear jump.
 
 9. Keep the rest branch in smoke-contract mode until the calibrated verbalwm path is stable.
    Do not treat the current 2-subject rest path as a modeling benchmark yet.

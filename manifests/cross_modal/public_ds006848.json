@@ -115,7 +115,7 @@
       "candidate_rest_working_memory_benchmark"
     ],
     "blocked_on": [
-      "freeze the narrowed amplitude-family calibrated split as the default DS006848 development benchmark and compare the next model class against it without changing the cohort again",
+      "freeze the narrowed amplitude-family calibrated split as the default DS006848 development benchmark and compare the next feature-space or low-rank model against it without changing the cohort again",
       "keep sub-011 out of the default full-morphology calibrated cohort until the timing-family failure is understood",
       "decide whether the DS006848 rest branch should stay smoke-only or expand into a real rest benchmark",
       "decide the long-term zero-shot versus calibrated roles of DS006848 and DS003838 now that both broader verbalwm splits fail to beat null"
@@ -146,6 +146,7 @@
     "A first one-subject calibrated cohort expansion now also exists; adding sub-011 keeps the data path fully clean but breaks the full calibrated morphology aggregate while leaving the amplitude-family calibrated aggregate below null.",
     "Sub-011 should remain pending review for the default full-morphology calibrated cohort because the expansion failure is concentrated in the timing family.",
     "A second one-subject calibrated amplitude stress test now also exists; adding sub-025 keeps the data path fully clean and leaves the amplitude-family calibrated aggregate below null at about 0.8753.",
-    "Sub-025 should remain pending review for the default full-morphology calibrated cohort because waveform amplitude remains weak, but it no longer breaks the narrowed amplitude-family benchmark."
+    "Sub-025 should remain pending review for the default full-morphology calibrated cohort because waveform amplitude remains weak, but it no longer breaks the narrowed amplitude-family benchmark.",
+    "A first slightly richer nonlinear comparison now also exists; a calibrated median-heuristic RBF-kernel ridge baseline stays near null on both the cohort-swap and sub-025 amplitude benchmarks and does not beat the calibrated linear baseline."
   ]
 }

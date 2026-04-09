@@ -459,6 +459,19 @@ Practical reading:
   - `dominant_beat_amplitude` remains slightly worse than null
 - `sub-025` should stay pending for the default full-morphology calibrated cohort because waveform amplitude remains weak, but it no longer blocks the narrower amplitude-family benchmark
 
+## First amplitude model-class comparison
+
+- the first slightly richer nonlinear comparison now exists on the fixed DS006848 amplitude benchmark
+- the comparison model is a calibrated median-heuristic RBF-kernel ridge baseline
+- it was run on both:
+  - the fixed cohort-swap benchmark
+  - the `sub-025` amplitude stress-test expansion
+- it does not beat the calibrated linear amplitude benchmark on either run
+- both RBF runs stay near null:
+  - cohort-swap aggregate relative MSE is about `0.9986`
+  - cohort-plus-sub025 aggregate relative MSE is about `0.9986`
+- the calibrated linear amplitude benchmark remains the active DS006848 benchmark
+
 ## Next actions
 
 1. Keep the broader slice-analysis pass and explicit subject-quality policy as the reference for what to watch: amplitude-family concentration, eval quality attrition, and subject-specific failure.
@@ -470,8 +483,11 @@ Practical reading:
    - `sub-011` should not yet be promoted into the default full-morphology calibrated cohort
    - amplitude-family calibrated behavior is more stable than the full morphology aggregate under this expansion
 4. Treat the `sub-025` amplitude stress test as confirmation that the narrowed amplitude-family benchmark is now stable under both timing-heavy and weak-amplitude subject expansions.
-5. Freeze the narrowed DS006848 amplitude-family calibrated benchmark as the active development benchmark and compare the next model class against that fixed split before widening the full-morphology cohort again.
-6. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
+5. Freeze the narrowed DS006848 amplitude-family calibrated benchmark as the active development benchmark.
+6. Treat the first generic nonlinear comparison as completed negative evidence:
+   - naive RBF kernelization is not the next lever
+7. Compare the next feature-space or low-rank amplitude model against that fixed split before widening the full-morphology cohort again.
+8. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
 
 ## Commands
 

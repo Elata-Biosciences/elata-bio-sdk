@@ -79,6 +79,21 @@ This is the first DS006848 benchmark that is both:
 
 That makes this the right active benchmark for EEG-to-PPG work in this repo.
 
+## Model-class comparison
+
+The first direct model-class comparison on this benchmark is now complete.
+
+A median-heuristic RBF-kernel calibrated baseline was tested on:
+
+- the fixed cohort-swap benchmark
+- the `sub-025` amplitude stress test
+
+It did not beat the calibrated linear baseline on either run.
+
+On both runs, the RBF aggregate relative MSE stays near `0.9986`, which is far worse than the current calibrated linear benchmark and effectively near-null.
+
+So this note remains anchored to the calibrated linear path, not the nonlinear comparison path.
+
 ## Commands
 
 ```powershell

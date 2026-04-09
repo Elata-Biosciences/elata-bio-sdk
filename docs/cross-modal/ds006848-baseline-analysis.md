@@ -172,6 +172,20 @@ Interpretation:
   - a timing-heavy stress test through `sub-011`
   - a weak-amplitude stress test through `sub-025`
 
+Current amplitude model-comparison finding:
+
+- the first slightly richer nonlinear comparison now exists on the fixed amplitude benchmark
+- the comparison model is a median-heuristic calibrated RBF-kernel ridge baseline
+- it does not beat the calibrated linear amplitude benchmark on either:
+  - the fixed cohort-swap split
+  - the `sub-025` stress-test expansion
+- both RBF runs stay near-null:
+  - cohort-swap aggregate relative MSE is about `0.9986`
+  - cohort-plus-sub025 aggregate relative MSE is about `0.9986`
+- both are materially worse than the corresponding calibrated linear runs:
+  - about `0.8743`
+  - about `0.8753`
+
 ## Practical conclusion
 
 The current `DS006848` result is now better characterized:
@@ -184,7 +198,8 @@ The current `DS006848` result is now better characterized:
 - the calibrated-absolute run now shows that short calibration also recovers a null-beating result in real target units on the cohort-swap split
 - the first one-subject calibrated expansion now shows that full morphology is still brittle under subject expansion
 - the amplitude-family calibrated benchmark is now stable under two cautious subject expansions
-- the next best step is to keep that amplitude benchmark fixed and compare a slightly richer amplitude-only model against the current calibrated linear baseline before widening the full morphology cohort again
+- the first generic nonlinear comparison now shows that naive kernelization is not the next lever
+- the next best step is to keep the amplitude benchmark fixed and compare feature/representation changes against the current calibrated linear baseline before widening the full morphology cohort again
 
 At this point, both `DS003838` and broader `DS006848` act more like stress-test datasets than positive baselines.
 
