@@ -186,6 +186,25 @@ Current amplitude model-comparison finding:
   - about `0.8743`
   - about `0.8753`
 
+Current low-rank amplitude finding:
+
+- the first low-rank calibrated amplitude sweep now exists on the same fixed benchmark
+- candidate ranks were:
+  - `8`
+  - `16`
+  - `32`
+  - `64`
+  - `128`
+  - `256`
+  - `512`
+- the best candidate is now:
+  - branch `eeg_clean_windows`
+  - rank `64`
+- it improves over the full-resolution calibrated linear benchmark on both accepted amplitude cohorts:
+  - cohort-swap improves from about `0.8743` to about `0.8680`
+  - cohort-plus-sub025 improves from about `0.8753` to about `0.8691`
+- `eeg_event_windows` still does not become competitive under low-rank projection
+
 ## Practical conclusion
 
 The current `DS006848` result is now better characterized:
@@ -199,7 +218,8 @@ The current `DS006848` result is now better characterized:
 - the first one-subject calibrated expansion now shows that full morphology is still brittle under subject expansion
 - the amplitude-family calibrated benchmark is now stable under two cautious subject expansions
 - the first generic nonlinear comparison now shows that naive kernelization is not the next lever
-- the next best step is to keep the amplitude benchmark fixed and compare feature/representation changes against the current calibrated linear baseline before widening the full morphology cohort again
+- the first low-rank comparison now shows that modest feature compression is a real lever
+- the next best step is to keep the amplitude benchmark fixed and compare subject-conditioned residuals or better event-aligned feature views against the new low-rank baseline before widening the full morphology cohort again
 
 At this point, both `DS003838` and broader `DS006848` act more like stress-test datasets than positive baselines.
 

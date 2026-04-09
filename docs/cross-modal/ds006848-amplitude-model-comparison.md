@@ -66,6 +66,32 @@ The practical read is straightforward:
 - generic kernelized nonlinearity is not the next lever
 - the current DS006848 amplitude benchmark should remain anchored to the calibrated linear baseline
 
+## Follow-on low-rank comparison
+
+The next bounded comparison is now complete too.
+
+A low-rank calibrated linear sweep was run with ranks:
+
+- `8`
+- `16`
+- `32`
+- `64`
+- `128`
+- `256`
+- `512`
+
+That comparison did improve the benchmark:
+
+- best branch remains `eeg_clean_windows`
+- best rank is `64`
+- cohort-swap aggregate relative MSE improves from about `0.8743` to about `0.8680`
+- cohort-plus-sub025 aggregate relative MSE improves from about `0.8753` to about `0.8691`
+
+So this note should now be read as:
+
+- RBF nonlinearity failed
+- low-rank linear compression helped
+
 ## Recommendation
 
 Do not widen the cohort again yet.

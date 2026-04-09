@@ -169,6 +169,13 @@ Completed or materially implemented:
         - cohort-swap aggregate relative MSE is about `0.9986`
         - cohort-plus-sub025 aggregate relative MSE is about `0.9986`
       - the DS006848 amplitude benchmark should therefore remain anchored to the calibrated linear baseline, not generic kernelized nonlinearity
+    - the first low-rank amplitude follow-on now also exists:
+      - a calibrated low-rank linear sweep was run with ranks `8, 16, 32, 64, 128, 256, 512`
+      - the best candidate is `eeg_clean_windows` at rank `64`
+      - it improves over the full-resolution calibrated linear baseline on both accepted amplitude cohorts:
+        - cohort-swap aggregate relative MSE improves from about `0.8743` to about `0.8680`
+        - cohort-plus-sub025 aggregate relative MSE improves from about `0.8753` to about `0.8691`
+      - the active DS006848 amplitude benchmark should now move to the low-rank rank-64 `eeg_clean` baseline
 
 Still incomplete:
 
@@ -272,7 +279,7 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    Replacing `sub-016` and `sub-017` with `sub-002` and `sub-035` removes the catastrophic failure mode and restores a fully clean eval cohort. On top of that split, short subject calibration now produces the first broader DS006848-style null-beating result in real units.
 
 8. Use the amplitude-family calibrated benchmark as the active DS006848 benchmark before widening the full morphology cohort again.
-   The `sub-011` and `sub-025` expansions show that amplitude-family behavior stays below null under both a timing-heavy and a weak-amplitude stress test. The first generic nonlinear comparison now shows that naive RBF kernelization does not beat the calibrated linear baseline. The next experiment should hold this cohort fixed and compare feature-space or low-rank amplitude models, not a generic deeper/nonlinear jump.
+   The `sub-011` and `sub-025` expansions show that amplitude-family behavior stays below null under both a timing-heavy and a weak-amplitude stress test. The first generic nonlinear comparison shows that naive RBF kernelization does not help, while the first low-rank comparison shows that rank-64 `eeg_clean` does help modestly and consistently. The next experiment should hold this cohort fixed and compare subject-conditioned residuals or better event-aligned feature views against that low-rank baseline.
 
 9. Keep the rest branch in smoke-contract mode until the calibrated verbalwm path is stable.
    Do not treat the current 2-subject rest path as a modeling benchmark yet.

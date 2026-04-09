@@ -94,6 +94,17 @@ On both runs, the RBF aggregate relative MSE stays near `0.9986`, which is far w
 
 So this note remains anchored to the calibrated linear path, not the nonlinear comparison path.
 
+## Low-rank follow-on
+
+The first low-rank follow-on is now complete.
+
+Projecting EEG into a rank-64 low-rank space before the calibrated linear model improves the benchmark on both:
+
+- the fixed cohort-swap split
+- the `sub-025` amplitude stress test
+
+So the active DS006848 amplitude reference should now move from full-resolution calibrated linear to low-rank calibrated linear on `eeg_clean_windows`.
+
 ## Commands
 
 ```powershell

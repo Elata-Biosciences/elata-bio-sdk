@@ -472,6 +472,18 @@ Practical reading:
   - cohort-plus-sub025 aggregate relative MSE is about `0.9986`
 - the calibrated linear amplitude benchmark remains the active DS006848 benchmark
 
+## First low-rank amplitude follow-on
+
+- the first low-rank calibrated amplitude sweep now exists on the same fixed benchmark
+- candidate ranks were `8, 16, 32, 64, 128, 256, 512`
+- the best candidate is now:
+  - branch `eeg_clean_windows`
+  - rank `64`
+- it improves over the full-resolution calibrated linear baseline on both accepted amplitude cohorts:
+  - cohort-swap aggregate relative MSE improves from about `0.8743` to about `0.8680`
+  - cohort-plus-sub025 aggregate relative MSE improves from about `0.8753` to about `0.8691`
+- the active DS006848 amplitude benchmark should now move from full-resolution calibrated linear to low-rank rank-64 calibrated linear
+
 ## Next actions
 
 1. Keep the broader slice-analysis pass and explicit subject-quality policy as the reference for what to watch: amplitude-family concentration, eval quality attrition, and subject-specific failure.
@@ -486,8 +498,10 @@ Practical reading:
 5. Freeze the narrowed DS006848 amplitude-family calibrated benchmark as the active development benchmark.
 6. Treat the first generic nonlinear comparison as completed negative evidence:
    - naive RBF kernelization is not the next lever
-7. Compare the next feature-space or low-rank amplitude model against that fixed split before widening the full-morphology cohort again.
-8. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
+7. Treat the first low-rank comparison as completed positive evidence:
+   - rank-64 `eeg_clean` is now the best DS006848 amplitude baseline
+8. Compare subject-conditioned residuals or better event-aligned feature views against that low-rank baseline before widening the full-morphology cohort again.
+9. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
 
 ## Commands
 
