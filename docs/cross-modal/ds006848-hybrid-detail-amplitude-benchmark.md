@@ -86,7 +86,9 @@ The practical read is:
 
 Treat hybrid raw-plus-detail rank-512 `eeg_clean` as the new DS006848 amplitude reference baseline.
 
-The next step should keep this hybrid benchmark fixed and test whether it survives the timing-heavy `sub-011` amplitude expansion before widening the full morphology scope again.
+That timing-heavy `sub-011` amplitude expansion now exists and is recorded in [DS006848 Hybrid `sub-011` Amplitude Expansion](ds006848-hybrid-sub011-amplitude-expansion.md).
+
+The next step should keep the hybrid feature view fixed and test whether it helps the broader timing-family and full-morphology failure that originally made `sub-011` risky.
 
 ## Commands
 

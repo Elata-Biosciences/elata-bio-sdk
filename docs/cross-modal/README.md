@@ -35,6 +35,7 @@
 - [DS006848 Haar Amplitude Follow-On](ds006848-haar-amplitude-benchmark.md)
 - [DS006848 Detail-Summary Amplitude Follow-On](ds006848-detail-summary-amplitude-benchmark.md)
 - [DS006848 Hybrid Detail Amplitude Benchmark](ds006848-hybrid-detail-amplitude-benchmark.md)
+- [DS006848 Hybrid `sub-011` Amplitude Expansion](ds006848-hybrid-sub011-amplitude-expansion.md)
 - [DS006848 Subject Quality Policy](ds006848-subject-quality-policy.md)
 - [DS006848 PPG Quality Review](ds006848-ppg-quality-review.md)
 - [DS004514 Intake Worksheet](ds004514-intake-worksheet.md)

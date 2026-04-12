@@ -209,6 +209,14 @@ Completed or materially implemented:
         - cohort-plus-sub025 aggregate relative MSE improves from about `0.8691` to about `0.7658`
       - it also pushes `dominant_beat_amplitude` below null on both accepted amplitude cohorts
       - the active DS006848 amplitude benchmark should now move to the hybrid raw-plus-detail rank-512 `eeg_clean` baseline
+    - the first timing-heavy hybrid amplitude expansion now also exists:
+      - the hybrid raw-plus-detail feature view was tested on the `sub-011` amplitude expansion
+      - the gain survives:
+        - calibrated low-rank raw `eeg_clean` on the same split is about `0.8954`
+        - the best hybrid candidate improves that to about `0.7797`
+      - the fixed active hybrid rank `512` also stays below null on the same split at about `0.8178`
+      - `dominant_beat_amplitude` stays below null under the best hybrid candidate on the timing-heavy expansion
+      - the next DS006848 question is no longer whether the amplitude gain survives `sub-011`; it is whether the same feature view helps the broader timing-family and full-morphology failure
 
 Still incomplete:
 
@@ -312,7 +320,7 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    Replacing `sub-016` and `sub-017` with `sub-002` and `sub-035` removes the catastrophic failure mode and restores a fully clean eval cohort. On top of that split, short subject calibration now produces the first broader DS006848-style null-beating result in real units.
 
 8. Use the amplitude-family calibrated benchmark as the active DS006848 benchmark before widening the full morphology cohort again.
-   The `sub-011` and `sub-025` expansions show that amplitude-family behavior stays below null under both a timing-heavy and a weak-amplitude stress test. The first generic nonlinear comparison shows that naive RBF kernelization does not help, the first low-rank comparison shows that rank-64 `eeg_clean` does help modestly and consistently, the first subject-conditioned residual follow-on shows that simple residual-bias correction is actively harmful on both accepted amplitude cohorts, the first full Haar-wavelet follow-on shows that a generic multiscale rotation stays near null and becomes unstable at higher ranks, the first channel-preserving detail-summary follow-on shows that selective multiscale summaries recover a weak but real secondary signal, and the first hybrid raw-plus-detail follow-on shows that combining raw `eeg_clean` with selective detail summaries materially improves the accepted amplitude benchmark. The next experiment should therefore freeze that hybrid benchmark and test whether the gain survives the `sub-011` timing-heavy amplitude expansion before widening the full morphology scope again.
+   The `sub-011` and `sub-025` expansions show that amplitude-family behavior stays below null under both a timing-heavy and a weak-amplitude stress test. The first generic nonlinear comparison shows that naive RBF kernelization does not help, the first low-rank comparison shows that rank-64 `eeg_clean` does help modestly and consistently, the first subject-conditioned residual follow-on shows that simple residual-bias correction is actively harmful on both accepted amplitude cohorts, the first full Haar-wavelet follow-on shows that a generic multiscale rotation stays near null and becomes unstable at higher ranks, the first channel-preserving detail-summary follow-on shows that selective multiscale summaries recover a weak but real secondary signal, the first hybrid raw-plus-detail follow-on shows that combining raw `eeg_clean` with selective detail summaries materially improves the accepted amplitude benchmark, and the first timing-heavy hybrid amplitude expansion shows that this gain survives `sub-011`. The next experiment should therefore stop re-testing amplitude-only stability and ask whether the same hybrid feature view helps the broader timing-family and full-morphology failure that still keeps `sub-011` out of the default full-morphology cohort.
 
 9. Keep the rest branch in smoke-contract mode until the calibrated verbalwm path is stable.
    Do not treat the current 2-subject rest path as a modeling benchmark yet.
