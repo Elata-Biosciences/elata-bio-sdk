@@ -560,6 +560,29 @@ Practical reading:
 - all three tracked amplitude targets stay below null under the best hybrid candidate, including `dominant_beat_amplitude`
 - the amplitude-only question is now answered: the hybrid gain survives the timing-heavy `sub-011` expansion
 
+## First hybrid full-morphology follow-on
+
+- the first hybrid full-morphology follow-on now also exists on top of the same DS006848 cohort family
+- it compares the hybrid raw-plus-detail feature view against the low-rank morphology predecessor on:
+  - `cohort_swap`
+  - `cohort_plus_sub011`
+- on `cohort_swap`:
+  - low-rank full aggregate is about `0.9199`
+  - hybrid full aggregate improves to about `0.8095`
+  - hybrid timing-family aggregate is about `0.8750`
+- on `cohort_plus_sub011`:
+  - low-rank full aggregate is about `1.0969`
+  - hybrid full aggregate improves to about `0.8337`
+  - hybrid timing-family aggregate improves to about `0.9147`
+- compared with the earlier calibrated-absolute family comparison:
+  - the older `cohort_plus_sub011` full aggregate was about `2.1957`
+  - the older `cohort_plus_sub011` timing-family aggregate was about `4.1367`
+- the remaining caveat is subject-specific:
+  - `sub-011` timing-family relative MSE under the best hybrid rank is still slightly above null at about `1.0438`
+- the full-morphology question is now narrower:
+  - the hybrid feature view clearly helps
+  - the open issue is whether that aggregate recovery is sufficient to promote `sub-011`, and whether one shared hybrid rank can cover both amplitude and morphology
+
 ## Next actions
 
 1. Keep the broader slice-analysis pass and explicit subject-quality policy as the reference for what to watch: amplitude-family concentration, eval quality attrition, and subject-specific failure.
@@ -586,8 +609,10 @@ Practical reading:
    - hybrid raw `eeg_clean` plus channel-preserving detail summaries is now the best DS006848 amplitude baseline
 12. Treat the first timing-heavy hybrid amplitude expansion as completed positive evidence:
    - the hybrid amplitude gain survives `sub-011`
-13. Test whether the same hybrid feature view helps the broader timing-family and full-morphology `sub-011` failure before promoting `sub-011` into the default full-morphology cohort.
-14. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
+13. Treat the first hybrid full-morphology follow-on as completed positive evidence:
+   - the hybrid feature view softens the broader timing/full-morphology failure enough to beat null on aggregate
+14. Decide whether a shared lower-rank hybrid setting should replace the current split between amplitude rank `512` and morphology rank `16`, and whether that is enough to promote `sub-011`.
+15. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
 
 ## Commands
 

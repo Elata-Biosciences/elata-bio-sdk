@@ -260,6 +260,21 @@ def main() -> int:
             null_mae = mae(null_abs, targets_abs)
             relative_mse_value = relative_error(model_mse, null_mse, floor=null_mse_floor)
             relative_mae_value = relative_error(model_mae, null_mae, floor=null_mse_floor)
+            per_subject: dict[str, dict[str, float | int]] = {}
+            local_lookup = {global_index: local_index for local_index, global_index in enumerate(calibrated_test_indices)}
+            for subject_id, subject_eval_indices in eval_groups.items():
+                subject_test_indices = subject_eval_indices[calibration_windows_per_subject:]
+                local_indices = [local_lookup[index] for index in subject_test_indices]
+                subject_model_mse = mse(predictions_abs[local_indices], targets_abs[local_indices])
+                subject_null_mse = mse(null_abs[local_indices], targets_abs[local_indices])
+                per_subject[subject_id] = {
+                    "calibration_windows": calibration_windows_per_subject,
+                    "eval_windows": len(local_indices),
+                    "model_mse": subject_model_mse,
+                    "null_mse": subject_null_mse,
+                    "relative_mse": relative_error(subject_model_mse, subject_null_mse, floor=null_mse_floor),
+                    "delta_mse": subject_model_mse - subject_null_mse,
+                }
             rank_metrics["per_target"][target_name] = {
                 "train_windows": train_count,
                 "eval_windows": len(calibrated_test_indices),
@@ -274,6 +289,7 @@ def main() -> int:
                 "null_corr": pearson(null_abs, targets_abs),
                 "delta_mse": model_mse - null_mse,
                 "beats_null_mse": relative_mse_value < 1.0,
+                "per_subject": per_subject,
             }
 
         rank_metrics.update(aggregate_relative_section(rank_metrics["per_target"], aggregate_target_names))

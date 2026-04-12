@@ -88,7 +88,9 @@ Treat hybrid raw-plus-detail rank-512 `eeg_clean` as the new DS006848 amplitude 
 
 That timing-heavy `sub-011` amplitude expansion now exists and is recorded in [DS006848 Hybrid `sub-011` Amplitude Expansion](ds006848-hybrid-sub011-amplitude-expansion.md).
 
-The next step should keep the hybrid feature view fixed and test whether it helps the broader timing-family and full-morphology failure that originally made `sub-011` risky.
+The broader morphology/timing follow-on now also exists and is recorded in [DS006848 Hybrid Morphology Family Comparison](ds006848-hybrid-morphology-family-comparison.md).
+
+The next step should decide whether to standardize on a shared lower-rank hybrid setting or keep separate amplitude-versus-morphology rank choices.
 
 ## Commands
 

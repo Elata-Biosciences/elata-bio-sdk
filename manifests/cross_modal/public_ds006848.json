@@ -108,15 +108,15 @@
     "artifact_fields": []
   },
   "intake_review": {
-    "verification_status": "source_tree_verified_phase2_verbalwm_broader_rest_targets_quality_review_cohort_swap_shift_aware_calibrated_absolute_low_rank_residual_haar_detail_summary_hybrid_and_sub011_amplitude_expansion",
+    "verification_status": "source_tree_verified_phase2_verbalwm_broader_rest_targets_quality_review_cohort_swap_shift_aware_calibrated_absolute_low_rank_residual_haar_detail_summary_hybrid_sub011_amplitude_and_hybrid_morphology_follow_on",
     "accepted_for": [
       "candidate_eeg_ppg_alignment",
       "candidate_ppg_morphology_benchmark",
       "candidate_rest_working_memory_benchmark"
     ],
     "blocked_on": [
-      "keep the hybrid raw-plus-detail amplitude benchmark as the default DS006848 development benchmark and test whether the same feature view softens the timing-family/full-morphology sub-011 failure",
-      "keep sub-011 out of the default full-morphology calibrated cohort until the timing-family failure is understood",
+      "decide whether a shared lower-rank hybrid setting should replace the current split between amplitude rank 512 and morphology rank 16",
+      "decide whether the hybrid morphology recovery is sufficient to promote sub-011 into the default full-morphology calibrated cohort despite slightly above-null sub-011 timing-family behavior",
       "decide whether the DS006848 rest branch should stay smoke-only or expand into a real rest benchmark",
       "decide the long-term zero-shot versus calibrated roles of DS006848 and DS003838 now that both broader verbalwm splits fail to beat null"
     ]
@@ -153,6 +153,7 @@
     "A first Haar-wavelet feature-view follow-on now also exists; a full seven-level Haar view on eeg_clean stays near null at best and becomes unstable at higher ranks, so it should also be treated as negative evidence.",
     "A first channel-preserving detail-summary follow-on now also exists; multiscale detail summaries recover a weak null-beating aggregate signal on both accepted amplitude cohorts but still do not beat the active raw low-rank baseline.",
     "A first hybrid raw-plus-detail follow-on now also exists; concatenating raw eeg_clean with channel-preserving detail summaries improves aggregate relative MSE to about 0.7631 on cohort-swap and about 0.7658 on cohort-plus-sub025, making it the best DS006848 amplitude baseline so far.",
-    "A first timing-heavy hybrid amplitude expansion now also exists; on the sub-011 amplitude expansion the best hybrid candidate reaches about 0.7797 and the fixed active hybrid rank 512 stays below null at about 0.8178, so the hybrid amplitude gain survives the sub-011 stress test."
+    "A first timing-heavy hybrid amplitude expansion now also exists; on the sub-011 amplitude expansion the best hybrid candidate reaches about 0.7797 and the fixed active hybrid rank 512 stays below null at about 0.8178, so the hybrid amplitude gain survives the sub-011 stress test.",
+    "A first hybrid full-morphology follow-on now also exists; the best hybrid rank reaches about 0.8095 on cohort-swap and about 0.8337 on cohort-plus-sub011, while the cohort-plus-sub011 timing-family aggregate improves to about 0.9147 and the remaining sub-011 timing-family issue narrows to a slight above-null subject-specific value."
   ]
 }
