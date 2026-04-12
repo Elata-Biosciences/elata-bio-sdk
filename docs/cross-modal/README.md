@@ -31,6 +31,7 @@
 - [DS006848 Amplitude Calibrated Benchmark](ds006848-amplitude-calibrated-benchmark.md)
 - [DS006848 Amplitude Model Comparison](ds006848-amplitude-model-comparison.md)
 - [DS006848 Low-Rank Amplitude Benchmark](ds006848-low-rank-amplitude-benchmark.md)
+- [DS006848 Low-Rank Residual Follow-On](ds006848-low-rank-residual-benchmark.md)
 - [DS006848 Subject Quality Policy](ds006848-subject-quality-policy.md)
 - [DS006848 PPG Quality Review](ds006848-ppg-quality-review.md)
 - [DS004514 Intake Worksheet](ds004514-intake-worksheet.md)

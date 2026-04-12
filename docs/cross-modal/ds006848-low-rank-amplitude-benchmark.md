@@ -70,14 +70,24 @@ The practical read is:
 - modest feature compression helped
 - the active DS006848 amplitude benchmark should now move from full-resolution linear to low-rank rank-64 `eeg_clean`
 
+## Follow-on status
+
+- a subject-conditioned residual correction was tested on top of this exact low-rank baseline
+- it worsened aggregate relative MSE on both accepted amplitude cohorts:
+  - cohort-swap: about `0.8680` to about `1.3670`
+  - cohort-plus-sub025: about `0.8691` to about `1.3674`
+- it degraded all three tracked amplitude targets, not just dominant-beat amplitude
+- low-rank rank-64 therefore remains the active DS006848 amplitude baseline
+
 ## Recommendation
 
 Treat low-rank rank-64 `eeg_clean_windows` as the new DS006848 amplitude reference baseline.
 
-The next step should stay on the same cohort and test one of:
+The next step should stay on the same cohort and test a better event-aligned EEG feature view against this baseline.
 
-- subject-conditioned residual correction on top of the low-rank baseline
-- better event-aligned EEG feature views against the low-rank baseline
+The current best candidate is:
+
+- a cheap transient-aware view such as Haar-wavelet or similarly event-localized EEG features
 
 ## Commands
 

@@ -484,6 +484,20 @@ Practical reading:
   - cohort-plus-sub025 aggregate relative MSE improves from about `0.8753` to about `0.8691`
 - the active DS006848 amplitude benchmark should now move from full-resolution calibrated linear to low-rank rank-64 calibrated linear
 
+## First subject-conditioned residual follow-on
+
+- the first residual-style follow-on now exists on top of the active low-rank DS006848 amplitude benchmark
+- it kept the same:
+  - accepted amplitude cohorts
+  - `eeg_clean_windows` branch
+  - rank `64`
+  - `32`-window short-calibration contract
+- it added a simple per-subject residual-bias correction estimated from the calibration windows
+- it fails on both accepted amplitude cohorts and degrades all tracked targets
+- cohort-swap aggregate relative MSE worsens from about `0.8680` to about `1.3670`
+- cohort-plus-sub025 aggregate relative MSE worsens from about `0.8691` to about `1.3674`
+- subject-conditioned residual correction should therefore now be treated as completed negative evidence, not the next default DS006848 lever
+
 ## Next actions
 
 1. Keep the broader slice-analysis pass and explicit subject-quality policy as the reference for what to watch: amplitude-family concentration, eval quality attrition, and subject-specific failure.
@@ -500,8 +514,11 @@ Practical reading:
    - naive RBF kernelization is not the next lever
 7. Treat the first low-rank comparison as completed positive evidence:
    - rank-64 `eeg_clean` is now the best DS006848 amplitude baseline
-8. Compare subject-conditioned residuals or better event-aligned feature views against that low-rank baseline before widening the full-morphology cohort again.
-9. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
+8. Treat the first subject-conditioned residual comparison as completed negative evidence:
+   - simple residual-bias correction is not the next lever
+9. Compare better event-aligned EEG feature views against the active low-rank baseline before widening the full-morphology cohort again.
+   The best current candidate is a cheap transient-aware representation such as Haar-wavelet-style EEG features.
+10. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
 
 ## Commands
 
