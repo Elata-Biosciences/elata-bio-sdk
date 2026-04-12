@@ -17,6 +17,7 @@ The comparison uses the already-computed hybrid rank sweeps across:
 - cohort-swap full morphology
 - `cohort_plus_sub011` full morphology
 - `cohort_plus_sub025` full morphology
+- `cohort_plus_sub011_sub025` full morphology
 
 ## Policies compared
 
@@ -28,14 +29,14 @@ The comparison uses the already-computed hybrid rank sweeps across:
 
 Policy summary:
 
-- `best_per_run` mean primary relative MSE: about `0.8007`
-- shared `rank 16` mean primary relative MSE: about `0.8013`
-- shared `rank 512` mean primary relative MSE: about `1.0138`
+- `best_per_run` mean primary relative MSE: about `0.8100`
+- shared `rank 16` mean primary relative MSE: about `0.8105`
+- shared `rank 512` mean primary relative MSE: about `1.1127`
 
 Run coverage:
 
-- shared `rank 16` keeps `6 / 6` tracked runs below null
-- shared `rank 512` keeps only `5 / 6` tracked runs below null
+- shared `rank 16` keeps `7 / 7` tracked runs below null
+- shared `rank 512` keeps only `5 / 7` tracked runs below null
 
 Accepted amplitude tradeoff:
 
@@ -62,6 +63,9 @@ Stress and morphology tradeoff:
 - `cohort_plus_sub025` morphology:
   - shared `rank 16`: `0.8525`
   - shared `rank 512`: `0.9593`
+- `cohort_plus_sub011_sub025` morphology:
+  - shared `rank 16`: `0.8655`
+  - shared `rank 512`: `1.7062`
 
 Focused `sub-011` morphology read:
 
@@ -77,7 +81,7 @@ Focused `sub-025` morphology read:
 
 - the accepted amplitude cohorts do not justify keeping `rank 512` as a separate default because the `rank 16` loss there is negligible
 - `rank 16` is already the best setting on the timing-heavy `sub-011` amplitude stress test
-- `rank 16` is also the best setting on all three tracked morphology runs
+- `rank 16` is also the best setting on all four tracked morphology runs
 - `rank 512` is not just unnecessary for the broader path; it becomes actively unsafe on the harder morphology expansion
 
 So the rank question is now settled:
@@ -93,7 +97,7 @@ Treat shared hybrid raw-plus-detail `rank 16` on `eeg_clean_windows` as the acti
 - amplitude-family work
 - full-morphology follow-ons
 
-The next experiment should no longer be another rank sweep. It should test whether the shared `rank 16` default survives the first combined `sub-011` plus `sub-025` full-morphology expansion, because both one-subject expansions now pass on aggregate but both added subjects remain individually above null.
+The next experiment should no longer be another rank sweep or another stress-only rerun. The combined `sub-011` plus `sub-025` full-morphology expansion now exists and stays below null on aggregate, so the next useful test is a promotion-oriented cohort decision under the fixed shared `rank 16` default.
 
 ## Commands
 

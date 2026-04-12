@@ -589,8 +589,12 @@ Practical reading:
   - per-run best rank
   - shared `rank 16`
   - shared `rank 512`
-- shared `rank 16` keeps all `6 / 6` tracked hybrid runs below null
-- shared `rank 512` keeps only `5 / 6` tracked runs below null
+- shared `rank 16` keeps all `7 / 7` tracked hybrid runs below null
+- shared `rank 512` keeps only `5 / 7` tracked hybrid runs below null
+- mean primary relative MSE is now:
+  - best-per-run: about `0.8100`
+  - shared `rank 16`: about `0.8105`
+  - shared `rank 512`: about `1.1127`
 - shared `rank 16` is effectively flat on the accepted amplitude cohorts:
   - cohort-swap changes from about `0.7631` to about `0.7659`
   - cohort-plus-sub025 changes from about `0.7658` to about `0.7665`
@@ -601,6 +605,8 @@ Practical reading:
   - cohort-plus-sub011 full aggregate about `0.8337` versus about `1.8718` for shared `rank 512`
 - shared `rank 16` is also the best setting on the new `cohort_plus_sub025` morphology expansion:
   - full aggregate about `0.8525` versus about `0.9593` for shared `rank 512`
+- shared `rank 16` is also the best setting on the combined `cohort_plus_sub011_sub025` morphology expansion:
+  - full aggregate about `0.8655` versus about `1.7062` for shared `rank 512`
 - the subject-specific `sub-011` full-morphology read also degrades sharply at shared `rank 512`:
   - shared `rank 16`: about `1.1747`
   - shared `rank 512`: about `6.2837`
@@ -612,7 +618,8 @@ Practical reading:
 
 - the repo should now standardize on shared hybrid raw-plus-detail `rank 16`
 - the remaining DS006848 question is no longer rank governance
-- the next DS006848 question is whether the shared `rank 16` default survives a combined `sub-011` plus `sub-025` full-morphology expansion
+- the combined `sub-011` plus `sub-025` stress expansion now exists and stays below null on aggregate
+- the next DS006848 question is cohort-promotion policy, not rank or stress-pair survival
 
 ## First cautious shared-rank full-morphology `sub-025` expansion
 
@@ -634,7 +641,37 @@ Practical reading:
 
 - `sub-025` no longer breaks the aggregate full-morphology benchmark under the shared hybrid default
 - but `sub-025` should still stay pending for default cohort promotion because the subject itself remains above null
-- the next useful check is the first combined `sub-011` plus `sub-025` full-morphology expansion
+- the later combined `sub-011` plus `sub-025` expansion also stays below null on aggregate, so the remaining question is subject-level promotion rather than stress-pair survival
+
+## First combined shared-rank full-morphology `sub-011` plus `sub-025` expansion
+
+- the first combined stress-pair full-morphology expansion under the shared hybrid default now also exists
+- it adds both `sub-011` and `sub-025` to eval while keeping the reviewed train side fixed
+- the expanded data path stays fully clean:
+  - `2560 / 2560` quality-pass windows
+  - `1527` eval-valid dominant-beat windows
+- the split-matched calibrated-absolute morphology baseline on `eeg_clean` stays well above null:
+  - aggregate relative MSE about `1.9785`
+- the split-matched low-rank morphology reference also stays above null:
+  - best rank `8`
+  - aggregate relative MSE about `1.0863`
+- the hybrid raw-plus-detail follow-on remains clearly better:
+  - best rank stays `16`
+  - full aggregate relative MSE is about `0.8655`
+  - amplitude-family aggregate relative MSE is about `0.7803`
+  - timing-family aggregate relative MSE is about `0.9932`
+- the aggregate timing recovery is real but narrow:
+  - `dominant_beat_rise_time_seconds` is still slightly above null at about `1.0049`
+  - `dominant_beat_width_seconds` stays below null and keeps the timing-family mean just under the null line
+- the subject-specific caveat remains:
+  - `sub-011` full relative MSE is still about `1.1747`
+  - `sub-025` full relative MSE is still about `1.1371`
+
+Practical reading:
+
+- the combined stress-pair run no longer blocks the wider DS006848 benchmark on aggregate
+- but it is still not a cohort-promotion result because both added stress-test subjects remain individually above null
+- the next useful DS006848 check is a promotion-oriented cohort decision around cleaner pending-review candidates such as `sub-002` and `sub-035`, while `sub-011` and `sub-025` stay pending for full morphology
 
 ## Next actions
 
@@ -666,8 +703,9 @@ Practical reading:
    - the hybrid feature view softens the broader timing/full-morphology failure enough to beat null on aggregate
 14. Treat shared hybrid `rank 16` as the active DS006848 benchmark default for both amplitude and morphology follow-ons.
 15. Treat the first weak-amplitude full-morphology `sub-025` expansion under shared `rank 16` as completed evidence.
-16. Use the shared `rank 16` default to run the first combined `sub-011` plus `sub-025` full-morphology expansion before revisiting cohort promotion.
-17. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
+16. Treat the first combined `sub-011` plus `sub-025` full-morphology expansion under shared `rank 16` as completed evidence.
+17. Use the shared `rank 16` default for the first promotion-oriented full-morphology cohort decision rather than another stress-only rerun.
+18. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
 
 ## Commands
 

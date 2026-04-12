@@ -318,6 +318,130 @@
           }
         }
       }
+    },
+    "cohort_plus_sub011_sub025": {
+      "source_metrics": "reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_sub025_calibrated_hybrid_detail_morphology_metrics.json",
+      "rank_selection": "best_rank",
+      "best_rank": 16,
+      "target_sets": {
+        "full": {
+          "target_names": [
+            "amplitude_range",
+            "rising_edge_slope_max",
+            "dominant_beat_amplitude",
+            "dominant_beat_rise_time_seconds",
+            "dominant_beat_width_seconds"
+          ],
+          "aggregate_relative_mse": 0.8654608587409343,
+          "aggregate_relative_mae": 0.9593493218982815,
+          "beats_null_relative_mse": true
+        },
+        "amplitude_family": {
+          "target_names": [
+            "amplitude_range",
+            "rising_edge_slope_max",
+            "dominant_beat_amplitude"
+          ],
+          "aggregate_relative_mse": 0.7803268049968296,
+          "aggregate_relative_mae": 0.9805351276620328,
+          "beats_null_relative_mse": true
+        },
+        "timing_family": {
+          "target_names": [
+            "dominant_beat_rise_time_seconds",
+            "dominant_beat_width_seconds"
+          ],
+          "aggregate_relative_mse": 0.9931619393570912,
+          "aggregate_relative_mae": 0.9275706132526544,
+          "beats_null_relative_mse": true
+        }
+      },
+      "per_subject": {
+        "sub-002": {
+          "full": {
+            "aggregate_relative_mse": 0.947539963428335,
+            "beats_null_relative_mse": true
+          },
+          "amplitude_family": {
+            "aggregate_relative_mse": 0.870657137325177,
+            "beats_null_relative_mse": true
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 1.0628642025830721,
+            "beats_null_relative_mse": false
+          }
+        },
+        "sub-007": {
+          "full": {
+            "aggregate_relative_mse": 8.384238466996857,
+            "beats_null_relative_mse": false
+          },
+          "amplitude_family": {
+            "aggregate_relative_mse": 13.293175006221318,
+            "beats_null_relative_mse": false
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 1.0208336581601634,
+            "beats_null_relative_mse": false
+          }
+        },
+        "sub-011": {
+          "full": {
+            "aggregate_relative_mse": 1.1747044679121013,
+            "beats_null_relative_mse": false
+          },
+          "amplitude_family": {
+            "aggregate_relative_mse": 1.2619669060457464,
+            "beats_null_relative_mse": false
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 1.0438108107116333,
+            "beats_null_relative_mse": false
+          }
+        },
+        "sub-012": {
+          "full": {
+            "aggregate_relative_mse": 0.6169955537469964,
+            "beats_null_relative_mse": true
+          },
+          "amplitude_family": {
+            "aggregate_relative_mse": 0.7043943137779021,
+            "beats_null_relative_mse": true
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 0.485897413700638,
+            "beats_null_relative_mse": true
+          }
+        },
+        "sub-025": {
+          "full": {
+            "aggregate_relative_mse": 1.1370543937665263,
+            "beats_null_relative_mse": false
+          },
+          "amplitude_family": {
+            "aggregate_relative_mse": 1.0551587681535581,
+            "beats_null_relative_mse": false
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 1.2598978321859784,
+            "beats_null_relative_mse": false
+          }
+        },
+        "sub-035": {
+          "full": {
+            "aggregate_relative_mse": 1.4108675329476768,
+            "beats_null_relative_mse": false
+          },
+          "amplitude_family": {
+            "aggregate_relative_mse": 1.568333872420603,
+            "beats_null_relative_mse": false
+          },
+          "timing_family": {
+            "aggregate_relative_mse": 1.1746680237382872,
+            "beats_null_relative_mse": false
+          }
+        }
+      }
     }
   }
 }

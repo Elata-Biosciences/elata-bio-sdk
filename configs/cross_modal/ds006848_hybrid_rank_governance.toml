@@ -64,6 +64,12 @@ track = "morphology"
 primary_target_set = "full"
 path = "reports/cross_modal/ds006848/ds006848_cohort_plus_sub025_calibrated_hybrid_detail_morphology_metrics.json"
 
+[[governance.runs]]
+name = "cohort_plus_sub011_sub025_morphology"
+track = "morphology"
+primary_target_set = "full"
+path = "reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_sub025_calibrated_hybrid_detail_morphology_metrics.json"
+
 [paths]
 metrics = "reports/cross_modal/ds006848/ds006848_hybrid_rank_governance_metrics.json"
 report = "reports/cross_modal/ds006848/ds006848_hybrid_rank_governance_report.md"

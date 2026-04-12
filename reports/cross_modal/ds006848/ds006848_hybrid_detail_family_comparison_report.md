@@ -106,3 +106,39 @@
 - `sub-012` full relative MSE `0.616996`, amplitude relative MSE `0.704394`, timing relative MSE `0.485897`
 - `sub-025` full relative MSE `1.137054`, amplitude relative MSE `1.055159`, timing relative MSE `1.259898`
 - `sub-035` full relative MSE `1.410868`, amplitude relative MSE `1.568334`, timing relative MSE `1.174668`
+
+## cohort_plus_sub011_sub025
+
+- Source metrics: `reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_sub025_calibrated_hybrid_detail_morphology_metrics.json`
+- Rank selection: `best_rank`
+- Best rank: `16`
+
+### full
+
+- Aggregate relative MSE: `0.865461`
+- Aggregate relative MAE: `0.959349`
+- Beats null aggregate relative MSE: `True`
+- Targets: `amplitude_range, rising_edge_slope_max, dominant_beat_amplitude, dominant_beat_rise_time_seconds, dominant_beat_width_seconds`
+
+### amplitude_family
+
+- Aggregate relative MSE: `0.780327`
+- Aggregate relative MAE: `0.980535`
+- Beats null aggregate relative MSE: `True`
+- Targets: `amplitude_range, rising_edge_slope_max, dominant_beat_amplitude`
+
+### timing_family
+
+- Aggregate relative MSE: `0.993162`
+- Aggregate relative MAE: `0.927571`
+- Beats null aggregate relative MSE: `True`
+- Targets: `dominant_beat_rise_time_seconds, dominant_beat_width_seconds`
+
+### Per-subject family summary
+
+- `sub-002` full relative MSE `0.947540`, amplitude relative MSE `0.870657`, timing relative MSE `1.062864`
+- `sub-007` full relative MSE `8.384238`, amplitude relative MSE `13.293175`, timing relative MSE `1.020834`
+- `sub-011` full relative MSE `1.174704`, amplitude relative MSE `1.261967`, timing relative MSE `1.043811`
+- `sub-012` full relative MSE `0.616996`, amplitude relative MSE `0.704394`, timing relative MSE `0.485897`
+- `sub-025` full relative MSE `1.137054`, amplitude relative MSE `1.055159`, timing relative MSE `1.259898`
+- `sub-035` full relative MSE `1.410868`, amplitude relative MSE `1.568334`, timing relative MSE `1.174668`

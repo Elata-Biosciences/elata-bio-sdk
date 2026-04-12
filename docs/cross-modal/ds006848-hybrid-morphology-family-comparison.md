@@ -18,6 +18,7 @@ Runs:
 - `cohort_swap`
 - `cohort_plus_sub011`
 - `cohort_plus_sub025`
+- `cohort_plus_sub011_sub025`
 
 Families:
 
@@ -48,6 +49,18 @@ On the hybrid `cohort_plus_sub025` run:
 - amplitude-family aggregate relative MSE: about `0.7665`
 - timing-family aggregate relative MSE: about `0.9815`
 
+On the hybrid `cohort_plus_sub011_sub025` run:
+
+- best rank: `16`
+- full aggregate relative MSE: about `0.8655`
+- amplitude-family aggregate relative MSE: about `0.7803`
+- timing-family aggregate relative MSE: about `0.9932`
+
+Compared with split-matched `cohort_plus_sub011_sub025` predecessors:
+
+- calibrated absolute full aggregate: about `1.9785`
+- calibrated low-rank full aggregate: about `1.0863`
+
 Compared with older `cohort_plus_sub011` baselines:
 
 - calibrated absolute full aggregate: about `2.1957`
@@ -70,9 +83,11 @@ Per-subject `sub-025` reading under the best hybrid rank:
 ## Interpretation
 
 - the hybrid feature view does materially soften the broader DS006848 failure
-- at the aggregate level, it keeps full morphology below null on all three tracked cohort variants
-- it also keeps timing family below null on `cohort_swap` and `cohort_plus_sub011`, and just below null on `cohort_plus_sub025`
+- at the aggregate level, it keeps full morphology below null on all four tracked cohort variants
+- it also keeps timing family below null on all four tracked cohort variants, but the combined `cohort_plus_sub011_sub025` run is only marginal at about `0.9932`
+- on that combined run, the timing-family survival is carried by `dominant_beat_width_seconds`; `dominant_beat_rise_time_seconds` is still slightly above null at about `1.0049`
 - that is a real change from the earlier calibrated absolute and low-rank predecessor baselines
+- the combined stress-test run matters because it shows the aggregate benchmark survives `sub-011` and `sub-025` together, not only one at a time
 
 The remaining caution is more specific:
 
@@ -92,7 +107,7 @@ Do not yet promote `sub-011` into the default full-morphology cohort. The new bl
 
 - aggregate recovery is now strong enough to justify continued full-morphology follow-on work
 - `sub-011` and `sub-025` are both still individually above null
-- the next check should be the first combined `sub-011` plus `sub-025` full-morphology expansion under the shared `rank 16` default
+- the next check should be a promotion-oriented cohort decision around cleaner candidates such as `sub-002` and `sub-035`, not another stress-only rerun
 
 ## Commands
 
@@ -100,9 +115,11 @@ Do not yet promote `sub-011` into the default full-morphology cohort. The new bl
 python scripts/cross_modal/train_ds006848_calibrated_low_rank_baseline.py --config configs/cross_modal/ds006848_calibrated_low_rank_morphology_cohort_swap.toml
 python scripts/cross_modal/train_ds006848_calibrated_low_rank_baseline.py --config configs/cross_modal/ds006848_calibrated_low_rank_morphology_cohort_plus_sub011.toml
 python scripts/cross_modal/train_ds006848_calibrated_low_rank_baseline.py --config configs/cross_modal/ds006848_calibrated_low_rank_morphology_cohort_plus_sub025.toml
+python scripts/cross_modal/train_ds006848_calibrated_low_rank_baseline.py --config configs/cross_modal/ds006848_calibrated_low_rank_morphology_cohort_plus_sub011_sub025.toml
 python scripts/cross_modal/train_ds006848_calibrated_hybrid_detail_baseline.py --config configs/cross_modal/ds006848_calibrated_hybrid_detail_morphology_cohort_swap.toml
 python scripts/cross_modal/train_ds006848_calibrated_hybrid_detail_baseline.py --config configs/cross_modal/ds006848_calibrated_hybrid_detail_morphology_cohort_plus_sub011.toml
 python scripts/cross_modal/train_ds006848_calibrated_hybrid_detail_baseline.py --config configs/cross_modal/ds006848_calibrated_hybrid_detail_morphology_cohort_plus_sub025.toml
+python scripts/cross_modal/train_ds006848_calibrated_hybrid_detail_baseline.py --config configs/cross_modal/ds006848_calibrated_hybrid_detail_morphology_cohort_plus_sub011_sub025.toml
 python scripts/cross_modal/analyze_ds006848_ranked_family_comparison.py --config configs/cross_modal/ds006848_hybrid_detail_family_comparison.toml
 ```
 
@@ -114,3 +131,4 @@ python scripts/cross_modal/analyze_ds006848_ranked_family_comparison.py --config
 - [../../reports/cross_modal/ds006848/ds006848_cohort_swap_calibrated_hybrid_detail_morphology_metrics.json](../../reports/cross_modal/ds006848/ds006848_cohort_swap_calibrated_hybrid_detail_morphology_metrics.json)
 - [../../reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_calibrated_hybrid_detail_morphology_metrics.json](../../reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_calibrated_hybrid_detail_morphology_metrics.json)
 - [../../reports/cross_modal/ds006848/ds006848_cohort_plus_sub025_calibrated_hybrid_detail_morphology_metrics.json](../../reports/cross_modal/ds006848/ds006848_cohort_plus_sub025_calibrated_hybrid_detail_morphology_metrics.json)
+- [../../reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_sub025_calibrated_hybrid_detail_morphology_metrics.json](../../reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_sub025_calibrated_hybrid_detail_morphology_metrics.json)

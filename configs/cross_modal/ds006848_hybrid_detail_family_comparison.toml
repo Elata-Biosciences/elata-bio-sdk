@@ -7,6 +7,7 @@ target_sets = ["full", "amplitude_family", "timing_family"]
 cohort_swap = "reports/cross_modal/ds006848/ds006848_cohort_swap_calibrated_hybrid_detail_morphology_metrics.json"
 cohort_plus_sub011 = "reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_calibrated_hybrid_detail_morphology_metrics.json"
 cohort_plus_sub025 = "reports/cross_modal/ds006848/ds006848_cohort_plus_sub025_calibrated_hybrid_detail_morphology_metrics.json"
+cohort_plus_sub011_sub025 = "reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_sub025_calibrated_hybrid_detail_morphology_metrics.json"
 
 [comparison.target_families]
 amplitude_family = ["amplitude_range", "rising_edge_slope_max", "dominant_beat_amplitude"]
