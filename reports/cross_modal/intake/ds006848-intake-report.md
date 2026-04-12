@@ -513,6 +513,24 @@ Practical reading:
   - cohort-plus-sub025: about `1.0167`
 - higher Haar ranks become sharply unstable, so this exact full-basis wavelet view should also now be treated as completed negative evidence
 
+## First channel-preserving detail-summary follow-on
+
+- the first selective transient-aware feature-view follow-on now also exists on top of the active low-rank DS006848 amplitude benchmark
+- it kept the same:
+  - accepted amplitude cohorts
+  - calibrated low-rank linear family
+  - `32`-window short-calibration contract
+- it replaced raw `eeg_clean_windows` with per-channel multiscale detail summaries:
+  - detail `rms`
+  - detail `max_abs`
+  - final approximation scalar
+- this view is materially better than the full Haar rotation and slightly beats the null aggregate on both accepted amplitude cohorts
+- the best candidate is `rank 256`
+- aggregate relative MSE is:
+  - cohort-swap: about `0.9902`
+  - cohort-plus-sub025: about `0.9903`
+- it still does not beat the active raw low-rank baseline, so it should be treated as useful secondary evidence, not the new DS006848 default
+
 ## Next actions
 
 1. Keep the broader slice-analysis pass and explicit subject-quality policy as the reference for what to watch: amplitude-family concentration, eval quality attrition, and subject-specific failure.
@@ -533,9 +551,11 @@ Practical reading:
    - simple residual-bias correction is not the next lever
 9. Treat the first full Haar-wavelet comparison as completed negative evidence:
    - a generic full-basis Haar rotation is not the next lever either
-10. Compare a more selective transient-aware EEG view against the active low-rank baseline before widening the full-morphology cohort again.
-   The best current candidate is a channel-preserving multiscale detail summary or event-aligned detail-window representation.
-11. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
+10. Treat the first channel-preserving detail-summary comparison as weak positive secondary evidence:
+   - selective multiscale summaries recover some real signal, but not enough to replace the raw low-rank baseline
+11. Compare a hybrid raw-plus-detail EEG view against the active low-rank baseline before widening the full-morphology cohort again.
+   The best current candidate is low-rank raw `eeg_clean` plus channel-preserving multiscale detail summaries.
+12. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
 
 ## Commands
 

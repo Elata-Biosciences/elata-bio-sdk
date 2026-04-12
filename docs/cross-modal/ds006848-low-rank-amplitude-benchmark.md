@@ -82,6 +82,11 @@ The practical read is:
   - cohort-swap: about `1.0168`
   - cohort-plus-sub025: about `1.0167`
 - it was not just weak; higher Haar ranks became unstable, so this exact full-basis wavelet view is not the next default path
+- a first channel-preserving detail-summary follow-on was then tested on top of this baseline
+- it is materially better than the full Haar rotation and slightly beats the null aggregate on both accepted cohorts:
+  - cohort-swap: about `0.9902`
+  - cohort-plus-sub025: about `0.9903`
+- it still does not beat the active raw low-rank baseline, so it should be treated as a useful secondary signal, not a replacement
 - low-rank rank-64 therefore remains the active DS006848 amplitude baseline
 
 ## Recommendation
@@ -92,7 +97,7 @@ The next step should stay on the same cohort and test a better event-aligned EEG
 
 The current best candidate is:
 
-- a more selective transient-aware view such as channel-preserving multiscale detail summaries or event-aligned detail windows
+- a hybrid raw-plus-detail representation, such as low-rank raw `eeg_clean` features concatenated with channel-preserving multiscale detail summaries
 
 ## Commands
 
