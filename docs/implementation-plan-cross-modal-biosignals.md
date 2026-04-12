@@ -182,6 +182,14 @@ Completed or materially implemented:
       - cohort-swap aggregate relative MSE worsens from about `0.8680` to about `1.3670`
       - cohort-plus-sub025 aggregate relative MSE worsens from about `0.8691` to about `1.3674`
       - the next DS006848 follow-on should therefore move away from subject-bias correction and toward better event-aligned EEG feature views
+    - the first Haar-wavelet feature-view follow-on now also exists:
+      - it kept the same accepted amplitude cohorts, the same calibrated low-rank family, and the same short-calibration contract
+      - it replaced raw `eeg_clean_windows` with a full `7`-level Haar decomposition over the `128`-sample EEG windows
+      - it does not beat the active low-rank baseline on either accepted amplitude cohort:
+        - cohort-swap aggregate relative MSE is about `1.0168`
+        - cohort-plus-sub025 aggregate relative MSE is about `1.0167`
+      - the best Haar rank is only `8`, and higher Haar ranks become sharply unstable
+      - the next DS006848 feature-view experiment should therefore be more selective than a full-basis Haar rotation
 
 Still incomplete:
 
@@ -285,7 +293,7 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    Replacing `sub-016` and `sub-017` with `sub-002` and `sub-035` removes the catastrophic failure mode and restores a fully clean eval cohort. On top of that split, short subject calibration now produces the first broader DS006848-style null-beating result in real units.
 
 8. Use the amplitude-family calibrated benchmark as the active DS006848 benchmark before widening the full morphology cohort again.
-   The `sub-011` and `sub-025` expansions show that amplitude-family behavior stays below null under both a timing-heavy and a weak-amplitude stress test. The first generic nonlinear comparison shows that naive RBF kernelization does not help, the first low-rank comparison shows that rank-64 `eeg_clean` does help modestly and consistently, and the first subject-conditioned residual follow-on shows that simple residual-bias correction is actively harmful on both accepted amplitude cohorts. The next experiment should therefore hold this cohort fixed and compare better event-aligned EEG feature views, preferably cheap wavelet-style or other transient-aware views, against that low-rank baseline.
+   The `sub-011` and `sub-025` expansions show that amplitude-family behavior stays below null under both a timing-heavy and a weak-amplitude stress test. The first generic nonlinear comparison shows that naive RBF kernelization does not help, the first low-rank comparison shows that rank-64 `eeg_clean` does help modestly and consistently, the first subject-conditioned residual follow-on shows that simple residual-bias correction is actively harmful on both accepted amplitude cohorts, and the first full Haar-wavelet follow-on shows that a generic multiscale rotation stays near null and becomes unstable at higher ranks. The next experiment should therefore hold this cohort fixed and compare a more selective transient-aware EEG view, such as channel-preserving multiscale detail summaries or event-aligned detail windows, against that low-rank baseline.
 
 9. Keep the rest branch in smoke-contract mode until the calibrated verbalwm path is stable.
    Do not treat the current 2-subject rest path as a modeling benchmark yet.

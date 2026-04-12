@@ -77,6 +77,11 @@ The practical read is:
   - cohort-swap: about `0.8680` to about `1.3670`
   - cohort-plus-sub025: about `0.8691` to about `1.3674`
 - it degraded all three tracked amplitude targets, not just dominant-beat amplitude
+- a first full Haar-wavelet follow-on was also tested on top of this baseline
+- it stayed near null on both accepted amplitude cohorts:
+  - cohort-swap: about `1.0168`
+  - cohort-plus-sub025: about `1.0167`
+- it was not just weak; higher Haar ranks became unstable, so this exact full-basis wavelet view is not the next default path
 - low-rank rank-64 therefore remains the active DS006848 amplitude baseline
 
 ## Recommendation
@@ -87,7 +92,7 @@ The next step should stay on the same cohort and test a better event-aligned EEG
 
 The current best candidate is:
 
-- a cheap transient-aware view such as Haar-wavelet or similarly event-localized EEG features
+- a more selective transient-aware view such as channel-preserving multiscale detail summaries or event-aligned detail windows
 
 ## Commands
 

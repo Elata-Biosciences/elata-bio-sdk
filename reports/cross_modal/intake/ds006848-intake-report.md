@@ -498,6 +498,21 @@ Practical reading:
 - cohort-plus-sub025 aggregate relative MSE worsens from about `0.8691` to about `1.3674`
 - subject-conditioned residual correction should therefore now be treated as completed negative evidence, not the next default DS006848 lever
 
+## First Haar-wavelet follow-on
+
+- the first transient-aware feature-view follow-on now also exists on top of the active low-rank DS006848 amplitude benchmark
+- it kept the same:
+  - accepted amplitude cohorts
+  - calibrated low-rank linear family
+  - `32`-window short-calibration contract
+- it replaced raw `eeg_clean_windows` with a full `7`-level Haar decomposition over the `128`-sample time axis
+- it does not beat the active low-rank baseline on either accepted amplitude cohort
+- the best Haar candidate is `rank 8`
+- aggregate relative MSE stays just above null on both accepted cohorts:
+  - cohort-swap: about `1.0168`
+  - cohort-plus-sub025: about `1.0167`
+- higher Haar ranks become sharply unstable, so this exact full-basis wavelet view should also now be treated as completed negative evidence
+
 ## Next actions
 
 1. Keep the broader slice-analysis pass and explicit subject-quality policy as the reference for what to watch: amplitude-family concentration, eval quality attrition, and subject-specific failure.
@@ -516,9 +531,11 @@ Practical reading:
    - rank-64 `eeg_clean` is now the best DS006848 amplitude baseline
 8. Treat the first subject-conditioned residual comparison as completed negative evidence:
    - simple residual-bias correction is not the next lever
-9. Compare better event-aligned EEG feature views against the active low-rank baseline before widening the full-morphology cohort again.
-   The best current candidate is a cheap transient-aware representation such as Haar-wavelet-style EEG features.
-10. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
+9. Treat the first full Haar-wavelet comparison as completed negative evidence:
+   - a generic full-basis Haar rotation is not the next lever either
+10. Compare a more selective transient-aware EEG view against the active low-rank baseline before widening the full-morphology cohort again.
+   The best current candidate is a channel-preserving multiscale detail summary or event-aligned detail-window representation.
+11. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
 
 ## Commands
 
