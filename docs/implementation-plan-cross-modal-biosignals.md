@@ -225,8 +225,8 @@ Completed or materially implemented:
       - the `sub-011` subject remains slightly above null on timing family at about `1.0438`, so the full-morphology promotion decision is no longer blocked by aggregate failure, but it is not fully settled either
     - the first hybrid rank-governance follow-on now also exists:
       - it compares per-run best rank, shared `rank 16`, and shared `rank 512` across the active hybrid amplitude and morphology runs
-      - shared `rank 16` keeps all `5 / 5` tracked hybrid runs below null
-      - shared `rank 512` keeps only `4 / 5` tracked hybrid runs below null
+      - shared `rank 16` keeps all `6 / 6` tracked hybrid runs below null
+      - shared `rank 512` keeps only `5 / 6` tracked hybrid runs below null
       - on the accepted amplitude cohorts, shared `rank 16` is effectively flat against the earlier rank-`512` narrow optimum:
         - cohort-swap changes from about `0.7631` to about `0.7659`
         - cohort-plus-sub025 changes from about `0.7658` to about `0.7665`
@@ -240,6 +240,14 @@ Completed or materially implemented:
         - shared `rank 16`: about `1.1747`
         - shared `rank 512`: about `6.2837`
       - the active DS006848 hybrid benchmark should now standardize on shared raw-plus-detail `rank 16` over `eeg_clean`
+    - the first cautious shared-rank full-morphology `sub-025` expansion now also exists:
+      - it adds `sub-025` to eval under the shared hybrid raw-plus-detail default
+      - the split-matched low-rank morphology reference on `eeg_clean` only edges below null at about `0.9975`
+      - the hybrid best rank stays `16` and full aggregate relative MSE improves to about `0.8525`
+      - amplitude-family aggregate relative MSE is about `0.7665`
+      - timing-family aggregate relative MSE is about `0.9815`
+      - all five tracked morphology targets are now below null on aggregate under the best hybrid rank
+      - `sub-025` itself remains slightly above null on full morphology at about `1.1371`, so the cohort-promotion question is still not settled
 
 Still incomplete:
 
@@ -247,7 +255,7 @@ Still incomplete:
 - Phase 2 is still development-scale for EEG-PPG. `DS003838` now has a 4-subject smoke artifact, an 8-subject development artifact, and target-coverage layers for both, but not yet a broader paired-cohort default artifact.
 - Athena internal intake and preprocessing are still incomplete.
 - There is still no broad-cohort zero-shot EEG-PPG positive baseline result; the earlier DS006848 4-subject positive check does not survive the broader 8-subject follow-up.
-- There is still no stable wider-cohort full-morphology calibrated EEG-PPG result; the first positive calibrated path survives on the cohort-swap split but not after adding `sub-011`.
+- There is still no settled promoted wider-cohort full-morphology calibrated EEG-PPG cohort; the shared hybrid `rank 16` path now survives both one-subject full-morphology expansions (`sub-011` and `sub-025`) on aggregate, but each added stress-test subject remains individually above null.
 - The narrower amplitude-family calibrated benchmark is now stable under two cautious subject expansions, but it is still only a calibrated benchmark, not a zero-shot claim and not a full-morphology result.
 
 Operational interpretation:
@@ -301,8 +309,8 @@ Current execution note as of March 23, 2026:
 
 Given the EEG-PPG pivot, the recommended near-term sequence is:
 
-1. Treat the DS006848 amplitude-family calibrated benchmark as the active EEG-PPG development path.
-   Keep the cohort-swap full-morphology calibrated path as the harder secondary benchmark, the broader reviewed split as the stress test, the 2-subject verbalwm path as the smoke contract, and the earlier 4-subject result as historical only.
+1. Treat the shared hybrid raw-plus-detail `rank 16` DS006848 benchmark as the active EEG-PPG development path.
+   Keep the narrower amplitude-family benchmark as the stable anchor, keep the cohort-swap plus one-subject full-morphology expansions as the active widening path, keep the broader reviewed split as the stress test, keep the 2-subject verbalwm path as the smoke contract, and treat the earlier 4-subject result as historical only.
 
 2. Stop treating the current EEG-PPG branch as a zero-shot modeling problem.
    The strongest current result is now subject-calibrated, not zero-shot.
@@ -343,15 +351,18 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    Replacing `sub-016` and `sub-017` with `sub-002` and `sub-035` removes the catastrophic failure mode and restores a fully clean eval cohort. On top of that split, short subject calibration now produces the first broader DS006848-style null-beating result in real units.
 
 8. Use shared hybrid raw-plus-detail `rank 16` on `eeg_clean` as the active DS006848 benchmark default.
-   The `sub-011` and `sub-025` expansions show that amplitude-family behavior stays below null under both a timing-heavy and a weak-amplitude stress test. The first generic nonlinear comparison shows that naive RBF kernelization does not help, the first low-rank comparison shows that rank-64 `eeg_clean` does help modestly and consistently, the first subject-conditioned residual follow-on shows that simple residual-bias correction is actively harmful on both accepted amplitude cohorts, the first full Haar-wavelet follow-on shows that a generic multiscale rotation stays near null and becomes unstable at higher ranks, the first channel-preserving detail-summary follow-on shows that selective multiscale summaries recover a weak but real secondary signal, the first hybrid raw-plus-detail follow-on shows that combining raw `eeg_clean` with selective detail summaries materially improves the accepted amplitude benchmark, the first timing-heavy hybrid amplitude expansion shows that this gain survives `sub-011`, the first hybrid full-morphology follow-on shows that the same feature view also softens the broader timing-family/full-morphology failure enough to beat null on aggregate, and the rank-governance follow-on now shows that shared `rank 16` preserves the amplitude gain while remaining much safer than shared `rank 512` on the harder morphology expansion.
+   The `sub-011` and `sub-025` expansions show that amplitude-family behavior stays below null under both a timing-heavy and a weak-amplitude stress test. The first generic nonlinear comparison shows that naive RBF kernelization does not help, the first low-rank comparison shows that rank-64 `eeg_clean` does help modestly and consistently, the first subject-conditioned residual follow-on shows that simple residual-bias correction is actively harmful on both accepted amplitude cohorts, the first full Haar-wavelet follow-on shows that a generic multiscale rotation stays near null and becomes unstable at higher ranks, the first channel-preserving detail-summary follow-on shows that selective multiscale summaries recover a weak but real secondary signal, the first hybrid raw-plus-detail follow-on shows that combining raw `eeg_clean` with selective detail summaries materially improves the accepted amplitude benchmark, the first timing-heavy hybrid amplitude expansion shows that this gain survives `sub-011`, the hybrid full-morphology follow-ons now show that the same feature view stays below null on aggregate for `cohort_swap`, `cohort_plus_sub011`, and `cohort_plus_sub025`, and the rank-governance follow-on now shows that shared `rank 16` preserves the amplitude gain while remaining much safer than shared `rank 512` on the harder morphology expansions.
 
-9. Use that shared `rank 16` default for the next cautious full-morphology cohort expansion.
-   The next DS006848 question is no longer whether the hybrid feature view works or which rank family to prefer. The next useful test is whether the shared default survives the next full-morphology cohort expansion, with `sub-025` as the first obvious candidate because it already passed the narrower amplitude stress test but remains untested on the broader morphology path.
+9. Treat the first cautious shared-rank full-morphology `sub-025` expansion as completed evidence.
+   The shared `rank 16` default now survives the first weak-amplitude full-morphology expansion. The remaining problem is no longer whether `sub-025` breaks the aggregate benchmark. The remaining problem is that `sub-011` and `sub-025` are both still individually above null, so cohort-promotion policy is still unresolved.
 
-10. Keep the rest branch in smoke-contract mode until the calibrated verbalwm path is stable.
+10. Use the shared `rank 16` default for the first combined `sub-011` plus `sub-025` full-morphology expansion.
+   That is the next useful DS006848 test. If the aggregate full-morphology benchmark survives both stress-test subjects together, the repo will have a stronger case for a wider default calibrated cohort even if per-subject promotion still requires caution.
+
+11. Keep the rest branch in smoke-contract mode until the calibrated verbalwm path is stable.
    Do not treat the current 2-subject rest path as a modeling benchmark yet.
 
-11. Treat raw EEG -> raw PPG waveform generation and deeper architectures as explicitly out of scope until either the amplitude-family calibrated path is stable under wider cohort expansion or the full calibrated morphology path survives the next cohort expansion.
+12. Treat raw EEG -> raw PPG waveform generation and deeper architectures as explicitly out of scope until either the amplitude-family calibrated path is stable under wider cohort expansion or the full calibrated morphology path survives the next cohort expansion.
 
 This is the shortest path from current repo state to the new business goal.
 

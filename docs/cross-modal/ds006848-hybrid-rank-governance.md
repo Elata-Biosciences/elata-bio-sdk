@@ -16,6 +16,7 @@ The comparison uses the already-computed hybrid rank sweeps across:
 - timing-heavy amplitude `sub-011` stress test
 - cohort-swap full morphology
 - `cohort_plus_sub011` full morphology
+- `cohort_plus_sub025` full morphology
 
 ## Policies compared
 
@@ -27,14 +28,14 @@ The comparison uses the already-computed hybrid rank sweeps across:
 
 Policy summary:
 
-- `best_per_run` mean primary relative MSE: about `0.7904`
-- shared `rank 16` mean primary relative MSE: about `0.7911`
-- shared `rank 512` mean primary relative MSE: about `1.0247`
+- `best_per_run` mean primary relative MSE: about `0.8007`
+- shared `rank 16` mean primary relative MSE: about `0.8013`
+- shared `rank 512` mean primary relative MSE: about `1.0138`
 
 Run coverage:
 
-- shared `rank 16` keeps `5 / 5` tracked runs below null
-- shared `rank 512` keeps only `4 / 5` tracked runs below null
+- shared `rank 16` keeps `6 / 6` tracked runs below null
+- shared `rank 512` keeps only `5 / 6` tracked runs below null
 
 Accepted amplitude tradeoff:
 
@@ -58,17 +59,25 @@ Stress and morphology tradeoff:
 - `cohort_plus_sub011` morphology:
   - shared `rank 16`: `0.8337`
   - shared `rank 512`: `1.8718`
+- `cohort_plus_sub025` morphology:
+  - shared `rank 16`: `0.8525`
+  - shared `rank 512`: `0.9593`
 
 Focused `sub-011` morphology read:
 
 - shared `rank 16` full relative MSE: about `1.1747`
 - shared `rank 512` full relative MSE: about `6.2837`
 
+Focused `sub-025` morphology read:
+
+- shared `rank 16` full relative MSE: about `1.1371`
+- shared `rank 512` full relative MSE: about `1.7144`
+
 ## Interpretation
 
 - the accepted amplitude cohorts do not justify keeping `rank 512` as a separate default because the `rank 16` loss there is negligible
 - `rank 16` is already the best setting on the timing-heavy `sub-011` amplitude stress test
-- `rank 16` is also the best setting on both morphology runs
+- `rank 16` is also the best setting on all three tracked morphology runs
 - `rank 512` is not just unnecessary for the broader path; it becomes actively unsafe on the harder morphology expansion
 
 So the rank question is now settled:
@@ -84,7 +93,7 @@ Treat shared hybrid raw-plus-detail `rank 16` on `eeg_clean_windows` as the acti
 - amplitude-family work
 - full-morphology follow-ons
 
-The next experiment should no longer be another rank sweep. It should test whether the shared `rank 16` default survives the next cautious full-morphology cohort expansion, with `sub-025` as the first obvious candidate because it is already known to be weak on amplitude but no longer breaks the narrower amplitude benchmark.
+The next experiment should no longer be another rank sweep. It should test whether the shared `rank 16` default survives the first combined `sub-011` plus `sub-025` full-morphology expansion, because both one-subject expansions now pass on aggregate but both added subjects remain individually above null.
 
 ## Commands
 

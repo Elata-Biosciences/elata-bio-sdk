@@ -589,25 +589,52 @@ Practical reading:
   - per-run best rank
   - shared `rank 16`
   - shared `rank 512`
-- shared `rank 16` keeps all `5 / 5` tracked hybrid runs below null
-- shared `rank 512` keeps only `4 / 5` tracked runs below null
+- shared `rank 16` keeps all `6 / 6` tracked hybrid runs below null
+- shared `rank 512` keeps only `5 / 6` tracked runs below null
 - shared `rank 16` is effectively flat on the accepted amplitude cohorts:
   - cohort-swap changes from about `0.7631` to about `0.7659`
   - cohort-plus-sub025 changes from about `0.7658` to about `0.7665`
 - shared `rank 16` is also already the best setting on the timing-heavy `sub-011` amplitude expansion:
   - `0.7797` versus about `0.8178` for shared `rank 512`
-- shared `rank 16` is the best setting on both morphology runs:
+- shared `rank 16` is the best setting on all tracked morphology runs:
   - cohort-swap full aggregate about `0.8095` versus about `0.9052` for shared `rank 512`
   - cohort-plus-sub011 full aggregate about `0.8337` versus about `1.8718` for shared `rank 512`
+- shared `rank 16` is also the best setting on the new `cohort_plus_sub025` morphology expansion:
+  - full aggregate about `0.8525` versus about `0.9593` for shared `rank 512`
 - the subject-specific `sub-011` full-morphology read also degrades sharply at shared `rank 512`:
   - shared `rank 16`: about `1.1747`
   - shared `rank 512`: about `6.2837`
+- the subject-specific `sub-025` full-morphology read also degrades at shared `rank 512`:
+  - shared `rank 16`: about `1.1371`
+  - shared `rank 512`: about `1.7144`
 
 Practical reading:
 
 - the repo should now standardize on shared hybrid raw-plus-detail `rank 16`
 - the remaining DS006848 question is no longer rank governance
-- the next DS006848 question is whether the shared `rank 16` default survives the next cautious full-morphology cohort expansion
+- the next DS006848 question is whether the shared `rank 16` default survives a combined `sub-011` plus `sub-025` full-morphology expansion
+
+## First cautious shared-rank full-morphology `sub-025` expansion
+
+- the first weak-amplitude full-morphology expansion under the shared hybrid default now also exists
+- it adds `sub-025` to eval while keeping `sub-011` out
+- the split-matched low-rank morphology reference on `eeg_clean` only edges below null:
+  - aggregate relative MSE about `0.9975`
+- the hybrid raw-plus-detail follow-on remains clearly better:
+  - best rank stays `16`
+  - full aggregate relative MSE is about `0.8525`
+  - amplitude-family aggregate relative MSE is about `0.7665`
+  - timing-family aggregate relative MSE is about `0.9815`
+- all five tracked morphology targets are below null on aggregate under the best hybrid rank
+- the subject-specific caveat remains:
+  - `sub-025` full relative MSE is still about `1.1371`
+  - `sub-025` timing-family relative MSE is still about `1.2599`
+
+Practical reading:
+
+- `sub-025` no longer breaks the aggregate full-morphology benchmark under the shared hybrid default
+- but `sub-025` should still stay pending for default cohort promotion because the subject itself remains above null
+- the next useful check is the first combined `sub-011` plus `sub-025` full-morphology expansion
 
 ## Next actions
 
@@ -638,8 +665,9 @@ Practical reading:
 13. Treat the first hybrid full-morphology follow-on as completed positive evidence:
    - the hybrid feature view softens the broader timing/full-morphology failure enough to beat null on aggregate
 14. Treat shared hybrid `rank 16` as the active DS006848 benchmark default for both amplitude and morphology follow-ons.
-15. Use that shared `rank 16` default to run the next cautious full-morphology cohort expansion before revisiting promotion for `sub-011`.
-16. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
+15. Treat the first weak-amplitude full-morphology `sub-025` expansion under shared `rank 16` as completed evidence.
+16. Use the shared `rank 16` default to run the first combined `sub-011` plus `sub-025` full-morphology expansion before revisiting cohort promotion.
+17. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
 
 ## Commands
 
