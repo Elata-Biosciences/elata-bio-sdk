@@ -84,13 +84,22 @@ The practical read is:
 
 ## Recommendation
 
-Treat hybrid raw-plus-detail rank-512 `eeg_clean` as the new DS006848 amplitude reference baseline.
+This note still records the original accepted-cohort amplitude sweep, where `rank 512` was the best narrowly tuned setting on those two runs.
+
+That is no longer the active repo default.
+
+The later governance follow-on in [DS006848 Hybrid Rank Governance](ds006848-hybrid-rank-governance.md) now resolves the policy in favor of shared hybrid `rank 16` because:
+
+- the accepted-cohort amplitude loss at `rank 16` is negligible
+- `rank 16` is already the best setting on the timing-heavy `sub-011` amplitude stress test
+- `rank 16` is also the best setting on both morphology runs
+- `rank 512` becomes unsafe on the harder `cohort_plus_sub011` morphology expansion
 
 That timing-heavy `sub-011` amplitude expansion now exists and is recorded in [DS006848 Hybrid `sub-011` Amplitude Expansion](ds006848-hybrid-sub011-amplitude-expansion.md).
 
 The broader morphology/timing follow-on now also exists and is recorded in [DS006848 Hybrid Morphology Family Comparison](ds006848-hybrid-morphology-family-comparison.md).
 
-The next step should decide whether to standardize on a shared lower-rank hybrid setting or keep separate amplitude-versus-morphology rank choices.
+The next step should therefore move to the next cautious full-morphology cohort expansion under shared `rank 16`, not another rank-selection pass.
 
 ## Commands
 

@@ -37,6 +37,7 @@
 - [DS006848 Hybrid Detail Amplitude Benchmark](ds006848-hybrid-detail-amplitude-benchmark.md)
 - [DS006848 Hybrid `sub-011` Amplitude Expansion](ds006848-hybrid-sub011-amplitude-expansion.md)
 - [DS006848 Hybrid Morphology Family Comparison](ds006848-hybrid-morphology-family-comparison.md)
+- [DS006848 Hybrid Rank Governance](ds006848-hybrid-rank-governance.md)
 - [DS006848 Subject Quality Policy](ds006848-subject-quality-policy.md)
 - [DS006848 PPG Quality Review](ds006848-ppg-quality-review.md)
 - [DS004514 Intake Worksheet](ds004514-intake-worksheet.md)

@@ -72,12 +72,17 @@ There is also an operational detail:
 
 ## Recommendation
 
-Treat the hybrid raw-plus-detail feature view as the new default DS006848 EEG feature view for both amplitude and morphology work.
+Treat the hybrid raw-plus-detail feature view as the default DS006848 EEG feature view for both amplitude and morphology work.
 
-Do not yet promote `sub-011` into the default full-morphology cohort without an explicit decision on one of:
+The remaining rank question is now resolved by [DS006848 Hybrid Rank Governance](ds006848-hybrid-rank-governance.md):
 
-- accept aggregate recovery as sufficient despite slightly above-null `sub-011` timing
-- or standardize a shared lower-rank hybrid setting and re-check stability before promotion
+- shared hybrid `rank 16` should replace the earlier split between amplitude `rank 512` and morphology `rank 16`
+
+Do not yet promote `sub-011` into the default full-morphology cohort. The new blocker is cohort policy, not rank choice:
+
+- aggregate recovery is now strong enough to justify continued full-morphology follow-on work
+- `sub-011` itself is still slightly above null
+- the next check should be the next cautious cohort expansion under the shared `rank 16` default
 
 ## Commands
 

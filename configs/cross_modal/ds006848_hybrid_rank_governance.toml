@@ -1,0 +1,63 @@
+[governance]
+label = "ds006848_hybrid_rank_governance"
+best_policy_name = "best_per_run"
+focus_subjects = ["sub-011"]
+
+[governance.target_families]
+amplitude_family = [
+  "amplitude_range",
+  "rising_edge_slope_max",
+  "dominant_beat_amplitude",
+]
+timing_family = [
+  "dominant_beat_rise_time_seconds",
+  "dominant_beat_width_seconds",
+]
+
+[[governance.policies]]
+name = "best_per_run"
+mode = "best_rank"
+
+[[governance.policies]]
+name = "shared_rank_16"
+mode = "fixed_rank"
+rank = 16
+
+[[governance.policies]]
+name = "shared_rank_512"
+mode = "fixed_rank"
+rank = 512
+
+[[governance.runs]]
+name = "cohort_swap_amplitude"
+track = "accepted_amplitude"
+primary_target_set = "amplitude_family"
+path = "reports/cross_modal/ds006848/ds006848_cohort_swap_calibrated_hybrid_detail_amplitude_metrics.json"
+
+[[governance.runs]]
+name = "cohort_plus_sub025_amplitude"
+track = "accepted_amplitude"
+primary_target_set = "amplitude_family"
+path = "reports/cross_modal/ds006848/ds006848_cohort_plus_sub025_calibrated_hybrid_detail_amplitude_metrics.json"
+
+[[governance.runs]]
+name = "cohort_plus_sub011_amplitude"
+track = "stress_amplitude"
+primary_target_set = "amplitude_family"
+path = "reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_calibrated_hybrid_detail_amplitude_metrics.json"
+
+[[governance.runs]]
+name = "cohort_swap_morphology"
+track = "morphology"
+primary_target_set = "full"
+path = "reports/cross_modal/ds006848/ds006848_cohort_swap_calibrated_hybrid_detail_morphology_metrics.json"
+
+[[governance.runs]]
+name = "cohort_plus_sub011_morphology"
+track = "morphology"
+primary_target_set = "full"
+path = "reports/cross_modal/ds006848/ds006848_cohort_plus_sub011_calibrated_hybrid_detail_morphology_metrics.json"
+
+[paths]
+metrics = "reports/cross_modal/ds006848/ds006848_hybrid_rank_governance_metrics.json"
+report = "reports/cross_modal/ds006848/ds006848_hybrid_rank_governance_report.md"
