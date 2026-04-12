@@ -87,17 +87,22 @@ The practical read is:
   - cohort-swap: about `0.9902`
   - cohort-plus-sub025: about `0.9903`
 - it still does not beat the active raw low-rank baseline, so it should be treated as a useful secondary signal, not a replacement
-- low-rank rank-64 therefore remains the active DS006848 amplitude baseline
+- a first hybrid raw-plus-detail follow-on was then tested on top of this baseline
+- it becomes the first DS006848 follow-on to beat this raw low-rank baseline on both accepted amplitude cohorts:
+  - cohort-swap: about `0.7631`
+  - cohort-plus-sub025: about `0.7658`
+- it also pushes `dominant_beat_amplitude` below null on both accepted amplitude cohorts
+- low-rank rank-64 raw `eeg_clean` should therefore now be treated as the reference predecessor, not the active DS006848 amplitude baseline
 
 ## Recommendation
 
-Treat low-rank rank-64 `eeg_clean_windows` as the new DS006848 amplitude reference baseline.
+Treat low-rank rank-64 `eeg_clean_windows` as the reference predecessor to the current hybrid DS006848 amplitude baseline.
 
-The next step should stay on the same cohort and test a better event-aligned EEG feature view against this baseline.
+The next step should keep the hybrid benchmark fixed and test whether the gain survives the `sub-011` timing-heavy amplitude expansion.
 
 The current best candidate is:
 
-- a hybrid raw-plus-detail representation, such as low-rank raw `eeg_clean` features concatenated with channel-preserving multiscale detail summaries
+- the already-tested hybrid raw-plus-detail representation described in [DS006848 Hybrid Detail Amplitude Benchmark](ds006848-hybrid-detail-amplitude-benchmark.md)
 
 ## Commands
 

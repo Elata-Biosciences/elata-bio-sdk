@@ -531,6 +531,22 @@ Practical reading:
   - cohort-plus-sub025: about `0.9903`
 - it still does not beat the active raw low-rank baseline, so it should be treated as useful secondary evidence, not the new DS006848 default
 
+## First hybrid raw-plus-detail follow-on
+
+- the first raw-plus-detail feature-view follow-on now also exists on top of the active low-rank DS006848 amplitude benchmark
+- it kept the same:
+  - accepted amplitude cohorts
+  - calibrated low-rank linear family
+  - `32`-window short-calibration contract
+- it concatenated raw `eeg_clean_windows` with the channel-preserving multiscale detail summaries
+- this becomes the first DS006848 follow-on to beat the active raw low-rank baseline on both accepted amplitude cohorts
+- the best candidate is `rank 512`
+- aggregate relative MSE improves to:
+  - cohort-swap: about `0.7631`
+  - cohort-plus-sub025: about `0.7658`
+- all three tracked amplitude targets now beat the null on both accepted amplitude cohorts, including `dominant_beat_amplitude`
+- the active DS006848 amplitude benchmark should now move to the hybrid raw-plus-detail rank-512 baseline
+
 ## Next actions
 
 1. Keep the broader slice-analysis pass and explicit subject-quality policy as the reference for what to watch: amplitude-family concentration, eval quality attrition, and subject-specific failure.
@@ -553,9 +569,10 @@ Practical reading:
    - a generic full-basis Haar rotation is not the next lever either
 10. Treat the first channel-preserving detail-summary comparison as weak positive secondary evidence:
    - selective multiscale summaries recover some real signal, but not enough to replace the raw low-rank baseline
-11. Compare a hybrid raw-plus-detail EEG view against the active low-rank baseline before widening the full-morphology cohort again.
-   The best current candidate is low-rank raw `eeg_clean` plus channel-preserving multiscale detail summaries.
-12. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
+11. Treat the first hybrid raw-plus-detail comparison as completed positive evidence:
+   - hybrid raw `eeg_clean` plus channel-preserving detail summaries is now the best DS006848 amplitude baseline
+12. Test whether that hybrid gain survives the `sub-011` timing-heavy amplitude expansion before widening the full-morphology cohort again.
+13. Decide whether the rest branch should stay a smoke contract or expand into a real rest benchmark now that the first rest target artifact exists.
 
 ## Commands
 

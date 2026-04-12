@@ -74,10 +74,7 @@ The practical read is:
 
 Keep low-rank rank-64 raw `eeg_clean_windows` as the active DS006848 amplitude baseline.
 
-The next follow-on should test a hybrid representation, for example:
-
-- raw low-rank `eeg_clean` plus channel-preserving detail summaries
-- or raw low-rank `eeg_clean` plus a narrower event-aligned detail branch
+That hybrid follow-on now exists and is recorded in [DS006848 Hybrid Detail Amplitude Benchmark](ds006848-hybrid-detail-amplitude-benchmark.md).
 
 ## Commands
 

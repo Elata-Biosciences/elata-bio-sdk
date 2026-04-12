@@ -201,6 +201,14 @@ Completed or materially implemented:
         - cohort-plus-sub025 aggregate relative MSE is about `0.9903`
       - it still does not beat the active low-rank raw baseline
       - the next DS006848 feature-view experiment should therefore test a hybrid raw-plus-detail representation rather than replacing the raw window with summaries alone
+    - the first hybrid raw-plus-detail follow-on now also exists:
+      - it kept the same accepted amplitude cohorts, the same calibrated low-rank family, and the same short-calibration contract
+      - it concatenated raw `eeg_clean_windows` with the channel-preserving multiscale detail summaries
+      - it becomes the first DS006848 follow-on to beat the active raw low-rank baseline on both accepted amplitude cohorts:
+        - cohort-swap aggregate relative MSE improves from about `0.8680` to about `0.7631`
+        - cohort-plus-sub025 aggregate relative MSE improves from about `0.8691` to about `0.7658`
+      - it also pushes `dominant_beat_amplitude` below null on both accepted amplitude cohorts
+      - the active DS006848 amplitude benchmark should now move to the hybrid raw-plus-detail rank-512 `eeg_clean` baseline
 
 Still incomplete:
 
@@ -304,7 +312,7 @@ Given the EEG-PPG pivot, the recommended near-term sequence is:
    Replacing `sub-016` and `sub-017` with `sub-002` and `sub-035` removes the catastrophic failure mode and restores a fully clean eval cohort. On top of that split, short subject calibration now produces the first broader DS006848-style null-beating result in real units.
 
 8. Use the amplitude-family calibrated benchmark as the active DS006848 benchmark before widening the full morphology cohort again.
-   The `sub-011` and `sub-025` expansions show that amplitude-family behavior stays below null under both a timing-heavy and a weak-amplitude stress test. The first generic nonlinear comparison shows that naive RBF kernelization does not help, the first low-rank comparison shows that rank-64 `eeg_clean` does help modestly and consistently, the first subject-conditioned residual follow-on shows that simple residual-bias correction is actively harmful on both accepted amplitude cohorts, the first full Haar-wavelet follow-on shows that a generic multiscale rotation stays near null and becomes unstable at higher ranks, and the first channel-preserving detail-summary follow-on shows that selective multiscale summaries recover a weak but real secondary signal without beating the active raw baseline. The next experiment should therefore hold this cohort fixed and compare a hybrid raw-plus-detail EEG view, or a similarly selective event-aligned detail branch, against that low-rank baseline.
+   The `sub-011` and `sub-025` expansions show that amplitude-family behavior stays below null under both a timing-heavy and a weak-amplitude stress test. The first generic nonlinear comparison shows that naive RBF kernelization does not help, the first low-rank comparison shows that rank-64 `eeg_clean` does help modestly and consistently, the first subject-conditioned residual follow-on shows that simple residual-bias correction is actively harmful on both accepted amplitude cohorts, the first full Haar-wavelet follow-on shows that a generic multiscale rotation stays near null and becomes unstable at higher ranks, the first channel-preserving detail-summary follow-on shows that selective multiscale summaries recover a weak but real secondary signal, and the first hybrid raw-plus-detail follow-on shows that combining raw `eeg_clean` with selective detail summaries materially improves the accepted amplitude benchmark. The next experiment should therefore freeze that hybrid benchmark and test whether the gain survives the `sub-011` timing-heavy amplitude expansion before widening the full morphology scope again.
 
 9. Keep the rest branch in smoke-contract mode until the calibrated verbalwm path is stable.
    Do not treat the current 2-subject rest path as a modeling benchmark yet.

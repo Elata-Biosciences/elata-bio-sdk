@@ -108,14 +108,14 @@
     "artifact_fields": []
   },
   "intake_review": {
-    "verification_status": "source_tree_verified_phase2_verbalwm_broader_rest_targets_quality_review_cohort_swap_shift_aware_calibrated_absolute_low_rank_residual_haar_and_detail_summary_follow_on",
+    "verification_status": "source_tree_verified_phase2_verbalwm_broader_rest_targets_quality_review_cohort_swap_shift_aware_calibrated_absolute_low_rank_residual_haar_detail_summary_and_hybrid_follow_on",
     "accepted_for": [
       "candidate_eeg_ppg_alignment",
       "candidate_ppg_morphology_benchmark",
       "candidate_rest_working_memory_benchmark"
     ],
     "blocked_on": [
-      "keep the low-rank rank-64 amplitude benchmark as the default DS006848 development benchmark and compare a hybrid raw-plus-detail EEG feature view against it without changing the cohort again",
+      "keep the hybrid raw-plus-detail amplitude benchmark as the default DS006848 development benchmark and test whether it survives the sub-011 timing-heavy amplitude expansion",
       "keep sub-011 out of the default full-morphology calibrated cohort until the timing-family failure is understood",
       "decide whether the DS006848 rest branch should stay smoke-only or expand into a real rest benchmark",
       "decide the long-term zero-shot versus calibrated roles of DS006848 and DS003838 now that both broader verbalwm splits fail to beat null"
@@ -151,6 +151,7 @@
     "A first low-rank amplitude follow-on now also exists; a calibrated low-rank linear sweep identifies rank-64 eeg_clean as the best candidate and improves aggregate relative MSE on both the cohort-swap and sub-025 amplitude benchmarks.",
     "A first subject-conditioned residual follow-on now also exists; a simple residual-bias correction on top of the rank-64 eeg_clean low-rank baseline degrades all tracked amplitude targets and should be treated as negative evidence.",
     "A first Haar-wavelet feature-view follow-on now also exists; a full seven-level Haar view on eeg_clean stays near null at best and becomes unstable at higher ranks, so it should also be treated as negative evidence.",
-    "A first channel-preserving detail-summary follow-on now also exists; multiscale detail summaries recover a weak null-beating aggregate signal on both accepted amplitude cohorts but still do not beat the active raw low-rank baseline."
+    "A first channel-preserving detail-summary follow-on now also exists; multiscale detail summaries recover a weak null-beating aggregate signal on both accepted amplitude cohorts but still do not beat the active raw low-rank baseline.",
+    "A first hybrid raw-plus-detail follow-on now also exists; concatenating raw eeg_clean with channel-preserving detail summaries improves aggregate relative MSE to about 0.7631 on cohort-swap and about 0.7658 on cohort-plus-sub025, making it the best DS006848 amplitude baseline so far."
   ]
 }
