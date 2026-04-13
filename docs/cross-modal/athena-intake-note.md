@@ -61,6 +61,7 @@ The repo now also has a runnable Athena pilot intake path built around a standar
 - recording-spec contract: [athena-recording-spec.md](athena-recording-spec.md)
 - prep config: [../../configs/cross_modal/athena_prepare_fixture.toml](../../configs/cross_modal/athena_prepare_fixture.toml)
 - fixture-backed pilot report: [../../reports/cross_modal/intake/athena-internal-pilot-report.md](../../reports/cross_modal/intake/athena-internal-pilot-report.md)
+- transport-level Phase 2 smoke note: [athena-phase2-windowing.md](athena-phase2-windowing.md)
 
 That path is intentionally conservative.
 
@@ -76,6 +77,26 @@ Current open blockers on the runnable pilot path are:
 - Athena fNIRS processing remains unconfirmed
 - Athena PPG mapping remains unconfirmed
 - Athena event-label export is not yet demonstrated
+
+## New Phase 2 smoke path
+
+The repo now also has a runnable Athena Phase 2 smoke artifact on top of that same contract:
+
+- build config: [../../configs/cross_modal/athena_phase2_fixture.toml](../../configs/cross_modal/athena_phase2_fixture.toml)
+- smoke summary: [../../reports/cross_modal/athena/athena_internal_fixture_phase2_windows_summary.md](../../reports/cross_modal/athena/athena_internal_fixture_phase2_windows_summary.md)
+
+Important scope limit:
+
+- this path keeps the optical stream as transport-level `optics`, not confirmed fNIRS
+- it is meant for timestamp, overlap, and tensor-shape validation
+- it is not a claim that Athena preprocessing is settled
+
+Current fixture smoke result:
+
+- `2` paired windows
+- `2 / 2` quality-pass windows
+- minimum shared overlap about `1.984375 s`
+- mean detected PPG peak count about `3.0`
 
 ## Current manifest
 

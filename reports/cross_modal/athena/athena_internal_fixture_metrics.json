@@ -63,7 +63,7 @@
           ],
           "verification_status": "confirmed_from_local_code",
           "path": "examples/cross_modal/athena_pilot_fixture/athena-sub-001/ses-2026-04-10-rest/eeg.csv",
-          "bytes": 170
+          "bytes": 45562
         },
         "fnirs": {
           "present": true,
@@ -75,7 +75,7 @@
           "processing_status": "pending_internal_pipeline",
           "verification_status": "transport_confirmed_local_code_fnirs_mapping_pending",
           "path": "examples/cross_modal/athena_pilot_fixture/athena-sub-001/ses-2026-04-10-rest/fnirs_optics.csv",
-          "bytes": 236
+          "bytes": 12627
         },
         "ppg": {
           "present": true,
@@ -86,7 +86,7 @@
           "mapping_status": "pending_internal_mapping",
           "verification_status": "pending_device_verification",
           "path": "examples/cross_modal/athena_pilot_fixture/athena-sub-001/ses-2026-04-10-rest/ppg.csv",
-          "bytes": 50
+          "bytes": 2447
         },
         "imu": {
           "present": true,
@@ -104,7 +104,7 @@
           ],
           "verification_status": "confirmed_from_local_code",
           "path": "examples/cross_modal/athena_pilot_fixture/athena-sub-001/ses-2026-04-10-rest/imu.csv",
-          "bytes": 160
+          "bytes": 6928
         }
       },
       "sidecar_path": "examples/cross_modal/athena_pilot_fixture/athena-sub-001/ses-2026-04-10-rest/athena_session.json",
@@ -159,7 +159,7 @@
           ],
           "verification_status": "confirmed_from_local_code",
           "path": "examples/cross_modal/athena_pilot_fixture/athena-sub-002/ses-2026-04-11-verbalwm/eeg.csv",
-          "bytes": 167
+          "bytes": 45550
         },
         "fnirs": {
           "present": true,
@@ -171,7 +171,7 @@
           "processing_status": "pending_internal_pipeline",
           "verification_status": "transport_confirmed_local_code_fnirs_mapping_pending",
           "path": "examples/cross_modal/athena_pilot_fixture/athena-sub-002/ses-2026-04-11-verbalwm/fnirs_optics.csv",
-          "bytes": 223
+          "bytes": 12627
         },
         "ppg": {
           "present": true,
@@ -182,7 +182,7 @@
           "mapping_status": "pending_internal_mapping",
           "verification_status": "pending_device_verification",
           "path": "examples/cross_modal/athena_pilot_fixture/athena-sub-002/ses-2026-04-11-verbalwm/ppg.csv",
-          "bytes": 50
+          "bytes": 2447
         },
         "imu": {
           "present": true,
@@ -200,7 +200,7 @@
           ],
           "verification_status": "confirmed_from_local_code",
           "path": "examples/cross_modal/athena_pilot_fixture/athena-sub-002/ses-2026-04-11-verbalwm/imu.csv",
-          "bytes": 160
+          "bytes": 6933
         }
       },
       "sidecar_path": "examples/cross_modal/athena_pilot_fixture/athena-sub-002/ses-2026-04-11-verbalwm/athena_session.json",

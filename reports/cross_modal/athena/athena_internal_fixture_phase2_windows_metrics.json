@@ -1,0 +1,67 @@
+{
+  "kind": "athena_internal_phase2_smoke_metrics",
+  "config_path": "configs/cross_modal/athena_phase2_fixture.toml",
+  "prepare_metrics_path": "reports/cross_modal/athena/athena_internal_fixture_metrics.json",
+  "prepare_manifest_path": "reports/cross_modal/athena/athena_internal_fixture_manifest.json",
+  "runtime_sec": 0.03739750001113862,
+  "peak_memory_mb": 1.2627344131469727,
+  "subject_count": 2,
+  "session_count": 2,
+  "train_subject_count": 1,
+  "eval_subject_count": 1,
+  "paired_window_count": 2,
+  "quality_pass_window_count": 2,
+  "prepare_blocker_count": 3,
+  "eeg_event_tensor_shape": [
+    2,
+    8,
+    512
+  ],
+  "eeg_clean_tensor_shape": [
+    2,
+    8,
+    128
+  ],
+  "optics_tensor_shape": [
+    2,
+    8,
+    128
+  ],
+  "ppg_native_tensor_shape": [
+    2,
+    128
+  ],
+  "ppg_clean_tensor_shape": [
+    2,
+    64
+  ],
+  "min_shared_overlap_seconds": 1.984375,
+  "max_timestamp_step_jitter_seconds": 1.000000000139778e-06,
+  "mean_ppg_peak_count": 3.0,
+  "per_session": [
+    {
+      "subject_id": "athena-sub-001",
+      "session_id": "ses-2026-04-10-rest",
+      "split": "train",
+      "protocol": "rest_eyes_open",
+      "task_label": "rest",
+      "shared_overlap_seconds": 1.984375,
+      "max_timestamp_step_jitter_seconds": 1.000000000139778e-06,
+      "ppg_peak_count": 3,
+      "ppg_clean_std": 0.044362280517816544,
+      "window_quality_pass": true
+    },
+    {
+      "subject_id": "athena-sub-002",
+      "session_id": "ses-2026-04-11-verbalwm",
+      "split": "eval",
+      "protocol": "verbalwm_digits",
+      "task_label": "verbalwm",
+      "shared_overlap_seconds": 1.984375,
+      "max_timestamp_step_jitter_seconds": 1.000000000139778e-06,
+      "ppg_peak_count": 3,
+      "ppg_clean_std": 0.03899218514561653,
+      "window_quality_pass": true
+    }
+  ]
+}

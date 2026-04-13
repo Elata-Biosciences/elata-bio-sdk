@@ -54,6 +54,7 @@
 - [Intake Report Template](intake-report-template.md)
 - [Athena Intake Note](athena-intake-note.md)
 - [Athena Recording Specification](athena-recording-spec.md)
+- [Athena Phase 2 Windowing](athena-phase2-windowing.md)
 
 Phase 1 reports:
 
@@ -62,6 +63,7 @@ Phase 1 reports:
 - [../../reports/cross_modal/intake/ds003838-intake-report.md](../../reports/cross_modal/intake/ds003838-intake-report.md)
 - [../../reports/cross_modal/intake/ds006848-intake-report.md](../../reports/cross_modal/intake/ds006848-intake-report.md)
 - [../../reports/cross_modal/intake/athena-internal-pilot-report.md](../../reports/cross_modal/intake/athena-internal-pilot-report.md)
+- [../../reports/cross_modal/athena/README.md](../../reports/cross_modal/athena/README.md)
 
 Primary plan:
 

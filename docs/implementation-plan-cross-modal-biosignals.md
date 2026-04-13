@@ -1,6 +1,6 @@
 ﻿# Cross-Modal Biosignal Model Implementation Plan (v2)
 
-Status: Active plan (v2, revised after feedback, annotated with execution status through April 12, 2026)
+Status: Active plan (v2, revised after feedback, annotated with execution status through April 13, 2026)
 
 ## Summary
 
@@ -36,7 +36,7 @@ The recommended execution order is:
 
 ## Execution Status
 
-As of April 12, 2026, the repo is no longer at the pure-planning stage.
+As of April 13, 2026, the repo is no longer at the pure-planning stage.
 
 Completed or materially implemented:
 
@@ -47,6 +47,11 @@ Completed or materially implemented:
   - recording-spec contract for standardized session exports
   - fixture-backed Athena capture root for local validation
   - candidate-manifest and pilot-report generator for future real internal mounts
+- Athena internal Phase 2 now also has a repo-runnable transport-level smoke artifact:
+  - paired EEG, optics-transport, and PPG window builder on the standardized session-export contract
+  - separate native and cleaned branches for EEG and PPG
+  - fixture-backed `2`-window smoke split with `2 / 2` quality-pass windows
+  - explicit preservation of optics transport instead of overclaiming confirmed Athena fNIRS processing
 - Phase 1 intake is now also source-backed for `DS003838`, including the worksheet, ingest note, and intake report for the first EEG-PPG public reference dataset.
 - Phase 1 intake is now also source-backed for `DS006848`, including the worksheet, ingest note, and intake report for the second EEG-PPG public benchmark candidate.
 - Phase 1 intake for `DS003838` now also includes a pilot split plan and the first executable EEG-PPG Phase 2 note.
@@ -270,7 +275,7 @@ Still incomplete:
 - Phase 2 for `DS006848` now covers development-scale verbalwm plus a first rest target-complete smoke branch, but it is still incomplete at the dataset level because the long-term role of the rest branch is still undecided.
 - Phase 2 is still development-scale for EEG-PPG. `DS003838` now has a 4-subject smoke artifact, an 8-subject development artifact, and target-coverage layers for both, but not yet a broader paired-cohort default artifact.
 - Athena internal intake and preprocessing are still incomplete.
-- Athena internal intake now has a candidate prep contract and runnable pilot path, but the real internal export still needs to close fNIRS-processing, PPG-mapping, and event-label blockers before Athena can be treated as Phase 1 complete.
+- Athena internal intake now has a candidate prep contract and Athena preprocessing now also has a transport-level smoke artifact, but the real internal export still needs to close fNIRS-processing, PPG-mapping, and event-label blockers before Athena can be treated as Phase 1 complete or as a canonical Phase 2 path.
 - There is still no broad-cohort zero-shot EEG-PPG positive baseline result; the earlier DS006848 4-subject positive check does not survive the broader 8-subject follow-up.
 - There is still no settled promoted wider-cohort full-morphology calibrated EEG-PPG cohort; the shared hybrid `rank 16` path now survives both one-subject full-morphology expansions and the first combined `sub-011` plus `sub-025` expansion on aggregate, but both added stress-test subjects remain individually above null.
 - The narrower amplitude-family calibrated benchmark is now stable under two cautious subject expansions, but it is still only a calibrated benchmark, not a zero-shot claim and not a full-morphology result.
@@ -331,6 +336,7 @@ New execution note as of April 13, 2026:
 - start Athena Phase 1 and Phase 2 pilot work now
 - keep `DS006848` as the external reference harness while Athena intake, synchronization, and QC are de-risked
 - do not treat Athena as ready for Phase 5 until the new Athena pilot path closes its current fNIRS, PPG, and event-label blockers
+- use the Athena transport-level Phase 2 smoke artifact as the contract test before any real Athena Phase 4 or Phase 5 work
 
 1. Treat the shared hybrid raw-plus-detail `rank 16` DS006848 benchmark as the active EEG-PPG development path.
    Keep the narrower amplitude-family benchmark as the stable anchor, keep the cohort-swap plus one-subject full-morphology expansions as the active widening path, keep the broader reviewed split as the stress test, keep the 2-subject verbalwm path as the smoke contract, and treat the earlier 4-subject result as historical only.
@@ -382,10 +388,16 @@ New execution note as of April 13, 2026:
 10. Use the shared `rank 16` default for the first promotion-oriented full-morphology cohort decision, not another stress-only rerun.
    The next useful DS006848 test is no longer the combined stress expansion because that check now exists. The next useful test is whether a wider default calibrated cohort should be built around cleaner pending-review candidates such as `sub-002` and `sub-035`, while `sub-011` and `sub-025` remain pending for subject-level promotion.
 
-11. Keep the rest branch in smoke-contract mode until the calibrated verbalwm path is stable.
+11. Treat the Athena transport-level Phase 2 smoke path as completed scaffolding, not open planning.
+   The repo now has both the Athena candidate-manifest path and the first paired EEG/optics/PPG smoke artifact on top of the same export contract. The next Athena question is no longer what the repo contract should look like. The next Athena question is whether `2` to `3` real internal session exports satisfy the same contract.
+
+12. Use that Athena contract for the next real internal mount, not more fixture-only iteration.
+   Mount `2` to `3` real internal sessions into the same sidecar format, rerun the Athena prep path plus the transport-level Phase 2 smoke path, and only then start Athena-side Phase 4 encoder smoke work. Do not start Athena Phase 5 latent alignment before that real mount passes.
+
+13. Keep the rest branch in smoke-contract mode until the calibrated verbalwm path is stable.
    Do not treat the current 2-subject rest path as a modeling benchmark yet.
 
-12. Treat raw EEG -> raw PPG waveform generation and deeper architectures as explicitly out of scope until either the amplitude-family calibrated path is stable under wider cohort expansion or the full calibrated morphology path survives the next cohort expansion.
+14. Treat raw EEG -> raw PPG waveform generation and deeper architectures as explicitly out of scope until either the amplitude-family calibrated path is stable under wider cohort expansion or the full calibrated morphology path survives the next cohort expansion.
 
 This is the shortest path from current repo state to the new business goal.
 
@@ -839,7 +851,7 @@ If a phase cannot be exercised in toy mode, it is not ready for the full-data pa
 
 ### Phase 0: Program framing and kill criteria
 
-Execution status as of March 30, 2026:
+Execution status as of April 13, 2026:
 
 - completed
 - the original first-target decision was EEG-fNIRS
@@ -921,6 +933,7 @@ Completed so far:
 - manifest contract and registry
 - Athena intake template and intake note
 - Athena recording-spec contract and fixture-backed pilot prep path
+- Athena fixture-backed synthetic capture root upgraded to support transport-level Phase 2 smoke validation
 - source-backed `DS004514` intake packet, including ingest note, split plan, normalization note, and intake report
 - source-backed `DS003838` intake packet, including worksheet, ingest note, and intake report
 - source-backed `DS006848` intake packet, including worksheet, ingest note, and intake report
@@ -968,11 +981,11 @@ Exit criteria:
 
 ### Phase 2: Preprocessing, synchronization, and windowing
 
-Execution status as of March 25, 2026:
+Execution status as of April 13, 2026:
 
 - in progress
-- materially implemented for the `DS004514` pilot path
-- not yet implemented for EEG-PPG
+- materially implemented for the `DS004514`, `DS003838`, and `DS006848` public paths
+- Athena now also has a transport-level smoke path, but not yet a canonical internal artifact
 
 Completed so far:
 
@@ -983,14 +996,21 @@ Completed so far:
   - canonicalized fNIRS targets
   - per-window quality flags
 - first preprocessing distortion ledger entry for the cleaned EEG path
+- Athena fixture-backed transport smoke artifact with:
+  - event-style EEG windows
+  - cleaned EEG windows
+  - optics transport windows
+  - native and cleaned PPG windows
+  - per-window overlap and quality metadata
+  - explicit transport-level scope rather than confirmed Athena fNIRS claims
 
 Still needed before Phase 2 can be called complete for the new business target:
 
-- morphology-preserving and cleaned PPG preprocessing paths
-- first EEG-PPG Phase 2 artifact for `DS003838`
-- first EEG-PPG distortion benchmark for the cleaned PPG path
-- random window inspection support for the EEG-PPG branch
-- Athena-facing Phase 2 implementation after the public EEG-PPG path is stable
+- real Athena session exports mounted into the current session-sidecar contract
+- confirmed Athena optics-to-fNIRS internal processing path
+- confirmed Athena PPG layout and mapping details
+- Athena random window inspection support beyond the current smoke summary
+- Athena preprocessing distortion ledger entries for the real internal filter path
 
 Duration: 2 to 4 weeks
 

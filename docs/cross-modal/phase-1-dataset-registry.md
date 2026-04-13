@@ -27,6 +27,7 @@ Registry file:
   Intake note: [athena-intake-note.md](athena-intake-note.md)
   Recording spec: [athena-recording-spec.md](athena-recording-spec.md)
   Pilot report: [../../reports/cross_modal/intake/athena-internal-pilot-report.md](../../reports/cross_modal/intake/athena-internal-pilot-report.md)
+  Phase 2 smoke note: [athena-phase2-windowing.md](athena-phase2-windowing.md)
 
 ### Public EEG-fNIRS
 
@@ -85,4 +86,4 @@ python scripts/cross_modal/validate_manifest_file.py manifests/cross_modal/publi
 - These manifests are deliberately lightweight and may contain placeholder counts until real ingest is performed.
 - Public dataset modality dimensions and sampling rates should be confirmed during implementation, even when a candidate manifest already contains a provisional value.
 - `DS006848` now also has a first 2-subject rest Phase 2 pilot, so its next open question is broader waveform quality and rest-target derivation, not whether a rest branch can be built at all.
-- Athena now also has a fixture-backed candidate prep path, but the internal entry should still be treated as a template until real session exports replace the fixture root.
+- Athena now also has a fixture-backed candidate prep path and a transport-level Phase 2 smoke path, but the internal entry should still be treated as a template until real session exports replace the fixture root and the optics-to-fNIRS / PPG mapping blockers are closed.

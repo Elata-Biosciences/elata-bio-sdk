@@ -1,0 +1,57 @@
+[builder]
+pipeline = "athena_internal_phase2_smoke"
+
+[dataset]
+dataset_id = "athena_internal"
+dataset_version = "fixture-phase2-smoke"
+dataset_name = "athena-internal-transport-smoke"
+
+[subjects]
+train = ["athena-sub-001"]
+eval = ["athena-sub-002"]
+
+[inputs]
+prepare_metrics = "reports/cross_modal/athena/athena_internal_fixture_metrics.json"
+prepare_manifest = "reports/cross_modal/athena/athena_internal_fixture_manifest.json"
+
+[window]
+anchor = "shared_overlap_timestamp_grid"
+eeg_event_target_samples = 512
+eeg_clean_target_samples = 128
+optics_target_samples = 128
+ppg_native_target_samples = 128
+ppg_clean_target_samples = 64
+
+[cleaning.eeg]
+moving_average_width = 5
+
+[cleaning.ppg]
+moving_average_width = 5
+
+[quality]
+expected_timestamp_source = "athena_shared_clock"
+min_overlap_seconds = 1.9
+max_timestamp_step_jitter_seconds = 0.001
+ppg_clean_min_std = 0.005
+ppg_min_peak_count = 1
+ppg_max_peak_count = 6
+ppg_peak_min_distance_seconds = 0.3
+ppg_peak_threshold_std = 0.1
+
+[expected]
+subject_ids = ["athena-sub-001", "athena-sub-002"]
+paired_window_count = 2
+eeg_event_window_shape = [8, 512]
+eeg_clean_window_shape = [8, 128]
+optics_window_shape = [8, 128]
+ppg_native_window_shape = [128]
+ppg_clean_window_shape = [64]
+min_quality_pass_count = 2
+min_shared_overlap_seconds = 1.9
+min_mean_ppg_peak_count = 1.0
+
+[paths]
+dataset = "reports/cross_modal/athena/athena_internal_fixture_phase2_windows.npz"
+metadata = "reports/cross_modal/athena/athena_internal_fixture_phase2_windows_metadata.json"
+metrics = "reports/cross_modal/athena/athena_internal_fixture_phase2_windows_metrics.json"
+summary = "reports/cross_modal/athena/athena_internal_fixture_phase2_windows_summary.md"
