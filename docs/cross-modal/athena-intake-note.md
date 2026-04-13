@@ -54,6 +54,29 @@ The Athena internal manifest is now partially populated with confirmed transport
 4. verify whether Athena internal recordings expose PPG as a distinct stream, a derived stream, or an optical subset
 5. fill split counts after real ingest
 
+## New pilot prep path
+
+The repo now also has a runnable Athena pilot intake path built around a standardized session-export contract:
+
+- recording-spec contract: [athena-recording-spec.md](athena-recording-spec.md)
+- prep config: [../../configs/cross_modal/athena_prepare_fixture.toml](../../configs/cross_modal/athena_prepare_fixture.toml)
+- fixture-backed pilot report: [../../reports/cross_modal/intake/athena-internal-pilot-report.md](../../reports/cross_modal/intake/athena-internal-pilot-report.md)
+
+That path is intentionally conservative.
+
+It does not claim Athena is Phase 1 complete.
+It does make the next Athena step concrete:
+
+- mount real internal session exports into the same sidecar contract
+- regenerate the candidate manifest and pilot report
+- treat the remaining blockers as explicit Phase 1 work rather than vague open questions
+
+Current open blockers on the runnable pilot path are:
+
+- Athena fNIRS processing remains unconfirmed
+- Athena PPG mapping remains unconfirmed
+- Athena event-label export is not yet demonstrated
+
 ## Current manifest
 
 - [../../manifests/cross_modal/athena_internal.template.json](../../manifests/cross_modal/athena_internal.template.json)

@@ -1,0 +1,136 @@
+{
+  "kind": "cross_modal_dataset_manifest",
+  "schema_version": "0.2",
+  "identity": {
+    "dataset_name": "athena-internal",
+    "dataset_version": "fixture-phase1",
+    "source_type": "internal",
+    "intake_status": "candidate",
+    "source_uri": "internal://athena/pilot-fixture",
+    "license": "internal-review-required"
+  },
+  "storage": {
+    "dataset_path": "examples/cross_modal/athena_pilot_fixture",
+    "manifest_path": "reports/cross_modal/athena/athena_internal_fixture_manifest.json"
+  },
+  "modalities": {
+    "eeg": {
+      "present": true,
+      "feature_dim": 8,
+      "sampling_rate_hz": 256.0,
+      "geometry_available": true,
+      "channel_names": [
+        "TP9",
+        "AF7",
+        "AF8",
+        "TP10",
+        "AUX1",
+        "AUX2",
+        "AUX3",
+        "AUX4"
+      ],
+      "verification_status": "confirmed_from_local_code"
+    },
+    "fnirs": {
+      "present": true,
+      "feature_dim": 8,
+      "sampling_rate_hz": 64.0,
+      "geometry_available": true,
+      "transport_signal": "optics",
+      "optics_sample_rate_hz": 64.0,
+      "optics_channel_count_default": 8,
+      "optics_channel_count_variants": [
+        4,
+        8,
+        16
+      ],
+      "verification_status": "transport_confirmed_local_code_fnirs_mapping_pending",
+      "processing_status": "pending_internal_pipeline"
+    },
+    "ppg": {
+      "present": true,
+      "feature_dim": 1,
+      "sampling_rate_hz": null,
+      "geometry_available": false,
+      "verification_status": "pending_device_verification",
+      "mapping_status": "pending_internal_mapping"
+    },
+    "imu": {
+      "present": true,
+      "feature_dim": 6,
+      "sampling_rate_hz": 52.0,
+      "geometry_available": false,
+      "channel_names": [
+        "acc_x",
+        "acc_y",
+        "acc_z",
+        "gyro_x",
+        "gyro_y",
+        "gyro_z"
+      ],
+      "verification_status": "confirmed_from_local_code"
+    }
+  },
+  "split_summary": {
+    "train_windows": 0,
+    "eval_windows": 0,
+    "heldout_subjects": []
+  },
+  "coverage": {
+    "subject_ids": [
+      "athena-sub-001",
+      "athena-sub-002"
+    ],
+    "session_ids": [
+      "ses-2026-04-10-rest",
+      "ses-2026-04-11-verbalwm"
+    ],
+    "protocols": [
+      "rest_eyes_open",
+      "verbalwm_digits"
+    ],
+    "shift_metadata_keys": [
+      "age_band",
+      "artifact_burden",
+      "recent_caffeine",
+      "recent_exercise"
+    ]
+  },
+  "labels": {
+    "event_labels_present": false,
+    "ppg_morphology_targets_present": false,
+    "task_labels_present": true
+  },
+  "quality": {
+    "quality_fields": [
+      "eeg_contact_score",
+      "optics_saturation_fraction",
+      "ppg_clean_std",
+      "sync_confidence"
+    ],
+    "artifact_fields": [
+      "clip_fraction",
+      "line_noise_residual",
+      "motion_score"
+    ]
+  },
+  "repo_confirmed_transport": {
+    "athena_protocol": true,
+    "athena_ble_characteristics": [
+      "273e0013-4c4d-454d-96be-f03bac821358",
+      "273e0014-4c4d-454d-96be-f03bac821358"
+    ],
+    "battery_stream_present": true
+  },
+  "notes": [
+    "Template for internal Athena intake.",
+    "Repo-local code confirms Athena EEG transport at 256 Hz with 8 channels, optics transport at 64 Hz with 4/8/16-channel packet variants, and 6-channel acc/gyro transport at 52 Hz.",
+    "Repo-local code does not yet confirm the exact internal fNIRS conversion pipeline, HbO/HbR derivation, or internal PPG channel mapping for Athena recordings.",
+    "Fill exact storage paths, split summary, fNIRS processing details, and PPG acquisition details during Phase 1.",
+    "Prepared by scripts/cross_modal/prepare_athena_dataset.py from a standardized Athena session-export contract.",
+    "This candidate manifest is inventory-backed but still provisional until real internal Athena recordings replace the fixture root.",
+    "Open blocker: Athena fNIRS processing remains unconfirmed for sessions: ses-2026-04-10-rest, ses-2026-04-11-verbalwm.",
+    "Open blocker: Athena PPG mapping remains unconfirmed for sessions: ses-2026-04-10-rest, ses-2026-04-11-verbalwm.",
+    "Open blocker: Athena event-label export is not yet demonstrated for sessions: ses-2026-04-10-rest, ses-2026-04-11-verbalwm."
+  ]
+}

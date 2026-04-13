@@ -1,0 +1,21 @@
+[prepare]
+dataset_id = "athena_internal"
+dataset_name = "athena-internal"
+dataset_version = "fixture-phase1"
+intake_status = "candidate"
+session_sidecar_name = "athena_session.json"
+required_modalities = ["eeg", "fnirs", "ppg"]
+optional_modalities = ["imu"]
+
+[inputs]
+template_manifest = "manifests/cross_modal/athena_internal.template.json"
+
+[storage]
+dataset_root = "examples/cross_modal/athena_pilot_fixture"
+source_uri = "internal://athena/pilot-fixture"
+license = "internal-review-required"
+
+[outputs]
+manifest = "reports/cross_modal/athena/athena_internal_fixture_manifest.json"
+metrics = "reports/cross_modal/athena/athena_internal_fixture_metrics.json"
+report = "reports/cross_modal/intake/athena-internal-pilot-report.md"

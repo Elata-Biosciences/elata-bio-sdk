@@ -5,6 +5,9 @@
     {
       "id": "athena_internal",
       "manifest_path": "manifests/cross_modal/athena_internal.template.json",
+      "ingest_note_path": "docs/cross-modal/athena-intake-note.md",
+      "recording_spec_path": "docs/cross-modal/athena-recording-spec.md",
+      "pilot_report_path": "reports/cross_modal/intake/athena-internal-pilot-report.md",
       "status": "template",
       "priority": "highest",
       "role": "internal_tri_modal"

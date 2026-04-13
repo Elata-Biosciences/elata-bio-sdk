@@ -1,0 +1,84 @@
+{
+  "subject_id": "athena-sub-001",
+  "session_id": "ses-2026-04-10-rest",
+  "protocol": "rest_eyes_open",
+  "task_label": "rest",
+  "start_time_utc": "2026-04-10T14:00:00Z",
+  "duration_seconds": 300,
+  "timestamp_source": "athena_shared_clock",
+  "labels": {
+    "task_labels_present": true,
+    "event_labels_present": false,
+    "ppg_morphology_targets_present": false
+  },
+  "shift_metadata": {
+    "age_band": "30-39",
+    "recent_caffeine": false,
+    "recent_exercise": false,
+    "artifact_burden": "low"
+  },
+  "quality_fields": [
+    "sync_confidence",
+    "eeg_contact_score",
+    "ppg_clean_std"
+  ],
+  "artifact_fields": [
+    "motion_score",
+    "clip_fraction"
+  ],
+  "modalities": {
+    "eeg": {
+      "present": true,
+      "relative_path": "eeg.csv",
+      "sampling_rate_hz": 256.0,
+      "feature_dim": 8,
+      "geometry_available": true,
+      "channel_names": [
+        "TP9",
+        "AF7",
+        "AF8",
+        "TP10",
+        "AUX1",
+        "AUX2",
+        "AUX3",
+        "AUX4"
+      ],
+      "verification_status": "confirmed_from_local_code"
+    },
+    "fnirs": {
+      "present": true,
+      "relative_path": "fnirs_optics.csv",
+      "sampling_rate_hz": 64.0,
+      "feature_dim": 8,
+      "geometry_available": true,
+      "transport_signal": "optics",
+      "processing_status": "pending_internal_pipeline",
+      "verification_status": "transport_confirmed_local_code_fnirs_mapping_pending"
+    },
+    "ppg": {
+      "present": true,
+      "relative_path": "ppg.csv",
+      "sampling_rate_hz": null,
+      "feature_dim": 1,
+      "geometry_available": false,
+      "mapping_status": "pending_internal_mapping",
+      "verification_status": "pending_device_verification"
+    },
+    "imu": {
+      "present": true,
+      "relative_path": "imu.csv",
+      "sampling_rate_hz": 52.0,
+      "feature_dim": 6,
+      "geometry_available": false,
+      "channel_names": [
+        "acc_x",
+        "acc_y",
+        "acc_z",
+        "gyro_x",
+        "gyro_y",
+        "gyro_z"
+      ],
+      "verification_status": "confirmed_from_local_code"
+    }
+  }
+}

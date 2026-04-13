@@ -14,3 +14,4 @@ Current reports:
 - [DS004514 Intake Report](ds004514-intake-report.md)
 - [DS003838 Intake Report](ds003838-intake-report.md)
 - [DS006848 Intake Report](ds006848-intake-report.md)
+- [Athena Internal Pilot Report](athena-internal-pilot-report.md)

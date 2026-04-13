@@ -43,6 +43,10 @@ Completed or materially implemented:
 - Phase 0 framing artifacts exist, including the research charter, metric sheet, reproducibility checklist, and toy-mode contract.
 - Phase 0A local prototype path exists and runs end to end on a laptop-scale synthetic task.
 - Phase 1 intake is substantially complete for `DS004514`, including source-backed manifest work, ingest notes, split and normalization notes, and raw waveform smoke paths.
+- Athena internal Phase 1 now also has a repo-runnable pilot prep path:
+  - recording-spec contract for standardized session exports
+  - fixture-backed Athena capture root for local validation
+  - candidate-manifest and pilot-report generator for future real internal mounts
 - Phase 1 intake is now also source-backed for `DS003838`, including the worksheet, ingest note, and intake report for the first EEG-PPG public reference dataset.
 - Phase 1 intake is now also source-backed for `DS006848`, including the worksheet, ingest note, and intake report for the second EEG-PPG public benchmark candidate.
 - Phase 1 intake for `DS003838` now also includes a pilot split plan and the first executable EEG-PPG Phase 2 note.
@@ -266,6 +270,7 @@ Still incomplete:
 - Phase 2 for `DS006848` now covers development-scale verbalwm plus a first rest target-complete smoke branch, but it is still incomplete at the dataset level because the long-term role of the rest branch is still undecided.
 - Phase 2 is still development-scale for EEG-PPG. `DS003838` now has a 4-subject smoke artifact, an 8-subject development artifact, and target-coverage layers for both, but not yet a broader paired-cohort default artifact.
 - Athena internal intake and preprocessing are still incomplete.
+- Athena internal intake now has a candidate prep contract and runnable pilot path, but the real internal export still needs to close fNIRS-processing, PPG-mapping, and event-label blockers before Athena can be treated as Phase 1 complete.
 - There is still no broad-cohort zero-shot EEG-PPG positive baseline result; the earlier DS006848 4-subject positive check does not survive the broader 8-subject follow-up.
 - There is still no settled promoted wider-cohort full-morphology calibrated EEG-PPG cohort; the shared hybrid `rank 16` path now survives both one-subject full-morphology expansions and the first combined `sub-011` plus `sub-025` expansion on aggregate, but both added stress-test subjects remain individually above null.
 - The narrower amplitude-family calibrated benchmark is now stable under two cautious subject expansions, but it is still only a calibrated benchmark, not a zero-shot claim and not a full-morphology result.
@@ -320,6 +325,12 @@ Current execution note as of March 23, 2026:
 ## Immediate Next Steps
 
 Given the EEG-PPG pivot, the recommended near-term sequence is:
+
+New execution note as of April 13, 2026:
+
+- start Athena Phase 1 and Phase 2 pilot work now
+- keep `DS006848` as the external reference harness while Athena intake, synchronization, and QC are de-risked
+- do not treat Athena as ready for Phase 5 until the new Athena pilot path closes its current fNIRS, PPG, and event-label blockers
 
 1. Treat the shared hybrid raw-plus-detail `rank 16` DS006848 benchmark as the active EEG-PPG development path.
    Keep the narrower amplitude-family benchmark as the stable anchor, keep the cohort-swap plus one-subject full-morphology expansions as the active widening path, keep the broader reviewed split as the stress test, keep the 2-subject verbalwm path as the smoke contract, and treat the earlier 4-subject result as historical only.
@@ -909,6 +920,7 @@ Completed so far:
 
 - manifest contract and registry
 - Athena intake template and intake note
+- Athena recording-spec contract and fixture-backed pilot prep path
 - source-backed `DS004514` intake packet, including ingest note, split plan, normalization note, and intake report
 - source-backed `DS003838` intake packet, including worksheet, ingest note, and intake report
 - source-backed `DS006848` intake packet, including worksheet, ingest note, and intake report
@@ -918,7 +930,7 @@ Completed so far:
 Still needed before Phase 1 can be called complete for the EEG-PPG branch:
 
 - decision on whether `DREAMT` enters the first EEG-PPG benchmark set
-- real Athena recording specification completion, including internal PPG layout and session storage details
+- real Athena recording specification completion beyond the current pilot export contract, including internal PPG layout and session storage details
 - decision on whether `DS006848` now becomes the primary public EEG-PPG development set
 
 Duration: 2 to 3 weeks
