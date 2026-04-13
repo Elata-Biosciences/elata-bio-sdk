@@ -13,7 +13,7 @@ Status: Candidate prep path
 - subjects discovered: `2`
 - sessions discovered: `2`
 - protocols discovered: `rest_eyes_open, verbalwm_digits`
-- required modality coverage: `eeg`, `fnirs`, and `ppg` present in all `2` sessions
+- required modality coverage: `eeg`, `fnirs`, `ppg` present in all `2` sessions
 
 ## Session Export Contract
 

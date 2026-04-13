@@ -1,9 +1,10 @@
-const http = require("http");
-const fs = require("fs");
-const path = require("path");
+const http = require("node:http");
+const fs = require("node:fs");
+const path = require("node:path");
 
 const PORT = Number(process.env.PORT || 4173);
-const ROOT = path.resolve(__dirname, "..");
+const DEMO_ROOT = path.resolve(__dirname, "..");
+const REPO_ROOT = path.resolve(DEMO_ROOT, "..");
 
 const MIME_TYPES = {
 	".html": "text/html; charset=utf-8",
@@ -19,8 +20,9 @@ function resolvePath(urlPath) {
 	const rawPath = urlPath.split("?")[0];
 	const decoded = decodeURIComponent(rawPath);
 	const requested = decoded === "/" ? "/index.html" : decoded;
-	const fullPath = path.resolve(ROOT, `.${requested}`);
-	if (!fullPath.startsWith(ROOT)) {
+	const root = requested.startsWith("/packages/") ? REPO_ROOT : DEMO_ROOT;
+	const fullPath = path.resolve(root, `.${requested}`);
+	if (!fullPath.startsWith(root)) {
 		return null;
 	}
 	return fullPath;

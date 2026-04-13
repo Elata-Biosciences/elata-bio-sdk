@@ -13,9 +13,9 @@ interface FakeDeviceShape {
   getBoardInfo: jest.Mock;
   getCharacteristicInfo: jest.Mock;
   startStream: jest.Mock;
-  eegCb: ((samples: number[][]) => void) | null;
+  eegCb: ((samples: number[][], timestampsMs?: number[]) => void) | null;
   ppgCb: ((channelName: string, packet: unknown) => void) | null;
-  emitEeg(samples: number[][]): void;
+  emitEeg(samples: number[][], timestampsMs?: number[]): void;
   emitPpg(channelName: string, packet: unknown): void;
 }
 
@@ -37,8 +37,8 @@ function createFakeBleDevice(): FakeDeviceShape {
       device.eegCb = callback;
       device.ppgCb = ppgCallback;
     }),
-    emitEeg(samples: number[][]) {
-      if (this.eegCb) this.eegCb(samples);
+    emitEeg(samples: number[][], timestampsMs?: number[]) {
+      if (this.eegCb) this.eegCb(samples, timestampsMs);
     },
     emitPpg(channelName: string, packet: unknown) {
       if (this.ppgCb) this.ppgCb(channelName, packet);
@@ -127,6 +127,23 @@ describe('BleTransport', () => {
     ]);
     expect(frames[0].accgyro!.channelCount).toBe(6);
     expect(frames[0].battery!.samples).toEqual([95]);
+  });
+
+  test('passes Athena EEG device timestamps through to frames', async () => {
+    const device = createFakeBleDevice();
+    device.isAthena = true;
+    device.numEegChannels = 8;
+    device.eegNames = ['TP9', 'AF7', 'AF8', 'TP10', 'AUX1', 'AUX2', 'AUX3', 'AUX4'];
+
+    const transport = new BleTransport({ device: device as any });
+    const frames: HeadbandFrameV1[] = [];
+    transport.onFrame = (frame: HeadbandFrameV1) => frames.push(frame);
+
+    await transport.start();
+    device.emitEeg([[1, 2, 3, 4, 5, 6, 7, 8]], [1234]);
+
+    expect(frames).toHaveLength(1);
+    expect(frames[0].eeg.timestampsMs).toEqual([1234]);
   });
 
   test('uses default sourceName "muse-ble" when not specified', async () => {

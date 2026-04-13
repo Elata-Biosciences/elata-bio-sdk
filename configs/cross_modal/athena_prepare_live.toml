@@ -1,0 +1,21 @@
+[prepare]
+dataset_id = "athena_internal_live"
+dataset_name = "athena-internal"
+dataset_version = "live-sdk-candidate"
+intake_status = "candidate"
+session_sidecar_name = "athena_session.json"
+required_modalities = ["eeg", "fnirs"]
+optional_modalities = ["ppg", "imu", "battery"]
+
+[inputs]
+template_manifest = "manifests/cross_modal/athena_internal.template.json"
+
+[storage]
+dataset_root = "data/athena_live_capture"
+source_uri = "internal://athena/live-sdk-capture"
+license = "internal-review-required"
+
+[outputs]
+manifest = "reports/cross_modal/athena/athena_internal_live_manifest.json"
+metrics = "reports/cross_modal/athena/athena_internal_live_metrics.json"
+report = "reports/cross_modal/intake/athena-internal-live-report.md"

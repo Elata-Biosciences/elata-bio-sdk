@@ -128,7 +128,9 @@ export class MuseBleDevice {
 	private ppgSampleCount = 0;
 	private ppgFallbackTimer: number | null = null;
 
-	private onDataCallback: ((samples: number[][]) => void) | null = null;
+	private onDataCallback:
+		| ((samples: number[][], timestampsMs?: number[]) => void)
+		| null = null;
 	private onPpgCallback:
 		| ((
 				channelName: string,
@@ -354,7 +356,7 @@ export class MuseBleDevice {
 	}
 
 	async startStream(
-		callback: (samples: number[][]) => void,
+		callback: (samples: number[][], timestampsMs?: number[]) => void,
 		ppgCallback: MuseBleDevice["onPpgCallback"] = null,
 	): Promise<void> {
 		if (this.isStreaming) return;
@@ -401,6 +403,9 @@ export class MuseBleDevice {
 				}
 				const eegSamples = asNumberArray(wasmGet(output, "eeg_samples"));
 				const eegChannels = Number(wasmGet(output, "eeg_channel_count") || 0);
+				const eegTimestampsMs = asNumberArray(
+					wasmGet(output, "eeg_timestamps_ms"),
+				);
 				if (eegSamples.length > 0 && eegChannels > 0 && this.onDataCallback) {
 					if (this.numEegChannels !== eegChannels) {
 						this.numEegChannels = eegChannels;
@@ -415,7 +420,11 @@ export class MuseBleDevice {
 							row[ch] = eegSamples[base + ch];
 						rows.push(row);
 					}
-					if (rows.length > 0) this.onDataCallback(rows);
+					if (rows.length > 0) {
+						const timestampsMs =
+							eegTimestampsMs.length === rows.length ? eegTimestampsMs : undefined;
+						this.onDataCallback(rows, timestampsMs);
+					}
 				}
 				if (this.onPpgCallback) {
 					const opticsSamples = asNumberArray(

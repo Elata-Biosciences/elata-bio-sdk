@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Athena Recorder</title>
+		<style>
+			:root {
+				color-scheme: light;
+				font-family: "Segoe UI", system-ui, sans-serif;
+				background: #f4f1ea;
+				color: #1c1a16;
+				--panel: rgba(255, 255, 255, 0.88);
+				--line: rgba(28, 26, 22, 0.12);
+				--accent: #165d56;
+				--muted: #5f5a50;
+				--warning: #8b4b12;
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				margin: 0;
+				min-height: 100vh;
+				background:
+					radial-gradient(circle at top left, rgba(22, 93, 86, 0.16), transparent 30%),
+					linear-gradient(180deg, #f4f1ea 0%, #ece6da 100%);
+			}
+
+			main {
+				max-width: 1120px;
+				margin: 0 auto;
+				padding: 32px 20px 48px;
+			}
+
+			h1,
+			h2 {
+				margin: 0;
+				font-weight: 700;
+				letter-spacing: -0.02em;
+			}
+
+			p {
+				margin: 0;
+				line-height: 1.5;
+			}
+
+			.hero,
+			.panel {
+				background: var(--panel);
+				border: 1px solid var(--line);
+				border-radius: 20px;
+				box-shadow: 0 18px 60px rgba(33, 29, 22, 0.08);
+				backdrop-filter: blur(10px);
+			}
+
+			.hero {
+				padding: 28px;
+				display: grid;
+				gap: 14px;
+			}
+
+			.hero p {
+				max-width: 76ch;
+				color: var(--muted);
+			}
+
+			.hero code {
+				background: rgba(22, 93, 86, 0.08);
+				padding: 2px 6px;
+				border-radius: 8px;
+			}
+
+			.layout {
+				margin-top: 20px;
+				display: grid;
+				grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+				gap: 20px;
+			}
+
+			.panel {
+				padding: 22px;
+				display: grid;
+				gap: 16px;
+			}
+
+			.field-grid,
+			.metrics-grid {
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 12px;
+			}
+
+			label {
+				display: grid;
+				gap: 6px;
+				font-size: 0.95rem;
+				font-weight: 600;
+			}
+
+			input,
+			select,
+			textarea,
+			button {
+				font: inherit;
+			}
+
+			input,
+			select,
+			textarea {
+				width: 100%;
+				border-radius: 12px;
+				border: 1px solid rgba(28, 26, 22, 0.14);
+				padding: 10px 12px;
+				background: #fff;
+				color: inherit;
+			}
+
+			textarea {
+				min-height: 88px;
+				resize: vertical;
+			}
+
+			.checkbox-row {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 18px;
+			}
+
+			.checkbox-row label {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				gap: 8px;
+				font-weight: 500;
+			}
+
+			.checkbox-row input {
+				width: auto;
+			}
+
+			.actions {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+			}
+
+			button {
+				border: 0;
+				border-radius: 999px;
+				padding: 11px 16px;
+				background: #1c1a16;
+				color: #fff;
+				cursor: pointer;
+				transition: transform 120ms ease, opacity 120ms ease, background 120ms ease;
+			}
+
+			button.secondary {
+				background: #d9d0c2;
+				color: #1c1a16;
+			}
+
+			button.ghost {
+				background: transparent;
+				color: #1c1a16;
+				border: 1px solid rgba(28, 26, 22, 0.16);
+			}
+
+			button:hover:not(:disabled) {
+				transform: translateY(-1px);
+			}
+
+			button:disabled {
+				cursor: not-allowed;
+				opacity: 0.45;
+				transform: none;
+			}
+
+			.status-line {
+				padding: 14px 16px;
+				border-radius: 16px;
+				background: rgba(22, 93, 86, 0.08);
+				border: 1px solid rgba(22, 93, 86, 0.12);
+				color: #0f4e47;
+				font-weight: 600;
+			}
+
+			.note {
+				padding: 14px 16px;
+				border-radius: 16px;
+				background: rgba(139, 75, 18, 0.08);
+				border: 1px solid rgba(139, 75, 18, 0.14);
+				color: var(--warning);
+			}
+
+			.metric {
+				padding: 14px;
+				border-radius: 16px;
+				background: rgba(255, 255, 255, 0.7);
+				border: 1px solid rgba(28, 26, 22, 0.08);
+				display: grid;
+				gap: 6px;
+			}
+
+			.metric strong {
+				font-size: 1.3rem;
+				letter-spacing: -0.02em;
+			}
+
+			.metric span {
+				color: var(--muted);
+				font-size: 0.92rem;
+			}
+
+			pre {
+				margin: 0;
+				padding: 14px;
+				border-radius: 16px;
+				background: #161411;
+				color: #f5f1e8;
+				font-size: 0.86rem;
+				line-height: 1.45;
+				overflow: auto;
+			}
+
+			@media (max-width: 900px) {
+				.layout,
+				.field-grid,
+				.metrics-grid {
+					grid-template-columns: 1fr;
+				}
+			}
+		</style>
+		<script type="importmap">
+			{
+				"imports": {
+					"@elata-biosciences/eeg-web": "/packages/eeg-web/dist/index.js",
+					"@elata-biosciences/eeg-web-ble": "/packages/eeg-web-ble/dist/index.js"
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<main>
+			<section class="hero">
+				<h1>Athena Recorder</h1>
+				<p>
+					This page uses the repo SDK directly. It connects over Web Bluetooth,
+					streams Athena EEG plus the current auxiliary path, and exports an
+					intake-ready session directory with <code>athena_session.json</code>,
+					<code>eeg.csv</code>, <code>fnirs_optics.csv</code>, and optional
+					<code>imu.csv</code>, <code>battery.csv</code>, and
+					<code>ppg.csv</code>.
+				</p>
+			</section>
+
+			<div class="layout">
+				<section class="panel">
+					<h2>Session Metadata</h2>
+					<div class="field-grid">
+						<label>
+							Subject ID
+							<input id="subject-id" value="athena-sub-001" />
+						</label>
+						<label>
+							Session ID
+							<input id="session-id" />
+						</label>
+						<label>
+							Protocol
+							<input id="protocol" value="rest_eyes_open" />
+						</label>
+						<label>
+							Task Label
+							<input id="task-label" value="rest" />
+						</label>
+						<label>
+							Age Band
+							<select id="age-band">
+								<option value="">unspecified</option>
+								<option value="18-29">18-29</option>
+								<option value="30-39">30-39</option>
+								<option value="40-49">40-49</option>
+								<option value="50-59">50-59</option>
+								<option value="60+">60+</option>
+							</select>
+						</label>
+						<label>
+							Artifact Burden
+							<select id="artifact-burden">
+								<option value="unknown">unknown</option>
+								<option value="low">low</option>
+								<option value="medium">medium</option>
+								<option value="high">high</option>
+							</select>
+						</label>
+					</div>
+
+					<div class="checkbox-row">
+						<label><input type="checkbox" id="recent-caffeine" /> Recent caffeine</label>
+						<label><input type="checkbox" id="recent-exercise" /> Recent exercise</label>
+						<label><input type="checkbox" id="recent-nicotine" /> Recent nicotine</label>
+					</div>
+
+					<label>
+						Operator Notes
+						<textarea
+							id="operator-notes"
+							placeholder="Optional notes about placement, artifact, interruptions, or protocol deviations."
+						></textarea>
+					</label>
+
+					<div class="actions">
+						<button id="connect">Connect Athena</button>
+						<button id="start" disabled>Start Recording</button>
+						<button id="stop" class="secondary" disabled>Stop</button>
+						<button id="export" disabled>Export Capture</button>
+						<button id="disconnect" class="ghost" disabled>Disconnect</button>
+						<button id="reset" class="ghost">Reset Buffers</button>
+					</div>
+
+					<div class="status-line" id="status">
+						Loading Athena WASM support...
+					</div>
+
+					<div class="note">
+						The current SDK-confirmed Athena path exposes EEG, optics, IMU, and
+						battery. PPG is exported only if it appears in the transport; otherwise
+						the sidecar marks it absent instead of faking coverage.
+					</div>
+				</section>
+
+				<section class="panel">
+					<h2>Capture Summary</h2>
+					<div class="metrics-grid">
+						<div class="metric">
+							<strong id="eeg-count">0</strong>
+							<span>EEG rows</span>
+						</div>
+						<div class="metric">
+							<strong id="optics-count">0</strong>
+							<span>Optics rows</span>
+						</div>
+						<div class="metric">
+							<strong id="imu-count">0</strong>
+							<span>IMU rows</span>
+						</div>
+						<div class="metric">
+							<strong id="battery-count">0</strong>
+							<span>Battery rows</span>
+						</div>
+						<div class="metric">
+							<strong id="ppg-count">0</strong>
+							<span>PPG rows</span>
+						</div>
+						<div class="metric">
+							<strong id="fallback-count">0</strong>
+							<span>Local timestamp fallback rows</span>
+						</div>
+					</div>
+
+					<h2>Device Info</h2>
+					<pre id="device-info">Not connected.</pre>
+
+					<h2>Export Preview</h2>
+					<pre id="export-preview">No capture recorded yet.</pre>
+				</section>
+			</div>
+		</main>
+
+		<script type="module" src="./athena-recorder.js"></script>
+	</body>
+</html>

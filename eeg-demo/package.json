@@ -3,6 +3,7 @@
 	"private": true,
 	"version": "0.0.0",
 	"scripts": {
+		"serve": "node e2e/server.js",
 		"test:e2e": "playwright test"
 	},
 	"devDependencies": {

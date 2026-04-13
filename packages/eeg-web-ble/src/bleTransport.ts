@@ -43,7 +43,7 @@ interface BleDeviceLike {
 	prepareSession(): Promise<void>;
 	releaseSession(): Promise<void>;
 	startStream(
-		callback: (samples: number[][]) => void,
+		callback: (samples: number[][], timestampsMs?: number[]) => void,
 		ppgCallback: (channelName: string, packet: unknown) => void,
 	): Promise<void>;
 	stopStream(): Promise<void>;
@@ -248,7 +248,7 @@ export class BleTransport implements HeadbandTransport {
 	async start(): Promise<void> {
 		this.emitStatus(HeadbandTransportState.Streaming);
 		await this.device.startStream(
-			(samples) => {
+			(samples, timestampsMs) => {
 				this.sequenceId += 1;
 				const frame: HeadbandFrameV1 = {
 					schemaVersion: HEADBAND_FRAME_SCHEMA_VERSION,
@@ -260,6 +260,7 @@ export class BleTransport implements HeadbandTransport {
 						channelNames: this.device.eegNames.slice(),
 						channelCount: this.device.numEegChannels,
 						samples: samples.map((row) => row.slice()),
+						timestampsMs: timestampsMs?.slice(),
 						clockSource: this.device.isAthena ? "device" : "local",
 					},
 				};

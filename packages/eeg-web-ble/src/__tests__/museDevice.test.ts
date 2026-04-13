@@ -521,6 +521,7 @@ describe('MuseBleDevice', () => {
         decode: jest.fn((data: Uint8Array) => ({
           eeg_samples: () => [1, 2, 3, 4, 5, 6, 7, 8],
           eeg_channel_count: () => 8,
+          eeg_timestamps_ms: () => [1000],
           optics_samples: () => [],
           optics_channel_count: () => 0,
           accgyro_samples: () => [],
@@ -538,8 +539,10 @@ describe('MuseBleDevice', () => {
       await device.prepareSession();
 
       const received: number[][] = [];
-      await device.startStream((samples) => {
+      let timestampsMs: number[] | undefined;
+      await device.startStream((samples, receivedTimestampsMs) => {
         received.push(...samples);
+        timestampsMs = receivedTimestampsMs;
       });
 
       // Emit data on athena EEG characteristic
@@ -549,6 +552,7 @@ describe('MuseBleDevice', () => {
       expect(fakeDecoder.decode).toHaveBeenCalled();
       expect(received.length).toBeGreaterThan(0);
       expect(received[0]).toHaveLength(8);
+      expect(timestampsMs).toEqual([1000]);
 
       await device.stopStream();
       await device.releaseSession();

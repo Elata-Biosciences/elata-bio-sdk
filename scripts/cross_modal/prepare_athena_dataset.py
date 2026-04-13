@@ -142,13 +142,36 @@ def sorted_unique(items: list[str]) -> list[str]:
 
 def summarize_modality(session_records: list[dict], modality_name: str, template_block: dict) -> tuple[dict, list[str]]:
     notes: list[str] = []
+    all_blocks = [
+        record["modalities"][modality_name]
+        for record in session_records
+        if modality_name in record["modalities"]
+    ]
     blocks = [
         record["modalities"][modality_name]
         for record in session_records
         if modality_name in record["modalities"] and record["modalities"][modality_name].get("present")
     ]
     if not blocks:
-        return (dict(template_block), notes)
+        summary = dict(template_block)
+        summary["present"] = False
+        verification_statuses = sorted_unique([str(block.get("verification_status", "")) for block in all_blocks])
+        if verification_statuses:
+            summary["verification_status"] = (
+                verification_statuses[0] if len(verification_statuses) == 1 else "mixed_session_verification"
+            )
+        if modality_name == "fnirs":
+            transport_signals = sorted_unique([str(block.get("transport_signal", "")) for block in all_blocks])
+            processing_statuses = sorted_unique([str(block.get("processing_status", "")) for block in all_blocks])
+            if transport_signals:
+                summary["transport_signal"] = transport_signals[0] if len(transport_signals) == 1 else "mixed"
+            if processing_statuses:
+                summary["processing_status"] = processing_statuses[0] if len(processing_statuses) == 1 else "mixed"
+        if modality_name == "ppg":
+            mapping_statuses = sorted_unique([str(block.get("mapping_status", "")) for block in all_blocks])
+            if mapping_statuses:
+                summary["mapping_status"] = mapping_statuses[0] if len(mapping_statuses) == 1 else "mixed"
+        return (summary, notes)
 
     feature_dims = sorted({block.get("feature_dim") for block in blocks if block.get("feature_dim") is not None})
     sampling_rates = sorted({block.get("sampling_rate_hz") for block in blocks if block.get("sampling_rate_hz") is not None})
@@ -314,12 +337,14 @@ def write_report(
     config_path: Path,
     dataset_root: Path,
     session_records: list[dict],
+    required_modalities: set[str],
     blockers: list[str],
     modality_notes: list[str],
     manifest_path: Path,
 ) -> None:
     subject_ids = sorted_unique([record["subject_id"] for record in session_records])
     protocols = sorted_unique([record["protocol"] for record in session_records])
+    required_modality_list = ", ".join(f"`{name}`" for name in sorted(required_modalities))
     lines = [
         "# Athena Internal Pilot Report",
         "",
@@ -336,7 +361,7 @@ def write_report(
         f"- subjects discovered: `{len(subject_ids)}`",
         f"- sessions discovered: `{len(session_records)}`",
         f"- protocols discovered: `{', '.join(protocols)}`" if protocols else "- protocols discovered: none",
-        f"- required modality coverage: `eeg`, `fnirs`, and `ppg` present in all `{len(session_records)}` sessions",
+        f"- required modality coverage: {required_modality_list} present in all `{len(session_records)}` sessions",
         "",
         "## Session Export Contract",
         "",
@@ -466,6 +491,7 @@ def main() -> int:
         config_path=config_path,
         dataset_root=dataset_root,
         session_records=session_records,
+        required_modalities=required_modalities,
         blockers=blockers,
         modality_notes=modality_notes,
         manifest_path=manifest_path,
