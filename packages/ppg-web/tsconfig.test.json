@@ -1,0 +1,13 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"types": ["jest", "node"],
+		"baseUrl": ".",
+		"paths": {
+			"@elata-biosciences/eeg-web": ["./src/__tests__/mocks/eeg-web.ts"],
+			"@elata-biosciences/eeg-web-ble": ["./src/__tests__/mocks/eeg-web-ble.ts"],
+			"@elata-biosciences/rppg-web": ["../rppg-web/src/index.ts"]
+		}
+	},
+	"include": ["src/**/*.ts", "src/**/*.d.ts"]
+}

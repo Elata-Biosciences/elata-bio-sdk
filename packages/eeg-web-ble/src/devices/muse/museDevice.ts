@@ -78,8 +78,15 @@ function wasmGet(output: unknown, key: string): unknown {
 }
 
 function asNumberArray(value: unknown): number[] {
-	if (!Array.isArray(value)) return [];
-	return value.filter((v): v is number => typeof v === "number");
+	if (Array.isArray(value)) {
+		return value.filter((v): v is number => typeof v === "number");
+	}
+	if (ArrayBuffer.isView(value) && !(value instanceof DataView)) {
+		return Array.from(value as unknown as ArrayLike<number>).filter(
+			(v): v is number => typeof v === "number" && Number.isFinite(v),
+		);
+	}
+	return [];
 }
 
 export class MuseBleDevice {
@@ -101,6 +108,7 @@ export class MuseBleDevice {
 	public numEegChannels = 4;
 	public eegNames = EEG_NAMES_CLASSIC.slice();
 	public ppgNames = ["PPG1", "PPG2", "PPG3"];
+	public availablePpgNames: string[] = [];
 	public protocol: MuseProtocol = "classic";
 	public isAthena = false;
 	public opticsChannelCount = 0;
@@ -292,6 +300,7 @@ export class MuseBleDevice {
 			this.opticsChannelCount = 0;
 			this.eegNames = EEG_NAMES_CLASSIC.slice();
 			this.numEegChannels = 4;
+			this.availablePpgNames = [];
 			this.eegChars.TP9 = await this.service.getCharacteristic(
 				this.CHAR_UUIDS.tp9,
 			);
@@ -309,21 +318,30 @@ export class MuseBleDevice {
 				this.ppgChars.PPG1 = await this.service.getCharacteristic(
 					this.CHAR_UUIDS.ppg1,
 				);
+				this.availablePpgNames.push("PPG1");
 			} catch (_) {}
 			try {
 				this.ppgChars.PPG2 = await this.service.getCharacteristic(
 					this.CHAR_UUIDS.ppg2,
 				);
+				this.availablePpgNames.push("PPG2");
 			} catch (_) {}
 			try {
 				this.ppgChars.PPG3 = await this.service.getCharacteristic(
 					this.CHAR_UUIDS.ppg3,
 				);
+				this.availablePpgNames.push("PPG3");
 			} catch (_) {}
 			const ppgCount = Object.keys(this.ppgChars).length;
-			if (ppgCount === 1) this.ppgMode = "interleaved";
-			else if (ppgCount >= 2) this.ppgMode = "per-channel";
-			else this.ppgMode = "none";
+			if (ppgCount === 1) {
+				this.ppgMode = "interleaved";
+				this.availablePpgNames = this.ppgNames.slice();
+			} else if (ppgCount >= 2) {
+				this.ppgMode = "per-channel";
+			} else {
+				this.ppgMode = "none";
+				this.availablePpgNames = [];
+			}
 		}
 	}
 
@@ -611,6 +629,7 @@ export class MuseBleDevice {
 		this.isAthena = false;
 		this.protocol = "classic";
 		this.opticsChannelCount = 0;
+		this.availablePpgNames = [];
 		if (this.ppgFallbackTimer !== null) {
 			clearTimeout(this.ppgFallbackTimer);
 			this.ppgFallbackTimer = null;

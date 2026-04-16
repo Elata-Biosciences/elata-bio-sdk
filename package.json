@@ -21,7 +21,7 @@
 		"lint:rust": "cargo clippy --workspace --all-targets -- -D warnings",
 		"lint": "pnpm run audit:repo && pnpm run format:check && pnpm run lint:web && pnpm run lint:rust",
 		"verify:build": "pnpm -r --if-present verify:build",
-		"verify:all": "pnpm run audit:repo && pnpm run docs:mintlify:check && pnpm run lint:web && pnpm --filter @elata-biosciences/eeg-web verify:publish && pnpm --filter @elata-biosciences/eeg-web-ble verify:publish && pnpm --filter @elata-biosciences/rppg-web verify:publish && pnpm --filter @elata-biosciences/create-elata-demo verify:publish && pnpm run validate:tarballs",
+		"verify:all": "pnpm run audit:repo && pnpm run docs:mintlify:check && pnpm run lint:web && pnpm --filter @elata-biosciences/eeg-web verify:publish && pnpm --filter @elata-biosciences/eeg-web-ble verify:publish && pnpm --filter @elata-biosciences/rppg-web verify:publish && pnpm --filter @elata-biosciences/ppg-web verify:publish && pnpm --filter @elata-biosciences/create-elata-demo verify:publish && pnpm run validate:tarballs",
 		"release:check": "./run.sh release-check all",
 		"validate:tarballs": "node scripts/validate-tarballs.mjs",
 		"changeset": "changeset",

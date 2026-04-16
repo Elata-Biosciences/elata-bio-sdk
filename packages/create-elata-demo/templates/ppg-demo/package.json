@@ -1,0 +1,28 @@
+{
+  "name": "__APP_NAME__",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@elata-biosciences/eeg-web": "__EEG_WEB_VERSION__",
+    "@elata-biosciences/eeg-web-ble": "__EEG_WEB_BLE_VERSION__",
+    "@elata-biosciences/ppg-web": "__PPG_WEB_VERSION__",
+    "@elata-biosciences/rppg-web": "__RPPG_WEB_VERSION__",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.6.2",
+    "vite": "^6.0.5",
+    "vite-plugin-wasm": "^3.3.0",
+    "vite-plugin-top-level-await": "^1.4.4"
+  }
+}

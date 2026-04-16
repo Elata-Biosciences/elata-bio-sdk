@@ -81,6 +81,22 @@ export type {
 	RppgTraceWaveformDebug,
 	ComputeTraceWaveformDebugOptions,
 } from "./rppgDiagnostics";
+export {
+	analyzePulseWindow,
+	calculateBpmViaAutocorrelation,
+	detectPeaks,
+	estimateDominantBpm,
+	rmssdFromPeaks,
+	temporalNormalize,
+} from "./pulseAnalysis";
+export type {
+	HarmonicRelation,
+	PulseAcfResult,
+	PulseEstimatorResult,
+	PulsePeak,
+	PulseWindowAnalysis,
+	PulseWindowSample,
+} from "./pulseAnalysis";
 export { normalizeRppgError } from "./rppgErrors";
 export type {
 	RppgNormalizedError,

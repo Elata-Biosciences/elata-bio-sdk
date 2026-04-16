@@ -201,8 +201,8 @@ usage() {
     cmd "build" "Build release artifacts for 'eeg', 'rppg', or 'all' (default: all)"
     cmd "bindings" "Generate bindings from an existing build (default: release)"
     cmd "docs" "Run internal Mintlify docs tooling (default: 'mint dev --no-open')"
-    cmd "demo" "Run in-repo demo: 'rppg' (default), 'hal', or 'eeg' (example: './run.sh demo eeg')"
-    cmd "create" "Scaffold app via create-elata-demo (examples: './run.sh create rppg my-app', './run.sh create my-app')"
+    cmd "demo" "Run in-repo demo: 'rppg' (default), 'ppg', 'hal', or 'eeg' (example: './run.sh demo ppg')"
+    cmd "create" "Scaffold app via create-elata-demo (examples: './run.sh create ppg my-app', './run.sh create my-app')"
     cmd "sync-to" "Build eeg-web and install it into a local app (default app: ../my-app)"
 
     section "Quality"
@@ -237,6 +237,7 @@ normalize_release_target() {
         eeg|eeg-web|@elata-biosciences/eeg-web) echo "eeg-web" ;;
         eeg-web-ble|ble|@elata-biosciences/eeg-web-ble) echo "eeg-web-ble" ;;
         rppg|rppg-web|@elata-biosciences/rppg-web) echo "rppg-web" ;;
+        ppg|ppg-web|@elata-biosciences/ppg-web) echo "ppg-web" ;;
         create-elata-demo|@elata-biosciences/create-elata-demo) echo "create-elata-demo" ;;
         *)
             echo "Unknown release target: $raw" >&2
@@ -250,6 +251,7 @@ package_dir_for_target() {
         eeg-web) echo "packages/eeg-web" ;;
         eeg-web-ble) echo "packages/eeg-web-ble" ;;
         rppg-web) echo "packages/rppg-web" ;;
+        ppg-web) echo "packages/ppg-web" ;;
         create-elata-demo) echo "packages/create-elata-demo" ;;
         *)
             echo "Unknown package target: $1" >&2
@@ -263,6 +265,7 @@ package_name_for_target() {
         eeg-web) echo "@elata-biosciences/eeg-web" ;;
         eeg-web-ble) echo "@elata-biosciences/eeg-web-ble" ;;
         rppg-web) echo "@elata-biosciences/rppg-web" ;;
+        ppg-web) echo "@elata-biosciences/ppg-web" ;;
         create-elata-demo) echo "@elata-biosciences/create-elata-demo" ;;
         *)
             echo "Unknown package target: $1" >&2
@@ -276,6 +279,7 @@ release_tag_prefix_for_target() {
         eeg-web) echo "eeg-web" ;;
         eeg-web-ble) echo "eeg-web-ble" ;;
         rppg-web) echo "rppg-web" ;;
+        ppg-web) echo "ppg-web" ;;
         create-elata-demo) echo "create-elata-demo" ;;
         *)
             echo "Unknown package target: $1" >&2
@@ -288,7 +292,7 @@ release_targets_for() {
     local target="$1"
     if [[ "$target" == "all" ]]; then
         # Keep repo-published dependency order.
-        echo "eeg-web eeg-web-ble rppg-web create-elata-demo"
+        echo "eeg-web eeg-web-ble rppg-web ppg-web create-elata-demo"
     else
         echo "$target"
     fi
@@ -670,10 +674,11 @@ sync_create_elata_demo_versions_if_needed() {
         return 0
     fi
 
-    local eeg_web_version eeg_web_ble_version rppg_web_version
+    local eeg_web_version eeg_web_ble_version rppg_web_version ppg_web_version
     eeg_web_version="$(package_version_for_target "eeg-web")"
     eeg_web_ble_version="$(package_version_for_target "eeg-web-ble")"
     rppg_web_version="$(package_version_for_target "rppg-web")"
+    ppg_web_version="$(package_version_for_target "ppg-web")"
 
     local changed="0"
     changed="$(node -e "
@@ -686,6 +691,7 @@ sync_create_elata_demo_versions_if_needed() {
         eegWeb: '$eeg_web_version',
         eegWebBle: '$eeg_web_ble_version',
         rppgWeb: '$rppg_web_version',
+        ppgWeb: '$ppg_web_version',
       };
       let didChange = false;
       for (const [k, v] of Object.entries(desired)) {
@@ -738,7 +744,7 @@ resolve_release_target_and_dist_tag() {
 
 verify_script_for_target() {
     case "$1" in
-        eeg-web|eeg-web-ble|rppg-web|create-elata-demo) echo "verify:publish" ;;
+        eeg-web|eeg-web-ble|rppg-web|ppg-web|create-elata-demo) echo "verify:publish" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -748,7 +754,7 @@ verify_script_for_target() {
 
 prepare_script_for_target() {
     case "$1" in
-        eeg-web|eeg-web-ble|rppg-web|create-elata-demo) echo "prepare:publish" ;;
+        eeg-web|eeg-web-ble|rppg-web|ppg-web|create-elata-demo) echo "prepare:publish" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -1080,6 +1086,7 @@ normalize_scaffold_template() {
     case "$raw" in
         "") printf "\n" ;;
         rppg|rppg-demo|rppg-web-demo) printf "rppg-demo\n" ;;
+        ppg|ppg-demo|muse-ppg) printf "ppg-demo\n" ;;
         eeg|eeg-demo|eeg-web-demo) printf "eeg-demo\n" ;;
         eeg-ble|eeg-web-ble-demo|ble) printf "eeg-ble\n" ;;
         *)
@@ -1541,6 +1548,56 @@ run_rppg_demo() {
     pnpm dlx http-server "$tmp_dir/demo" -p "$port" --silent
 }
 
+run_ppg_demo() {
+    require_cmds cargo wasm-bindgen node
+    require_package_manager
+
+    local eeg_profile
+    eeg_profile="$(normalize_profile "${PPG_DEMO_PROFILE:-${EEG_DEMO_PROFILE:-release}}")" || exit 1
+
+    echo "Preparing EEG WASM artifacts for PPG Athena decode support (profile: $eeg_profile)..."
+    build_eeg_web_package "$eeg_profile"
+
+    run_pkg_script "packages/ppg-web" "build:demo"
+
+    local requested_port="${PORT:-8081}"
+    local port="$requested_port"
+    if port_in_use "$requested_port"; then
+        if [[ -n "${PORT:-}" ]]; then
+            echo "PORT $requested_port is already in use." >&2
+            echo "Stop the existing server or choose another port (example: PORT=$((requested_port + 1)) ./run.sh demo ppg)." >&2
+            exit 1
+        fi
+        port="$(find_available_port "$requested_port" 30)" || {
+            echo "No free port found in range $requested_port-$((requested_port + 29)). Set PORT explicitly and retry." >&2
+            exit 1
+        }
+        echo "Port $requested_port is in use; using http://127.0.0.1:$port"
+    fi
+
+    local tmp_root="${TMP_DIR:-}"
+    local tmp_dir=""
+    if [[ -n "$tmp_root" ]]; then
+        mkdir -p "$tmp_root"
+        tmp_dir="$(mktemp -d "$tmp_root/elata-ppg-demo.XXXXXX")"
+    else
+        tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/elata-ppg-demo.XXXXXX")"
+    fi
+
+    if [[ "${KEEP_TMP:-0}" != "1" ]]; then
+        trap 'rm -rf "$tmp_dir"' EXIT
+    fi
+
+    mkdir -p "$tmp_dir/demo"
+    cp -R "$ROOT_DIR/packages/ppg-web/demo/." "$tmp_dir/demo/"
+
+    echo "Serving ppg-web demo from temp dir: $tmp_dir"
+    echo "  http://127.0.0.1:$port/index.html"
+    echo "Tip: set KEEP_TMP=1 to keep the temp dir after exit."
+
+    pnpm dlx http-server "$tmp_dir/demo" -p "$port" --silent
+}
+
 run_eeg_demo() {
     require_cmds cargo wasm-bindgen node
     require_package_manager
@@ -1593,6 +1650,7 @@ run_demo() {
     local demo="$1"
     case "$demo" in
         rppg) run_rppg_demo ;;
+        ppg) run_ppg_demo ;;
         eeg) run_eeg_demo ;;
         hal) run_hal_demo ;;
         *) echo "Unknown demo: $demo" >&2; usage; exit 1 ;;
@@ -1743,6 +1801,7 @@ doctor() {
     check_dir "crates" "crates/: present" "crates/ missing" || repo_err=1
     check_dir "packages/eeg-web" "packages/eeg-web: present" "packages/eeg-web missing" || repo_err=1
     check_dir "packages/rppg-web" "packages/rppg-web: present" "packages/rppg-web missing" || repo_err=1
+    check_dir "packages/ppg-web" "packages/ppg-web: present" "packages/ppg-web missing" || repo_err=1
     check_dir "packages/create-elata-demo" "packages/create-elata-demo: present" "packages/create-elata-demo missing" || repo_err=1
 
     header "Repository Audit"
@@ -1765,6 +1824,7 @@ doctor() {
     check_file "packages/eeg-web/dist/index.js" "packages/eeg-web/dist/index.js: present" "packages/eeg-web/dist/index.js missing" "warn" || build_err=1
     check_file "packages/eeg-web/wasm/eeg_wasm_bg.wasm" "packages/eeg-web/wasm/eeg_wasm_bg.wasm: present" "packages/eeg-web/wasm/eeg_wasm_bg.wasm missing" "warn" || build_err=1
     check_file "packages/rppg-web/dist/index.js" "packages/rppg-web/dist/index.js: present" "packages/rppg-web/dist/index.js missing" "warn" || build_err=1
+    check_file "packages/ppg-web/dist/index.js" "packages/ppg-web/dist/index.js: present" "packages/ppg-web/dist/index.js missing" "warn" || build_err=1
     check_file "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm" "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm: present" "packages/rppg-web/demo/pkg/rppg_wasm_bg.wasm missing (optional; run './run.sh dev rppg' to generate)" "warn" || true
     check_file "packages/rppg-web/pkg/rppg_wasm.js" "packages/rppg-web/pkg/rppg_wasm.js: present (publishable loader)" "packages/rppg-web/pkg/rppg_wasm.js missing (run './run.sh build rppg' before publishing)" "warn" || build_err=1
     check_file "packages/rppg-web/pkg/rppg_wasm_bg.wasm" "packages/rppg-web/pkg/rppg_wasm_bg.wasm: present (publishable WASM)" "packages/rppg-web/pkg/rppg_wasm_bg.wasm missing (run './run.sh build rppg' before publishing)" "warn" || build_err=1
@@ -2054,6 +2114,13 @@ case "$cmd" in
             rppg_log="$(create_test_log)"
             run_test_command "$rppg_log" run_pkg_script "packages/rppg-web" "test" "--runInBand"
             test_summaries+=("$(summarize_jest_log "rppg-web Jest suite" "$rppg_log")")
+        fi
+
+        if [[ -d "packages/ppg-web" ]]; then
+            echo "Running ppg-web Jest tests..."
+            ppg_log="$(create_test_log)"
+            run_and_capture "$ppg_log" run_pkg_script "packages/ppg-web" "test" "--runInBand"
+            test_summaries+=("$(summarize_jest_log "ppg-web Jest suite" "$ppg_log")")
         fi
 
         if [[ -d "packages/create-elata-demo" ]]; then

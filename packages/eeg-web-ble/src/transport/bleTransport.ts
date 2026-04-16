@@ -45,6 +45,7 @@ export interface BleDeviceLike {
 	eegNames: string[];
 	numEegChannels: number;
 	opticsChannelCount: number;
+	availablePpgNames?: string[];
 	getBoardInfo(): unknown;
 	getCharacteristicInfo(): unknown;
 	prepareSession(): Promise<void>;
@@ -65,6 +66,7 @@ export class BleTransport implements HeadbandTransport {
 	private sequenceId = 0;
 	private _connected = false;
 	private pendingPpgRows: number[][] = [];
+	private pendingPpgChannelNames: Array<"PPG1" | "PPG2" | "PPG3"> = ["PPG1", "PPG2", "PPG3"];
 	private pendingOptics: HeadbandSignalBlock | null = null;
 	private pendingAccgyro: HeadbandSignalBlock | null = null;
 	private pendingBattery: HeadbandBatteryBlock | null = null;
@@ -149,21 +151,32 @@ export class BleTransport implements HeadbandTransport {
 	}
 
 	private collectPerChannelPpg(): void {
+		const channelNames = this.getClassicPpgChannelNames();
+		if (!channelNames.length) return;
 		const minLen = Math.min(
-			this.ppgPerChannel.PPG1.length,
-			this.ppgPerChannel.PPG2.length,
-			this.ppgPerChannel.PPG3.length,
+			...channelNames.map((channelName) => this.ppgPerChannel[channelName].length),
 		);
 		if (minLen <= 0) return;
+		this.pendingPpgChannelNames = channelNames;
 		const rows: number[][] = [];
 		for (let i = 0; i < minLen; i++) {
-			rows.push([
-				this.ppgPerChannel.PPG1.shift() as number,
-				this.ppgPerChannel.PPG2.shift() as number,
-				this.ppgPerChannel.PPG3.shift() as number,
-			]);
+			rows.push(
+				channelNames.map(
+					(channelName) => this.ppgPerChannel[channelName].shift() as number,
+				),
+			);
 		}
 		this.pendingPpgRows.push(...rows);
+	}
+
+	private getClassicPpgChannelNames(): Array<"PPG1" | "PPG2" | "PPG3"> {
+		const fromDevice = (this.device.availablePpgNames ?? []).filter(
+			(channelName): channelName is "PPG1" | "PPG2" | "PPG3" =>
+				channelName === "PPG1" ||
+				channelName === "PPG2" ||
+				channelName === "PPG3",
+		);
+		return fromDevice.length > 0 ? fromDevice : ["PPG1", "PPG2", "PPG3"];
 	}
 
 	private handlePpg(channelName: string, packet: PpgInput): void {
@@ -235,6 +248,7 @@ export class BleTransport implements HeadbandTransport {
 					interleaved.red[i],
 				]);
 			}
+			this.pendingPpgChannelNames = ["PPG1", "PPG2", "PPG3"];
 			return;
 		}
 
@@ -323,8 +337,8 @@ export class BleTransport implements HeadbandTransport {
 				if (this.pendingPpgRows.length > 0) {
 					frame.ppgRaw = {
 						sampleRateHz: 64,
-						channelNames: ["PPG1", "PPG2", "PPG3"],
-						channelCount: 3,
+						channelNames: this.pendingPpgChannelNames.slice(),
+						channelCount: this.pendingPpgChannelNames.length,
 						samples: this.pendingPpgRows.splice(0, this.pendingPpgRows.length),
 						clockSource: "local",
 					};

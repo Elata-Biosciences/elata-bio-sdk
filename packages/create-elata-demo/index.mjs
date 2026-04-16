@@ -30,6 +30,10 @@ const templates = {
     dir: 'eeg-ble',
     description: 'React + Vite BLE-first EEG starter app with native reference links',
   },
+  'ppg-demo': {
+    dir: 'ppg-demo',
+    description: 'React + Vite Muse PPG starter app',
+  },
 };
 
 const starterChoices = [
@@ -53,6 +57,13 @@ const starterChoices = [
     aliases: ['ble', 'eeg-web-ble-demo'],
     headline: 'Muse-compatible EEG over Web Bluetooth',
     detail: 'BLE-first starter with browser pairing flow and native demo references.',
+  },
+  {
+    name: 'ppg-demo',
+    template: 'ppg-demo',
+    aliases: ['ppg', 'muse-ppg'],
+    headline: 'Muse PPG and HRV starter',
+    detail: 'Connect a Muse device and inspect BPM, RMSSD, and live PPG diagnostics.',
   },
 ];
 
@@ -106,6 +117,11 @@ const packageVersions = {
     '../rppg-web/package.json',
     packageMetadata.elataSdkVersions?.rppgWeb,
     '@elata-biosciences/rppg-web',
+  ),
+  ppgWeb: readVersion(
+    '../ppg-web/package.json',
+    packageMetadata.elataSdkVersions?.ppgWeb,
+    '@elata-biosciences/ppg-web',
   ),
 };
 
@@ -364,6 +380,7 @@ copyDir(templateDir, targetDir, {
   __EEG_WEB_VERSION__: packageVersions.eegWeb,
   __EEG_WEB_BLE_VERSION__: packageVersions.eegWebBle,
   __RPPG_WEB_VERSION__: packageVersions.rppgWeb,
+  __PPG_WEB_VERSION__: packageVersions.ppgWeb,
 });
 
 console.log(
