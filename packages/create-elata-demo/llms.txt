@@ -1,0 +1,33 @@
+# @elata-biosciences/create-elata-demo — context for tools and agents
+
+## Role
+CLI **`create-elata-demo`** that scaffolds starter apps from embedded templates. Packaged **`elataSdkVersions`** in `package.json` pin compatible **`eeg-web` / `eeg-web-ble` / `rppg-web`** versions for generated `package.json` files.
+
+## Templates (and aliases)
+| Template ID   | Aliases                          | Contents (short)                          |
+|---------------|----------------------------------|-------------------------------------------|
+| `rppg-demo`   | `rppg`                           | React + Vite rPPG / camera                |
+| `eeg-demo`    | `eeg`                            | React + Vite EEG + Web Bluetooth          |
+| `eeg-ble`     | `ble`, `eeg-web-ble-demo`        | BLE-first EEG + native demo references    |
+
+Legacy **`--template`** names still accepted: `rppg-web-demo` → `rppg-demo`, `eeg-web-demo` → `eeg-demo`.
+
+Interactive runs ask for app type then project name. **Non-interactive runs without `--template` default to `rppg-demo`.**
+
+## Requirements
+- **Node.js >= 18**
+
+## Commands
+- `npm create @elata-biosciences/elata-demo <dir> [-- --template <name>]`
+- `pnpm dlx @elata-biosciences/create-elata-demo <dir>`
+- `npx @elata-biosciences/create-elata-demo <dir>`
+- List templates: `pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates` (note **`--` before flags** when the runner requires it)
+
+## Workspace caveat
+Scaffolding **inside** a parent **pnpm workspace** may attach to the parent and skip a local `node_modules`. Use **`pnpm --dir <app> --ignore-workspace install`** or **`npm install`** inside the new app.
+
+## vs internal repo tools
+**`create-elata-demo`** is the canonical path for new consumer apps. **`./run.sh sync-to`** is for maintainers iterating **`eeg-web`** into an existing app — not equivalent to scaffolding.
+
+## Source of truth
+https://github.com/Elata-Biosciences/elata-bio-sdk/blob/main/docs/create-elata-demo.md

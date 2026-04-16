@@ -1,0 +1,3 @@
+[submodule "elata-docs"]
+	path = elata-docs
+	url = https://github.com/Elata-Biosciences/docs

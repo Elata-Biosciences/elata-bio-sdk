@@ -47,7 +47,7 @@ function buildWasm() {
 	run("cargo", [
 		"build",
 		"-p",
-		"rppg-wasm",
+		"elata-rppg-wasm",
 		"--target",
 		"wasm32-unknown-unknown",
 		"--release",

@@ -1,6 +1,6 @@
 # SDK Adoption And Developer Experience Plan
 
-Status: in progress
+Status: **largely complete** for Phases 0–2 below (see checkboxes). Treat **[guides/README.md](guides/README.md)**, **[create-elata-demo.md](create-elata-demo.md)**, and **package READMEs** as the live onboarding surface. Remaining work is iterative polish (guides depth, API reference, error messaging), not greenfield scaffolding.
 
 ## Progress Snapshot
 

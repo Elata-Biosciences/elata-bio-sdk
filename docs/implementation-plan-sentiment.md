@@ -1,6 +1,6 @@
 # Sentiment Analysis Implementation Plan
 
-Status: In progress
+Status: In progress — **partial implementation exists** in **`crates/elata-facial-affect`** (Rust core + calibration). See also **[architecture-sentiment.md](architecture-sentiment.md)**. Phases below still describe a TS-first MediaPipe path; align any new work with the crate and architecture doc before duplicating APIs.
 
 ## Scope
 Extract facial sentiment logic from the existing reference implementation into a reusable, platform-agnostic module that

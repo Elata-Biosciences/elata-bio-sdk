@@ -35,7 +35,7 @@ try {
 	run("cargo", [
 		"build",
 		"-p",
-		"eeg-wasm",
+		"elata-eeg-wasm",
 		"--target",
 		"wasm32-unknown-unknown",
 		"--release",

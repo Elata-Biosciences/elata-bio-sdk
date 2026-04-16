@@ -20,13 +20,17 @@ Use `@elata-biosciences/eeg-web` when you need:
 - signal processing and model functions
 - shared types used by browser integrations
 
-## Browser BLE For Muse-Compatible Devices
+## Browser Web Bluetooth For EEG Headsets
 
 Use `@elata-biosciences/eeg-web-ble` when you need:
 
 - browser BLE discovery and streaming
-- normalized headband frames
-- a transport layer for Muse-compatible EEG devices
+- normalized headband frames (`HeadbandFrameV1`)
+- a `HeadbandTransport` that plugs into the Elata EEG web stack
+
+The package ships **Muse 2 / Muse S (classic and Athena)** support out of the box.
+Additional headsets can be added in-repo or in your app; see
+[contributing-eeg-transports.md](../contributing-eeg-transports.md).
 
 You should generally install `@elata-biosciences/eeg-web` alongside it.
 

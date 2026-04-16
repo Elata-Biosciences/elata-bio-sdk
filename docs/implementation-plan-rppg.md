@@ -1,9 +1,9 @@
 # rPPG + Ocular Proxy Implementation Plan
 
-Status: In progress
+Status: In progress (core pipeline and **`packages/rppg-web`** are in heavy use; **browser apps should prefer `createRppgSession()`** per package README—this plan still describes crates and lower-level pieces.)
 
 This is a planning document with some historical checkpoints. For the current
-repo state, treat `crates/rppg-wasm`, `crates/rppg-ffi`, `packages/rppg-web`,
+repo state, treat `crates/elata-rppg-wasm`, `crates/elata-rppg-ffi`, `packages/rppg-web`,
 and `run.sh` as the source of truth.
 
 ## Scope
@@ -15,7 +15,7 @@ Deliver a hybrid system: cross-device rPPG DSP core in Rust with WASM/FFI bindin
 - Capture or curate small internal test clips for regression.
 
 ## Phase 1: Rust DSP core
-- [x] Create `crates/rppg` (or extend `crates/eeg-signal`).
+- [x] Create `crates/elata-rppg` (or extend `crates/elata-eeg-signal`).
 - Port DSP blocks from the existing reference implementation:
   - [x] Temporal normalization.
   - [x] Bandpass filter (0.7-4.0 Hz).
@@ -25,20 +25,20 @@ Deliver a hybrid system: cross-device rPPG DSP core in Rust with WASM/FFI bindin
 - [x] Add unit tests that mirror reference implementation expectations (buffering, DSP units, HR estimator, SQI).
 
 ## Phase 2: WASM + FFI bindings
-- [x] Expose `RppgPipeline` through dedicated `crates/rppg-wasm`. Compatibility constructors also remain available from `crates/eeg-wasm`.
+- [x] Expose `RppgPipeline` through dedicated `crates/elata-rppg-wasm`. Compatibility constructors also remain available from `crates/elata-eeg-wasm`.
 - [x] Add minimal JS API:
   - `new RppgPipeline(sample_rate, window_sec)` (WASM wrapper constructor implemented)
   - `push_sample(timestamp, intensity)` (implemented)
   - `get_metrics()` or `on_metric(cb)` (returns JSON string; will add `on_metric` event later)
-- [x] Expose the same API through dedicated `crates/rppg-ffi`. Compatibility `RppgPipelineFFI` also remains available via `crates/eeg-ffi` for shared SDK consumers.
+- [x] Expose the same API through dedicated `crates/elata-rppg-ffi`. Compatibility `RppgPipelineFFI` also remains available via `crates/elata-eeg-ffi` for shared SDK consumers.
 
-- [x] Add `crates/rppg-wasm` (thin, feature-specific wrapper crate).
-- [x] Add `crates/rppg-ffi` (thin, feature-specific wrapper crate).
+- [x] Add `crates/elata-rppg-wasm` (thin, feature-specific wrapper crate).
+- [x] Add `crates/elata-rppg-ffi` (thin, feature-specific wrapper crate).
 
 ## Phase 2.5: Web wrapper package
 - [x] Scaffold `packages/rppg-web` as a TS wrapper around WASM outputs. (estimator, demo, FrameSource, wasm loader implemented)
 - [x] Add a sync step / build step to copy generated wasm JS/.wasm into the wrapper package demo (`packages/rppg-web/scripts/build-demo.mjs` + CI job).
-- [x] Export a stable init helper and re-export WASM APIs (see `initDemo` + `wasmBackend` loader).
+- [x] Export a stable init helper and re-export WASM APIs (in-repo demo uses `initDemo` + `wasmBackend`; **consumer apps use `createRppgSession()`** and related session helpers).
 
 ## Phase 3: TS abstraction layer (hybrid)
 - [x] Implement interfaces:
@@ -65,7 +65,7 @@ Deliver a hybrid system: cross-device rPPG DSP core in Rust with WASM/FFI bindin
 - Enforce leave-one-subject/context evaluation for any learned model.
 
 ## Deliverables
-- [x] `crates/rppg` with tests.
+- [x] `crates/elata-rppg` with tests.
 - [x] WASM + FFI bindings for `RppgPipeline` (wrappers and build + wasm-bindgen integration in CI).
 - [x] `packages/rppg-web` wrapper for the WASM bindings (includes wasm loader, `initDemo`, demo page, and packaging script).
 - [x] TS abstraction layer + web demo (MediaPipe FrameSource, estimator, demo runner, Playwright E2E).
@@ -84,12 +84,12 @@ Deliver a hybrid system: cross-device rPPG DSP core in Rust with WASM/FFI bindin
   - `rppg: add bandpass filter and passing HR estimator tests` ✅
   - `rppg: add temporal normalization and FIR bandpass; tests` ✅
   - `rppg: add SQI, ACF fallback; improve filter & metrics; tests` ✅
-- Milestone 1: Add `crates/rppg` with tests for buffering and basic metrics. ✅
+- Milestone 1: Add `crates/elata-rppg` with tests for buffering and basic metrics. ✅
 - Milestone 2: Port temporal normalization and bandpass filter, add unit tests. ✅
 - Milestone 3: Add periodogram & ACF fallback tests and implementation. ✅
-- Milestone 4: Expose `RppgPipeline` through dedicated WASM and FFI crates, plus compatibility bindings in `crates/eeg-wasm` and `crates/eeg-ffi`, and add integration tests. ✅
+- Milestone 4: Expose `RppgPipeline` through dedicated WASM and FFI crates, plus compatibility bindings in `crates/elata-eeg-wasm` and `crates/elata-eeg-ffi`, and add integration tests. ✅
 - [x] CI: Run `cargo test` and `npm test` (for TS wrappers) on PRs (GitHub Actions CI workflow added).
 
 ## Progress & next steps
 - Completed: core DSP units, `RppgPipeline`, SQI, periodogram with interpolation, ACF fallback, and unit tests (see commits above). ✅
-- Next (TDD): expand integration coverage for dedicated `rppg-wasm` / `rppg-ffi` bindings and keep compatibility exports in `eeg-wasm` / `eeg-ffi` aligned.
+- Next (TDD): expand integration coverage for dedicated `elata-rppg-wasm` / `elata-rppg-ffi` bindings and keep compatibility exports in `elata-eeg-wasm` / `elata-eeg-ffi` aligned.

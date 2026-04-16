@@ -1,6 +1,6 @@
 # Implementation Plan: rPPG SDK Diagnostics And Tracker Upgrades
 
-Status: in progress
+Status: **Phase 1 complete** in-repo (diagnostics, tracker upgrades, replay helpers, tests—see checkboxes below). Phase 2 has one open item about where a **browser-only debug panel** should live.
 
 This document tracks the focused work of importing the most reusable rPPG
 diagnostics and tracker ideas from `../TradeLock` into the SDK without pulling

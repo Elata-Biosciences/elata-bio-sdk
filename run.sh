@@ -98,6 +98,41 @@ ensure_npm_token_from_dotenv() {
     done <"$env_file"
 }
 
+ensure_crates_token_from_dotenv() {
+    if [[ -n "${CRATES_TOKEN:-}" || -n "${CARGO_REGISTRY_TOKEN:-}" ]]; then
+        return 0
+    fi
+    local env_file="$ROOT_DIR/.env"
+    if [[ ! -f "$env_file" ]]; then
+        return 0
+    fi
+    local line key val
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        line="${line#"${line%%[![:space:]]*}"}"
+        line="${line%"${line##*[![:space:]]}"}"
+        [[ -z "$line" || "$line" == \#* ]] && continue
+        if [[ "$line" == export\ * ]]; then
+            line="${line#export }"
+        fi
+        [[ "$line" == *"="* ]] || continue
+        key="${line%%=*}"
+        val="${line#*=}"
+        if [[ "$key" != "CRATES_TOKEN" && "$key" != "crates_token" ]]; then
+            continue
+        fi
+        val="${val%$'\r'}"
+        if [[ "$val" == \"*\" ]]; then
+            val="${val#\"}"
+            val="${val%\"}"
+        elif [[ "$val" == \'*\' ]]; then
+            val="${val#\'}"
+            val="${val%\'}"
+        fi
+        export CRATES_TOKEN="$val"
+        return 0
+    done <"$env_file"
+}
+
 # Apply registry auth only when NPM_TOKEN is set. Avoids ${NPM_TOKEN} in repo .npmrc,
 # which makes pnpm warn on every command when the variable is unset.
 with_npm_registry_auth() {
@@ -115,48 +150,84 @@ with_npm_registry_auth() {
     fi
     return "$rc"
 }
-EEG_PACKAGE="eeg-wasm"
+
+with_cargo_registry_auth() {
+    local previous_token="${CARGO_REGISTRY_TOKEN:-}"
+    local had_previous=0
+    if [[ -n "${CARGO_REGISTRY_TOKEN:-}" ]]; then
+        had_previous=1
+    fi
+
+    if [[ -z "${CARGO_REGISTRY_TOKEN:-}" && -n "${CRATES_TOKEN:-}" ]]; then
+        export CARGO_REGISTRY_TOKEN="$CRATES_TOKEN"
+    fi
+
+    local rc=0
+    "$@" || rc=$?
+
+    if [[ "$had_previous" -eq 0 ]]; then
+        unset CARGO_REGISTRY_TOKEN
+    else
+        export CARGO_REGISTRY_TOKEN="$previous_token"
+    fi
+
+    return "$rc"
+}
+EEG_PACKAGE="elata-eeg-wasm"
 EEG_BINDINGS_OUT_DIR="$ROOT_DIR/eeg-demo/pkg"
 TARGET_DIR="${CARGO_TARGET_DIR:-$ROOT_DIR/target}"
 DEFAULT_JOBS=""
 PKG_MGR=""
 
 usage() {
-    cat <<EOF
-Usage: $0 [command] [target]
+    local c_reset="" c_bold="" c_dim="" c_cyan="" c_green=""
+    if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+        c_reset=$'\033[0m'
+        c_bold=$'\033[1m'
+        c_dim=$'\033[2m'
+        c_cyan=$'\033[36m'
+        c_green=$'\033[32m'
+    fi
 
-Build & Demo:
-  install      Install/update workspace dependencies
-  dev          Build debug artifacts for 'eeg', 'rppg', or 'all' (default: all)
-  build        Build release artifacts for 'eeg', 'rppg', or 'all' (default: all)
-  bindings     Generate bindings from an existing build (default: release)
-  docs         Run internal Mintlify docs tooling (default: 'mint dev --no-open')
-  demo         Run an in-repo dev demo - specify 'rppg' (default; temp-served), 'ppg', 'hal', or 'eeg' (example: 'run.sh demo ppg')
-  create       Scaffold a local app via packages/create-elata-demo (examples: './run.sh create ppg my-app', './run.sh create my-app')
-  sync-to      Build eeg-web and install it into a local app (default app: ../my-app)
+    section() { printf "\n${c_bold}${c_cyan}%s${c_reset}\n" "$1"; }
+    cmd() { printf "  ${c_green}%-18s${c_reset} %s\n" "$1" "$2"; }
 
-Quality:
-  doctor       Run fast repository health checks (toolchain, repo audit, deps, artifact presence)
-  verify-all   Run publish-grade verification for release artifacts and tarballs
-  test         Run Rust and web test suites
-  format       Format all files with Biome
-  format-check Run Biome format check (no write)
+    printf "${c_bold}Usage:${c_reset} %s [command] [target]\n" "$0"
+    printf "${c_dim}(no args runs 'help')${c_reset}\n"
 
-Release:
-  changeset     Add a changeset (interactive; run before opening a PR)
-  bump         Apply changesets: bump versions and update CHANGELOGs (run before release)
-  release-check Run the full release preflight without publishing (default: target=all)
-  release      Build, publish, tag, and push (default: target=all, dist-tag=next)
-  publish      Publish package(s) to npm in repo release order (default: target=all, dist-tag=next)
-  promote Promote currently bumped version(s) to 'latest' dist-tag on npm
-  tag-release  Create package-scoped git tag(s) from package.json versions (default: target=all, commit=HEAD)
-  push-tags    Push package-scoped git tag(s) for current package.json versions (default: target=all)
+    section "Build & Demo"
+    cmd "install" "Install/update workspace dependencies"
+    cmd "dev" "Build debug artifacts for 'eeg', 'rppg', or 'all' (default: all)"
+    cmd "build" "Build release artifacts for 'eeg', 'rppg', or 'all' (default: all)"
+    cmd "bindings" "Generate bindings from an existing build (default: release)"
+    cmd "docs" "Run internal Mintlify docs tooling (default: 'mint dev --no-open')"
+    cmd "demo" "Run in-repo demo: 'rppg' (default), 'ppg', 'hal', or 'eeg' (example: './run.sh demo ppg')"
+    cmd "create" "Scaffold app via create-elata-demo (examples: './run.sh create ppg my-app', './run.sh create my-app')"
+    cmd "sync-to" "Build eeg-web and install it into a local app (default app: ../my-app)"
 
-Maintenance:
-  clean        Remove generated bindings and clean build artifacts
-  help         Show this message
-  (no args)    Alias for 'doctor'
-EOF
+    section "Quality"
+    cmd "doctor" "Run fast health checks (toolchain, repo audit, deps, artifact presence)"
+    cmd "verify-all" "Run publish-grade verification for release artifacts and tarballs"
+    cmd "test" "Run Rust and web test suites"
+    cmd "format" "Format files with Biome"
+    cmd "format-check" "Run Biome format check (no write)"
+
+    section "Release"
+    cmd "changeset" "Add a changeset (interactive; run before opening a PR)"
+    cmd "bump" "Apply changesets: bump versions and update CHANGELOGs"
+    cmd "release-check" "Run full release preflight without publishing (default target: all)"
+    cmd "release" "Build, publish, tag, and push (default target: all, dist-tag: next)"
+    cmd "publish" "Publish package(s) to npm in repo release order (default target: all, dist-tag: next)"
+    cmd "promote" "Promote selected package version(s) to npm 'latest' dist-tag"
+    cmd "view" "Show latest published npm version(s) for selected package(s)"
+    cmd "tag-release" "Create package-scoped git tag(s) from package.json versions"
+    cmd "push-tags" "Push package-scoped git tag(s) for current package.json versions"
+    cmd "rust-release-check" "Verify Rust crates are ready to publish to crates.io (default target: all)"
+    cmd "rust-publish" "Run Rust release flow: check, publish, commit, tag, and push (default target: all)"
+
+    section "Maintenance"
+    cmd "clean" "Remove generated bindings and clean build artifacts"
+    cmd "help" "Show this message"
 }
 
 normalize_release_target() {
@@ -225,6 +296,365 @@ release_targets_for() {
     else
         echo "$target"
     fi
+}
+
+normalize_rust_release_target() {
+    local raw="${1:-all}"
+    case "$raw" in
+        all) echo "all" ;;
+        elata-muse-proto|elata-eeg-hal|elata-eeg-signal|elata-eeg-models|elata-rppg)
+            echo "$raw"
+            ;;
+        *)
+            echo "Unknown Rust release target: $raw" >&2
+            return 1
+            ;;
+    esac
+}
+
+rust_release_targets_for() {
+    local target="$1"
+    if [[ "$target" == "all" ]]; then
+        echo "elata-muse-proto elata-eeg-hal elata-rppg elata-eeg-signal elata-eeg-models"
+    else
+        echo "$target"
+    fi
+}
+
+rust_release_prereqs_for() {
+    case "$1" in
+        elata-muse-proto|elata-eeg-hal|elata-rppg)
+            echo ""
+            ;;
+        elata-eeg-signal)
+            echo "elata-eeg-hal"
+            ;;
+        elata-eeg-models)
+            echo "elata-eeg-hal elata-eeg-signal"
+            ;;
+        *)
+            echo "Unknown Rust crate target: $1" >&2
+            return 1
+            ;;
+    esac
+}
+
+rust_crate_dir_for() {
+    case "$1" in
+        elata-muse-proto) echo "$ROOT_DIR/crates/elata-muse-proto" ;;
+        elata-eeg-hal) echo "$ROOT_DIR/crates/elata-eeg-hal" ;;
+        elata-eeg-signal) echo "$ROOT_DIR/crates/elata-eeg-signal" ;;
+        elata-eeg-models) echo "$ROOT_DIR/crates/elata-eeg-models" ;;
+        elata-rppg) echo "$ROOT_DIR/crates/elata-rppg" ;;
+        *)
+            echo "Unknown Rust crate target: $1" >&2
+            return 1
+            ;;
+    esac
+}
+
+verify_rust_crate_docs() {
+    local crate="$1"
+    local crate_dir manifest readme_rel readme_path lib_rs
+
+    crate_dir="$(rust_crate_dir_for "$crate")" || return 1
+    manifest="$crate_dir/Cargo.toml"
+    lib_rs="$crate_dir/src/lib.rs"
+
+    if [[ ! -f "$manifest" ]]; then
+        echo "Missing Cargo.toml for ${crate}: ${manifest}" >&2
+        return 1
+    fi
+
+    readme_rel="$(sed -n 's/^readme = "\(.*\)"$/\1/p' "$manifest" | head -n1)"
+    if [[ -n "$readme_rel" ]]; then
+        readme_path="$crate_dir/$readme_rel"
+        if [[ ! -f "$readme_path" ]]; then
+            echo "Missing declared README for ${crate}: ${readme_path}" >&2
+            return 1
+        fi
+    fi
+
+    if [[ ! -f "$lib_rs" ]]; then
+        echo "Missing crate root for ${crate}: ${lib_rs}" >&2
+        return 1
+    fi
+
+    if ! rg -q '^//!' "$lib_rs"; then
+        echo "Missing crate-level rustdoc in ${lib_rs}" >&2
+        return 1
+    fi
+
+    cargo test --doc -p "$crate"
+}
+
+is_crate_published() {
+    local crate="$1"
+    cargo search "$crate" --limit 1 2>/dev/null | rg -q "^${crate} = "
+}
+
+verify_rust_crate_can_package() {
+    local crate="$1"
+    local prereqs
+
+    RUST_PACKAGE_CHECK_MODE="package"
+    prereqs="$(rust_release_prereqs_for "$crate")" || return 1
+    if [[ -z "$prereqs" ]]; then
+        cargo package -p "$crate" --allow-dirty --offline
+        return 0
+    fi
+
+    local dep missing=0
+    for dep in $prereqs; do
+        if ! is_crate_published "$dep"; then
+            echo "Skipping full packaging verify for ${crate}: prerequisite crate '${dep}' is not published on crates.io yet."
+            missing=1
+        fi
+    done
+
+    if [[ "$missing" -eq 1 ]]; then
+        RUST_PACKAGE_CHECK_MODE="check-skip-prereq"
+        cargo check -p "$crate"
+    else
+        RUST_PACKAGE_CHECK_MODE="package"
+        cargo package -p "$crate" --allow-dirty --offline
+    fi
+}
+
+rust_release_check_for_target() {
+    local raw_target="${1:-all}"
+    local target
+    local crate docs_rc package_rc package_mode failed=0
+    local docs_pass=0 docs_fail=0 package_pass=0 package_fail=0 package_skip=0
+    local c_reset="" c_bold="" c_cyan="" c_green="" c_yellow="" c_red=""
+    local -a check_summaries=()
+
+    target="$(normalize_rust_release_target "$raw_target")" || exit 1
+    require_cmds cargo rg
+    if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+        c_reset=$'\033[0m'
+        c_bold=$'\033[1m'
+        c_cyan=$'\033[36m'
+        c_green=$'\033[32m'
+        c_yellow=$'\033[33m'
+        c_red=$'\033[31m'
+    fi
+
+    for crate in $(rust_release_targets_for "$target"); do
+        echo "Checking Rust crate docs for ${crate}..."
+        set +e
+        verify_rust_crate_docs "$crate"
+        docs_rc=$?
+        set -e
+        if [[ "$docs_rc" -eq 0 ]]; then
+            docs_pass=$((docs_pass + 1))
+            check_summaries+=("PASS  ${crate} docs")
+        else
+            docs_fail=$((docs_fail + 1))
+            failed=1
+            check_summaries+=("FAIL  ${crate} docs")
+            check_summaries+=("SKIP  ${crate} publishability (docs check failed)")
+            package_skip=$((package_skip + 1))
+            continue
+        fi
+
+        echo "Checking Rust crate publishability for ${crate}..."
+        set +e
+        verify_rust_crate_can_package "$crate"
+        package_rc=$?
+        package_mode="${RUST_PACKAGE_CHECK_MODE:-package}"
+        set -e
+        if [[ "$package_rc" -ne 0 ]]; then
+            package_fail=$((package_fail + 1))
+            failed=1
+            check_summaries+=("FAIL  ${crate} publishability")
+        elif [[ "$package_mode" == "check-skip-prereq" ]]; then
+            package_skip=$((package_skip + 1))
+            check_summaries+=("SKIP  ${crate} publishability (prerequisite crate(s) not on crates.io; ran cargo check)")
+        else
+            package_pass=$((package_pass + 1))
+            check_summaries+=("PASS  ${crate} publishability")
+        fi
+    done
+
+    printf "\n${c_bold}${c_cyan}Rust release-check summary${c_reset}\n"
+    printf "  Docs checks: %s%d passed%s, %s%d failed%s\n" "$c_green" "$docs_pass" "$c_reset" "$c_red" "$docs_fail" "$c_reset"
+    printf "  Publish checks: %s%d passed%s, %s%d skipped%s, %s%d failed%s\n" "$c_green" "$package_pass" "$c_reset" "$c_yellow" "$package_skip" "$c_reset" "$c_red" "$package_fail" "$c_reset"
+    local summary_line=""
+    for summary_line in "${check_summaries[@]}"; do
+        case "$summary_line" in
+            PASS\ *) printf "  ${c_green}%s${c_reset}\n" "$summary_line" ;;
+            SKIP\ *) printf "  ${c_yellow}%s${c_reset}\n" "$summary_line" ;;
+            FAIL\ *) printf "  ${c_red}%s${c_reset}\n" "$summary_line" ;;
+            *) printf "  %s\n" "$summary_line" ;;
+        esac
+    done
+
+    if [[ "$failed" -ne 0 ]]; then
+        return 1
+    fi
+}
+
+publish_rust_crates() {
+    local raw_target="${1:-all}"
+    local target
+    local crate
+
+    target="$(normalize_rust_release_target "$raw_target")" || exit 1
+    require_cmds cargo rg
+    ensure_crates_token_from_dotenv
+
+    for crate in $(rust_release_targets_for "$target"); do
+        echo "Publishing Rust crate ${crate}..."
+        with_cargo_registry_auth cargo publish -p "$crate"
+    done
+}
+
+rust_crate_version_for_target() {
+    local crate="$1"
+    local crate_dir manifest version
+    crate_dir="$(rust_crate_dir_for "$crate")" || return 1
+    manifest="$crate_dir/Cargo.toml"
+    version="$(sed -n 's/^version = "\(.*\)"$/\1/p' "$manifest" | head -n1)"
+    if [[ -z "$version" ]]; then
+        echo "Unable to determine version for Rust crate: $crate" >&2
+        return 1
+    fi
+    printf "%s\n" "$version"
+}
+
+create_rust_release_tags() {
+    local raw_target="${1:-all}"
+    local commit="${2:-HEAD}"
+    local target
+    local crate
+    local -a created=()
+
+    target="$(normalize_rust_release_target "$raw_target")" || exit 1
+    require_cmds git
+
+    for crate in $(rust_release_targets_for "$target"); do
+        local version tag
+        version="$(rust_crate_version_for_target "$crate")"
+        tag="${crate}-v${version}"
+
+        if git rev-parse -q --verify "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Tag already exists, skipping: $tag"
+            continue
+        fi
+
+        git tag "$tag" "$commit"
+        created+=("$tag")
+        echo "Created tag: $tag -> $commit"
+    done
+
+    if [[ ${#created[@]} -gt 0 ]]; then
+        echo "Push tags with:"
+        echo "  git push origin ${created[*]}"
+    fi
+}
+
+push_rust_release_tags() {
+    local raw_target="${1:-all}"
+    local target
+    local crate
+    local -a tags_to_push=()
+
+    target="$(normalize_rust_release_target "$raw_target")" || exit 1
+    require_cmds git
+
+    for crate in $(rust_release_targets_for "$target"); do
+        local version tag
+        version="$(rust_crate_version_for_target "$crate")"
+        tag="${crate}-v${version}"
+
+        if ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Missing local tag, skipping: $tag"
+            continue
+        fi
+        tags_to_push+=("$tag")
+    done
+
+    if [[ ${#tags_to_push[@]} -eq 0 ]]; then
+        echo "No matching local Rust release tags to push."
+        return 0
+    fi
+
+    echo "Pushing Rust release tags to origin: ${tags_to_push[*]}"
+    git push origin "${tags_to_push[@]}"
+}
+
+rust_release_commit_and_push_version_changes() {
+    local raw_target="${1:-all}"
+    local target
+
+    target="$(normalize_rust_release_target "$raw_target")" || exit 1
+    require_cmds git
+
+    if ! git diff --cached --quiet >/dev/null; then
+        die "Refusing to auto-commit during Rust release: you have staged changes already."
+    fi
+
+    local branch
+    branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+    if [[ -z "$branch" || "$branch" == "HEAD" ]]; then
+        echo "Skipping git commit/push: detached HEAD."
+        return 0
+    fi
+
+    local -a crate_entries=()
+    local crate
+    for crate in $(rust_release_targets_for "$target"); do
+        local version
+        version="$(rust_crate_version_for_target "$crate")"
+        crate_entries+=("${crate}@${version}")
+    done
+
+    local version_part
+    version_part="$(IFS=", "; echo "${crate_entries[*]}")"
+    local commit_message="chore(rust-release): ${version_part}"
+
+    local -a to_add=()
+    [[ -f "$ROOT_DIR/Cargo.lock" ]] && to_add+=("$ROOT_DIR/Cargo.lock")
+    for crate in $(rust_release_targets_for "$target"); do
+        local crate_dir
+        crate_dir="$(rust_crate_dir_for "$crate")"
+        [[ -f "$crate_dir/Cargo.toml" ]] && to_add+=("$crate_dir/Cargo.toml")
+    done
+
+    if [[ ${#to_add[@]} -eq 0 ]]; then
+        echo "No Rust version-related files found to commit."
+        return 0
+    fi
+
+    git add "${to_add[@]}" >/dev/null 2>&1 || true
+    if git diff --cached --quiet >/dev/null; then
+        echo "No Rust version-related changes to commit."
+        return 0
+    fi
+
+    echo "Committing Rust version bump(s): ${version_part}"
+    git commit -m "$commit_message"
+
+    local upstream
+    upstream="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || true)"
+    if [[ -n "$upstream" ]]; then
+        git push
+    else
+        git push -u origin "$branch"
+    fi
+}
+
+release_rust_crates() {
+    local raw_target="${1:-all}"
+    local target
+
+    target="$(normalize_rust_release_target "$raw_target")" || exit 1
+    rust_release_check_for_target "$target"
+    publish_rust_crates "$target"
+    rust_release_commit_and_push_version_changes "$target"
+    create_rust_release_tags "$target" "HEAD"
+    push_rust_release_tags "$target"
 }
 
 package_version_for_target() {
@@ -862,11 +1292,11 @@ summarize_jest_log() {
     tests="$(sed -nE 's/^Tests:[[:space:]]+([0-9]+) passed, ([0-9]+) total/\2/p' "$logfile" | tail -n 1)"
 
     if [[ -n "$suites" && -n "$tests" ]]; then
-        printf "%s: %s suites, %s tests\n" "$label" "$suites" "$tests"
+        printf "PASS  %s (%s suites, %s tests)\n" "$label" "$suites" "$tests"
         return 0
     fi
 
-    printf "%s\n" "$label"
+    printf "PASS  %s\n" "$label"
 }
 
 summarize_node_test_log() {
@@ -878,11 +1308,29 @@ summarize_node_test_log() {
     passed="$(sed -nE 's/^ℹ pass ([0-9]+)/\1/p' "$logfile" | tail -n 1)"
 
     if [[ -n "$total" && -n "$passed" ]]; then
-        printf "%s: %s/%s\n" "$label" "$passed" "$total"
+        printf "PASS  %s (%s/%s)\n" "$label" "$passed" "$total"
         return 0
     fi
 
-    printf "%s\n" "$label"
+    printf "PASS  %s\n" "$label"
+}
+
+run_test_command() {
+    local logfile="$1"
+    shift
+
+    if [[ "${RUN_TEST_VERBOSE:-0}" == "1" ]]; then
+        run_and_capture "$logfile" "$@"
+        return $?
+    fi
+
+    if "$@" >"$logfile" 2>&1; then
+        return 0
+    fi
+
+    # On failure, always print full captured output for diagnosis.
+    cat "$logfile"
+    return 1
 }
 
 install_local_package_into_app() {
@@ -1210,14 +1658,14 @@ run_demo() {
 }
 
 run_docs_site() {
-    local docs_dir="$ROOT_DIR/external/docs-site"
+    local docs_dir="$ROOT_DIR/elata-docs"
     local node_version="${ELATA_DOCS_NODE_VERSION:-22.22.1}"
     local -a mint_args=()
 
     require_package_manager
 
     if [[ ! -d "$docs_dir" ]]; then
-        die "Docs site directory not found: $docs_dir" "Expected Mintlify project at external/docs-site"
+        die "Docs site directory not found: $docs_dir" "Expected Mintlify project at elata-docs"
     fi
 
     echo "Validating Mintlify docs before launch..."
@@ -1408,7 +1856,7 @@ doctor() {
 DEFAULT_JOBS="${BUILD_JOBS:-$(cpu_cores)}"
 ensure_sccache
 
-cmd="${1:-doctor}"
+cmd="${1:-help}"
 case "$cmd" in
     install)
         RUN_SH_TASK="install"
@@ -1423,6 +1871,27 @@ case "$cmd" in
         RUN_SH_TASK="verify-all"
         # Run publish-level verification, including packaged wasm and tarball checks.
         run_root_script "verify:all"
+        ;;
+    rust-release-check)
+        RUN_SH_TASK="rust-release-check"
+        # Usage:
+        #   ./run.sh rust-release-check [target]
+        # Examples:
+        #   ./run.sh rust-release-check all
+        #   ./run.sh rust-release-check elata-rppg
+        # Runs cargo package for standalone crates and cargo check when
+        # crates.io prerequisite crates are not published yet.
+        rust_release_check_for_target "${2:-all}"
+        ;;
+    rust-publish)
+        RUN_SH_TASK="rust-publish"
+        # Usage:
+        #   ./run.sh rust-publish [target]
+        # Examples:
+        #   ./run.sh rust-publish all
+        #   ./run.sh rust-publish elata-eeg-models
+        # Runs: rust-release-check -> publish -> commit -> tag -> push-tags
+        release_rust_crates "${2:-all}"
         ;;
     changeset)
         RUN_SH_TASK="changeset"
@@ -1561,6 +2030,36 @@ case "$cmd" in
         require_package_manager
         declare -a test_summaries=()
         declare -a test_logs=()
+        c_reset=""
+        c_bold=""
+        c_cyan=""
+        c_green=""
+        c_yellow=""
+        if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+            c_reset=$'\033[0m'
+            c_bold=$'\033[1m'
+            c_cyan=$'\033[36m'
+            c_green=$'\033[32m'
+            c_yellow=$'\033[33m'
+        fi
+        print_test_section() {
+            local title="$1"
+            printf "\n${c_bold}${c_cyan}==> %s${c_reset}\n" "$title"
+        }
+        print_test_summary_line() {
+            local line="$1"
+            case "$line" in
+                PASS*)
+                    printf "${c_green}%s${c_reset}\n" "$line"
+                    ;;
+                SKIP*)
+                    printf "${c_yellow}%s${c_reset}\n" "$line"
+                    ;;
+                *)
+                    printf "%s\n" "$line"
+                    ;;
+            esac
+        }
 
         create_test_log() {
             local logfile
@@ -1585,31 +2084,35 @@ case "$cmd" in
 
         if [[ "${2:-}" == "create-elata-demo" ]]; then
             if [[ ! -d "node_modules" ]]; then
+                print_test_section "Installing workspace dependencies"
                 echo "node_modules/ missing; running pnpm install at workspace root..."
                 pnpm install
             fi
 
-            echo "Running create-elata-demo tests (including template smoke builds)..."
+            print_test_section "RUNS  create-elata-demo tests (including template smoke builds)"
             log_file="$(create_test_log)"
-            run_and_capture "$log_file" run_pkg_script "packages/create-elata-demo" "test"
+            run_test_command "$log_file" run_pkg_script "packages/create-elata-demo" "test"
             test_summaries+=("$(summarize_node_test_log "create-elata-demo full smoke/build tests" "$log_file")")
-            printf "\nTest summary\n"
-            printf "%s\n" "${test_summaries[@]}"
+            printf "\n${c_bold}Test summary${c_reset}\n"
+            summary_line=""
+            for summary_line in "${test_summaries[@]}"; do
+                print_test_summary_line "$summary_line"
+            done
             exit 0
         fi
 
         require_cmds cargo node
         local_jobs="${BUILD_JOBS:-$DEFAULT_JOBS}"
 
-        echo "Running Rust workspace tests (unit + integration + doc)..."
+        print_test_section "RUNS  Rust workspace tests (unit + integration + doc)"
         rust_log="$(create_test_log)"
-        run_and_capture "$rust_log" cargo test --workspace -j "$local_jobs"
-        test_summaries+=("Rust workspace unit/integration/doc tests")
+        run_test_command "$rust_log" cargo test --workspace -j "$local_jobs"
+        test_summaries+=("PASS  Rust workspace (unit/integration/doc)")
 
         if [[ -d "packages/rppg-web" ]]; then
-            echo "Running rppg-web Jest tests..."
+            print_test_section "RUNS  rppg-web Jest"
             rppg_log="$(create_test_log)"
-            run_and_capture "$rppg_log" run_pkg_script "packages/rppg-web" "test" "--runInBand"
+            run_test_command "$rppg_log" run_pkg_script "packages/rppg-web" "test" "--runInBand"
             test_summaries+=("$(summarize_jest_log "rppg-web Jest suite" "$rppg_log")")
         fi
 
@@ -1621,35 +2124,39 @@ case "$cmd" in
         fi
 
         if [[ -d "packages/create-elata-demo" ]]; then
-            echo "Running create-elata-demo tests..."
+            print_test_section "RUNS  create-elata-demo smoke/build tests"
             create_demo_log="$(create_test_log)"
-            run_and_capture "$create_demo_log" run_pkg_script "packages/create-elata-demo" "test"
+            run_test_command "$create_demo_log" run_pkg_script "packages/create-elata-demo" "test"
             test_summaries+=("$(summarize_node_test_log "create-elata-demo full smoke/build tests" "$create_demo_log")")
         fi
 
         if [[ -d "packages/eeg-web" ]]; then
-            echo "Running eeg-web Jest tests..."
+            print_test_section "RUNS  eeg-web Jest"
             eeg_log="$(create_test_log)"
-            run_and_capture "$eeg_log" run_pkg_script "packages/eeg-web" "test" "--runInBand"
+            run_test_command "$eeg_log" run_pkg_script "packages/eeg-web" "test" "--runInBand"
             test_summaries+=("$(summarize_jest_log "eeg-web Jest suite" "$eeg_log")")
         fi
 
         if [[ -d "packages/eeg-web-ble" ]]; then
-            echo "Running eeg-web-ble Jest tests..."
+            print_test_section "RUNS  eeg-web-ble Jest"
             eeg_ble_log="$(create_test_log)"
-            run_and_capture "$eeg_ble_log" run_pkg_script "packages/eeg-web-ble" "test" "--runInBand"
+            run_test_command "$eeg_ble_log" run_pkg_script "packages/eeg-web-ble" "test" "--runInBand"
             test_summaries+=("$(summarize_jest_log "eeg-web-ble Jest suite" "$eeg_ble_log")")
         fi
 
         if [[ "${RUN_E2E:-0}" == "1" ]]; then
-            echo "Running rppg-web Playwright e2e tests..."
+            print_test_section "RUNS  rppg-web Playwright e2e"
             run_pkg_script "packages/rppg-web" "ci:e2e"
+            test_summaries+=("PASS  rppg-web Playwright e2e")
         else
-            echo "Skipping Playwright e2e tests (set RUN_E2E=1 to enable)."
+            test_summaries+=("SKIP  rppg-web Playwright e2e (set RUN_E2E=1 to enable)")
         fi
 
-        printf "\nTest summary\n"
-        printf "%s\n" "${test_summaries[@]}"
+        printf "\n${c_bold}Test summary${c_reset}\n"
+        summary_line=""
+        for summary_line in "${test_summaries[@]}"; do
+            print_test_summary_line "$summary_line"
+        done
         ;;
     clean)
         RUN_SH_TASK="clean"
@@ -1658,7 +2165,7 @@ case "$cmd" in
         run_root_script "clean"
         rm -rf "$ROOT_DIR/eeg-demo/pkg"
         echo "Cleaning build artifacts for wasm crates..."
-        cargo clean -p eeg-wasm -p rppg-wasm
+        cargo clean -p elata-eeg-wasm -p elata-rppg-wasm
         ;;
     format)
         RUN_SH_TASK="format"

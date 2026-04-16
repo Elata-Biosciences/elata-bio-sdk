@@ -12,7 +12,7 @@
 set -e
 
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-FFI_CRATE="$PROJECT_ROOT/crates/eeg-ffi"
+FFI_CRATE="$PROJECT_ROOT/crates/elata-eeg-ffi"
 OUTPUT_DIR="$PROJECT_ROOT/ios-demo"
 FRAMEWORK_NAME="EegSdkFFI"
 
@@ -26,18 +26,18 @@ mkdir -p "$OUTPUT_DIR/EegSdkSwift/Sources"
 # Build for iOS device (arm64)
 echo ""
 echo "=== Building for iOS Device (aarch64-apple-ios) ==="
-cargo build --package eeg-ffi --release --target aarch64-apple-ios
+cargo build --package elata-eeg-ffi --release --target aarch64-apple-ios
 
 # Build for iOS Simulator (arm64 - Apple Silicon)
 echo ""
 echo "=== Building for iOS Simulator (aarch64-apple-ios-sim) ==="
-cargo build --package eeg-ffi --release --target aarch64-apple-ios-sim
+cargo build --package elata-eeg-ffi --release --target aarch64-apple-ios-sim
 
 # Optionally build for iOS Simulator (x86_64 - Intel Macs)
 if rustup target list --installed | grep -q "x86_64-apple-ios"; then
     echo ""
     echo "=== Building for iOS Simulator (x86_64-apple-ios) ==="
-    cargo build --package eeg-ffi --release --target x86_64-apple-ios
+    cargo build --package elata-eeg-ffi --release --target x86_64-apple-ios
     HAS_X86_64=true
 else
     HAS_X86_64=false
@@ -46,7 +46,7 @@ fi
 # Generate Swift bindings
 echo ""
 echo "=== Generating Swift Bindings ==="
-cargo run --package eeg-ffi --features cli --bin uniffi-bindgen -- \
+cargo run --package elata-eeg-ffi --features cli --bin uniffi-bindgen -- \
     generate --library "$PROJECT_ROOT/target/aarch64-apple-ios/release/libeeg_ffi.a" \
     --language swift \
     --out-dir "$OUTPUT_DIR/EegSdkSwift/Sources"

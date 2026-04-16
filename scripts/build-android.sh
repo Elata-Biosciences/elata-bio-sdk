@@ -15,7 +15,7 @@
 set -e
 
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-FFI_CRATE="$PROJECT_ROOT/crates/eeg-ffi"
+FFI_CRATE="$PROJECT_ROOT/crates/elata-eeg-ffi"
 OUTPUT_DIR="$PROJECT_ROOT/android-demo"
 
 # Check for NDK
@@ -86,7 +86,7 @@ for TARGET_PAIR in "${TARGETS[@]}"; do
         continue
     fi
 
-    cargo build --package eeg-ffi --release --target "$RUST_TARGET"
+    cargo build --package elata-eeg-ffi --release --target "$RUST_TARGET"
 
     # Copy library to jniLibs folder
     JNI_DIR="$OUTPUT_DIR/eeg-sdk/src/main/jniLibs/$ANDROID_ABI"
@@ -104,15 +104,15 @@ mkdir -p "$KOTLIN_DIR"
 
 # Use one of the built libraries to generate bindings
 if [ -f "$PROJECT_ROOT/target/aarch64-linux-android/release/libeeg_ffi.so" ]; then
-    cargo run --package eeg-ffi --features cli --bin uniffi-bindgen -- \
+    cargo run --package elata-eeg-ffi --features cli --bin uniffi-bindgen -- \
         generate --library "$PROJECT_ROOT/target/aarch64-linux-android/release/libeeg_ffi.so" \
         --language kotlin \
         --out-dir "$KOTLIN_DIR"
 else
     echo "Warning: No Android library found for binding generation"
     echo "Using debug build for bindings..."
-    cargo build --package eeg-ffi
-    cargo run --package eeg-ffi --features cli --bin uniffi-bindgen -- \
+    cargo build --package elata-eeg-ffi
+    cargo run --package elata-eeg-ffi --features cli --bin uniffi-bindgen -- \
         generate --library "$PROJECT_ROOT/target/debug/libeeg_ffi.so" \
         --language kotlin \
         --out-dir "$KOTLIN_DIR"

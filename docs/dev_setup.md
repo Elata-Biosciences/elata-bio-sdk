@@ -10,8 +10,8 @@ This short guide shows quick ways to speed up the Rust edit/build/test loop for 
 
 ## Fast test & compile tips
 - Run only the package you care about (fast):
-  - `cargo check -p rppg` (very fast, compile-only)
-  - `cargo test -p rppg --lib -j $BUILD_JOBS` (run only rppg library tests in parallel)
+  - `cargo check -p elata-rppg` (very fast, compile-only)
+  - `cargo test -p elata-rppg --lib -j $BUILD_JOBS` (run only rppg library tests in parallel)
 
 - Prefer `cargo check` for most iterations and `cargo test` when you need to run tests.
 
@@ -39,6 +39,7 @@ This short guide shows quick ways to speed up the Rust edit/build/test loop for 
 - Run the in-repo EEG demo: `./run.sh demo eeg`
 - Run the native HAL example: `./run.sh demo hal`
 - Run full workspace + web package tests: `./run.sh test`
+- Preview the Mintlify docs site in `elata-docs/` (defaults to `mint dev --no-open`): `./run.sh docs`
 
 ## In-Repo Demo Behavior
 
@@ -51,7 +52,7 @@ artifacts, or debugging package integration inside this monorepo.
   - serves that directory on `PORT`, default `8080`
   - supports `KEEP_TMP=1` if you want to inspect the served files after exit
 - `./run.sh demo eeg`
-  - builds `eeg-wasm`
+  - builds `elata-eeg-wasm`
   - runs `wasm-bindgen`
   - syncs artifacts into `packages/eeg-web`
   - serves `eeg-demo/` on `PORT`, default `4173`
@@ -74,5 +75,5 @@ If you are validating the consumer experience instead of the repo-development
 surface, use `create-elata-demo` rather than these in-repo demos.
 
 ## Notes
-- If you add heavy dependencies to `rppg` tests, test compile times will increase; keep dependencies minimal for unit tests.
+- If you add heavy dependencies to `elata-rppg` tests, test compile times will increase; keep dependencies minimal for unit tests.
 - Consider adding selective feature flags for dev/test to reduce dependency compile footprint.

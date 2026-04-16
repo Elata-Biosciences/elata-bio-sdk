@@ -1,25 +1,64 @@
 # @elata-biosciences/eeg-web-ble
 
-Web Bluetooth transport package for Muse-compatible EEG headband devices.
+Web Bluetooth transport package for EEG headbands in the browser. It emits
+normalized **`HeadbandFrameV1`** frames for the Elata EEG web stack.
+
+**New to the SDK?** `npm create @elata-biosciences/elata-demo my-app` is the
+recommended start. You can also run
+`npx @elata-biosciences/create-elata-demo my-app`. Either path scaffolds a
+working app with synthetic mode, correct Vite config, and WASM imports already
+set up — no hardware required to get started.
+
+## Bluetooth vs built-in devices
+
+Keep two ideas separate:
+
+1. **Web Bluetooth + transport** — Chromium `navigator.bluetooth`, secure
+   context, GATT connect/disconnect, and turning peripheral data into
+   **`HeadbandFrameV1`** via **`BleTransport`**. That contract comes from
+   **`@elata-biosciences/eeg-web`** (`HeadbandTransport`, frame types). It is
+   not tied to a single vendor.
+2. **Device protocol** — service UUIDs, characteristics, packet decode, and
+   channel maps for a **specific** headset. Today the repo ships **Muse 2 /
+   Muse S (classic + Athena)** under `src/devices/muse/`. Other protocols belong
+   in new modules (or a custom `device` passed into `BleTransport`).
 
 ## What This Package Is
 
 This package owns:
 
-- browser-side Web Bluetooth device and session lifecycle
-- classic and Athena packet handling
+- **`BleTransport`** (`src/transport/`) — session lifecycle and frame assembly
+  for Web Bluetooth (default device: `MuseBleDevice`)
+- **`MuseBleDevice`** (`src/devices/muse/`) — Muse classic + Athena GATT handling
+- optional hooks for **other headsets** via `new BleTransport({ device })`
 - emission of normalized `HeadbandFrameV1` frames
 
 It intentionally depends on `@elata-biosciences/eeg-web` for shared transport
 and frame contracts.
 
+## Source layout (maintainers)
+
+| Path | Role |
+|------|------|
+| `src/transport/bleTransport.ts` | Web Bluetooth–oriented transport; merges EEG + Muse-shaped PPG/aux into frames |
+| `src/devices/muse/museDevice.ts` | Muse 2 / Muse S classic and Athena protocol |
+| `src/index.ts` | Public exports only — **import from the package root**, not deep paths |
+
+Tests live under `src/__tests__/`.
+
 ## When To Use It
 
 Use `@elata-biosciences/eeg-web-ble` when you want:
 
-- browser BLE discovery and session control for Muse-compatible EEG devices
+- browser BLE discovery and session control for **supported** headsets (today:
+  Muse 2, Muse S classic, Muse S Athena — see below)
 - normalized headband frames in a browser app
 - a transport layer that plugs into the rest of the Elata EEG web stack
+
+For **additional hardware** (non-Muse BLE, or bridge-based flows), implement the
+same transport contract and either pass a custom `device` into `BleTransport` or
+contribute a new module — see
+[docs/contributing-eeg-transports.md](../../docs/contributing-eeg-transports.md).
 
 If you only need EEG signal APIs without device transport, start with
 `@elata-biosciences/eeg-web`.
@@ -64,18 +103,25 @@ await transport.start();
 ## Key Exports
 
 - `BleTransport`
-- `HeadbandTransport` types
+- `BleDeviceLike` (adapter contract for custom headset integrations)
+- `MuseBleDevice` (reference implementation and default device)
+- `HeadbandTransport` types (re-exported usage flows align with `@elata-biosciences/eeg-web`)
 
-## Compatibility Notes
+## Built-In Device Support
 
-- The classic path targets Muse 2 and Muse S style UUIDs
-- The Athena path requires an `athenaDecoderFactory`
-- Tests cover transport behavior, but not every headset and firmware variant
+These device classes are implemented **in this package** today:
+
+- Muse 2 and Muse S **classic** BLE (documented UUIDs and framing)
+- Muse S **Athena** protocol v2 (requires `athenaDecoderFactory` from `eeg-web`)
+- the synthetic Muse-compatible BLE bridge used for testing
+
+Other headsets can be integrated by contributors; see
+[docs/contributing-eeg-transports.md](../../docs/contributing-eeg-transports.md).
 
 ## Platform Caveats
 
 - Safari and iOS do not provide usable Web Bluetooth support for this workflow
-- firmware variants may differ in command behavior
+- Muse firmware variants may differ in command behavior
 
 For Safari and iOS, prefer a native BLE shell, a companion bridge, or a hybrid
 WebView strategy with `@elata-biosciences/eeg-web` frame contracts as the

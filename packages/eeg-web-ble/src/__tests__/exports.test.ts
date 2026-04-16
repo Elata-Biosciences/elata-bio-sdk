@@ -1,5 +1,5 @@
-import { BleTransport } from '../bleTransport';
-import { MuseBleDevice } from '../museDevice';
+import { BleTransport } from '../transport/bleTransport';
+import { MuseBleDevice } from '../devices/muse/museDevice';
 
 describe('@elata-biosciences/eeg-web-ble exports', () => {
   test('exports BleTransport as a constructor', () => {

@@ -1,0 +1,24 @@
+# @elata-biosciences/eeg-web — context for tools and agents
+
+## Role
+Thin TypeScript wrapper around Elata EEG WebAssembly: stable init helpers (`initEegWasm`, `initEegWasmSync`), signal helpers (e.g. `band_powers`), WASM-backed models (`WasmAlphaBumpDetector`, `WasmAlphaPeakModel`, `WasmCalmnessModel`, `AthenaWasmDecoder`), and shared **`HeadbandTransport` / `HeadbandFrameV1`** types. Generated `wasm-bindgen` exports are re-exported for advanced use; prefer the package helpers when they exist.
+
+This package does **not** connect to headsets or Bluetooth. For browser BLE, add `@elata-biosciences/eeg-web-ble` or another `HeadbandTransport` implementation.
+
+## Requirements
+- **Node.js >= 20** for tooling; browsers need WebAssembly.
+- WASM assets ship under package **`wasm/`** — bundlers must serve them; if `initEegWasm()` fails, verify asset paths.
+
+## Preferred integration
+1. `await initEegWasm()` (or `initEegWasmSync` when bytes are already available).
+2. Call EEG APIs (e.g. `band_powers`, models) or consume frames from a **`HeadbandTransport`** that emits **`HeadbandFrameV1`**.
+3. For Muse S **Athena** decode in a BLE stack, use `AthenaWasmDecoder` (often via `eeg-web-ble` + `athenaDecoderFactory`).
+
+## New projects
+Evaluate with **`npm create @elata-biosciences/elata-demo my-app`** (recommended) or **`npx @elata-biosciences/create-elata-demo my-app`** — both scaffold Vite + WASM wiring (including synthetic paths without hardware).
+
+## Related packages
+- **`@elata-biosciences/eeg-web-ble`** — Web Bluetooth transport (depends on this package; Muse 2 / Muse S classic + Athena today).
+
+## Source of truth
+https://github.com/Elata-Biosciences/elata-bio-sdk/tree/main/packages/eeg-web

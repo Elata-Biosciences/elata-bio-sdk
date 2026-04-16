@@ -27,7 +27,6 @@ assert.match(
 const mod = await import(pathToFileURL(distIndex).href);
 assert.equal(typeof mod.initEegWasm, "function");
 assert.equal(typeof mod.initEegWasmSync, "function");
-assert.equal(typeof mod.createRppgPipeline, "function");
 
 console.log("[eeg-web] Verified Node-friendly ESM dist imports.");
 

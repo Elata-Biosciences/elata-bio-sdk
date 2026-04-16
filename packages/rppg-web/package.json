@@ -36,7 +36,8 @@
 	"files": [
 		"dist",
 		"pkg",
-		"README.md"
+		"README.md",
+		"llms.txt"
 	],
 	"publishConfig": {
 		"access": "public"
