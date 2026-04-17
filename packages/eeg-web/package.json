@@ -39,7 +39,8 @@
 		"wasm/*.js",
 		"wasm/*.ts",
 		"wasm/*.wasm",
-		"README.md"
+		"README.md",
+		"llms.txt"
 	],
 	"publishConfig": {
 		"access": "public"

@@ -1,4 +1,4 @@
-import { BleTransport } from '../bleTransport';
+import { BleTransport } from '../transport/bleTransport';
 import type { HeadbandFrameV1, HeadbandTransportStatus } from '@elata-biosciences/eeg-web';
 
 interface FakeDeviceShape {

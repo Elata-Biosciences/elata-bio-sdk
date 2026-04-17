@@ -97,9 +97,7 @@ export async function loadWasmBackend(
 			? options.candidateUrls
 			: [
 					"/pkg/rppg_wasm.js",
-					"/pkg/eeg_wasm.js",
 					"/rppg_wasm.js",
-					"/eeg_wasm.js",
 				];
 	let lastError: unknown = undefined;
 	for (const url of candidates) {

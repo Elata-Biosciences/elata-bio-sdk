@@ -80,7 +80,7 @@ pnpm --dir packages/create-elata-demo test
 ./run.sh test create-elata-demo
 ```
 
-The second command also ensures workspace dependencies exist, then smoke-tests
+The third command also ensures workspace dependencies exist, then smoke-tests
 each template by scaffolding, installing dependencies, and running a build.
 
 ## Workspace Caveat

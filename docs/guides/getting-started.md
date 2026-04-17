@@ -14,14 +14,17 @@ pnpm run dev
 Templates:
 
 - `rppg-demo`: camera-based rPPG starter app
-- `eeg-demo`: browser EEG starter app with synthetic data and BLE support
+- `eeg-demo`: browser EEG starter app with synthetic data and optional Web Bluetooth (Muse built-in via `eeg-web-ble`)
+- `eeg-ble`: BLE-first EEG starter (pairing flow, Web Bluetooth, links to native demo references)
+
+Aliases include `rppg`, `eeg`, `ble`, and legacy names such as `rppg-web-demo` → `rppg-demo`. See [create-elata-demo.md](../create-elata-demo.md).
 
 ## Existing App Path
 
 If you already have an app, install only what you need:
 
 - `@elata-biosciences/eeg-web`: EEG WASM APIs
-- `@elata-biosciences/eeg-web-ble`: browser BLE transport
+- `@elata-biosciences/eeg-web-ble`: Web Bluetooth headset transport (see [contributing-eeg-transports.md](../contributing-eeg-transports.md) to extend beyond built-in devices)
 - `@elata-biosciences/rppg-web`: browser rPPG processing and demo helpers
 
 See [choose-the-right-package.md](choose-the-right-package.md) for the decision guide.

@@ -19,7 +19,7 @@ demo-local JavaScript notch/high-pass implementation.
 To run the synthetic BLE bridge:
 
 ```bash
-cargo run -p synthetic-ble-bridge -- --ble
+cargo run -p elata-dev-synthetic-ble-bridge -- --ble
 ```
 
 You should see a device named `Muse-Synthetic` in the Web Bluetooth chooser.

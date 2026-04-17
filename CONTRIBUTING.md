@@ -49,7 +49,7 @@ path.
      flow or package build that proves the docs still match reality.
 5. **Run checks**
    - Prefer `./run.sh` or documented scripts from `README.md` where available.
-   - If you changed `external/docs-site`, run `pnpm docs:mintlify:check` (or `pnpm docs:check`).
+   - If you changed `elata-docs`, run `pnpm docs:mintlify:check` (or `pnpm docs:check`).
    - If you changed scaffold commands or template behavior, update `README.md`,
      `docs/create-elata-demo.md`, and nearby contributor docs in the same task
      when practical.
@@ -59,6 +59,15 @@ path.
 7. **Open a pull request**
    - Reference associated issues.
    - Summarize what changed and why.
+
+### EEG headset transports (Web Bluetooth and beyond)
+
+If you are adding or changing how a **headset** delivers data to the browser EEG
+stack, read [docs/contributing-eeg-transports.md](docs/contributing-eeg-transports.md)
+first. New hardware should converge on **`HeadbandTransport`** /
+**`HeadbandFrameV1`** from `@elata-biosciences/eeg-web`. Prefer extending
+`packages/eeg-web-ble` or adding a focused sibling package under `packages/`
+rather than forking consumer demos.
 
 ### Coding Guidelines
 
@@ -72,7 +81,8 @@ path.
 - `npm create @elata-biosciences/elata-demo` and direct `create-elata-demo`
   invocations should stay documented together when behavior changes.
 - The current scaffold flow supports interactive template selection, template
-  aliases (`rppg`, `eeg`, `eeg-ble`), and `--list-templates`.
+  aliases (`rppg`, `eeg`, `ble`; plus legacy `eeg-web-ble-demo`), and
+  `--list-templates`.
 - If you scaffold inside another `pnpm` workspace, verify the
   `pnpm --dir my-app --ignore-workspace ...` caveat before treating it as a
   scaffold failure.

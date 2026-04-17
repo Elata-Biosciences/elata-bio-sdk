@@ -1,6 +1,6 @@
 # SDK Adoption Baseline
 
-Date: 2026-03-17
+Date: 2026-03-17 · **Commands and template IDs below were corrected 2026-04-08** to match the current scaffolder (`packages/create-elata-demo/index.mjs`).
 
 ## Purpose
 
@@ -17,6 +17,7 @@ Primary consumer entry points:
 - [README.md](../README.md)
 - [docs/guides/getting-started.md](guides/getting-started.md)
 - [docs/guides/choose-the-right-package.md](guides/choose-the-right-package.md)
+- [docs/guides/ai-assisted-development.md](guides/ai-assisted-development.md)
 - [packages/create-elata-demo/README.md](../packages/create-elata-demo/README.md)
 - [packages/eeg-web/README.md](../packages/eeg-web/README.md)
 - [packages/eeg-web-ble/README.md](../packages/eeg-web-ble/README.md)
@@ -36,11 +37,11 @@ Public export surfaces:
 - `@elata-biosciences/rppg-web`: package root plus `./pkg/*`
 - `@elata-biosciences/create-elata-demo`: CLI binary `create-elata-demo`
 
-Consumer templates:
+Consumer templates (canonical IDs; legacy names still accepted by the CLI):
 
-- `rppg-web-demo`
-- `eeg-web-demo`
-- `eeg-web-ble-demo`
+- `rppg-demo` (aliases: `rppg`; legacy: `rppg-web-demo`)
+- `eeg-demo` (aliases: `eeg`; legacy: `eeg-web-demo`)
+- `eeg-ble` (aliases: `ble`, `eeg-web-ble-demo`)
 
 Maintainer-oriented surfaces that are still easy to encounter:
 
@@ -101,18 +102,17 @@ Measured local baseline:
 - cached install of a minimal consumer app: about 2.5 to 3 seconds
 - cached build of a minimal consumer app: about 0.4 to 0.5 seconds
 
-Current friction:
+Current friction (as of baseline; see also [guides](guides/README.md)):
 
-- the repo still lacks dedicated consumer guides for EEG browser apps, Web Bluetooth setup, and rPPG browser integration
-- advanced or custom-integration examples are still thin
-- the difference between package runtime requirements and repo-tooling requirements is documented, but not yet centralized in one compatibility matrix
+- integration walkthroughs now exist under `docs/guides/` (EEG, Web Bluetooth, rPPG), but advanced or custom-integration examples are still thin
+- the difference between package runtime requirements and repo-tooling requirements is documented in [compatibility.md](guides/compatibility.md), but cross-linking could still improve
 
 ### 3. Run The EEG Web Demo
 
 Fastest consumer path:
 
 ```bash
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-web-demo
+npm create @elata-biosciences/elata-demo my-app -- --template eeg-demo
 cd my-app
 pnpm install
 pnpm run dev
@@ -127,7 +127,7 @@ Maintainer path:
 Current friction:
 
 - there are still two visible paths, and only one is right for consumers
-- the consumer docs do not yet have a dedicated EEG browser guide
+- EEG integration detail lives in [using-eeg-in-a-browser-app.md](guides/using-eeg-in-a-browser-app.md) and related guides
 - template output explains what the app is, but not visually
 
 ### 4. Run The rPPG Web Demo
@@ -149,8 +149,7 @@ pnpm --dir packages/rppg-web run start-demo
 
 Current friction:
 
-- there is still no dedicated rPPG browser guide for consumers
-- runtime failures around camera permissions and packaged WASM are documented, but error messages are not yet fully audited
+- rPPG browser integration is covered in [using-rppg-in-a-browser-app.md](guides/using-rppg-in-a-browser-app.md); runtime failures around camera permissions and packaged WASM are documented, but error messages are not yet fully audited
 
 ## What Already Feels Stronger
 
@@ -161,7 +160,7 @@ Current friction:
 
 ## Biggest Remaining Gaps
 
-- consumer guides are still incomplete for the main EEG, BLE, and rPPG integration paths
+- consumer guides exist but still need depth for edge cases (EEG, BLE, rPPG)
 - runtime error messages still need a focused product pass
 - the repo does not yet publish API reference docs for the TypeScript surface
 - stability, semver expectations, and migration guidance are still implicit
@@ -177,7 +176,7 @@ Current friction:
 
 ## Recommended Next Focus
 
-The next best return is to complete the missing consumer guides and the
-compatibility matrix before moving on to API reference work. That keeps the
-highest-traffic onboarding surfaces improving in the same direction as the
-consumer smoke coverage that now protects them.
+Iterate on depth and discoverability of the existing `docs/guides/` set,
+tighten the compatibility matrix narrative, and add API reference for the
+TypeScript surface when ready. Consumer smoke coverage in CI should continue
+to track template and package changes.

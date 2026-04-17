@@ -1,0 +1,17 @@
+[package]
+name = "elata-eeg-models"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.94"
+description = "EEG analysis models (alpha bump detection, calmness)"
+license = "MIT"
+repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"
+homepage = "https://github.com/Elata-Biosciences/elata-bio-sdk#readme"
+documentation = "https://docs.rs/elata-eeg-models"
+readme = "README.md"
+keywords = ["eeg", "biosignal", "models", "analysis"]
+categories = ["science", "algorithms"]
+
+[dependencies]
+elata-eeg-hal = { workspace = true }
+elata-eeg-signal = { workspace = true }

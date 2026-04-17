@@ -1,7 +1,7 @@
-use eeg_hal::{EegDevice, SampleBuffer};
-use eeg_hal_synthetic::{NoiseLevel, SignalProfile, SyntheticDevice};
-use eeg_models::{AlphaBumpDetector, CalmnessModel, Model};
-use eeg_signal::band_powers;
+use elata_eeg_hal::{EegDevice, SampleBuffer};
+use elata_dev_eeg_synthetic::{NoiseLevel, SignalProfile, SyntheticDevice};
+use elata_eeg_models::{AlphaBumpDetector, CalmnessModel, Model};
+use elata_eeg_signal::band_powers;
 
 fn build_device(profile: SignalProfile) -> SyntheticDevice {
     let mut device = SyntheticDevice::with_config(256, 4);

@@ -4,231 +4,476 @@ Status: draft
 
 ### Goal
 
-Support heterogeneous biosignal devices (EEG, PPG, fNIRS, IMU, etc.) and clearly
-separate:
+Support heterogeneous biosignal hardware and camera-derived estimators through
+one stable abstraction that can handle:
 
-- **PPG**: raw optical pulse data from a sensor (on skin or in a composite
-  headset), and
-- **rPPG**: remote PPG inferred from video frames (camera-only or hybrid).
+- one device with many modalities, such as Athena S with EEG plus optical data,
+- many devices at once, such as one EEG headset plus one fNIRS unit plus one
+  camera, and
+- a clear separation between raw sensor streams and derived estimators.
 
-Consumers should:
+The main design choice is:
 
-- talk to a **single, stable SDK surface** for biosignals,
-- be able to swap devices (Muse, BrainBit, future headsets) with minimal code
-  changes, and
-- choose between **hardware PPG**, **camera-based rPPG**, or **hybrid** flows
-  without re-learning the stack.
+- **abstract around sources and streams, not around one device-specific frame**
 
----
-
-### Phase 1 – Define Multi-Modality Contracts
-
-**Objective:** Introduce a device-agnostic, modality-aware contract in
-TypeScript that all integrations can target.
-
-**Tasks:**
-
-- Add a small TS core module (either a new package or a well-scoped module in
-  the web packages) that defines:
-  - `SensorModality = 'eeg' | 'ppg' | 'rppg' | 'fnirs' | 'imu' | 'accel' |
-    'gyro' | 'temp' | ...`
-  - `BiosignalDeviceInfo`:
-    - `id`, `label`, `vendor`, `model`
-    - `modalities: SensorModality[]`
-    - per-modality sampling rates and channel metadata where applicable.
-  - `BiosignalDevice`:
-    - lifecycle: `connect()`, `disconnect()`
-    - events/streams per modality:
-      - `onEegSample?(handler: (sample: EegSample) => void)`
-      - `onPpgSample?(handler: (sample: PpgSample) => void)`
-      - `onFnirsSample?(handler: (sample: FnirsSample) => void)`
-      - `onImuSample?(handler: (sample: ImuSample) => void)`
-      - generic `onError`, `onStatusChange`.
-- Define normalized sample types:
-  - `EegSample` (channels, sample rate, timestamp, units).
-  - `PpgSample` (channel id, raw value, filtered value, timestamp).
-  - `FnirsSample` (HbO/HbR per channel, timestamp).
-  - `ImuSample` (accel/gyro vectors, timestamp).
-- Explicitly **separate rPPG** types from PPG:
-  - `RppgEstimationInput` (video frames + optional PPG priors).
-  - `RppgEstimation` (heart rate, confidence, signal quality metrics).
-  - Make it clear in docs and types that `rppg` is a *derived modality*, not a
-    raw sensor.
-
-**Deliverables:**
-
-- Core TS contracts in a dedicated module (e.g.
-  `packages/eeg-web/src/biosignal-core.ts` or
-  `@elata-biosciences/biosignal-core`).
-- Maintainer notes describing which types are **public and stable**.
+This keeps Athena support clean without making Athena the center of the whole
+SDK.
 
 ---
 
-### Phase 2 – Align Existing Packages To Contracts
+### Current Repo Reality
 
-**Objective:** Make current web packages consume/produce the new contracts
-without breaking existing apps.
+The repo already has two useful but different shapes:
 
-**Tasks:**
+- `@elata-biosciences/eeg-web-ble` emits a single normalized headband frame that
+  can contain `eeg`, `ppgRaw`, `optics`, `accgyro`, and `battery`.
+- `@elata-biosciences/rppg-web` is session-oriented and owns camera capture,
+  ROI, diagnostics, and lifecycle.
+- the Rust HAL is still explicitly EEG-oriented and single-device.
 
-- `@elata-biosciences/eeg-web`:
-  - Accept any `BiosignalDevice` that exposes EEG:
-    - e.g. `createEegClient({ device })` where `device.info.modalities`
-      includes `'eeg'`.
-  - Internally adapt `EegSample` streams into existing WASM pipelines.
-  - Keep current exports for band powers and models; update their input types to
-    the normalized EEG contracts.
-- `@elata-biosciences/eeg-web-ble` (or successor Muse-specific package):
-  - Refactor into a device package that implements `BiosignalDevice`:
-    - Map Muse BLE packets to `EegSample` (and PPG, if hardware supports it).
-    - Set `modalities` appropriately, e.g. `['eeg']` or `['eeg', 'ppg']`.
-  - Keep the existing public name as a thin compatibility layer if needed.
-- `@elata-biosciences/rppg-web`:
-  - Make the distinction explicit:
-    - Input is **video (and optionally PPG)**, not arbitrary sensor streams.
-    - Outputs are `RppgEstimation` values at lower frequency than raw PPG.
-  - Provide helpers to:
-    - run rPPG purely from video, and
-    - run **hybrid** rPPG where camera and PPG co-exist.
+That means the repo already supports:
 
-**Deliverables:**
+- **multi-modality within one source**, and
+- **managed sessions for derived camera processing**
 
-- Updated package internals and type definitions that rely on shared
-  multi-modality contracts.
-- No breaking changes to surface APIs unless a major bump is explicitly chosen.
+But it does **not** yet have a first-class abstraction for:
+
+- multiple physical sources at once,
+- non-headband modalities such as fNIRS alongside EEG, or
+- a shared app-level aggregator that can reason across many transports.
+
+So the plan should add a new layer **above** the current headband/session
+surfaces instead of trying to overload them.
 
 ---
 
-### Phase 3 – Device Packages For Composite Hardware
+### Proposed Core Model
 
-**Objective:** Model composite devices (e.g. EEG + PPG + fNIRS) cleanly and
-connect them to the processing stack.
+#### 1. Source
 
-**Tasks:**
+A **Source** is one runtime producer of biosignal data.
 
-- Define a naming convention for device integrations:
-  - `@elata-biosciences/device-muse-ble`
-  - `@elata-biosciences/device-brainbit-ble`
-  - `@elata-biosciences/device-<vendor>-<transport>`
-- For each device package:
-  - Implement `BiosignalDevice` against the shared contracts.
-  - Normalize channel layouts (EEG, PPG, fNIRS) into the standard types.
-  - Expose small factories:
-    - `createMuseBleDevice()`
-    - `createBrainbitBleDevice()`
-- For composite devices:
-  - Ensure `modalities` lists all supported sensors.
-  - Provide convenience methods or metadata for common combos:
-    - e.g. `device.info.modalities` contains both `'eeg'` and `'ppg'` and
-      supports syncing streams by timestamp.
+Examples:
 
-**Deliverables:**
+- one Athena headset
+- one standalone fNIRS device
+- one camera-backed rPPG session
+- one synthetic bridge used for tests
 
-- At least one non-Muse device package (e.g. BrainBit) wired into the shared
-  contracts.
-- Example code showing:
-  - swapping devices with minimal changes, and
-  - consuming multiple modalities from a single device instance.
+Recommended fields:
+
+- `sourceId`
+- `sourceName`
+- `kind`: `wearable`, `camera`, `fnirs`, `bridge`, `synthetic`, `custom`
+- optional vendor/model/transport metadata
+
+#### 2. Stream
+
+A **Stream** is one modality-specific channel group emitted by a source.
+
+Examples:
+
+- Athena source:
+  - `eeg`
+  - `ppgRaw` or `optics`
+  - `accgyro`
+  - `battery`
+- fNIRS source:
+  - `fnirs_raw`
+  - optional derived `hbo`
+  - optional derived `hbr`
+- camera source:
+  - `rppg_signal`
+  - optional `rppg_metrics`
+
+Recommended fields:
+
+- `streamId`
+- `modality`: `eeg`, `ppg`, `optics`, `fnirs`, `accgyro`, `battery`, `elata-rppg`, `derived`
+- channel metadata
+- sample rate when stable
+- clock source and units metadata where needed
+
+#### 3. Block
+
+A **Block** is one emitted chunk of samples for one stream from one source.
+
+Use one generic block shape for transport and processing boundaries:
+
+```ts
+type BiosignalModality =
+  | "eeg"
+  | "ppg"
+  | "optics"
+  | "fnirs"
+  | "accgyro"
+  | "battery"
+  | "rppg"
+  | "derived";
+
+interface BiosignalBlockV1 {
+  schemaVersion: "v1";
+  sourceId: string;
+  streamId: string;
+  modality: BiosignalModality;
+  emittedAtMs: number;
+  sampleRateHz?: number;
+  channelNames: string[];
+  channelCount: number;
+  samples: number[][];
+  timestampsMs?: number[];
+  clockSource?: "device" | "local" | "derived";
+  metadata?: Record<string, unknown>;
+}
+```
+
+Important rule:
+
+- blocks are **per stream**, not one giant “everything from the device right
+  now” envelope
+
+That makes it much easier to:
+
+- merge many devices,
+- buffer each modality independently,
+- process different sample rates cleanly, and
+- add new modalities without changing every consumer.
+
+**Typing strategy:** `samples` as `number[][]` plus `channelNames`, `modality`,
+and `metadata` is intentional: the shared shape stays a portable transport and
+rig boundary. For ergonomic pipelines, add **narrowing helpers or views** at the
+edge of a package (for example map an EEG block into existing WASM-facing types,
+or map `modality === "rppg"` blocks into current rPPG result structs) instead of
+encoding every modality’s sample layout in the shared interface. Keep richer
+domain types **package-local or app-local** until a second consumer needs the
+same shape; then promote the minimum stable slice into shared contracts.
+
+#### 4. Rig / Multi-Source Session
+
+A **Rig** or **MultiSourceSession** is the app-level fan-in layer.
+
+Responsibilities:
+
+- attach many sources
+- subscribe to normalized blocks and statuses
+- expose source registry and capabilities
+- coordinate connect/start/stop across sources
+- optionally offer time-alignment helpers
+
+Non-responsibilities:
+
+- raw transport decoding
+- camera ROI logic
+- signal fusion math
+
+Those stay inside source adapters and processing packages.
 
 ---
 
-### Phase 4 – rPPG Pipeline Positioning
+### How Athena S Fits
 
-**Objective:** Place rPPG clearly in the stack as a *derived* estimation layer
-that can optionally fuse with hardware PPG.
+Athena S should be modeled as:
 
-**Tasks:**
+- **one source**
+- with **multiple streams**
 
-- Clarify architecture:
-  - rPPG lives in the **models/estimation layer**, not the raw sensor layer.
-  - It consumes:
-    - video frames (required), and
-    - optional priors from PPG or IMU streams.
-- In `@elata-biosciences/rppg-web`:
-  - Define `RppgProcessor` that:
-    - accepts `RppgEstimationInput` (video frames + optional hints).
-    - emits `RppgEstimation` at a configurable cadence.
-  - Add optional integration points:
-    - ability to subscribe to `PpgSample` streams from a `BiosignalDevice` and
-      fuse them into estimation.
-- Update rPPG docs:
-  - explain difference between:
-    - **PPG**: direct sensor readings.
-    - **rPPG**: computer-vision-based estimation.
-  - describe trade-offs:
-    - robustness, latency, privacy, and hardware requirements.
+Recommended mapping:
 
-**Deliverables:**
+- `sourceId: "athena-1"`
+- streams:
+  - `eeg`
+  - `ppgRaw` or `optics`
+  - `accgyro`
+  - `battery`
 
-- Updated `architecture-rppg.md` to reference the multi-modality contracts.
-- rPPG package docs that show both camera-only and hybrid (camera + PPG) flows.
+This preserves what the repo already does well today: one transport can expose
+many sensor families together.
+
+What should **not** happen:
+
+- do not invent an Athena-specific top-level abstraction
+- do not force fNIRS or camera flows into a headband-shaped frame
+- do not make multi-device logic depend on “the primary headset”
+
+Athena is a strong example source, but not the architecture center.
 
 ---
 
-### Phase 5 – Examples, Templates, And Demos
+### How Multi-Device Setups Fit
 
-**Objective:** Make multi-modality + rPPG usage discoverable and testable from
-scaffolded apps and examples.
+A multi-device experiment should look like this:
 
-**Tasks:**
+- `athena-1` source
+  - `eeg`
+  - `optics`
+  - `accgyro`
+- `fnirs-1` source
+  - `fnirs_raw`
+  - optional `hbo`
+  - optional `hbr`
+- `camera-1` source
+  - `rppg_signal`
+  - optional `rppg_metrics`
 
-- Add or update demo templates to include:
-  - EEG-only demo using a `BiosignalDevice` (Muse, BrainBit, etc.).
-  - rPPG-only demo (camera-only) with clear permissions flows.
-  - Hybrid demo that:
-    - streams EEG and PPG from a composite device, and
-    - runs rPPG from camera simultaneously or as a fallback.
-- Update `create-elata-demo` templates:
-  - expose template choices by modality:
-    - `eeg-only`, `rppg-only`, `eeg+ppg`, `eeg+rppg`.
-  - ensure generated README explains which sensors are needed and how they map
-    to the contracts.
-- Extend CI smoke tests:
-  - build and type-check all new templates.
-  - run minimal runtime smoke for rPPG (e.g. WASM loading, mock frames, not
-    full camera in CI).
+The rig aggregates all three.
 
-**Deliverables:**
+This gives the app one stable pattern:
 
-- New or updated demo templates and generated READMEs.
-- CI coverage for multi-modality and rPPG flows.
+- enumerate sources
+- inspect their streams
+- subscribe to blocks by `sourceId`, `streamId`, or `modality`
+
+Instead of:
+
+- branching on every device family
+- asking whether one transport “also has” another modality
+- coupling app logic to package-specific frame layouts
 
 ---
 
-### Phase 6 – Stability, Versioning, And Migration
+### PPG vs rPPG
 
-**Objective:** Keep multi-modality contracts and rPPG APIs stable as the engine
-evolves.
+This distinction needs to stay explicit.
 
-**Tasks:**
+#### PPG
 
-- Mark core contracts as **public and stable**:
-  - `BiosignalDevice`, modality enums, normalized sample types.
-  - `RppgEstimation` and key rPPG entry points.
-- Document:
-  - which fields are required vs optional,
-  - how to extend with new modalities without breaking old ones.
-- Add migration guidance for:
-  - existing apps that used older, device-specific types.
-  - apps that need to move from single-modality (EEG-only) to composite flows.
-- Update the SDK adoption plan to:
-  - reference the new multi-modality docs.
-  - list “multi-modality + rPPG stability” as a tracked surface.
+PPG is:
 
-**Deliverables:**
+- direct optical pulse data from hardware
+- a raw or near-raw sensor stream
+- usually high-rate and device-clocked
 
-- Stability notes in `docs/` and a short section in the root README.
-- A migration section in each affected package README where public types change.
+Examples:
+
+- Athena optics values
+- a finger clip sensor
+- LED/photodiode channels from a wearable
+
+#### rPPG
+
+rPPG is:
+
+- a camera-derived estimator
+- not a raw hardware stream
+- lower-rate, quality-sensitive, and often accompanied by diagnostics
+
+Examples:
+
+- face video processed into pulse intensity or BPM candidates
+- camera plus IMU or hardware PPG assisted estimation
+
+Design consequence:
+
+- `elata-rppg` belongs in the same multi-source world, but it should usually be
+  treated as a **derived stream or processor output**, not a substitute for
+  raw hardware PPG types
+
+---
+
+### Contract Recommendation
+
+The repo should introduce one small TypeScript module for shared contracts.
+
+Recommended shape:
+
+```ts
+interface BiosignalSourceInfo {
+  sourceId: string;
+  sourceName: string;
+  kind: "wearable" | "camera" | "fnirs" | "bridge" | "synthetic" | "custom";
+  manufacturer?: string;
+  model?: string;
+  transport?: string;
+  streams?: BiosignalStreamDescriptor[];
+  metadata?: Record<string, unknown>;
+}
+
+interface BiosignalSourceStatus {
+  sourceId: string;
+  state:
+    | "idle"
+    | "connecting"
+    | "connected"
+    | "streaming"
+    | "degraded"
+    | "reconnecting"
+    | "disconnected"
+    | "error";
+  atMs: number;
+  reason?: string;
+  errorCode?: string;
+  recoverable?: boolean;
+  metadata?: Record<string, unknown>;
+}
+
+interface BiosignalSource {
+  readonly sourceInfo: BiosignalSourceInfo;
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  start(): Promise<void>;
+  stop(): Promise<void>;
+  subscribeBlock(listener: (block: BiosignalBlockV1) => void): () => void;
+  subscribeStatus(listener: (status: BiosignalSourceStatus) => void): () => void;
+}
+```
+
+Why `subscribeBlock()` instead of one `onBlock` property:
+
+- it composes better with adapters
+- it avoids handler clobbering
+- it makes a rig implementation straightforward
+
+---
+
+### Contract versioning
+
+- Use `schemaVersion` on `BiosignalBlockV1` (and successors) as the explicit
+  compatibility switch. Consumers should reject, bridge, or degrade gracefully
+  on unknown versions rather than assuming layout.
+- Prefer **additive** changes (new optional fields, new `modality` enum members
+  with documented semantics) within a schema version. If a layout or meaning
+  break is unavoidable, introduce `v2` (or higher) and keep adapters for at
+  least one release cycle where practical.
+- When contracts ship publicly, mark **stable vs experimental** exports in the
+  owning package README. Reserve major version bumps for renames or semantic
+  breaks, not for every new optional field.
+
+---
+
+### Package Plan
+
+#### Phase 1: Add Shared Contracts
+
+Target:
+
+- add the shared biosignal contracts in one well-scoped TS module
+
+Recommended placement:
+
+- `packages/eeg-web/src/` as the first home for shared browser-side contracts
+
+Reason:
+
+- `eeg-web` already carries shared browser contracts used by higher-level
+  packages
+- this keeps the first pass small and avoids introducing a whole new package
+
+Deliverables:
+
+- `BiosignalSourceInfo`
+- `BiosignalSourceStatus`
+- `BiosignalBlockV1`
+- `BiosignalSource`
+- `MultiSourceSession` or equivalent rig helper
+
+#### Phase 2: Add Adapters, Not Breaks
+
+Target:
+
+- adapt current surfaces into the new contracts without replacing them
+
+Recommended adapters:
+
+- `BleTransport` -> `BiosignalSource`
+- `RppgSession` -> `BiosignalSource`
+
+Important:
+
+- keep current `HeadbandTransport` and `createRppgSession()` entry points
+- the new abstraction is additive first
+
+#### Phase 3: Generalize Beyond Headbands
+
+Target:
+
+- add an fNIRS source adapter that emits `fnirs` blocks directly
+
+Important:
+
+- do not route fNIRS through headband-specific types
+- do not make EEG required in the shared block contract
+
+#### Phase 4: Time Alignment Helpers
+
+Target:
+
+- add optional rig-level helpers for aligning streams from many clocks
+
+Possible helpers:
+
+- choose preferred clock domain
+- estimate offset/drift
+- build merged windows for downstream models
+
+Important:
+
+- keep this optional and above raw source adapters
+
+#### Phase 5: Fusion And App Surfaces
+
+Target:
+
+- let processors consume many streams without owning transport
+
+Examples:
+
+- EEG + fNIRS fusion
+- camera rPPG + hardware PPG comparison
+- IMU-assisted quality gating
+
+---
+
+### Rust Side Guidance
+
+The current Rust HAL should not be stretched into this whole problem in one
+step.
+
+Current reality:
+
+- it is explicitly EEG-focused
+- it is single-device oriented
+
+Recommendation:
+
+- keep the existing EEG HAL intact for EEG-specific processing
+- if native multi-device support is needed later, add a new layer above it
+  rather than mutating `EegDevice` into a universal biosignal trait too early
+
+That keeps the web-side abstraction work decoupled from a large Rust refactor.
+
+---
+
+### Non-Goals For The First Iteration
+
+- no full fusion engine
+- no hard commitment yet on derived metrics schemas beyond what is needed for
+  source/stream/block contracts
+- no mandatory migration off `HeadbandFrameV1`
+- no forced rename of existing packages
+- no new device package taxonomy until the shared source contract proves out
 
 ---
 
 ### Recommended Order
 
-1. Phase 1: Define multi-modality and rPPG contracts.
-2. Phase 2: Align existing EEG and rPPG packages to the contracts (no new
-   devices yet).
-3. Phase 3: Add at least one composite device package (e.g. BrainBit).
-4. Phase 4: Clarify rPPG’s place in the architecture and expose hybrid flows.
-5. Phase 5: Update demos, scaffolders, and CI smoke tests.
-6. Phase 6: Codify stability and provide migration guidance.
+1. Add the shared source/stream/block contracts.
+2. Add adapters for existing `BleTransport` and `RppgSession`.
+3. Add a rig helper that can aggregate many sources.
+4. Add one non-headband source, ideally fNIRS, to prove the abstraction is not
+   headband-centric.
+5. Add time-alignment helpers only after at least two real sources exist.
+6. Update demos and guides after the adapter layer is stable.
 
+---
+
+### Decision Summary
+
+The core decision is:
+
+- **one physical producer = one source**
+- **one modality channel group = one stream**
+- **one emitted sample chunk = one block**
+- **many sources together = one rig**
+
+That is the abstraction that should carry Athena S, fNIRS, PPG, EEG, and rPPG
+forward together without turning the SDK into device-specific branching.

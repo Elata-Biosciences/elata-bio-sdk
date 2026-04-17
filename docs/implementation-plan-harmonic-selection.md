@@ -21,7 +21,7 @@ This document describes a practical implementation plan to fix the current issue
 ## Scope & Assumptions 🔧
 - Input: PPG signals (e.g., webcam rPPG pipeline) and optional accelerometer/motion channels. Works for resting and mild activity levels.
 - Target ranges: physiologic BPM [30–200], with configurable narrower ranges per-age group.
-- Languages/targets: primary implementation in Rust (existing `rppg` / `rppg-ffi` crates), with WASM and example bindings for `packages/rppg-web` and mobile demos.
+- Languages/targets: primary implementation in Rust (existing `elata-rppg` / `elata-rppg-ffi` crates), with WASM and example bindings for `packages/rppg-web` and mobile demos.
 
 ---
 
@@ -49,23 +49,23 @@ This document describes a practical implementation plan to fix the current issue
 - Steps: STFT/PSD, peak picking within physiologic range, produce top-N candidates with amplitude, width, and SNR.
 
 ### 4) Complementary Checks (week 2)
-- Cepstrum-based fundamental detection (que-frency peak => candidate frequency). ✅ *Implemented (see `rppg::harmonic::harmonic_probability_check` and tests).*  
+- Cepstrum-based fundamental detection (que-frency peak => candidate frequency). ✅ *Implemented (see `elata_rppg::harmonic::harmonic_probability_check` and tests).*  
 - Autocorrelation/ACF-based period detection.  
 - Implement harmonic-sum score: score(f) = sum_{k=1..K} w_k * PSD(k*f) to prefer fundamentals that explain harmonics. ✅ *Implemented (harmonic-sum computed in `dsp::select_harmonic_with_prior`).*
 
 **Exposed metrics:** CEPSTRUM BPM and `cepstrum_confidence` are now included in `RppgMetrics` (accessible from `RppgPipeline::get_metrics()`), enabling demo UIs to visualize cepstrum diagnostics.
-**Rust prototype:** a new `crates/rppg/src/harmonic.rs` provides `harmonic_probability_check(samples, fs)` which computes cepstrum BPM, harmonic-sum BPM, and raw PSD peak BPM with unit tests. This advances Phase 1 and provides a quick validation path.
+**Rust prototype:** a new `crates/elata-rppg/src/harmonic.rs` provides `harmonic_probability_check(samples, fs)` which computes cepstrum BPM, harmonic-sum BPM, and raw PSD peak BPM with unit tests. This advances Phase 1 and provides a quick validation path.
 
 ### 5) Scoring & Heuristics (week 3)
 - Combine features: {PSD_amp, harmonic_sum, cepstrum_confidence, acf_confidence, SNR, width, temporal_stability}.  
 - Create deterministic rule-based ranking and a placeholder for ML-based scoring. ✅ *Basic deterministic scoring implemented: harmonic-sum + SNR and width heuristics added (see `dsp::select_harmonic_with_prior`). Further work: cepstrum/ACF fusion and temporal tracker (next).* 
 
 ### 6) Tracking & Temporal Smoothing (week 3)
-- Implement a tracker (extended Kalman filter or simple state-space filter) to keep estimated HR stable and penalize sudden octave jumps. ✅ *Draft Particle Filter sketch added (`crates/rppg/src/tracker.rs`) implementing a simple particle filter with predict/update/resample and unit tests.*
+- Implement a tracker (extended Kalman filter or simple state-space filter) to keep estimated HR stable and penalize sudden octave jumps. ✅ *Draft Particle Filter sketch added (`crates/elata-rppg/src/tracker.rs`) implementing a simple particle filter with predict/update/resample and unit tests.*
 - Put thresholds to accept/reject sudden changes and require corroborating evidence across windows.
 
 ### 7) Subject Modeling & Priors (week 4)
-- Implement subject model: per-user baseline mean + variance. Use hierarchical model offline, and exponential moving average for online adaptation. ✅ *Draft `SubjectModel` added (`crates/rppg/src/subject_model.rs`) with EMA update and `prior_range()` API.*
+- Implement subject model: per-user baseline mean + variance. Use hierarchical model offline, and exponential moving average for online adaptation. ✅ *Draft `SubjectModel` added (`crates/elata-rppg/src/subject_model.rs`) with EMA update and `prior_range()` API.*
 - Store per-user state (configurable TTL). API: `SubjectModel::update(bpm_reading)` and `SubjectModel::prior_range()`.
 
 **Next:** integrate `ParticleFilter` to accept `SubjectModel::prior_range()` during initialization and wire into `RppgPipeline` as an optional tracker step.
@@ -78,7 +78,7 @@ This document describes a practical implementation plan to fix the current issue
 - Expose API to let apps run calibration and store user profile.
 
 ### 10) Cross-platform Integration (weeks 6–8)
-- Wire into `rppg` crate; add WASM exports for `packages/rppg-web`.  
+- Wire into `elata-rppg` crate; add WASM exports for `packages/rppg-web`.  
 - Add Android/IOS demo bindings (update `android-demo` and `ios-demo` as needed).  
 - Add sample apps in `eeg-demo` and `packages/rppg-web` to visualize candidate peaks and tracking (good for manual QA).
 
@@ -126,7 +126,7 @@ This is a practical hybrid approach that combines the fast, cheap DSP methods wi
 
 ### Short-term fixes to mitigate octave flips (applied)
 
-These are quick, low-risk changes that reduce octave/double errors and improve stability in the field. They are implemented in the `rppg` crate and can be tuned via unit tests and logs.
+These are quick, low-risk changes that reduce octave/double errors and improve stability in the field. They are implemented in the `elata-rppg` crate and can be tuned via unit tests and logs.
 
 1. Stronger cepstrum overrides ✅
    - Accept cepstrum override at **cep_conf >= 0.50** if cepstrum BPM is within the prior range.
@@ -140,7 +140,7 @@ These are quick, low-risk changes that reduce octave/double errors and improve s
 5. Ensemble scoring (short-term tuning) ✅
    - Use a combined score: w_cep * cep_conf + w_harmonic * harmonic_support + w_acf * acf_score + w_snr * snr. Default trial weights: cep 0.50, harmonic 0.30, acf 0.10, snr 0.10.
 
-These fixes were implemented as part of the current sprint and are available for tuning. See `crates/rppg/src/pipeline.rs` and `crates/rppg/src/tracker.rs` for the implementation details.
+These fixes were implemented as part of the current sprint and are available for tuning. See `crates/elata-rppg/src/pipeline.rs` and `crates/elata-rppg/src/tracker.rs` for the implementation details.
 
 ---
 
@@ -177,7 +177,7 @@ Estimated total: 6–10 weeks depending on scope (supervised model, labeling nee
 ---
 
 ## Deliverables 📦
-- `rppg` Rust modules: harmonic detection, tracker, subject model.  
+- `elata-rppg` Rust modules: harmonic detection, tracker, subject model.  
 - WASM exports + web demo visualization. ✅ *rppg web demo now visualizes cepstrum BPM and confidence (packages/rppg-web/demo/index.html).*  
 - Calibration UX & per-user profile storage.  
 - Unit & E2E tests and benchmark scripts.  
@@ -214,7 +214,7 @@ Suggested concrete outputs from this plan:
 
 ### 14) Release Integration & Packaging (week 7–8)
 - Harden the `run.sh` script with sanity checks for `wasm-bindgen` and add `ci/build.sh` that mirrors the release pipeline for CI.
-- Publish new `rppg-wasm` bindings into `packages/rppg-web` after each release cycle, and keep any compatibility exposure via `eeg-wasm` documented where relevant.
+- Publish new `elata-rppg-wasm` bindings into `packages/rppg-web` after each release cycle, and keep any compatibility exposure via `elata-eeg-wasm` documented where relevant.
 - Document the new APIs and workflows in `docs/` (sections covering `RppgMetrics`, tracker configuration, and subject priors).
 
 ### 15) Validation & Continuous Improvement (ongoing)

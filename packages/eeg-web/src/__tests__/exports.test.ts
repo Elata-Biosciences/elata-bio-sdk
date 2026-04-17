@@ -31,7 +31,6 @@ describe('@elata-biosciences/eeg-web exports', () => {
     expect(EegPreprocessor).toBeDefined();
     expect(typeof EegPreprocessor).toBe('function');
   });
-
   test('exports wasm namespace object', () => {
     expect(wasm).toBeDefined();
     expect(typeof wasm).toBe('object');
