@@ -1,6 +1,8 @@
 import {
   HEADBAND_FRAME_SCHEMA_VERSION,
   HeadbandTransportState,
+  getEegChannelSamples,
+  getEegInterleavedSamples,
 } from '../headband';
 import type {
   HeadbandFrameV1,
@@ -38,7 +40,7 @@ describe('headband.ts interface conformance (compile-time contracts)', () => {
       sampleRateHz: 256,
       channelNames: ['TP9', 'AF7', 'AF8', 'TP10'],
       channelCount: 4,
-      samples: [[1, 2, 3, 4]],
+      samples: [[1, 2, 3, 4], [5, 6, 7, 8]],
       timestampsMs: [1000],
       clockSource: 'device',
     };
@@ -75,6 +77,38 @@ describe('headband.ts interface conformance (compile-time contracts)', () => {
     expect(frame.battery).toBeUndefined();
   });
 
+  test('HeadbandFrameV1 can expose processed and raw eeg views together', () => {
+    const frame: HeadbandFrameV1 = {
+      schemaVersion: HEADBAND_FRAME_SCHEMA_VERSION,
+      source: 'test-device',
+      sequenceId: 2,
+      emittedAtMs: Date.now(),
+      eeg: {
+        sampleRateHz: 256,
+        channelNames: ['TP9', 'AF7'],
+        channelCount: 2,
+        samples: [[-0.5, 0.5]],
+      },
+      eegRaw: {
+        sampleRateHz: 256,
+        channelNames: ['TP9', 'AF7'],
+        channelCount: 2,
+        samples: [[1, 2]],
+      },
+      eegProcessing: {
+        applied: true,
+        signalKind: 'processed',
+        rawAvailable: true,
+        referenceMode: 'common-average',
+        detrendMode: 'highpass',
+        notchFrequenciesHz: [60, 120],
+        stageOrder: ['notch', 'detrend', 'rereference'],
+      },
+    };
+    expect(frame.eegRaw?.samples).toEqual([[1, 2]]);
+    expect(frame.eegProcessing?.signalKind).toBe('processed');
+  });
+
   test('HeadbandTransportStatus shape is valid', () => {
     const status: HeadbandTransportStatus = {
       state: HeadbandTransportState.Connected,
@@ -97,5 +131,37 @@ describe('headband.ts interface conformance (compile-time contracts)', () => {
     expect(typeof transport.disconnect).toBe('function');
     expect(typeof transport.start).toBe('function');
     expect(typeof transport.stop).toBe('function');
+  });
+
+  test('getEegChannelSamples returns a single channel from sample-major rows', () => {
+    const frame: HeadbandFrameV1 = {
+      schemaVersion: HEADBAND_FRAME_SCHEMA_VERSION,
+      source: 'test-device',
+      sequenceId: 3,
+      emittedAtMs: Date.now(),
+      eeg: {
+        sampleRateHz: 256,
+        channelNames: ['TP9', 'AF7'],
+        channelCount: 2,
+        samples: [[1, 2], [3, 4], [5, 6]],
+      },
+    };
+    expect(Array.from(getEegChannelSamples(frame, 1))).toEqual([2, 4, 6]);
+  });
+
+  test('getEegInterleavedSamples flattens sample-major rows', () => {
+    const frame: HeadbandFrameV1 = {
+      schemaVersion: HEADBAND_FRAME_SCHEMA_VERSION,
+      source: 'test-device',
+      sequenceId: 4,
+      emittedAtMs: Date.now(),
+      eeg: {
+        sampleRateHz: 256,
+        channelNames: ['TP9', 'AF7'],
+        channelCount: 2,
+        samples: [[1, 2], [3, 4]],
+      },
+    };
+    expect(Array.from(getEegInterleavedSamples(frame))).toEqual([1, 2, 3, 4]);
   });
 });

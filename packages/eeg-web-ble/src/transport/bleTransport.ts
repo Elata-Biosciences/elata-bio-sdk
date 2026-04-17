@@ -2,8 +2,11 @@ import {
 	HEADBAND_FRAME_SCHEMA_VERSION,
 	HeadbandTransportState,
 	asElataError,
+	createEegPreprocessor,
 } from "@elata-biosciences/eeg-web";
 import type {
+	EegPreprocessor,
+	EegProcessingOptions,
 	HeadbandFrameV1,
 	HeadbandBatteryBlock,
 	HeadbandSignalBlock,
@@ -31,6 +34,7 @@ export interface BleTransportOptions {
 	deviceOptions?: MuseDeviceOptions;
 	sourceName?: string;
 	device?: BleDeviceLike;
+	eegProcessing?: boolean | EegProcessingOptions;
 }
 
 /**
@@ -63,8 +67,10 @@ export class BleTransport implements HeadbandTransport {
 
 	private readonly device: BleDeviceLike;
 	private readonly sourceName: string;
+	private readonly eegProcessingOptions: EegProcessingOptions;
 	private sequenceId = 0;
 	private _connected = false;
+	private eegProcessor: EegPreprocessor | null = null;
 	private pendingPpgRows: number[][] = [];
 	private pendingPpgChannelNames: Array<"PPG1" | "PPG2" | "PPG3"> = ["PPG1", "PPG2", "PPG3"];
 	private pendingOptics: HeadbandSignalBlock | null = null;
@@ -78,6 +84,12 @@ export class BleTransport implements HeadbandTransport {
 
 	constructor(options: BleTransportOptions = {}) {
 		this.sourceName = options.sourceName || "muse-ble";
+		this.eegProcessingOptions =
+			options.eegProcessing === false
+				? { enabled: false }
+				: options.eegProcessing === true || options.eegProcessing == null
+					? {}
+					: options.eegProcessing;
 		if (!options.device && !options.deviceOptions?.athenaDecoderFactory) {
 			console.warn(
 				"[BleTransport] No athenaDecoderFactory provided. " +
@@ -317,10 +329,15 @@ export class BleTransport implements HeadbandTransport {
 	async start(): Promise<void> {
 		this.emitStatus(HeadbandTransportState.Streaming);
 		try {
+			if (!this.eegProcessor) {
+				this.eegProcessor = await createEegPreprocessor(this.eegProcessingOptions);
+			}
+			this.eegProcessor.reset();
+
 			await this.device.startStream(
 				(samples) => {
 				this.sequenceId += 1;
-				const frame: HeadbandFrameV1 = {
+				let frame: HeadbandFrameV1 = {
 					schemaVersion: HEADBAND_FRAME_SCHEMA_VERSION,
 					source: this.sourceName,
 					sequenceId: this.sequenceId,
@@ -333,6 +350,7 @@ export class BleTransport implements HeadbandTransport {
 						clockSource: this.device.isAthena ? "device" : "local",
 					},
 				};
+				frame = this.eegProcessor?.processFrame(frame) ?? frame;
 
 				if (this.pendingPpgRows.length > 0) {
 					frame.ppgRaw = {
@@ -380,6 +398,8 @@ export class BleTransport implements HeadbandTransport {
 	async stop(): Promise<void> {
 		try {
 			await this.device.stopStream();
+			this.eegProcessor?.dispose();
+			this.eegProcessor = null;
 			this.emitStatus(HeadbandTransportState.Connected);
 		} catch (e) {
 			const err = asElataError(e, {

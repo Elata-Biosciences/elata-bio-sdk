@@ -8,10 +8,12 @@ use wasm_bindgen::prelude::*;
 
 mod athena;
 mod models;
+mod preprocess;
 mod signal;
 
 pub use athena::*;
 pub use models::*;
+pub use preprocess::*;
 pub use signal::*;
 
 /// Initialize the WASM module (call once at startup)

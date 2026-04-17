@@ -68,17 +68,18 @@ npm install @elata-biosciences/eeg-web @elata-biosciences/eeg-web-ble
 ## Minimal Integration
 
 ```ts
-import { AthenaWasmDecoder } from "@elata-biosciences/eeg-web";
+import { AthenaWasmDecoder, getEegChannelSamples } from "@elata-biosciences/eeg-web";
 import { BleTransport } from "@elata-biosciences/eeg-web-ble";
 
 const transport = new BleTransport({
   deviceOptions: {
     athenaDecoderFactory: () => new AthenaWasmDecoder(),
   },
+  // Set eegProcessing: false if you want raw transport data in frame.eeg.
 });
 
 transport.onFrame = (frame) => {
-  console.log(frame.eeg.samples.length);
+  console.log(getEegChannelSamples(frame, 0).length, frame.eegRaw?.samples.length);
 };
 
 transport.onStatus = (status) => {
@@ -96,6 +97,10 @@ await transport.start();
 3. Provide `athenaDecoderFactory` if you need Athena support.
 4. Subscribe to frame and status callbacks.
 5. Call `connect()` and then `start()`.
+
+By default, `frame.eeg` is the processed signal and `frame.eegRaw` preserves the
+original transport samples. Pass `eegProcessing: false` if you want raw EEG in
+`frame.eeg`.
 
 ## When To Use The BLE Template Instead
 

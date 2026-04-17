@@ -14,3 +14,4 @@ categories = ["science", "algorithms"]
 
 [dependencies]
 elata-eeg-hal = { workspace = true }
+serde = { version = "1.0", features = ["derive"] }

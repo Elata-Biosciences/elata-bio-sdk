@@ -1,9 +1,12 @@
 import {
   initEegWasm,
   initEegWasmSync,
+  createRppgPipeline,
   wasm,
   HEADBAND_FRAME_SCHEMA_VERSION,
   HeadbandTransportState,
+  createEegPreprocessor,
+  EegPreprocessor,
 } from '../index';
 
 describe('@elata-biosciences/eeg-web exports', () => {
@@ -17,6 +20,17 @@ describe('@elata-biosciences/eeg-web exports', () => {
     expect(typeof initEegWasmSync).toBe('function');
   });
 
+  test('exports createRppgPipeline as a function', () => {
+    expect(createRppgPipeline).toBeDefined();
+    expect(typeof createRppgPipeline).toBe('function');
+  });
+
+  test('exports EEG preprocessing helpers', () => {
+    expect(createEegPreprocessor).toBeDefined();
+    expect(typeof createEegPreprocessor).toBe('function');
+    expect(EegPreprocessor).toBeDefined();
+    expect(typeof EegPreprocessor).toBe('function');
+  });
   test('exports wasm namespace object', () => {
     expect(wasm).toBeDefined();
     expect(typeof wasm).toBe('object');

@@ -16,12 +16,24 @@ declare module "@elata-biosciences/eeg-web" {
 		clockSource?: HeadbandClockSource;
 	}
 
+	export interface HeadbandEegProcessingDetails {
+		applied: boolean;
+		signalKind: "raw" | "processed";
+		rawAvailable: boolean;
+		referenceMode: "none" | "common-average" | "custom-average";
+		detrendMode: "off" | "highpass" | "linear";
+		notchFrequenciesHz: number[];
+		stageOrder: string[];
+	}
+
 	export interface HeadbandFrameV1 {
 		schemaVersion: "v1";
 		source: string;
 		sequenceId: number;
 		emittedAtMs: number;
 		eeg: HeadbandSignalBlock;
+		eegRaw?: HeadbandSignalBlock;
+		eegProcessing?: HeadbandEegProcessingDetails;
 		ppgRaw?: HeadbandSignalBlock;
 		optics?: HeadbandSignalBlock;
 		accgyro?: HeadbandSignalBlock;
@@ -65,6 +77,11 @@ declare module "@elata-biosciences/eeg-web-ble" {
 		athenaDecoderFactory?: () => unknown;
 	}
 
+	export type EegProcessingOptions = {
+		enabled?: boolean;
+		preserveRaw?: boolean;
+	};
+
 	export class BleTransport implements HeadbandTransport {
 		onFrame?: HeadbandTransport["onFrame"];
 		onStatus?: HeadbandTransport["onStatus"];
@@ -72,6 +89,7 @@ declare module "@elata-biosciences/eeg-web-ble" {
 		constructor(options?: {
 			deviceOptions?: MuseDeviceOptions;
 			sourceName?: string;
+			eegProcessing?: boolean | EegProcessingOptions;
 		});
 
 		connect(): Promise<void>;

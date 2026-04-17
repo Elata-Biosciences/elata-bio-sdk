@@ -50,6 +50,16 @@ export interface HeadbandSignalBlock {
   clockSource?: "device" | "local";
 }
 
+export interface HeadbandEegProcessingDetails {
+  applied: boolean;
+  signalKind: "raw" | "processed";
+  rawAvailable: boolean;
+  referenceMode: "none" | "common-average" | "custom-average";
+  detrendMode: "off" | "highpass" | "linear";
+  notchFrequenciesHz: number[];
+  stageOrder: string[];
+}
+
 export interface HeadbandBatteryBlock {
   samples: number[];
   timestampsMs?: number[];
@@ -62,6 +72,8 @@ export interface HeadbandFrameV1 {
   sequenceId: number;
   emittedAtMs: number;
   eeg: HeadbandSignalBlock;
+  eegRaw?: HeadbandSignalBlock;
+  eegProcessing?: HeadbandEegProcessingDetails;
   ppgRaw?: HeadbandSignalBlock;
   optics?: HeadbandSignalBlock;
   accgyro?: HeadbandSignalBlock;
@@ -83,5 +95,68 @@ export interface HeadbandTransport {
   disconnect(): Promise<void>;
   start(): Promise<void>;
   stop(): Promise<void>;
+}
+
+export type EegProcessingOptions = {
+  enabled?: boolean;
+  preserveRaw?: boolean;
+};
+
+export class EegPreprocessor {
+  constructor(private readonly options: EegProcessingOptions = {}) {}
+
+  reset() {}
+  dispose() {}
+
+  processFrame(frame: HeadbandFrameV1): HeadbandFrameV1 {
+    if (this.options.enabled === false) {
+      return {
+        ...frame,
+        eegProcessing: {
+          applied: false,
+          signalKind: "raw",
+          rawAvailable: false,
+          referenceMode: "none",
+          detrendMode: "off",
+          notchFrequenciesHz: [],
+          stageOrder: [],
+        },
+      };
+    }
+
+    const raw = {
+      ...frame.eeg,
+      channelNames: frame.eeg.channelNames.slice(),
+      samples: frame.eeg.samples.map((row) => row.slice()),
+    };
+    const processed = raw.samples.map((row) => {
+      const mean = row.reduce((sum, value) => sum + value, 0) / row.length;
+      return row.map((value) => value - mean);
+    });
+
+    return {
+      ...frame,
+      eeg: {
+        ...raw,
+        samples: processed,
+      },
+      eegRaw: this.options.preserveRaw === false ? undefined : raw,
+      eegProcessing: {
+        applied: true,
+        signalKind: "processed",
+        rawAvailable: this.options.preserveRaw !== false,
+        referenceMode: "common-average",
+        detrendMode: "highpass",
+        notchFrequenciesHz: [60, 120],
+        stageOrder: ["notch", "detrend", "rereference"],
+      },
+    };
+  }
+}
+
+export async function createEegPreprocessor(
+  options: EegProcessingOptions = {},
+): Promise<EegPreprocessor> {
+  return new EegPreprocessor(options);
 }
 

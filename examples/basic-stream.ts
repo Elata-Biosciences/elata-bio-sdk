@@ -17,6 +17,8 @@ import {
   AthenaWasmDecoder,
   WasmCalmnessModel,
   band_powers,
+  getEegChannelSamples,
+  getEegInterleavedSamples,
   initEegWasm,
 } from "@elata-biosciences/eeg-web";
 import { BleTransport } from "@elata-biosciences/eeg-web-ble";
@@ -30,6 +32,7 @@ const transport = new BleTransport({
     // peer dep. Import it from eeg-web and pass a factory here.
     athenaDecoderFactory: () => new AthenaWasmDecoder(),
   },
+  // Set eegProcessing: false if you want raw transport data in frame.eeg.
 });
 
 // WasmCalmnessModel requires channelCount, which is only known after the first
@@ -37,15 +40,15 @@ const transport = new BleTransport({
 let calmnessModel: WasmCalmnessModel | null = null;
 
 transport.onFrame = (frame) => {
-  const { samples, sampleRateHz, channelCount } = frame.eeg;
-  // samples layout: [channelIdx][sampleIdx]
+  const { sampleRateHz, channelCount } = frame.eeg;
+  // samples layout: [sampleIdx][channelIdx]
 
   // Use band_powers() for a per-frame, per-channel frequency breakdown.
   // Use WasmCalmnessModel (below) if you want a smoothed, multi-channel score.
   // `using` ensures .free() is called on WASM-owned objects at block end.
   // Requires `"lib": ["ES2022", "ES2022.Disposable"]` (or "esnext.disposable")
   // in tsconfig.json. Alternatively call .free() manually.
-  const ch0 = new Float32Array(samples[0]);
+  const ch0 = getEegChannelSamples(frame, 0);
   using powers = band_powers(ch0, sampleRateHz);
   using rel = powers.relative();
   console.log("alpha", rel.alpha.toFixed(3));
@@ -57,18 +60,17 @@ transport.onFrame = (frame) => {
     calmnessModel = new WasmCalmnessModel(sampleRateHz, channelCount);
   }
 
-  const nSamples = samples[0].length;
-  const interleaved = new Float32Array(nSamples * channelCount);
-  for (let s = 0; s < nSamples; s++) {
-    for (let c = 0; c < channelCount; c++) {
-      interleaved[s * channelCount + c] = samples[c][s];
-    }
-  }
+  const interleaved = getEegInterleavedSamples(frame);
 
   using result = calmnessModel.process(interleaved);
   if (result) {
     // smoothed_score: 0.0 = alert, 1.0 = very calm
     console.log("calmness", result.state_description(), result.smoothed_score.toFixed(2));
+  }
+
+  if (frame.eegRaw) {
+    const rawCh0 = getEegChannelSamples(frame, 0, "raw");
+    console.log("raw delta", (rawCh0[0] - ch0[0]).toFixed(2));
   }
 };
 
