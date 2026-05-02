@@ -1,3 +1,4 @@
+import { computeFaceMeshAlignment } from "./faceMeshAlignment";
 import {
 	FrameSource,
 	Frame,
@@ -133,6 +134,13 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 				const roi = this.smoothRoi(raw, frame.width, frame.height);
 				frame.roi = roi;
 				frame.rois = this.subRoisFromFace(roi);
+				frame.faceMeshAlignment = computeFaceMeshAlignment(
+					landmarks,
+					frame.width,
+					frame.height,
+				);
+			} else {
+				frame.faceMeshAlignment = null;
 			}
 			if (this.onFrame) this.onFrame(frame);
 		} catch (error) {

@@ -33,6 +33,7 @@ function createRunnerStub(diagnostics: Partial<DemoRunnerDiagnostics> = {}) {
     lastMotion: null,
     lastProcessorMethod: null,
     lastRoiSource: null,
+    lastFaceMeshAlignment: null,
   };
   return {
     start: jest.fn(async () => {}),

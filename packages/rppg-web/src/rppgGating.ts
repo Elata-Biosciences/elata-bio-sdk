@@ -1,3 +1,5 @@
+import type { FaceMeshAlignmentSnapshot } from "./faceMeshAlignment";
+
 export type RppgGuidanceCode =
 	| "idle"
 	| "no_face"
@@ -5,7 +7,11 @@ export type RppgGuidanceCode =
 	| "finding_pulse"
 	| "calibrating"
 	| "active_monitoring"
-	| "motion_hold";
+	| "motion_hold"
+	| "face_move_closer"
+	| "face_move_back"
+	| "face_lower_head"
+	| "face_raise_head";
 
 export type RppgGatingState =
 	| "idle"
@@ -34,6 +40,11 @@ export type RppgGatingInputs = {
 	 * MediaPipe FaceMesh), pass it here to improve guidance accuracy.
 	 */
 	hasFace?: boolean;
+	/**
+	 * Face Mesh landmark geometry from the latest frame (e.g. {@link Frame.faceMeshAlignment}).
+	 * When present and not aligned, UI layers typically prefer this over generic gating text.
+	 */
+	faceMeshAlignment?: FaceMeshAlignmentSnapshot | null;
 };
 
 export type RppgGatingOptions = {
@@ -59,6 +70,11 @@ export type RppgGatingOptions = {
 export type RppgGatingOutput = {
 	state: RppgGatingState;
 	guidance: { code: RppgGuidanceCode; message: string };
+	/**
+	 * MediaPipe-style framing hints when the face is visible but poorly framed.
+	 * Does not change BPM gating; {@link RppgAppAdapter} promotes this for display when set.
+	 */
+	faceAlignmentGuidance: { code: RppgGuidanceCode; message: string } | null;
 	/** BPM that should be shown/used by the host app after gating. */
 	publishBpm: number | null;
 	/** True if we are currently holding a prior BPM due to motion. */
@@ -77,17 +93,23 @@ const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 function pickGuidance(state: RppgGatingState): RppgGatingOutput["guidance"] {
 	switch (state) {
 		case "needs_face":
-			return { code: "no_face", message: "Position your face in frame" };
+			return {
+				code: "no_face",
+				message: "Return to frame — face not visible",
+			};
 		case "needs_light":
-			return { code: "increase_lighting", message: "Increase lighting" };
+			return { code: "increase_lighting", message: "Increase Lighting" };
 		case "finding_pulse":
-			return { code: "finding_pulse", message: "Hold still — finding pulse" };
+			return {
+				code: "finding_pulse",
+				message: "Hold Still - Finding Pulse",
+			};
 		case "calibrating":
-			return { code: "calibrating", message: "Calibrating…" };
+			return { code: "calibrating", message: "Calibrating..." };
 		case "motion_hold":
-			return { code: "motion_hold", message: "Hold still — stabilizing" };
+			return { code: "motion_hold", message: "Hold Still - stabilizing" };
 		case "active":
-			return { code: "active_monitoring", message: "Active monitoring" };
+			return { code: "active_monitoring", message: "Active Monitoring" };
 		default:
 			return { code: "idle", message: "Idle" };
 	}
@@ -221,9 +243,21 @@ export class RppgGatingController {
 
 		const guidance = pickGuidance(state);
 
+		const faceAlignmentGuidance =
+			hasFace &&
+			input.faceMeshAlignment &&
+			!input.faceMeshAlignment.aligned &&
+			input.faceMeshAlignment.guidance
+				? {
+						code: input.faceMeshAlignment.guidance.code,
+						message: input.faceMeshAlignment.guidance.message,
+					}
+				: null;
+
 		return {
 			state,
 			guidance,
+			faceAlignmentGuidance,
 			publishBpm,
 			holding,
 			debug: {
