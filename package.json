@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "elata-sdk",
-	"packageManager": "pnpm@10.31.0",
+	"packageManager": "pnpm@10.33.2",
 	"engines": {
 		"node": ">=20",
 		"pnpm": ">=10"
