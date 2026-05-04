@@ -115,10 +115,13 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 				this.canvas.width,
 				this.canvas.height,
 			);
+			// Live MediaStream sources always report mediaTime: 0; prefer now for accurate windowing.
 			const ts =
-				typeof metadata?.mediaTime === "number"
+				typeof metadata?.mediaTime === "number" && metadata.mediaTime > 0
 					? metadata.mediaTime * 1000
-					: (now ?? Date.now());
+					: typeof now === "number"
+						? now
+						: Date.now();
 			const frame: Frame = {
 				data: img.data,
 				width: this.canvas.width,

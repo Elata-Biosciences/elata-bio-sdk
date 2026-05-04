@@ -192,6 +192,48 @@ describe('MediaPipeFaceFrameSource edge cases', () => {
     restore();
   });
 
+  test('uses now when mediaTime is 0 (live stream)', async () => {
+    const restore = setupCanvasMock(200, 100);
+    const video = new FakeVideo(200, 100) as unknown as HTMLVideoElement;
+    let vfcCb: any = null;
+    (video as any).requestVideoFrameCallback = jest.fn((cb: any) => { vfcCb = cb; return 1; });
+    (video as any).cancelVideoFrameCallback = jest.fn();
+
+    const faceMesh = { set onResults(_cb: any) {}, send: jest.fn() };
+    const src = new MediaPipeFaceFrameSource(video, faceMesh as any, 30);
+    const frames: Frame[] = [];
+    src.onFrame = (f) => frames.push(f);
+    await src.start();
+
+    vfcCb(12345, { mediaTime: 0 });
+
+    await src.stop();
+    expect(frames.length).toBe(1);
+    expect(frames[0].timestampMs).toBe(12345);
+    restore();
+  });
+
+  test('uses mediaTime when non-zero (video file playback)', async () => {
+    const restore = setupCanvasMock(200, 100);
+    const video = new FakeVideo(200, 100) as unknown as HTMLVideoElement;
+    let vfcCb: any = null;
+    (video as any).requestVideoFrameCallback = jest.fn((cb: any) => { vfcCb = cb; return 1; });
+    (video as any).cancelVideoFrameCallback = jest.fn();
+
+    const faceMesh = { set onResults(_cb: any) {}, send: jest.fn() };
+    const src = new MediaPipeFaceFrameSource(video, faceMesh as any, 30);
+    const frames: Frame[] = [];
+    src.onFrame = (f) => frames.push(f);
+    await src.start();
+
+    vfcCb(99999, { mediaTime: 2.0 });
+
+    await src.stop();
+    expect(frames.length).toBe(1);
+    expect(frames[0].timestampMs).toBe(2000);
+    restore();
+  });
+
   test('uses requestVideoFrameCallback when available', async () => {
     const restore = setupCanvasMock(200, 100);
     const video = new FakeVideo(200, 100) as unknown as HTMLVideoElement;
