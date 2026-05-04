@@ -85,6 +85,54 @@ describe('MediaPipeFrameSource', () => {
     );
   });
 
+  test('uses now when mediaTime is 0 (live stream)', async () => {
+    const createdCanvas = new FakeCanvas(2, 1);
+    document.createElement = (tagName: string) => {
+      if (tagName === 'canvas') return createdCanvas as unknown as HTMLCanvasElement;
+      return origCreateCanvas(tagName);
+    };
+
+    const video = new FakeVideo(2, 1) as unknown as HTMLVideoElement;
+    let vfcCb: any = null;
+    (video as any).requestVideoFrameCallback = jest.fn((cb: any) => { vfcCb = cb; return 1; });
+    (video as any).cancelVideoFrameCallback = jest.fn();
+
+    const src = new MediaPipeFrameSource(video, { fps: 60 });
+    const frames: Frame[] = [];
+    src.onFrame = (f) => frames.push(f);
+    await src.start();
+
+    vfcCb(12345, { mediaTime: 0 });
+
+    await src.stop();
+    expect(frames.length).toBe(1);
+    expect(frames[0].timestampMs).toBe(12345);
+  });
+
+  test('uses mediaTime when non-zero (video file playback)', async () => {
+    const createdCanvas = new FakeCanvas(2, 1);
+    document.createElement = (tagName: string) => {
+      if (tagName === 'canvas') return createdCanvas as unknown as HTMLCanvasElement;
+      return origCreateCanvas(tagName);
+    };
+
+    const video = new FakeVideo(2, 1) as unknown as HTMLVideoElement;
+    let vfcCb: any = null;
+    (video as any).requestVideoFrameCallback = jest.fn((cb: any) => { vfcCb = cb; return 1; });
+    (video as any).cancelVideoFrameCallback = jest.fn();
+
+    const src = new MediaPipeFrameSource(video, { fps: 60 });
+    const frames: Frame[] = [];
+    src.onFrame = (f) => frames.push(f);
+    await src.start();
+
+    vfcCb(99999, { mediaTime: 1.5 });
+
+    await src.stop();
+    expect(frames.length).toBe(1);
+    expect(frames[0].timestampMs).toBe(1500);
+  });
+
   test('emits capture errors instead of swallowing them silently', async () => {
     class ThrowingCanvas extends FakeCanvas {
       override getContext(_name: string, options?: unknown) {
