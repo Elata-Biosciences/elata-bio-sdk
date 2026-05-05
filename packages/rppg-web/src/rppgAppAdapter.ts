@@ -38,7 +38,16 @@ export type RppgAppGuidanceCode =
 	| RppgGatingOutput["guidance"]["code"]
 	| "starting"
 	| "retrying"
-	| "stopped";
+	| "stopped"
+	| "stabilizing_warmup";
+
+/**
+ * First N frames match TradeLock: show {@link STABILIZING_WARMUP_MESSAGE} before
+ * gating copy from pulse estimation (their `frameCount > 45` gate).
+ */
+export const RPPG_GUIDANCE_WARMUP_FRAME_COUNT = 46;
+
+const STABILIZING_WARMUP_MESSAGE = "Stabilizing...";
 
 export type RppgAppGuidance = {
 	code: RppgAppGuidanceCode;
@@ -111,6 +120,7 @@ function idleGating(message: string): RppgGatingOutput {
 			code: "idle",
 			message,
 		},
+		faceAlignmentGuidance: null,
 		publishBpm: null,
 		holding: false,
 		debug: {
@@ -193,13 +203,40 @@ function deriveGuidance(
 		};
 	}
 
+	const alignment = gating.faceAlignmentGuidance;
+	if (
+		alignment &&
+		(status === "running" || status === "ready" || status === "degraded") &&
+		!(
+			status === "degraded" &&
+			diagnostics?.state.reason === "backend_unavailable"
+		)
+	) {
+		return { code: alignment.code, message: alignment.message };
+	}
+
+	const framesSeen = diagnostics?.framesSeen ?? RPPG_GUIDANCE_WARMUP_FRAME_COUNT;
+	if (
+		status === "running" &&
+		!gating.faceAlignmentGuidance &&
+		framesSeen < RPPG_GUIDANCE_WARMUP_FRAME_COUNT &&
+		gating.guidance.code !== "no_face" &&
+		gating.guidance.code !== "increase_lighting" &&
+		gating.guidance.code !== "motion_hold"
+	) {
+		return {
+			code: "stabilizing_warmup",
+			message: STABILIZING_WARMUP_MESSAGE,
+		};
+	}
+
 	switch (status) {
 		case "idle":
 			return { code: "idle", message: "Ready to start monitoring" };
 		case "starting":
 			return {
 				code: "starting",
-				message: "Initializing camera and rPPG pipeline",
+				message: "Initializing...",
 			};
 		case "retrying":
 			return {
@@ -264,6 +301,7 @@ export class RppgAppAdapter {
 					nowMs,
 					metrics,
 					hasFace: inferHasFace(diagnostics),
+					faceMeshAlignment: diagnostics?.lastFaceMeshAlignment ?? null,
 			  })
 			: (this.gating.reset(), idleGating("Monitoring paused"));
 		const status = deriveStatus(managedState, sessionState, normalizedError, gating);

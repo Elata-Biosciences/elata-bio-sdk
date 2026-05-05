@@ -1,42 +1,112 @@
-# Rust build artifacts (601MB)
-target/
-*.rs.bk
-Cargo.lock
-
-# Node dependencies (145MB)
-node_modules/
-.pnpm-store/
-pnpm-lock.yaml
-
-# Git
+# Version control
 .git/
+**/.git/
 .github/
+**/.github/
 
-# IDE
-.idea/
-.vscode/
+# Node and package manager
+node_modules/
+**/node_modules/
+.pnpm-store/
+**/.pnpm-store/
+.pnpm/
+**/.pnpm/
+.yarn/
+**/.yarn/
+pnpm-lock.yaml
+**/pnpm-lock.yaml
+package-lock.json
+**/package-lock.json
+yarn.lock
+**/yarn.lock
 
-# Generated artifacts
+# Build outputs and generated artifacts
 dist/
-coverage/
-.turbo/
+**/dist/
+dist-ssr/
+**/dist-ssr/
+build/
+**/build/
+out/
+**/out/
+.next/
+**/.next/
+.vite/
+**/.vite/
 .parcel-cache/
+**/.parcel-cache/
+.cache/
+**/.cache/
+.turbo/
+**/.turbo/
+.vercel/
+**/.vercel/
+.run/
+**/.run/
+coverage/
+**/coverage/
+*.tsbuildinfo
 **/*.tsbuildinfo
-eeg-demo/pkg/
-packages/*/pkg/
-packages/*/demo/pkg/
+public/pkg/
+**/public/pkg/
+pkg/
+**/pkg/
+target/
+**/target/
+*.wasm
+**/*.wasm
 
-# Build outputs
-android-demo/.gradle/
-android-demo/build/
-ios-demo/*.xcframework/
+# IDE and editor
+.vscode/
+**/.vscode/
+!.vscode/extensions.json
+.idea/
+**/.idea/
+*.sublime-*
+**/*.sublime-*
+.DS_Store
+**/.DS_Store
+Thumbs.db
+**/Thumbs.db
 
-# Caches and temp
+# Environment
 .env
-brainflow/
-TradeLock/
-my-app/
+**/.env
+.env.*
+**/.env.*
+!.env.example
+**/.env.example
+env.manifest
+**/env.manifest
 
-# Local package locks (packages have their own)
-packages/*/pnpm-lock.yaml
-packages/*/templates/**/pnpm-lock.yaml
+# Logs and temp
+logs/
+**/logs/
+*.log
+**/*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.pid
+**/*.pid
+*.pid.lock
+**/*.pid.lock
+pids/
+**/pids/
+.tmp/
+**/.tmp/
+temp/
+**/temp/
+
+# Test and generated files
+test-results/
+**/test-results/
+junit.xml
+**/junit.xml
+*.generated.*
+**/*.generated.*
+*.min.*
+**/*.min.*
+*.map
+**/*.map

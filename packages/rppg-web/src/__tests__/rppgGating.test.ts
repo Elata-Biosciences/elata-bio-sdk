@@ -135,5 +135,53 @@ describe("RppgGatingController", () => {
 		expect(lowLight.state).toBe("needs_light");
 		expect(lowLight.guidance.code).toBe("increase_lighting");
 	});
+
+	test("surfaces face mesh alignment guidance without changing BPM state", () => {
+		const gate = new RppgGatingController({});
+		const misaligned = gate.update({
+			nowMs: 0,
+			hasFace: true,
+			faceMeshAlignment: {
+				aligned: false,
+				faceWidthRatio: 0.08,
+				noseY: 0.4,
+				guidance: {
+					code: "face_move_closer",
+					message: "Move Closer",
+				},
+			},
+			metrics: {
+				bpm: 72,
+				confidence: 0.7,
+				signal_quality: 0.6,
+				skin_ratio_mean: 0.3,
+				motion_mean: 0.02,
+				baseline_bpm: 70,
+			},
+		});
+		expect(misaligned.faceAlignmentGuidance?.code).toBe("face_move_closer");
+		expect(misaligned.state).toBe("active");
+		expect(misaligned.publishBpm).toBe(72);
+
+		const aligned = gate.update({
+			nowMs: 100,
+			hasFace: true,
+			faceMeshAlignment: {
+				aligned: true,
+				faceWidthRatio: 0.35,
+				noseY: 0.42,
+				guidance: null,
+			},
+			metrics: {
+				bpm: 72,
+				confidence: 0.7,
+				signal_quality: 0.6,
+				skin_ratio_mean: 0.3,
+				motion_mean: 0.02,
+				baseline_bpm: 70,
+			},
+		});
+		expect(aligned.faceAlignmentGuidance).toBeNull();
+	});
 });
 

@@ -52,6 +52,7 @@ function createDiagnostics(
 		lastMotion: 0.01,
 		lastProcessorMethod: "rgb_meta",
 		lastRoiSource: "fallback_roi",
+		lastFaceMeshAlignment: null,
 		...overrides,
 	};
 }
@@ -103,6 +104,57 @@ function createSource(
 }
 
 describe("RppgAppAdapter", () => {
+	test("shows TradeLock-style stabilizing copy during early capture frames", () => {
+		const adapter = createRppgAppAdapter({ nowMs: () => 1000 });
+		const snapshot = adapter.getSnapshot(
+			createSource({
+				getDiagnostics: () =>
+					createDiagnostics({
+						lastRoiSource: "multi_roi",
+						framesSeen: 12,
+					}),
+				getMetrics: () => ({
+					bpm: null,
+					confidence: 0,
+					signal_quality: 0.8,
+					calibration_trained: false,
+					skin_ratio_mean: 0.4,
+					motion_mean: 0.01,
+				}),
+			}),
+		);
+
+		expect(snapshot.status).toBe("running");
+		expect(snapshot.guidance.code).toBe("stabilizing_warmup");
+		expect(snapshot.message).toBe("Stabilizing...");
+	});
+
+	test("prefers detailed face alignment guidance when Face Mesh reports misalignment", () => {
+		const adapter = createRppgAppAdapter({ nowMs: () => 1000 });
+		const snapshot = adapter.getSnapshot(
+			createSource({
+				getDiagnostics: () =>
+					createDiagnostics({
+						faceTrackingMode: "face_mesh",
+						lastRoiSource: "multi_roi",
+						lastFaceMeshAlignment: {
+							aligned: false,
+							faceWidthRatio: 0.07,
+							noseY: 0.45,
+							guidance: {
+								code: "face_move_closer",
+								message: "Move Closer",
+							},
+						},
+					}),
+			}),
+		);
+
+		expect(snapshot.status).toBe("ready");
+		expect(snapshot.guidance.code).toBe("face_move_closer");
+		expect(snapshot.message).toBe("Move Closer");
+	});
+
 	test("derives a ready app snapshot from a healthy running session", () => {
 		const adapter = createRppgAppAdapter({ nowMs: () => 1000 });
 		const snapshot = adapter.getSnapshot(createSource());
@@ -112,7 +164,7 @@ describe("RppgAppAdapter", () => {
 		expect(snapshot.canPublish).toBe(true);
 		expect(snapshot.publishBpm).toBe(72);
 		expect(snapshot.guidance.code).toBe("active_monitoring");
-		expect(snapshot.message).toBe("Active monitoring");
+		expect(snapshot.message).toBe("Active Monitoring");
 		expect(snapshot.debug.estimationAvailable).toBe(true);
 	});
 

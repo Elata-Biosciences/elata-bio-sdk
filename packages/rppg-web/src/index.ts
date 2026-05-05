@@ -44,6 +44,18 @@ export { MediaPipeFaceFrameSource } from "./mediaPipeFaceFrameSource";
 export { loadFaceMesh } from "./mediapipeLoader";
 export { averageGreenInROI } from "./frameSource";
 export type { FrameSource, Frame, ROI } from "./frameSource";
+export {
+	computeFaceMeshAlignment,
+	FACE_MESH_LANDMARK_LEFT_TRAGUS,
+	FACE_MESH_LANDMARK_RIGHT_TRAGUS,
+	FACE_MESH_LANDMARK_NOSE_TIP,
+} from "./faceMeshAlignment";
+export type {
+	FaceMeshAlignmentGuidanceCode,
+	FaceMeshAlignmentOptions,
+	FaceMeshAlignmentSnapshot,
+	FaceMeshLandmark,
+} from "./faceMeshAlignment";
 export { loadWasmBackend } from "./wasmBackend";
 export { createUnavailableBackend } from "./wasmBackend";
 export type { LoadWasmBackendOptions, WasmImporter } from "./wasmBackend";
@@ -105,6 +117,7 @@ export type {
 export {
 	createRppgAppAdapter,
 	createRppgAppMonitor,
+	RPPG_GUIDANCE_WARMUP_FRAME_COUNT,
 	RppgAppAdapter,
 	RppgAppMonitor,
 } from "./rppgAppAdapter";

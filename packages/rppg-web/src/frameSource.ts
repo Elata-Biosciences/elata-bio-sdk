@@ -1,3 +1,5 @@
+import type { FaceMeshAlignmentSnapshot } from "./faceMeshAlignment";
+
 export type ROI = { x: number; y: number; w: number; h: number };
 
 export type Frame = {
@@ -8,6 +10,8 @@ export type Frame = {
 	roi?: ROI;
 	rois?: ROI[];
 	timestampMs?: number;
+	/** Populated by {@link MediaPipeFaceFrameSource} when Face Mesh landmarks are available. */
+	faceMeshAlignment?: FaceMeshAlignmentSnapshot | null;
 };
 
 export interface FrameSource {

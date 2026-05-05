@@ -1,3 +1,4 @@
+import type { FaceMeshAlignmentSnapshot } from "./faceMeshAlignment";
 import {
 	FrameSource,
 	Frame,
@@ -49,6 +50,8 @@ export type DemoRunnerDiagnostics = {
 	lastMotion: number | null;
 	lastProcessorMethod: "rgb_meta" | "rgb" | "intensity" | null;
 	lastRoiSource: "multi_roi" | "face_roi" | "fallback_roi" | null;
+	/** Latest Face Mesh framing snapshot from {@link Frame.faceMeshAlignment}, when present. */
+	lastFaceMeshAlignment: FaceMeshAlignmentSnapshot | null;
 };
 
 export type DemoRunnerError = {
@@ -85,6 +88,7 @@ export class DemoRunner {
 		lastMotion: null,
 		lastProcessorMethod: null,
 		lastRoiSource: null,
+		lastFaceMeshAlignment: null,
 	};
 	private lastError: DemoRunnerError | null = null;
 
@@ -116,6 +120,7 @@ export class DemoRunner {
 
 	private onFrame(frame: Frame) {
 		if (!this.running) return;
+		this.diagnostics.lastFaceMeshAlignment = frame.faceMeshAlignment ?? null;
 		this.diagnostics.framesSeen += 1;
 		const now =
 			typeof performance !== "undefined" ? performance.now() : Date.now();

@@ -8,6 +8,7 @@ import type {
 } from '../rppgSession';
 
 function createDiagnostics(overrides: Partial<RppgSessionDiagnostics> = {}): RppgSessionDiagnostics {
+  const { lastFaceMeshAlignment, ...rest } = overrides;
   return {
     backendMode: 'wasm',
     estimationAvailable: true,
@@ -46,7 +47,8 @@ function createDiagnostics(overrides: Partial<RppgSessionDiagnostics> = {}): Rpp
     lastMotion: 0.02,
     lastProcessorMethod: 'rgb_meta',
     lastRoiSource: 'fallback_roi',
-    ...overrides,
+    ...rest,
+    lastFaceMeshAlignment: lastFaceMeshAlignment ?? null,
   };
 }
 
