@@ -67,6 +67,7 @@ These files mix **completed work**, **roadmaps**, and **exploratory** ideas. Eac
 | [implementation-plan-sdk-adoption.md](implementation-plan-sdk-adoption.md) | Adoption checklist—most phases checked off; guides are primary follow-up. |
 | [implementation-plan-rppg.md](implementation-plan-rppg.md) | rPPG crate + `rppg-web` evolution; consumers use `createRppgSession()`. |
 | [rppg-multi-roi-learned-reconstruction.md](rppg-multi-roi-learned-reconstruction.md) | Detailed rPPG Phase 4.5/4.6 design note: multi-ROI Rust/WASM waveform construction and distilled learned reconstruction. |
+| [rppg-model-evaluation.md](rppg-model-evaluation.md) | Maintainer protocol for rPPG model benchmarking, model cards, selection criteria, runtime metrics, and result artifacts. |
 | [implementation-plan-rppg-tradelock-imports.md](implementation-plan-rppg-tradelock-imports.md) | Diagnostics/tracker import track—Phase 1 done; one Phase 2 open item. |
 | [implementation-plan-harmonic-selection.md](implementation-plan-harmonic-selection.md) | Algorithm roadmap; parts implemented in `crates/elata-rppg` (see file for details). |
 | [implementation-plan-ios-safari-ble-bridge.md](implementation-plan-ios-safari-ble-bridge.md) | Future native bridge; not a statement of current browser support. |

@@ -4,6 +4,9 @@ Status: design note for the next rPPG quality roadmap. This document expands
 Phase 4.5 and Phase 4.6 from [implementation-plan-rppg.md](implementation-plan-rppg.md).
 It is maintainer-facing, not a consumer integration guide.
 
+For model comparison, benchmark artifacts, and release-selection criteria, see
+[rppg-model-evaluation.md](rppg-model-evaluation.md).
+
 Consumer browser apps should continue to start with
 `@elata-biosciences/rppg-web` and `createRppgSession()`.
 
