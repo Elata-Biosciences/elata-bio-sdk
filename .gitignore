@@ -67,3 +67,5 @@ packages/eeg-web/src/*.d.ts.map
 
 # Maintainer-local helper scripts (not shared)
 /gen-*.sh
+# Runtime state (runctl)
+.run/

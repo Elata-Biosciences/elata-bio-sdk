@@ -73,6 +73,10 @@ Agents should implement against **`HeadbandTransport` + `HeadbandFrameV1`** from
 
 If a tutorial exists only under `elata-docs/sdk/tutorials/`, agents should still follow **AGENTS.md** and **package READMEs** for commands and APIs—the tutorial is the narrative; the repo is the contract.
 
+## Development environment (agents and humans)
+
+For **SDK development** and for **testing camera / Web Bluetooth** features, use a normal local setup: **Cursor, VS Code, another desktop IDE, or the CLI** with `pnpm` and a real browser tab on `localhost` (or your deployed URL). Hosted sandboxes (for example **Replit**, StackBlitz, or similar) often embed the app in a **nested iframe** with restrictive **Permissions-Policy**, so `getUserMedia` or Bluetooth can fail with opaque errors (for example `TypeError: Illegal invocation`) even when the same code works locally. That is an environment limitation, not an SDK bug—verify camera rPPG and BLE flows outside the host’s **preview pane**, or clone and run the repo locally.
+
 ## Wrong-path prevention
 
 - For new apps and evaluations, lead with `@elata-biosciences/create-elata-demo`.
