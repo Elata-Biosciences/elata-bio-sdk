@@ -15,7 +15,7 @@ Use `run.sh` from the repo root:
 pnpm smoke:consumers
 ./run.sh bump
 ./run.sh release-check all
-./run.sh release all next
+./run.sh release
 ```
 
 ## What To Use For Common Jobs
@@ -40,7 +40,7 @@ Maintainer flow:
 2. Review the version and changelog diff
 3. Commit the generated changes
 4. Run `./run.sh release-check all`
-5. Publish with `./run.sh release all next` or `latest`
+5. Publish with `./run.sh release` (defaults to npm dist-tag `latest`), or `./run.sh release next` for `next`
 
 ## Release Scope
 

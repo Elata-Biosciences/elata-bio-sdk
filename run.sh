@@ -216,8 +216,8 @@ usage() {
     cmd "changeset" "Add a changeset (interactive; run before opening a PR)"
     cmd "bump" "Apply changesets: bump versions and update CHANGELOGs"
     cmd "release-check" "Run full release preflight without publishing (default target: all)"
-    cmd "release" "Build, publish, tag, and push (default target: all, dist-tag: next)"
-    cmd "publish" "Publish package(s) to npm in repo release order (default target: all, dist-tag: next)"
+    cmd "release" "Build, publish, tag, and push (default: all + npm tag latest; use release major|minor|patch to semver-bump all packages first)"
+    cmd "publish" "Publish package(s) to npm in repo release order (default: all + npm tag latest)"
     cmd "promote" "Promote selected package version(s) to npm 'latest' dist-tag"
     cmd "view" "Show latest published npm version(s) for selected package(s)"
     cmd "tag-release" "Create package-scoped git tag(s) from package.json versions"
@@ -725,9 +725,48 @@ validate_dist_tag() {
     esac
 }
 
+bump_publish_packages() {
+    local level="$1"
+    local pkg
+
+    case "$level" in
+        major|minor|patch) ;;
+        *)
+            echo "Invalid semver bump level: $level (use: major, minor, patch)." >&2
+            return 1
+            ;;
+    esac
+
+    require_cmds pnpm node
+    require_package_manager
+
+    # Keep stdout clean: release/publish use read < <(resolve_release_target_and_dist_tag ...)
+    # and only the final printf line may appear on stdout.
+    echo "Semver bump (${level}) on all publishable packages (pnpm version --no-git-tag-version)." >&2
+    echo "Tip: for changelog-driven releases, apply Changesets first with ./run.sh bump, then ./run.sh release without major|minor|patch." >&2
+    for pkg in $(release_targets_for all); do
+        local pkg_dir
+        pkg_dir="$(package_dir_for_target "$pkg")"
+        echo "  -> ${pkg}: pnpm version ${level}" >&2
+        (
+            cd "$ROOT_DIR/$pkg_dir"
+            pnpm version "$level" --no-git-tag-version
+        ) 1>&2
+    done
+}
+
 resolve_release_target_and_dist_tag() {
     local raw_target="${1:-all}"
-    local raw_dist_tag="${2:-next}"
+    local raw_dist_tag="${2:-latest}"
+
+    case "$raw_target" in
+        major|minor|patch)
+            validate_dist_tag "$raw_dist_tag" || return 1
+            bump_publish_packages "$raw_target" || return 1
+            printf "all %s\n" "$raw_dist_tag"
+            return 0
+            ;;
+    esac
 
     # Support shorthand like `./run.sh release latest`.
     if [[ -z "${2:-}" ]]; then
@@ -791,7 +830,7 @@ verify_release_contract_for_target() {
 
 publish_packages() {
     local raw_target="${1:-all}"
-    local dist_tag="${2:-next}"
+    local dist_tag="${2:-latest}"
     local skip_verify="${3:-0}"
     local target
     local pkg
@@ -957,7 +996,7 @@ push_release_tags() {
 
 release_commit_and_push_version_changes() {
     local raw_target="${1:-all}"
-    local dist_tag="${2:-next}"
+    local dist_tag="${2:-latest}"
     local target
 
     target="$(normalize_release_target "$raw_target")" || exit 1
@@ -1052,7 +1091,7 @@ release_check_for_target() {
 
 release_packages() {
     local raw_target="${1:-all}"
-    local dist_tag="${2:-next}"
+    local dist_tag="${2:-latest}"
     local target
 
     target="$(normalize_release_target "$raw_target")" || exit 1
@@ -1916,8 +1955,11 @@ case "$cmd" in
     release)
         RUN_SH_TASK="release"
         # Usage:
-        #   ./run.sh release [target] [dist-tag]
+        #   ./run.sh release [target|major|minor|patch] [dist-tag]
         # Examples:
+        #   ./run.sh release
+        #   ./run.sh release patch
+        #   ./run.sh release minor next
         #   ./run.sh release all next
         #   ./run.sh release latest
         #   ./run.sh release eeg-web latest
@@ -1928,8 +1970,10 @@ case "$cmd" in
     publish)
         RUN_SH_TASK="publish"
         # Usage:
-        #   ./run.sh publish [target] [dist-tag]
+        #   ./run.sh publish [target|major|minor|patch] [dist-tag]
         # Examples:
+        #   ./run.sh publish
+        #   ./run.sh publish patch
         #   ./run.sh publish all next
         #   ./run.sh publish latest
         #   ./run.sh publish eeg-web latest

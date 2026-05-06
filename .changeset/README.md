@@ -19,6 +19,6 @@ Commit the new file under `.changeset/` with your PR. Maintainers will run the v
    `./run.sh bump` or `pnpm version`
 2. Review the version bumps and changelog updates, then commit.
 3. **Build and publish:**  
-   `./run.sh release all next` (or `latest`).
+   `./run.sh release` (defaults to npm dist-tag `latest`). Use `./run.sh release next` or `./run.sh release all next` for the `next` dist-tag.
 
 We use `run.sh release` for the actual publish step (build + npm publish + git tags) instead of `changeset publish`.

@@ -5,6 +5,7 @@ This repository publishes npm packages independently:
 - `@elata-biosciences/eeg-web`
 - `@elata-biosciences/eeg-web-ble`
 - `@elata-biosciences/rppg-web`
+- `@elata-biosciences/ppg-web`
 - `@elata-biosciences/create-elata-demo`
 
 We use [Changesets](https://github.com/changesets/changesets) for versioning and changelogs. Contributors add changesets in PRs; maintainers bump versions and release.
@@ -20,7 +21,9 @@ files rather than Changesets.
 | Add a changeset (contributor) | `./run.sh changeset` |
 | Apply changesets & update CHANGELOGs (maintainer) | `./run.sh bump` |
 | Run release preflight only | `./run.sh release-check all` |
-| Build, publish, tag, push (maintainer) | `./run.sh release all next` or `./run.sh release all latest` |
+| Build, publish, tag, push (maintainer) | `./run.sh release` (defaults to `all` + npm dist-tag `latest`) |
+| Same with explicit semver bump on every package first | `./run.sh release patch`, `./run.sh release minor`, or `./run.sh release major` |
+| Prerelease npm dist-tag | `./run.sh release all next` (or `./run.sh release next`) |
 
 See also: `.changeset/README.md` in the repo root.
 
@@ -106,11 +109,13 @@ the commit/tags.
    ```
 4. **Build and publish**:
    ```bash
-   ./run.sh release all next
+   ./run.sh release
    ```
-   Or use `latest` as the second argument to publish as the default dist-tag.
+   This publishes with npm dist-tag **`latest`** by default. Use `./run.sh release all next` or `./run.sh release next` when you intend the **`next`** dist-tag instead.
 
-Release order is fixed in `run.sh`: `eeg-web` → `eeg-web-ble` → `rppg-web` → `create-elata-demo`.
+   Optional shorthand when you want a raw semver bump on **every** publishable package before publishing (same order as below): `./run.sh release patch`, `./run.sh release minor`, or `./run.sh release major`. Prefer `./run.sh bump` first when you are cutting a **Changesets** release so changelogs stay accurate.
+
+Release order is fixed in `run.sh`: `eeg-web` → `eeg-web-ble` → `rppg-web` → `ppg-web` → `create-elata-demo`.
 `eeg-web-ble` must follow `eeg-web` because it has an `eeg-web` peer dependency.
 
 ## Contributors: adding a changeset

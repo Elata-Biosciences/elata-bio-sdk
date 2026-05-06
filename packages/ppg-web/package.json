@@ -1,6 +1,6 @@
 {
 	"name": "@elata-biosciences/ppg-web",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "TypeScript helpers for Muse PPG heart-rate and HRV estimation on the web",
 	"license": "MIT",
 	"author": "Elata",
