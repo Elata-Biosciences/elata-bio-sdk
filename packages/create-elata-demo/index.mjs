@@ -34,6 +34,11 @@ const templates = {
     dir: 'ppg-demo',
     description: 'React + Vite Muse PPG starter app',
   },
+  'pulse-game': {
+    dir: 'pulse-game',
+    description:
+      'React + Vite recovery-game demo using @elata-biosciences/app-metrics with a sandboxed iframe',
+  },
 };
 
 const starterChoices = [
@@ -64,6 +69,14 @@ const starterChoices = [
     aliases: ['ppg', 'muse-ppg'],
     headline: 'Muse PPG and HRV starter',
     detail: 'Connect a Muse device and inspect BPM, RMSSD, and live PPG diagnostics.',
+  },
+  {
+    name: 'pulse-game',
+    template: 'pulse-game',
+    aliases: ['pulse', 'recovery'],
+    headline: 'rPPG recovery-game demo with sandboxed app-metrics',
+    detail:
+      'Runs the actual app inside an iframe and stores scores via the host. End-to-end demo of the app-metrics protocol.',
   },
 ];
 
@@ -122,6 +135,11 @@ const packageVersions = {
     '../ppg-web/package.json',
     packageMetadata.elataSdkVersions?.ppgWeb,
     '@elata-biosciences/ppg-web',
+  ),
+  appMetrics: readVersion(
+    '../app-metrics/package.json',
+    packageMetadata.elataSdkVersions?.appMetrics,
+    '@elata-biosciences/app-metrics',
   ),
 };
 
@@ -381,6 +399,7 @@ copyDir(templateDir, targetDir, {
   __EEG_WEB_BLE_VERSION__: packageVersions.eegWebBle,
   __RPPG_WEB_VERSION__: packageVersions.rppgWeb,
   __PPG_WEB_VERSION__: packageVersions.ppgWeb,
+  __APP_METRICS_VERSION__: packageVersions.appMetrics,
 });
 
 console.log(
