@@ -1,6 +1,6 @@
 {
 	"name": "@elata-biosciences/eeg-web-ble",
-	"version": "0.1.23",
+	"version": "0.2.0",
 	"description": "Web Bluetooth headband transport that emits normalized headband frames",
 	"license": "MIT",
 	"author": "Elata",
