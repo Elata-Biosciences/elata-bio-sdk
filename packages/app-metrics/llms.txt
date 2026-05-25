@@ -1,0 +1,41 @@
+# @elata-biosciences/app-metrics — context for tools and agents
+
+## Role
+Per-user, per-app metrics storage for sandboxed apps in the Elata App Store. Two surfaces:
+
+- **Client** (default export, for apps bundled as static builds): `createMetricsClient()` — talks to the appstore host via a transferred `MessagePort`. App calls `metrics.record({ type, data })` and `metrics.query({...})`.
+- **Host** (`/host` subpath, for the appstore shell): `createMetricsHost({ iframe, appId, walletAddress, storage })` — owns the storage adapter, enforces per-app namespacing, quotas, and rate limits.
+
+The server never sees plaintext metrics. Stage 1 ships local-only via IndexedDB; Stage 2 (encrypted cross-device sync) is planned but not implemented in 0.1.0.
+
+## Requirements
+- **Node.js >= 20** for tooling.
+- Browser-only at runtime. App code runs inside a sandboxed iframe. Host code runs in the appstore's top frame.
+
+## Preferred integration
+
+**Sandboxed app (static build)**:
+```ts
+import { createMetricsClient } from "@elata-biosciences/app-metrics";
+const metrics = createMetricsClient();
+await metrics.record({ type: "level_complete", data: { level: 3 } });
+```
+
+**Appstore host**:
+```ts
+import { createMetricsHost, createIndexedDbAdapter } from "@elata-biosciences/app-metrics/host";
+const host = createMetricsHost({
+  iframe, appId, walletAddress,
+  storage: createIndexedDbAdapter(),
+});
+iframe.addEventListener("load", () => host.start(), { once: true });
+```
+
+## Guarantees
+- Apps cannot read other apps' records — host scopes by `appId`.
+- Apps cannot forge `appId`, `walletAddress`, `timestamp`, or record `id`.
+- Default quota: 5 MB per app per wallet. Default record cap: 64 KB. Default write rate: 100 / 60s.
+- Adapters are pluggable: `createIndexedDbAdapter()`, `createMemoryAdapter()`, or implement `StorageAdapter`.
+
+## Related packages
+- `@elata-biosciences/eeg-web`, `@elata-biosciences/ppg-web`, etc. — sensor data SDKs that apps may also bundle.
