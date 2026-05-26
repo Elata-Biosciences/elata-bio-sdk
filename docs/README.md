@@ -73,6 +73,7 @@ These files mix **completed work**, **roadmaps**, and **exploratory** ideas. Eac
 | [implementation-plan-ios-safari-ble-bridge.md](implementation-plan-ios-safari-ble-bridge.md) | Future native bridge; not a statement of current browser support. |
 | [implementation-plan-sentiment.md](implementation-plan-sentiment.md) | Sentiment plan; overlaps **`crates/elata-facial-affect`** + [architecture-sentiment.md](architecture-sentiment.md). |
 | [implementation-plan-multi-modality-and-rppg.md](implementation-plan-multi-modality-and-rppg.md) | Draft architecture for multi-device aggregation (not fully implemented). |
+| [implementation-plan-affect-reporting.md](implementation-plan-affect-reporting.md) | **Proposed**; `reportAffect` op on `app-metrics` to contribute derived session aggregates to the appstore biometric Score. Not yet built. |
 
 ## Related Repo Guides
 
