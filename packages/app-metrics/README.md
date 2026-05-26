@@ -37,3 +37,12 @@ const host = createMetricsHost({
 });
 host.start();
 ```
+
+## Planned: `reportAffect` (biometric Score)
+
+`record`/`query`/`saveScore` are **local-only** — they never leave the device.
+A planned `reportAffect` op is the one exception: with the `biometrics` scope and
+user consent, an app may send a *derived* session aggregate (never raw signal) to
+the Elata platform to contribute to the platform-owned biometric Score. See
+[`docs/implementation-plan-affect-reporting.md`](../../docs/implementation-plan-affect-reporting.md)
+and `BIOMETRIC_SCORE.md` in the appstore repo. Not yet implemented.
