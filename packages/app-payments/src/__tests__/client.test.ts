@@ -1,5 +1,17 @@
-import { AppPaymentsError, requestPurchase } from "../client";
-import { REQUEST_MESSAGE_TYPE, RESULT_MESSAGE_TYPE } from "../protocol";
+import {
+	AppPaymentsError,
+	getOwnedItems,
+	hasItem,
+	requestPurchase,
+} from "../client";
+import {
+	HAS_ITEM_MESSAGE_TYPE,
+	HAS_ITEM_RESULT_MESSAGE_TYPE,
+	LIST_OWNED_MESSAGE_TYPE,
+	LIST_OWNED_RESULT_MESSAGE_TYPE,
+	REQUEST_MESSAGE_TYPE,
+	RESULT_MESSAGE_TYPE,
+} from "../protocol";
 
 /**
  * Build a fake iframe window that has a distinct parent window. The parent
@@ -248,5 +260,188 @@ describe("requestPurchase", () => {
 
 		const result = await promise;
 		expect(result.status).toBe("success");
+	});
+});
+
+describe("hasItem", () => {
+	it("posts a well-formed elata:iap:hasItem message to the parent", async () => {
+		const fx = buildIframeWindow();
+		const promise = hasItem(7, { window: fx.childWindow });
+
+		expect(fx.parentMessages).toHaveLength(1);
+		const { data, targetOrigin } = fx.parentMessages[0];
+		expect(targetOrigin).toBe("*");
+		const msg = data as Record<string, unknown>;
+		expect(msg.type).toBe(HAS_ITEM_MESSAGE_TYPE);
+		expect(typeof msg.requestId).toBe("string");
+		expect(msg.contentId).toBe(7);
+
+		fx.replyFromParent({
+			type: HAS_ITEM_RESULT_MESSAGE_TYPE,
+			requestId: msg.requestId,
+			owned: true,
+		});
+		await promise;
+	});
+
+	it("resolves true when the parent reports the item is owned", async () => {
+		const fx = buildIframeWindow();
+		const promise = hasItem(3, { window: fx.childWindow });
+		const requestId = (fx.parentMessages[0].data as { requestId: string })
+			.requestId;
+
+		fx.replyFromParent({
+			type: HAS_ITEM_RESULT_MESSAGE_TYPE,
+			requestId,
+			owned: true,
+		});
+
+		await expect(promise).resolves.toBe(true);
+		expect(fx.listenerCount()).toBe(0);
+	});
+
+	it("resolves false when the parent reports the item is not owned", async () => {
+		const fx = buildIframeWindow();
+		const promise = hasItem(3, { window: fx.childWindow });
+		const requestId = (fx.parentMessages[0].data as { requestId: string })
+			.requestId;
+
+		fx.replyFromParent({
+			type: HAS_ITEM_RESULT_MESSAGE_TYPE,
+			requestId,
+			owned: false,
+		});
+
+		await expect(promise).resolves.toBe(false);
+	});
+
+	it("rejects with not_authenticated when the parent reports that error", async () => {
+		const fx = buildIframeWindow();
+		const promise = hasItem(3, { window: fx.childWindow });
+		const requestId = (fx.parentMessages[0].data as { requestId: string })
+			.requestId;
+
+		fx.replyFromParent({
+			type: HAS_ITEM_RESULT_MESSAGE_TYPE,
+			requestId,
+			error: "not_authenticated",
+		});
+
+		await expect(promise).rejects.toMatchObject({
+			name: "AppPaymentsError",
+			code: "not_authenticated",
+		});
+	});
+
+	it("rejects with fetch_failed for other host errors", async () => {
+		const fx = buildIframeWindow();
+		const promise = hasItem(3, { window: fx.childWindow });
+		const requestId = (fx.parentMessages[0].data as { requestId: string })
+			.requestId;
+
+		fx.replyFromParent({
+			type: HAS_ITEM_RESULT_MESSAGE_TYPE,
+			requestId,
+			error: "anything_else",
+		});
+
+		await expect(promise).rejects.toMatchObject({ code: "fetch_failed" });
+	});
+
+	it("ignores results from a non-parent source", async () => {
+		const fx = buildIframeWindow();
+		const promise = hasItem(3, { window: fx.childWindow, timeoutMs: 50 });
+		const requestId = (fx.parentMessages[0].data as { requestId: string })
+			.requestId;
+
+		fx.replyFromOther({
+			type: HAS_ITEM_RESULT_MESSAGE_TYPE,
+			requestId,
+			owned: true,
+		});
+
+		await expect(promise).rejects.toMatchObject({ code: "timeout" });
+	});
+
+	it("rejects synchronously when contentId is invalid", () => {
+		const fx = buildIframeWindow();
+		expect(() => hasItem(-1, { window: fx.childWindow })).toThrow(
+			AppPaymentsError,
+		);
+		expect(() => hasItem(1.5, { window: fx.childWindow })).toThrow(
+			AppPaymentsError,
+		);
+	});
+});
+
+describe("getOwnedItems", () => {
+	it("posts a well-formed elata:iap:listOwned message to the parent", async () => {
+		const fx = buildIframeWindow();
+		const promise = getOwnedItems({ window: fx.childWindow });
+
+		expect(fx.parentMessages).toHaveLength(1);
+		const msg = fx.parentMessages[0].data as Record<string, unknown>;
+		expect(msg.type).toBe(LIST_OWNED_MESSAGE_TYPE);
+		expect(typeof msg.requestId).toBe("string");
+		expect("contentId" in msg).toBe(false);
+
+		fx.replyFromParent({
+			type: LIST_OWNED_RESULT_MESSAGE_TYPE,
+			requestId: msg.requestId,
+			ownedContentIds: [],
+		});
+		await promise;
+	});
+
+	it("resolves with the parent-supplied array of contentIds", async () => {
+		const fx = buildIframeWindow();
+		const promise = getOwnedItems({ window: fx.childWindow });
+		const requestId = (fx.parentMessages[0].data as { requestId: string })
+			.requestId;
+
+		fx.replyFromParent({
+			type: LIST_OWNED_RESULT_MESSAGE_TYPE,
+			requestId,
+			ownedContentIds: [2, 5, 9],
+		});
+
+		await expect(promise).resolves.toEqual([2, 5, 9]);
+	});
+
+	it("filters non-integer entries out of ownedContentIds", async () => {
+		const fx = buildIframeWindow();
+		const promise = getOwnedItems({ window: fx.childWindow });
+		const requestId = (fx.parentMessages[0].data as { requestId: string })
+			.requestId;
+
+		fx.replyFromParent({
+			type: LIST_OWNED_RESULT_MESSAGE_TYPE,
+			requestId,
+			ownedContentIds: [1, "two", 3.5, 4],
+		});
+
+		await expect(promise).resolves.toEqual([1, 4]);
+	});
+
+	it("rejects with timeout when no result arrives in time", async () => {
+		const fx = buildIframeWindow();
+		const promise = getOwnedItems({ window: fx.childWindow, timeoutMs: 10 });
+		await expect(promise).rejects.toMatchObject({ code: "timeout" });
+		expect(fx.listenerCount()).toBe(0);
+	});
+
+	it("rejects with fetch_failed on host error", async () => {
+		const fx = buildIframeWindow();
+		const promise = getOwnedItems({ window: fx.childWindow });
+		const requestId = (fx.parentMessages[0].data as { requestId: string })
+			.requestId;
+
+		fx.replyFromParent({
+			type: LIST_OWNED_RESULT_MESSAGE_TYPE,
+			requestId,
+			error: "boom",
+		});
+
+		await expect(promise).rejects.toMatchObject({ code: "fetch_failed" });
 	});
 });

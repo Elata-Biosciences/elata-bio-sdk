@@ -4,8 +4,15 @@
  * to handle responses — they `await requestPurchase(...)`.
  */
 
-export { AppPaymentsError, requestPurchase } from "./client";
+export {
+	AppPaymentsError,
+	getOwnedItems,
+	hasItem,
+	requestPurchase,
+} from "./client";
 export type {
+	AppPaymentsErrorCode,
+	EntitlementQueryInput,
 	PurchaseCancelled,
 	PurchaseError,
 	PurchaseResult,

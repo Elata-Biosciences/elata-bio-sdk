@@ -13,6 +13,11 @@
 export const PROTOCOL_VERSION = 1 as const;
 export const REQUEST_MESSAGE_TYPE = "elata:iap:request" as const;
 export const RESULT_MESSAGE_TYPE = "elata:iap:result" as const;
+export const HAS_ITEM_MESSAGE_TYPE = "elata:iap:hasItem" as const;
+export const HAS_ITEM_RESULT_MESSAGE_TYPE = "elata:iap:hasItem:result" as const;
+export const LIST_OWNED_MESSAGE_TYPE = "elata:iap:listOwned" as const;
+export const LIST_OWNED_RESULT_MESSAGE_TYPE =
+	"elata:iap:listOwned:result" as const;
 
 /** Host-enforced bounds on `requestId` length. Mirror these on the client. */
 export const REQUEST_ID_MIN_LENGTH = 8;
@@ -50,5 +55,60 @@ export function isIapResultMessage(value: unknown): value is IapResultMessage {
 	) {
 		return false;
 	}
+	return true;
+}
+
+/**
+ * Entitlement query: does the session user own a given offchain item?
+ * Reply is `IapHasItemResultMessage`.
+ */
+export interface IapHasItemMessage {
+	type: typeof HAS_ITEM_MESSAGE_TYPE;
+	requestId: string;
+	contentId: number;
+}
+
+export interface IapHasItemResultMessage {
+	type: typeof HAS_ITEM_RESULT_MESSAGE_TYPE;
+	requestId: string;
+	/** Present when the query succeeded. */
+	owned?: boolean;
+	/** Present when the query failed (e.g. `not_authenticated`, `fetch_failed`). */
+	error?: string;
+}
+
+export function isIapHasItemResultMessage(
+	value: unknown,
+): value is IapHasItemResultMessage {
+	if (!value || typeof value !== "object") return false;
+	const v = value as Record<string, unknown>;
+	if (v.type !== HAS_ITEM_RESULT_MESSAGE_TYPE) return false;
+	if (typeof v.requestId !== "string") return false;
+	return true;
+}
+
+/**
+ * Entitlement query: list every offchain `contentId` the session user owns
+ * for this app. Reply is `IapListOwnedResultMessage`.
+ */
+export interface IapListOwnedMessage {
+	type: typeof LIST_OWNED_MESSAGE_TYPE;
+	requestId: string;
+}
+
+export interface IapListOwnedResultMessage {
+	type: typeof LIST_OWNED_RESULT_MESSAGE_TYPE;
+	requestId: string;
+	ownedContentIds?: number[];
+	error?: string;
+}
+
+export function isIapListOwnedResultMessage(
+	value: unknown,
+): value is IapListOwnedResultMessage {
+	if (!value || typeof value !== "object") return false;
+	const v = value as Record<string, unknown>;
+	if (v.type !== LIST_OWNED_RESULT_MESSAGE_TYPE) return false;
+	if (typeof v.requestId !== "string") return false;
 	return true;
 }

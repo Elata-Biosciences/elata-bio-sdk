@@ -8,12 +8,18 @@
  */
 
 import {
+	HAS_ITEM_MESSAGE_TYPE,
+	type IapHasItemMessage,
+	type IapListOwnedMessage,
 	type IapRequestMessage,
 	type IapStatus,
-	isIapResultMessage,
+	LIST_OWNED_MESSAGE_TYPE,
 	REQUEST_ID_MAX_LENGTH,
 	REQUEST_ID_MIN_LENGTH,
 	REQUEST_MESSAGE_TYPE,
+	isIapHasItemResultMessage,
+	isIapListOwnedResultMessage,
+	isIapResultMessage,
 } from "./protocol";
 
 export type { IapStatus } from "./protocol";
@@ -55,17 +61,18 @@ export type PurchaseResult =
 	| PurchaseCancelled
 	| PurchaseError;
 
+export type AppPaymentsErrorCode =
+	| "no_window"
+	| "no_parent"
+	| "invalid_input"
+	| "timeout"
+	| "no_crypto"
+	| "not_authenticated"
+	| "fetch_failed";
+
 export class AppPaymentsError extends Error {
-	readonly code:
-		| "no_window"
-		| "no_parent"
-		| "invalid_input"
-		| "timeout"
-		| "no_crypto";
-	constructor(
-		code: "no_window" | "no_parent" | "invalid_input" | "timeout" | "no_crypto",
-		message: string,
-	) {
+	readonly code: AppPaymentsErrorCode;
+	constructor(code: AppPaymentsErrorCode, message: string) {
 		super(message);
 		this.name = "AppPaymentsError";
 		this.code = code;
@@ -225,6 +232,244 @@ export function requestPurchase(
 					new AppPaymentsError(
 						"timeout",
 						`no purchase result within ${timeoutMs}ms`,
+					),
+				);
+			}, timeoutMs);
+		}
+
+		try {
+			parent.postMessage(message, "*");
+		} catch (e) {
+			fail(
+				new AppPaymentsError(
+					"invalid_input",
+					e instanceof Error ? e.message : "postMessage failed",
+				),
+			);
+		}
+	});
+}
+
+export interface EntitlementQueryInput {
+	/** Default 10 seconds. Pass `Infinity` to wait forever. */
+	timeoutMs?: number;
+	/** Optional override for testing. Defaults to the global `window`. */
+	window?: Window;
+}
+
+const DEFAULT_QUERY_TIMEOUT_MS = 10_000;
+
+function resolveParent(targetWindow: Window | undefined): {
+	targetWindow: Window;
+	parent: Window;
+} {
+	const tw = targetWindow ?? globalThis.window;
+	if (!tw) {
+		throw new AppPaymentsError(
+			"no_window",
+			"no window available (call entitlement queries in a browser context)",
+		);
+	}
+	const parent = tw.parent;
+	if (!parent || parent === tw) {
+		throw new AppPaymentsError(
+			"no_parent",
+			"entitlement queries must run inside an iframe with an appstore parent",
+		);
+	}
+	return { targetWindow: tw, parent };
+}
+
+function generateQueryRequestId(): string {
+	const requestId = generateRequestId();
+	if (
+		requestId.length < REQUEST_ID_MIN_LENGTH ||
+		requestId.length > REQUEST_ID_MAX_LENGTH
+	) {
+		throw new AppPaymentsError(
+			"invalid_input",
+			`generated requestId outside host bounds [${REQUEST_ID_MIN_LENGTH}, ${REQUEST_ID_MAX_LENGTH}]`,
+		);
+	}
+	return requestId;
+}
+
+/**
+ * Ask the appstore host whether the session user owns a given offchain item.
+ *
+ * Resolves with `true` / `false` on a clean answer. Throws `AppPaymentsError`
+ * on local failures (`no_parent`, `timeout`, `invalid_input`) or host
+ * failures (`not_authenticated`, `fetch_failed`).
+ *
+ * @example
+ *   if (await hasItem(7)) unlockPermanentSkin();
+ */
+export function hasItem(
+	contentId: number,
+	opts: EntitlementQueryInput = {},
+): Promise<boolean> {
+	if (
+		typeof contentId !== "number" ||
+		!Number.isInteger(contentId) ||
+		contentId < 0
+	) {
+		throw new AppPaymentsError(
+			"invalid_input",
+			"contentId must be a non-negative integer",
+		);
+	}
+	if (opts.timeoutMs !== undefined && typeof opts.timeoutMs !== "number") {
+		throw new AppPaymentsError("invalid_input", "timeoutMs must be a number");
+	}
+
+	const { targetWindow, parent } = resolveParent(opts.window);
+	const requestId = generateQueryRequestId();
+	const timeoutMs = opts.timeoutMs ?? DEFAULT_QUERY_TIMEOUT_MS;
+
+	const message: IapHasItemMessage = {
+		type: HAS_ITEM_MESSAGE_TYPE,
+		requestId,
+		contentId,
+	};
+
+	return new Promise<boolean>((resolve, reject) => {
+		let settled = false;
+		let timer: ReturnType<typeof setTimeout> | null = null;
+
+		const cleanup = () => {
+			targetWindow.removeEventListener("message", onMessage);
+			if (timer !== null) clearTimeout(timer);
+		};
+		const settle = (value: boolean) => {
+			if (settled) return;
+			settled = true;
+			cleanup();
+			resolve(value);
+		};
+		const fail = (err: Error) => {
+			if (settled) return;
+			settled = true;
+			cleanup();
+			reject(err);
+		};
+
+		const onMessage = (ev: MessageEvent<unknown>) => {
+			if (ev.source !== parent) return;
+			if (!isIapHasItemResultMessage(ev.data)) return;
+			if (ev.data.requestId !== requestId) return;
+			if (typeof ev.data.error === "string") {
+				const code: AppPaymentsErrorCode =
+					ev.data.error === "not_authenticated"
+						? "not_authenticated"
+						: "fetch_failed";
+				fail(new AppPaymentsError(code, ev.data.error));
+				return;
+			}
+			settle(ev.data.owned === true);
+		};
+
+		targetWindow.addEventListener("message", onMessage);
+
+		if (timeoutMs !== Number.POSITIVE_INFINITY) {
+			timer = setTimeout(() => {
+				fail(
+					new AppPaymentsError(
+						"timeout",
+						`no hasItem result within ${timeoutMs}ms`,
+					),
+				);
+			}, timeoutMs);
+		}
+
+		try {
+			parent.postMessage(message, "*");
+		} catch (e) {
+			fail(
+				new AppPaymentsError(
+					"invalid_input",
+					e instanceof Error ? e.message : "postMessage failed",
+				),
+			);
+		}
+	});
+}
+
+/**
+ * List every offchain `contentId` the session user owns for this app.
+ *
+ * Resolves with a sorted ascending array (possibly empty). Same error model
+ * as `hasItem`.
+ *
+ * @example
+ *   const owned = await getOwnedItems();
+ *   owned.forEach(restoreItem);
+ */
+export function getOwnedItems(
+	opts: EntitlementQueryInput = {},
+): Promise<number[]> {
+	if (opts.timeoutMs !== undefined && typeof opts.timeoutMs !== "number") {
+		throw new AppPaymentsError("invalid_input", "timeoutMs must be a number");
+	}
+
+	const { targetWindow, parent } = resolveParent(opts.window);
+	const requestId = generateQueryRequestId();
+	const timeoutMs = opts.timeoutMs ?? DEFAULT_QUERY_TIMEOUT_MS;
+
+	const message: IapListOwnedMessage = {
+		type: LIST_OWNED_MESSAGE_TYPE,
+		requestId,
+	};
+
+	return new Promise<number[]>((resolve, reject) => {
+		let settled = false;
+		let timer: ReturnType<typeof setTimeout> | null = null;
+
+		const cleanup = () => {
+			targetWindow.removeEventListener("message", onMessage);
+			if (timer !== null) clearTimeout(timer);
+		};
+		const settle = (value: number[]) => {
+			if (settled) return;
+			settled = true;
+			cleanup();
+			resolve(value);
+		};
+		const fail = (err: Error) => {
+			if (settled) return;
+			settled = true;
+			cleanup();
+			reject(err);
+		};
+
+		const onMessage = (ev: MessageEvent<unknown>) => {
+			if (ev.source !== parent) return;
+			if (!isIapListOwnedResultMessage(ev.data)) return;
+			if (ev.data.requestId !== requestId) return;
+			if (typeof ev.data.error === "string") {
+				const code: AppPaymentsErrorCode =
+					ev.data.error === "not_authenticated"
+						? "not_authenticated"
+						: "fetch_failed";
+				fail(new AppPaymentsError(code, ev.data.error));
+				return;
+			}
+			const ids = Array.isArray(ev.data.ownedContentIds)
+				? ev.data.ownedContentIds.filter(
+						(id): id is number =>
+							typeof id === "number" && Number.isInteger(id),
+					)
+				: [];
+			settle(ids);
+		};
+
+		targetWindow.addEventListener("message", onMessage);
+
+		if (timeoutMs !== Number.POSITIVE_INFINITY) {
+			timer = setTimeout(() => {
+				fail(
+					new AppPaymentsError(
+						"timeout",
+						`no getOwnedItems result within ${timeoutMs}ms`,
 					),
 				);
 			}, timeoutMs);
