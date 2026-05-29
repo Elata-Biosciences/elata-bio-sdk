@@ -8,7 +8,10 @@
  */
 
 import {
+	type CatalogItem,
+	GET_CATALOG_MESSAGE_TYPE,
 	HAS_ITEM_MESSAGE_TYPE,
+	type IapGetCatalogMessage,
 	type IapHasItemMessage,
 	type IapListOwnedMessage,
 	type IapRequestMessage,
@@ -17,10 +20,13 @@ import {
 	REQUEST_ID_MAX_LENGTH,
 	REQUEST_ID_MIN_LENGTH,
 	REQUEST_MESSAGE_TYPE,
+	isIapGetCatalogResultMessage,
 	isIapHasItemResultMessage,
 	isIapListOwnedResultMessage,
 	isIapResultMessage,
 } from "./protocol";
+
+export type { CatalogItem } from "./protocol";
 
 export type { IapStatus } from "./protocol";
 
@@ -470,6 +476,99 @@ export function getOwnedItems(
 					new AppPaymentsError(
 						"timeout",
 						`no getOwnedItems result within ${timeoutMs}ms`,
+					),
+				);
+			}, timeoutMs);
+		}
+
+		try {
+			parent.postMessage(message, "*");
+		} catch (e) {
+			fail(
+				new AppPaymentsError(
+					"invalid_input",
+					e instanceof Error ? e.message : "postMessage failed",
+				),
+			);
+		}
+	});
+}
+
+/**
+ * List the active offchain items the host has registered for this app.
+ *
+ * Resolves with an array of `CatalogItem` (possibly empty). Useful for
+ * rendering an in-app store without hard-coding `contentId`s or prices,
+ * and for staying in sync when an admin changes a listing.
+ *
+ * Same error model as `hasItem` / `getOwnedItems`: throws `AppPaymentsError`
+ * on local failures and on host-reported errors (`app_not_found`,
+ * `fetch_failed`).
+ *
+ * @example
+ *   const items = await getCatalog();
+ *   for (const item of items) renderTile(item);
+ */
+export function getCatalog(
+	opts: EntitlementQueryInput = {},
+): Promise<CatalogItem[]> {
+	if (opts.timeoutMs !== undefined && typeof opts.timeoutMs !== "number") {
+		throw new AppPaymentsError("invalid_input", "timeoutMs must be a number");
+	}
+
+	const { targetWindow, parent } = resolveParent(opts.window);
+	const requestId = generateQueryRequestId();
+	const timeoutMs = opts.timeoutMs ?? DEFAULT_QUERY_TIMEOUT_MS;
+
+	const message: IapGetCatalogMessage = {
+		type: GET_CATALOG_MESSAGE_TYPE,
+		requestId,
+	};
+
+	return new Promise<CatalogItem[]>((resolve, reject) => {
+		let settled = false;
+		let timer: ReturnType<typeof setTimeout> | null = null;
+
+		const cleanup = () => {
+			targetWindow.removeEventListener("message", onMessage);
+			if (timer !== null) clearTimeout(timer);
+		};
+		const settle = (value: CatalogItem[]) => {
+			if (settled) return;
+			settled = true;
+			cleanup();
+			resolve(value);
+		};
+		const fail = (err: Error) => {
+			if (settled) return;
+			settled = true;
+			cleanup();
+			reject(err);
+		};
+
+		const onMessage = (ev: MessageEvent<unknown>) => {
+			if (ev.source !== parent) return;
+			if (!isIapGetCatalogResultMessage(ev.data)) return;
+			if (ev.data.requestId !== requestId) return;
+			if (typeof ev.data.error === "string") {
+				const code: AppPaymentsErrorCode =
+					ev.data.error === "not_authenticated"
+						? "not_authenticated"
+						: "fetch_failed";
+				fail(new AppPaymentsError(code, ev.data.error));
+				return;
+			}
+			settle(Array.isArray(ev.data.items) ? ev.data.items : []);
+		};
+
+		targetWindow.addEventListener("message", onMessage);
+
+		if (timeoutMs !== Number.POSITIVE_INFINITY) {
+			timer = setTimeout(() => {
+				fail(
+					new AppPaymentsError(
+						"timeout",
+						`no getCatalog result within ${timeoutMs}ms`,
 					),
 				);
 			}, timeoutMs);

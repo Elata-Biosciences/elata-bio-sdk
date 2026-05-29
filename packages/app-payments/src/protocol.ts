@@ -18,6 +18,9 @@ export const HAS_ITEM_RESULT_MESSAGE_TYPE = "elata:iap:hasItem:result" as const;
 export const LIST_OWNED_MESSAGE_TYPE = "elata:iap:listOwned" as const;
 export const LIST_OWNED_RESULT_MESSAGE_TYPE =
 	"elata:iap:listOwned:result" as const;
+export const GET_CATALOG_MESSAGE_TYPE = "elata:iap:getCatalog" as const;
+export const GET_CATALOG_RESULT_MESSAGE_TYPE =
+	"elata:iap:getCatalog:result" as const;
 
 /** Host-enforced bounds on `requestId` length. Mirror these on the client. */
 export const REQUEST_ID_MIN_LENGTH = 8;
@@ -109,6 +112,45 @@ export function isIapListOwnedResultMessage(
 	if (!value || typeof value !== "object") return false;
 	const v = value as Record<string, unknown>;
 	if (v.type !== LIST_OWNED_RESULT_MESSAGE_TYPE) return false;
+	if (typeof v.requestId !== "string") return false;
+	return true;
+}
+
+/**
+ * A single offchain item listing as returned by `getCatalog()`. Mirrors the
+ * host's `/api/apps/[tokenAddress]/catalog` response shape.
+ */
+export interface CatalogItem {
+	contentId: number;
+	title: string;
+	description?: string | null;
+	imageUrl?: string | null;
+	/** USDC price in base units (6 decimals). e.g. `"50000"` = $0.05. */
+	priceUsdc: string;
+}
+
+/**
+ * Catalog query: list every active offchain item the host has registered
+ * for this app. Reply is `IapGetCatalogResultMessage`.
+ */
+export interface IapGetCatalogMessage {
+	type: typeof GET_CATALOG_MESSAGE_TYPE;
+	requestId: string;
+}
+
+export interface IapGetCatalogResultMessage {
+	type: typeof GET_CATALOG_RESULT_MESSAGE_TYPE;
+	requestId: string;
+	items?: CatalogItem[];
+	error?: string;
+}
+
+export function isIapGetCatalogResultMessage(
+	value: unknown,
+): value is IapGetCatalogResultMessage {
+	if (!value || typeof value !== "object") return false;
+	const v = value as Record<string, unknown>;
+	if (v.type !== GET_CATALOG_RESULT_MESSAGE_TYPE) return false;
 	if (typeof v.requestId !== "string") return false;
 	return true;
 }

@@ -6,12 +6,14 @@
 
 export {
 	AppPaymentsError,
+	getCatalog,
 	getOwnedItems,
 	hasItem,
 	requestPurchase,
 } from "./client";
 export type {
 	AppPaymentsErrorCode,
+	CatalogItem,
 	EntitlementQueryInput,
 	PurchaseCancelled,
 	PurchaseError,

@@ -1,10 +1,13 @@
 import {
 	AppPaymentsError,
+	getCatalog,
 	getOwnedItems,
 	hasItem,
 	requestPurchase,
 } from "../client";
 import {
+	GET_CATALOG_MESSAGE_TYPE,
+	GET_CATALOG_RESULT_MESSAGE_TYPE,
 	HAS_ITEM_MESSAGE_TYPE,
 	HAS_ITEM_RESULT_MESSAGE_TYPE,
 	LIST_OWNED_MESSAGE_TYPE,
@@ -443,5 +446,85 @@ describe("getOwnedItems", () => {
 		});
 
 		await expect(promise).rejects.toMatchObject({ code: "fetch_failed" });
+	});
+});
+
+describe("getCatalog", () => {
+	it("posts a well-formed elata:iap:getCatalog message to the parent", async () => {
+		const fx = buildIframeWindow();
+		const promise = getCatalog({ window: fx.childWindow });
+
+		expect(fx.parentMessages).toHaveLength(1);
+		const msg = fx.parentMessages[0].data as Record<string, unknown>;
+		expect(msg.type).toBe(GET_CATALOG_MESSAGE_TYPE);
+		expect(typeof msg.requestId).toBe("string");
+
+		fx.replyFromParent({
+			type: GET_CATALOG_RESULT_MESSAGE_TYPE,
+			requestId: msg.requestId,
+			items: [],
+		});
+		await promise;
+	});
+
+	it("resolves with the parent-supplied items array", async () => {
+		const fx = buildIframeWindow();
+		const promise = getCatalog({ window: fx.childWindow });
+		const requestId = (fx.parentMessages[0].data as { requestId: string })
+			.requestId;
+
+		const items = [
+			{ contentId: 0, title: "Hint pack", priceUsdc: "50000" },
+			{
+				contentId: 1,
+				title: "Skin",
+				priceUsdc: "1000000",
+				imageUrl: "https://example/x.png",
+			},
+		];
+		fx.replyFromParent({
+			type: GET_CATALOG_RESULT_MESSAGE_TYPE,
+			requestId,
+			items,
+		});
+
+		await expect(promise).resolves.toEqual(items);
+	});
+
+	it("resolves with an empty array when items is missing or non-array", async () => {
+		const fx = buildIframeWindow();
+		const promise = getCatalog({ window: fx.childWindow });
+		const requestId = (fx.parentMessages[0].data as { requestId: string })
+			.requestId;
+
+		fx.replyFromParent({
+			type: GET_CATALOG_RESULT_MESSAGE_TYPE,
+			requestId,
+			items: "not-an-array",
+		});
+
+		await expect(promise).resolves.toEqual([]);
+	});
+
+	it("rejects with fetch_failed on host error", async () => {
+		const fx = buildIframeWindow();
+		const promise = getCatalog({ window: fx.childWindow });
+		const requestId = (fx.parentMessages[0].data as { requestId: string })
+			.requestId;
+
+		fx.replyFromParent({
+			type: GET_CATALOG_RESULT_MESSAGE_TYPE,
+			requestId,
+			error: "app_not_found",
+		});
+
+		await expect(promise).rejects.toMatchObject({ code: "fetch_failed" });
+	});
+
+	it("rejects with timeout when no result arrives in time", async () => {
+		const fx = buildIframeWindow();
+		const promise = getCatalog({ window: fx.childWindow, timeoutMs: 10 });
+		await expect(promise).rejects.toMatchObject({ code: "timeout" });
+		expect(fx.listenerCount()).toBe(0);
 	});
 });
