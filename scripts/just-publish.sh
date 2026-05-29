@@ -46,6 +46,7 @@ if [[ -z "${NPM_TOKEN:-}" && -f "$ROOT_DIR/.env" ]]; then
     done < "$ROOT_DIR/.env"
 fi
 
+PUBLISH_OTP_FLAG=()
 if [[ -n "${NPM_TOKEN:-}" ]]; then
     USER_NPMRC="$(mktemp "${TMPDIR:-/tmp}/elata-npmrc.XXXXXX")"
     trap 'rm -f "$USER_NPMRC"' EXIT
@@ -92,8 +93,13 @@ if node -e "process.exit(require('$PKG_DIR/package.json').scripts?.['verify:publ
 fi
 
 # --- Publish -------------------------------------------------------------------
+if [[ -z "${NPM_TOKEN:-}" ]]; then
+    read -r -p "npm 2FA OTP (leave blank if 2FA is off): " OTP
+    [[ -n "$OTP" ]] && PUBLISH_OTP_FLAG=(--otp "$OTP")
+fi
+
 note "publishing $PKG_NAME@$PKG_VERSION to npm with tag 'latest'"
-( cd "$PKG_DIR" && pnpm publish --access public --tag latest --no-git-checks )
+( cd "$PKG_DIR" && pnpm publish --access public --tag latest --no-git-checks "${PUBLISH_OTP_FLAG[@]}" )
 
 # --- Tag + push ----------------------------------------------------------------
 TAG="$PKG-v$PKG_VERSION"
