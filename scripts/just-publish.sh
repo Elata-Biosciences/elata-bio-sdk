@@ -93,13 +93,15 @@ if node -e "process.exit(require('$PKG_DIR/package.json').scripts?.['verify:publ
 fi
 
 # --- Publish -------------------------------------------------------------------
-if [[ -z "${NPM_TOKEN:-}" ]]; then
-    read -r -p "npm 2FA OTP (leave blank if 2FA is off): " OTP
-    [[ -n "$OTP" ]] && PUBLISH_OTP_FLAG=(--otp "$OTP")
-fi
-
+# With NPM_TOKEN: use pnpm publish (no 2FA round-trip).
+# With npm login session: use `npm publish --auth-type=web` so 2FA opens a
+# browser tab for Yubikey/webauthn instead of asking for a TOTP code.
 note "publishing $PKG_NAME@$PKG_VERSION to npm with tag 'latest'"
-( cd "$PKG_DIR" && pnpm publish --access public --tag latest --no-git-checks "${PUBLISH_OTP_FLAG[@]}" )
+if [[ -n "${NPM_TOKEN:-}" ]]; then
+    ( cd "$PKG_DIR" && pnpm publish --access public --tag latest --no-git-checks )
+else
+    ( cd "$PKG_DIR" && npm publish --access public --tag latest --auth-type=web )
+fi
 
 # --- Tag + push ----------------------------------------------------------------
 TAG="$PKG-v$PKG_VERSION"
