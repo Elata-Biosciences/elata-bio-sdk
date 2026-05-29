@@ -69,3 +69,4 @@ packages/eeg-web/src/*.d.ts.map
 /gen-*.sh
 # Runtime state (runctl)
 .run/
+.codex
