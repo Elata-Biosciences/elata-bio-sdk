@@ -1,6 +1,6 @@
 {
 	"name": "@elata-biosciences/app-payments",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "In-app purchases for sandboxed apps in the Elata appstore",
 	"license": "MIT",
 	"author": "Elata",
