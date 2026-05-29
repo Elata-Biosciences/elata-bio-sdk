@@ -1,0 +1,59 @@
+{
+	"name": "@elata-biosciences/app-state",
+	"version": "0.1.0",
+	"description": "Per-user, per-app state storage for sandboxed apps in the Elata appstore",
+	"license": "MIT",
+	"author": "Elata",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Elata-Biosciences/elata-bio-sdk.git",
+		"directory": "packages/app-state"
+	},
+	"homepage": "https://github.com/Elata-Biosciences/elata-bio-sdk#readme",
+	"bugs": "https://github.com/Elata-Biosciences/elata-bio-sdk/issues",
+	"keywords": [
+		"elata",
+		"appstore",
+		"state",
+		"storage",
+		"sandbox"
+	],
+	"engines": {
+		"node": ">=20"
+	},
+	"type": "module",
+	"sideEffects": false,
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"README.md"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"lint": "pnpm exec biome lint src jest.config.cjs",
+		"test": "jest --config ./jest.config.cjs --passWithNoTests",
+		"test:coverage": "jest --config ./jest.config.cjs --coverage --passWithNoTests",
+		"clean": "node ./scripts/clean.mjs",
+		"build": "tsc -p tsconfig.json && node ./scripts/fix-dist-import-specifiers.mjs && node ./scripts/verify-dist-esm.mjs",
+		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
+		"verify:publish": "pnpm run verify:build",
+		"prepare:publish": "pnpm run build",
+		"prepack": "pnpm run prepare:publish && pnpm run verify:publish"
+	},
+	"devDependencies": {
+		"@types/jest": "29.5.14",
+		"jest": "29.7.0",
+		"jest-environment-jsdom": "29.7.0",
+		"ts-jest": "29.4.4",
+		"typescript": "5.9.3"
+	}
+}
