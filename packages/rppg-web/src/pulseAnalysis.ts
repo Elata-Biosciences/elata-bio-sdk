@@ -278,13 +278,64 @@ export function detectPeaks(
 		const curr = data[i].value;
 		const next = data[i + 1].value;
 		if (curr > threshold && curr > prev && curr > next) {
+			// Refine the peak location to sub-sample precision via parabolic
+			// interpolation. Without this, every peak time is quantized to the
+			// sample grid (10-33 ms at typical PPG/camera rates), which swamps
+			// the beat-to-beat differences HRV is built from.
+			const refined = refinePeakByInterpolation(data[i - 1], data[i], data[i + 1]);
 			const last = peaks[peaks.length - 1];
-			if (!last || data[i].time - last.time > minPeakDistance) {
-				peaks.push(data[i]);
+			if (!last || refined.time - last.time > minPeakDistance) {
+				peaks.push(refined);
 			}
 		}
 	}
 	return peaks;
+}
+
+/**
+ * Estimate the true vertex of a peak by fitting a parabola through the peak
+ * sample and its two neighbours. Returns the interpolated time (and value at
+ * that time). Falls back to the centre sample when the three points are
+ * collinear or the vertex would land outside the neighbour interval, which can
+ * happen on noisy or clipped signals.
+ */
+export function refinePeakByInterpolation(
+	prev: PulsePeak,
+	curr: PulsePeak,
+	next: PulsePeak,
+): PulsePeak {
+	const x0 = prev.time;
+	const x1 = curr.time;
+	const x2 = next.time;
+	const y0 = prev.value;
+	const y1 = curr.value;
+	const y2 = next.value;
+
+	// Vertex of the parabola y = a*x^2 + b*x + c through three arbitrary points,
+	// i.e. -b / (2a) expressed without forming the ill-conditioned coefficients.
+	const denom = x0 * (y1 - y2) + x1 * (y2 - y0) + x2 * (y0 - y1);
+	if (!Number.isFinite(denom) || Math.abs(denom) < 1e-12) {
+		return curr;
+	}
+	const numer = x0 * x0 * (y1 - y2) + x1 * x1 * (y2 - y0) + x2 * x2 * (y0 - y1);
+	const vertexTime = numer / (2 * denom);
+
+	if (!Number.isFinite(vertexTime) || vertexTime <= x0 || vertexTime >= x2) {
+		return curr;
+	}
+
+	// Evaluate the fitted parabola at the vertex so the reported value matches
+	// the refined time rather than the raw sample amplitude.
+	const a =
+		(y0 * (x1 - x2) + y1 * (x2 - x0) + y2 * (x0 - x1)) /
+		((x0 - x1) * (x0 - x2) * (x1 - x2));
+	// y = a(x - h)^2 + k with vertex (h, k); k = y1 - a(x1 - h)^2.
+	const vertexValue = y1 - a * (vertexTime - x1) * (vertexTime - x1);
+
+	return {
+		time: vertexTime,
+		value: Number.isFinite(vertexValue) ? vertexValue : y1,
+	};
 }
 
 export function bpmFromPeaks(
@@ -307,21 +358,79 @@ export function bpmFromPeaks(
 	return { bpm, confidence };
 }
 
-export function rmssdFromPeaks(peaks: PulsePeak[]): number | null {
-	if (peaks.length < 4) return null;
-	const ibisMs: number[] = [];
+// Plausible inter-beat interval range: 300 ms (200 bpm) to 2000 ms (30 bpm).
+const IBI_MIN_MS = 300;
+const IBI_MAX_MS = 2000;
+// Reject a beat whose interval deviates more than this fraction from the
+// running median — a standard ectopic/missed-beat guard for RMSSD.
+const IBI_OUTLIER_FRACTION = 0.3;
+
+/**
+ * Build the inter-beat-interval series from peaks, tagging each interval as a
+ * valid NN interval or an artifact. Artifacts are intervals outside the
+ * physiological range or deviating sharply from the running median (ectopic or
+ * missed beats). Adjacency is preserved so RMSSD can be computed only across
+ * consecutive normal beats.
+ */
+function buildTaggedIntervals(
+	peaks: PulsePeak[],
+): Array<{ ms: number; valid: boolean }> {
+	const intervals: Array<{ ms: number; valid: boolean }> = [];
 	for (let i = 0; i < peaks.length - 1; i++) {
 		const dt = peaks[i + 1].time - peaks[i].time;
-		if (dt > 0) ibisMs.push(dt);
+		intervals.push({ ms: dt, valid: dt >= IBI_MIN_MS && dt <= IBI_MAX_MS });
 	}
-	if (ibisMs.length < 3) return null;
+
+	const median = medianOf(
+		intervals.filter((iv) => iv.valid).map((iv) => iv.ms),
+	);
+	if (median != null) {
+		for (const iv of intervals) {
+			if (iv.valid && Math.abs(iv.ms - median) > median * IBI_OUTLIER_FRACTION) {
+				iv.valid = false;
+			}
+		}
+	}
+	return intervals;
+}
+
+/**
+ * Cleaned NN intervals (in ms) suitable for time-domain HRV metrics such as
+ * SDNN and mean NN. Peak times are already sub-sample refined by
+ * {@link detectPeaks}; this additionally drops artifact intervals.
+ */
+export function cleanNnIntervalsMs(peaks: PulsePeak[]): number[] {
+	return buildTaggedIntervals(peaks)
+		.filter((iv) => iv.valid)
+		.map((iv) => iv.ms);
+}
+
+export function rmssdFromPeaks(peaks: PulsePeak[]): number | null {
+	if (peaks.length < 4) return null;
+
+	const intervals = buildTaggedIntervals(peaks);
+	if (intervals.length < 3) return null;
+
+	// Successive differences only between adjacent intervals that are both valid.
 	const diffs: number[] = [];
-	for (let i = 0; i < ibisMs.length - 1; i++) {
-		diffs.push(ibisMs[i + 1] - ibisMs[i]);
+	for (let i = 0; i < intervals.length - 1; i++) {
+		if (intervals[i].valid && intervals[i + 1].valid) {
+			diffs.push(intervals[i + 1].ms - intervals[i].ms);
+		}
 	}
-	if (!diffs.length) return null;
+	if (diffs.length < 2) return null;
+
 	const meanSq = diffs.reduce((a, b) => a + b * b, 0) / diffs.length;
 	return Math.sqrt(meanSq);
+}
+
+function medianOf(values: number[]): number | null {
+	if (!values.length) return null;
+	const sorted = [...values].sort((a, b) => a - b);
+	const mid = Math.floor(sorted.length / 2);
+	return sorted.length % 2 === 0
+		? (sorted[mid - 1] + sorted[mid]) / 2
+		: sorted[mid];
 }
 
 export function temporalNormalize(data: number[]): number[] {

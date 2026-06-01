@@ -1,6 +1,6 @@
 {
 	"name": "@elata-biosciences/ppg-web",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "TypeScript helpers for Muse PPG heart-rate and HRV estimation on the web",
 	"license": "MIT",
 	"author": "Elata",
@@ -53,9 +53,9 @@
 		"prepack": "pnpm run prepare:publish && pnpm run verify:publish"
 	},
 	"peerDependencies": {
-		"@elata-biosciences/eeg-web": "^0.1.0",
-		"@elata-biosciences/eeg-web-ble": "^0.1.0",
-		"@elata-biosciences/rppg-web": "^0.1.0"
+		"@elata-biosciences/eeg-web": "^0.2.1",
+		"@elata-biosciences/eeg-web-ble": "^0.2.1",
+		"@elata-biosciences/rppg-web": "^0.3.0"
 	},
 	"devDependencies": {
 		"@elata-biosciences/eeg-web": "workspace:*",

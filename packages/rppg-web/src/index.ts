@@ -84,8 +84,10 @@ export type {
 export {
 	analyzePulseWindow,
 	calculateBpmViaAutocorrelation,
+	cleanNnIntervalsMs,
 	detectPeaks,
 	estimateDominantBpm,
+	refinePeakByInterpolation,
 	rmssdFromPeaks,
 	temporalNormalize,
 } from "./pulseAnalysis";

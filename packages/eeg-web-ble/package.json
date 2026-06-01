@@ -1,6 +1,6 @@
 {
 	"name": "@elata-biosciences/eeg-web-ble",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "Web Bluetooth headband transport that emits normalized headband frames",
 	"license": "MIT",
 	"author": "Elata",
@@ -54,7 +54,7 @@
 		"pack:check": "pnpm pack --dry-run --json"
 	},
 	"peerDependencies": {
-		"@elata-biosciences/eeg-web": "^0.1.0"
+		"@elata-biosciences/eeg-web": "^0.2.1"
 	},
 	"devDependencies": {
 		"@elata-biosciences/eeg-web": "workspace:*",

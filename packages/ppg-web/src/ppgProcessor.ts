@@ -1,6 +1,7 @@
 import type { HeadbandClockSource, HeadbandFrameV1 } from "@elata-biosciences/eeg-web";
 import {
 	analyzePulseWindow,
+	cleanNnIntervalsMs,
 	detectPeaks,
 	temporalNormalize,
 	type PulsePeak,
@@ -432,7 +433,9 @@ function buildCandidate(stream: InternalStream): CandidateComputation | null {
 		points.map((point) => ({ time: point.timestampMs, value: point.normalized })),
 		analysis.peaks?.bpm ?? analysis.spectral?.bpm ?? analysis.acf?.bpm ?? null,
 	);
-	const ibisMs = computeIbisMs(peaks);
+	// Use artifact-rejected NN intervals (peak times are already sub-sample
+	// refined by detectPeaks) so SDNN/mean NN match the cleaned series RMSSD uses.
+	const ibisMs = cleanNnIntervalsMs(peaks);
 	const meanNnMs = ibisMs.length ? average(ibisMs) : null;
 	const sdnnMs = ibisMs.length >= 2 ? stddev(ibisMs) : null;
 	const agreement = computeAgreement([
@@ -547,14 +550,6 @@ function computeAgreement(values: Array<number | null>): number {
 	return clamp(1 - spread / 18, 0, 1);
 }
 
-function computeIbisMs(peaks: PulsePeak[]): number[] {
-	const ibis: number[] = [];
-	for (let index = 0; index < peaks.length - 1; index++) {
-		const delta = peaks[index + 1].time - peaks[index].time;
-		if (delta > 0) ibis.push(delta);
-	}
-	return ibis;
-}
 
 function stripCandidateTrace(candidate: CandidateComputation): PpgChannelCandidate {
 	return {
