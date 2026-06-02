@@ -2669,13 +2669,37 @@ function detectPeaks(data, bpmHint) {
     const curr = data[i].value;
     const next = data[i + 1].value;
     if (curr > threshold && curr > prev && curr > next) {
+      const refined = refinePeakByInterpolation(data[i - 1], data[i], data[i + 1]);
       const last = peaks[peaks.length - 1];
-      if (!last || data[i].time - last.time > minPeakDistance) {
-        peaks.push(data[i]);
+      if (!last || refined.time - last.time > minPeakDistance) {
+        peaks.push(refined);
       }
     }
   }
   return peaks;
+}
+function refinePeakByInterpolation(prev, curr, next) {
+  const x0 = prev.time;
+  const x1 = curr.time;
+  const x2 = next.time;
+  const y0 = prev.value;
+  const y1 = curr.value;
+  const y2 = next.value;
+  const denom = x0 * (y1 - y2) + x1 * (y2 - y0) + x2 * (y0 - y1);
+  if (!Number.isFinite(denom) || Math.abs(denom) < 1e-12) {
+    return curr;
+  }
+  const numer = x0 * x0 * (y1 - y2) + x1 * x1 * (y2 - y0) + x2 * x2 * (y0 - y1);
+  const vertexTime = numer / (2 * denom);
+  if (!Number.isFinite(vertexTime) || vertexTime <= x0 || vertexTime >= x2) {
+    return curr;
+  }
+  const a = (y0 * (x1 - x2) + y1 * (x2 - x0) + y2 * (x0 - x1)) / ((x0 - x1) * (x0 - x2) * (x1 - x2));
+  const vertexValue = y1 - a * (vertexTime - x1) * (vertexTime - x1);
+  return {
+    time: vertexTime,
+    value: Number.isFinite(vertexValue) ? vertexValue : y1
+  };
 }
 function bpmFromPeaks(peaks) {
   if (peaks.length < 2) return null;
@@ -2694,21 +2718,49 @@ function bpmFromPeaks(peaks) {
   const confidence = clamp2(1 - cov * 1.5, 0, 1);
   return { bpm, confidence };
 }
-function rmssdFromPeaks(peaks) {
-  if (peaks.length < 4) return null;
-  const ibisMs = [];
+var IBI_MIN_MS = 300;
+var IBI_MAX_MS = 2e3;
+var IBI_OUTLIER_FRACTION = 0.3;
+function buildTaggedIntervals(peaks) {
+  const intervals = [];
   for (let i = 0; i < peaks.length - 1; i++) {
     const dt = peaks[i + 1].time - peaks[i].time;
-    if (dt > 0) ibisMs.push(dt);
+    intervals.push({ ms: dt, valid: dt >= IBI_MIN_MS && dt <= IBI_MAX_MS });
   }
-  if (ibisMs.length < 3) return null;
+  const median = medianOf(
+    intervals.filter((iv) => iv.valid).map((iv) => iv.ms)
+  );
+  if (median != null) {
+    for (const iv of intervals) {
+      if (iv.valid && Math.abs(iv.ms - median) > median * IBI_OUTLIER_FRACTION) {
+        iv.valid = false;
+      }
+    }
+  }
+  return intervals;
+}
+function cleanNnIntervalsMs(peaks) {
+  return buildTaggedIntervals(peaks).filter((iv) => iv.valid).map((iv) => iv.ms);
+}
+function rmssdFromPeaks(peaks) {
+  if (peaks.length < 4) return null;
+  const intervals = buildTaggedIntervals(peaks);
+  if (intervals.length < 3) return null;
   const diffs = [];
-  for (let i = 0; i < ibisMs.length - 1; i++) {
-    diffs.push(ibisMs[i + 1] - ibisMs[i]);
+  for (let i = 0; i < intervals.length - 1; i++) {
+    if (intervals[i].valid && intervals[i + 1].valid) {
+      diffs.push(intervals[i + 1].ms - intervals[i].ms);
+    }
   }
-  if (!diffs.length) return null;
+  if (diffs.length < 2) return null;
   const meanSq = diffs.reduce((a, b) => a + b * b, 0) / diffs.length;
   return Math.sqrt(meanSq);
+}
+function medianOf(values) {
+  if (!values.length) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
 }
 function temporalNormalize(data) {
   if (!data.length) return [];
@@ -3002,7 +3054,7 @@ function buildCandidate(stream) {
     points.map((point) => ({ time: point.timestampMs, value: point.normalized })),
     analysis.peaks?.bpm ?? analysis.spectral?.bpm ?? analysis.acf?.bpm ?? null
   );
-  const ibisMs = computeIbisMs(peaks);
+  const ibisMs = cleanNnIntervalsMs(peaks);
   const meanNnMs = ibisMs.length ? average(ibisMs) : null;
   const sdnnMs = ibisMs.length >= 2 ? stddev(ibisMs) : null;
   const agreement = computeAgreement([
@@ -3094,14 +3146,6 @@ function computeAgreement(values) {
   const mean2 = average(valid);
   const spread = average(valid.map((value) => Math.abs(value - mean2)));
   return clamp3(1 - spread / 18, 0, 1);
-}
-function computeIbisMs(peaks) {
-  const ibis = [];
-  for (let index = 0; index < peaks.length - 1; index++) {
-    const delta = peaks[index + 1].time - peaks[index].time;
-    if (delta > 0) ibis.push(delta);
-  }
-  return ibis;
 }
 function stripCandidateTrace(candidate) {
   return {

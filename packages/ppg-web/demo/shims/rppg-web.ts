@@ -1,5 +1,6 @@
 export {
 	analyzePulseWindow,
+	cleanNnIntervalsMs,
 	detectPeaks,
 	temporalNormalize,
 } from "../../../rppg-web/src/pulseAnalysis";

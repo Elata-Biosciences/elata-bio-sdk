@@ -151,6 +151,25 @@ with_npm_registry_auth() {
     return "$rc"
 }
 
+# Fail fast with a clear message if the npm registry token cannot authenticate.
+# An invalid/expired/revoked token otherwise surfaces as a misleading 404 when
+# publishing: an unauthenticated PUT to a scoped package is reported as
+# "not found" rather than "unauthorized", to avoid leaking the scope's existence.
+verify_npm_token_or_die() {
+    local who rc=0
+    who="$(with_npm_registry_auth npm whoami --registry=https://registry.npmjs.org/ 2>/dev/null)" || rc=$?
+    if [[ "$rc" -ne 0 || -z "$who" ]]; then
+        if [[ -n "${NPM_TOKEN:-}" ]]; then
+            die "npm authentication failed: NPM_TOKEN is invalid, expired, or revoked." \
+                "Generate a new Automation or Granular Access token (your account has 2FA on writes, so a classic publish token will not work non-interactively) at https://www.npmjs.com/settings/<your-user>/tokens/new and update NPM_TOKEN in ${ROOT_DIR}/.env."
+        else
+            die "npm authentication failed and no NPM_TOKEN is set." \
+                "Set NPM_TOKEN in ${ROOT_DIR}/.env or run 'npm login' so publishing can authenticate."
+        fi
+    fi
+    echo "Authenticated to npm registry as '${who}'."
+}
+
 with_cargo_registry_auth() {
     local previous_token="${CARGO_REGISTRY_TOKEN:-}"
     local had_previous=0
@@ -840,6 +859,7 @@ publish_packages() {
     require_cmds node
     require_package_manager
     ensure_npm_token_from_dotenv
+    verify_npm_token_or_die
 
     if [[ "$skip_verify" != "1" ]]; then
         verify_release_contract_for_target "$target"
