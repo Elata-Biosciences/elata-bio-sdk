@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   createRppgSession,
+  AffectTracker,
+  classifyAffectLabel,
   type Metrics,
   type RppgSession,
   type RppgSessionDiagnostics,
@@ -85,14 +87,38 @@ export default function App() {
   const [status, setStatus] = useState('Requesting camera…');
   const [metrics, setMetrics] = useState<Metrics>(EMPTY_METRICS);
   const [diagnostics, setDiagnostics] = useState<RppgSessionDiagnostics | null>(null);
+  const [affect, setAffect] = useState<{ label: string; valence: number; arousal: number } | null>(null);
+  const affectTrackerRef = useRef(new AffectTracker());
 
   const syncFromSession = useCallback(() => {
     const session = sessionRef.current;
     if (!session) return;
     const nextDiagnostics = session.getDiagnostics();
-    setMetrics(session.getMetrics());
+    const nextMetrics = session.getMetrics();
+    setMetrics(nextMetrics);
     setDiagnostics(nextDiagnostics);
     setStatus(getStatusMessage(nextDiagnostics));
+
+    // Affect: valence from the face (blendshapes), arousal from rPPG physiology.
+    const tracker = affectTrackerRef.current;
+    const face = session.getLastBlendshapes();
+    if (face) tracker.observeFace(face.blendshapes, face.atMs);
+    tracker.observePhysiology(nextMetrics.bpm ?? null, nextMetrics.hrv_rmssd ?? null);
+    const state = tracker.compute({
+      bpm: nextMetrics.bpm ?? null,
+      rmssd: nextMetrics.hrv_rmssd ?? null,
+      physioConfidence: nextMetrics.confidence ?? 0,
+      faceConfidence: face ? 1 : 0,
+    });
+    setAffect(
+      state.arousalSource === 'none'
+        ? null
+        : {
+            label: classifyAffectLabel(state.valence, state.arousal),
+            valence: state.valence,
+            arousal: state.arousal,
+          },
+    );
   }, []);
 
   useEffect(() => {
@@ -241,6 +267,20 @@ export default function App() {
                 <span className="bpm-unit">BPM</span>
               </div>
               <p className="bpm-sub">{readinessLabel}</p>
+            </div>
+
+            <div className="bpm-block" aria-label="Affect">
+              <p className="bpm-label">Affect</p>
+              <div className="bpm-value-row">
+                <span className="bpm-number" style={{ fontSize: '1.5rem' }}>
+                  {affect ? affect.label : '—'}
+                </span>
+              </div>
+              <p className="bpm-sub">
+                {affect
+                  ? `valence ${affect.valence.toFixed(2)} · arousal ${affect.arousal.toFixed(2)}`
+                  : 'face + heart-rate fusion'}
+              </p>
             </div>
 
             <div className="meter-group">
