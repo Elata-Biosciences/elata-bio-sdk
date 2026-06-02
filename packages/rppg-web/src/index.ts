@@ -122,6 +122,19 @@ export {
 	shouldAllowDisplayJumpReset,
 } from "./displayGuard";
 export type { NoReferenceDisplayGuardDecision } from "./displayGuard";
+export {
+	affectStress,
+	blendshapeValenceArousal,
+	classifyAffectLabel,
+	fuseAffect,
+	physiologyArousal,
+} from "./affect";
+export type {
+	AffectLabel,
+	AffectState,
+	FaceBlendshapeCategory,
+	ValenceArousal,
+} from "./affect";
 export { DisplayBpmTracker } from "./displayBpm";
 export type {
 	DisplayBpmOptions,
