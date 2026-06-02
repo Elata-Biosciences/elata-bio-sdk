@@ -90,6 +90,18 @@ describe("pulseAnalysis", () => {
 		expect(analysis?.hrvRmssd == null || analysis.hrvRmssd >= 0).toBe(true);
 	});
 
+	test("analyzePulseWindow reports a low RMSSD for a clean periodic pulse (Hilbert-phase HRV)", () => {
+		const sampleRate = 30;
+		const total = sampleRate * 15;
+		// Perfectly periodic 72 bpm pulse -> near-zero beat-to-beat variability.
+		const values = Array.from({ length: total }, (_, i) =>
+			Math.sin(2 * Math.PI * 1.2 * (i / sampleRate)),
+		);
+		const analysis = analyzePulseWindow(buildSamples(values, sampleRate));
+		expect(analysis?.hrvRmssd).not.toBeNull();
+		expect(analysis?.hrvRmssd ?? Number.POSITIVE_INFINITY).toBeLessThan(60);
+	});
+
 	test("analyzePulseWindow quality reflects motion and clipping penalties", () => {
 		const sampleRate = 30;
 		const durationSec = 12;

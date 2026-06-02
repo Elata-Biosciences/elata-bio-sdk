@@ -64,13 +64,28 @@ export function analyzePulseWindow(
 	const acf = calculateBpmViaAutocorrelation(norm, fs, spectral?.bpm ?? null);
 	const waveformProfile = computeWaveformPeriodicityProfile(norm, fs);
 
-	const peaksDetected = detectPeaks(
-		samples.map((sample, idx) => ({ value: norm[idx], time: sample.timestampMs })),
-		spectral?.bpm ?? acf?.bpm ?? null,
-	);
+	const signalPoints = samples.map((sample, idx) => ({
+		value: norm[idx],
+		time: sample.timestampMs,
+	}));
+	const peaksDetected = detectPeaks(signalPoints, spectral?.bpm ?? acf?.bpm ?? null);
 	const peakBpm =
 		peaksDetected.length >= 2 ? bpmFromPeaks(peaksDetected) : null;
-	const hrvRmssd = rmssdFromPeaks(peaksDetected);
+
+	// HRV: prefer continuous-time Hilbert-phase beat timing. Its 2*pi phase
+	// crossings are sub-frame accurate (informed by the whole window), giving a
+	// steadier beat-to-beat RMSSD than the frame-grid peak picker; centering the
+	// band on the detected rate rejects the half-rate sub-harmonic. Fall back to
+	// the peak-based RMSSD when the analytic phase can't resolve enough beats
+	// (short or non-periodic windows). Both paths reuse rmssdFromPeaks' ectopic-
+	// interval rejection so only the beat-timing source differs.
+	const hilbertBeats = detectBeatsViaHilbertPhase(signalPoints, {
+		sampleRate: fs,
+		centerBpm: spectral?.bpm ?? acf?.bpm ?? null,
+	});
+	const hrvRmssd =
+		rmssdFromPeaks(hilbertBeats.beatTimesMs.map((time) => ({ value: 1, time }))) ??
+		rmssdFromPeaks(peaksDetected);
 
 	const respirationEstimate = estimateDominantBpm(norm, fs, 0.08, 0.5);
 	const respiration =
