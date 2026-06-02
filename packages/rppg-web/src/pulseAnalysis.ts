@@ -2,7 +2,7 @@ import {
 	computeWaveformPeriodicityProfile,
 	type WaveformPeriodicityProfile,
 } from "./rppgDiagnostics";
-import { computeSignalSnrDb } from "./rppgSignalModel";
+import { computeSignalSnrDb, zeroPhaseBandpass } from "./rppgSignalModel";
 
 export type HarmonicRelation = "fundamental" | "half" | "double";
 
@@ -462,4 +462,186 @@ function std(values: number[]): number {
 		acc += delta * delta;
 	}
 	return Math.sqrt(acc / values.length);
+}
+
+/**
+ * Standard time-domain RMSSD (ms) over an inter-beat-interval series (ms):
+ * RMSSD = sqrt( mean of squared *successive* differences ). Returns null for
+ * fewer than two intervals. This computes RMSSD directly from an interval
+ * series; {@link rmssdFromPeaks} is the peak-based path with ectopic-beat
+ * rejection — they share this same underlying formula.
+ */
+export function computeRmssdMs(ibisMs: number[]): number | null {
+	if (ibisMs.length < 2) return null;
+	let sumSq = 0;
+	for (let i = 1; i < ibisMs.length; i++) {
+		const d = ibisMs[i] - ibisMs[i - 1];
+		sumSq += d * d;
+	}
+	return Math.sqrt(sumSq / (ibisMs.length - 1));
+}
+
+// ---------------------------------------------------------------------------
+// Hilbert-phase beat timing
+//
+// Instead of locating each beat as the argmax of a noisy pulse top (quantized
+// to the frame interval and informed by only ~3 samples), this estimates beat
+// instants from the *phase* of the analytic signal: every beat advances the
+// instantaneous phase by 2*pi, and the crossing of each 2*pi level is
+// interpolated in continuous time from the surrounding samples. The phase at
+// each sample is informed by the whole waveform, so timing is far less
+// sensitive to frame quantization and per-peak noise — yielding a steadier
+// beat-to-beat RMSSD than the peak picker on the same trace.
+// ---------------------------------------------------------------------------
+
+export interface HilbertBeatOptions {
+	/** Sample rate (Hz); when given, a zero-phase bandpass narrowbands the cardiac fundamental. */
+	sampleRate?: number;
+	/** Bandpass edges in Hz (default 0.7-3.5, i.e. ~42-210 bpm). */
+	lowHz?: number;
+	highHz?: number;
+	/**
+	 * Locked/known heart rate (bpm). When given, the bandpass is centered on it
+	 * (± bandMarginBpm) instead of the wide default, so the analytic phase
+	 * advances at the true fundamental and rejects the every-other-beat
+	 * sub-harmonic that otherwise corrupts beat-to-beat HRV. The margin stays
+	 * wide enough (~±25 bpm) that genuine beat-to-beat variation still passes.
+	 */
+	centerBpm?: number | null;
+	/** Half-width of the adaptive band around centerBpm, in bpm (default 25). */
+	bandMarginBpm?: number;
+	/** Drop the first/last beat to avoid DFT edge artifacts (default true). */
+	trimEdges?: boolean;
+}
+
+export interface HilbertBeatResult {
+	/** Continuous-time beat instants (same units as input `time`, i.e. ms). */
+	beatTimesMs: number[];
+	/** Successive inter-beat intervals (ms). */
+	ibisMs: number[];
+	/** Unwrapped instantaneous phase, for diagnostics/plots. */
+	unwrappedPhase: number[];
+}
+
+/**
+ * Analytic signal z = x + i*Hilbert(x) via a naive DFT/IDFT (O(N^2)). Fine for
+ * the few-hundred-sample analysis windows used here. Returns the imaginary
+ * part (the Hilbert transform of x); the real part reconstructs x.
+ */
+function hilbertImag(x: number[]): number[] {
+	const N = x.length;
+	const Xre = new Array<number>(N).fill(0);
+	const Xim = new Array<number>(N).fill(0);
+	for (let k = 0; k < N; k++) {
+		let re = 0;
+		let im = 0;
+		for (let n = 0; n < N; n++) {
+			const a = (-2 * Math.PI * k * n) / N;
+			re += x[n] * Math.cos(a);
+			im += x[n] * Math.sin(a);
+		}
+		Xre[k] = re;
+		Xim[k] = im;
+	}
+	// Hilbert multiplier: keep DC (and Nyquist for even N) as-is, double the
+	// positive frequencies, zero the negative frequencies.
+	const h = new Array<number>(N).fill(0);
+	h[0] = 1;
+	if (N % 2 === 0) {
+		h[N / 2] = 1;
+		for (let k = 1; k < N / 2; k++) h[k] = 2;
+	} else {
+		for (let k = 1; k < (N + 1) / 2; k++) h[k] = 2;
+	}
+	for (let k = 0; k < N; k++) {
+		Xre[k] *= h[k];
+		Xim[k] *= h[k];
+	}
+	const zim = new Array<number>(N).fill(0);
+	for (let n = 0; n < N; n++) {
+		let im = 0;
+		for (let k = 0; k < N; k++) {
+			const a = (2 * Math.PI * k * n) / N;
+			im += Xre[k] * Math.sin(a) + Xim[k] * Math.cos(a);
+		}
+		zim[n] = im / N;
+	}
+	return zim;
+}
+
+function unwrapPhase(phase: number[]): number[] {
+	if (phase.length === 0) return [];
+	const out = [phase[0]];
+	for (let i = 1; i < phase.length; i++) {
+		let d = phase[i] - phase[i - 1];
+		while (d > Math.PI) d -= 2 * Math.PI;
+		while (d < -Math.PI) d += 2 * Math.PI;
+		out.push(out[i - 1] + d);
+	}
+	return out;
+}
+
+/**
+ * Estimate beat instants from the analytic-signal phase of a pulse waveform.
+ * `data` is the conditioned rPPG trace as {value, time(ms)} samples — the same
+ * shape consumed by {@link detectPeaks}.
+ */
+export function detectBeatsViaHilbertPhase(
+	data: PulsePeak[],
+	options: HilbertBeatOptions = {},
+): HilbertBeatResult {
+	const {
+		sampleRate,
+		centerBpm,
+		bandMarginBpm = 25,
+		trimEdges = true,
+	} = options;
+	// Adaptive band around a locked rate (rejects the half-rate sub-harmonic);
+	// falls back to the wide default when no rate is known.
+	let { lowHz = 0.7, highHz = 3.5 } = options;
+	if (centerBpm != null && Number.isFinite(centerBpm) && centerBpm > 0) {
+		const lo = Math.max(30, centerBpm - bandMarginBpm);
+		const hi = Math.min(220, centerBpm + bandMarginBpm);
+		lowHz = lo / 60;
+		highHz = hi / 60;
+	}
+	const N = data.length;
+	if (N < 8) return { beatTimesMs: [], ibisMs: [], unwrappedPhase: [] };
+
+	const times = data.map((d) => d.time);
+	let values = data.map((d) => d.value);
+
+	// Remove mean, then optionally narrowband so the phase advances ~monotonically.
+	const avg = values.reduce((a, b) => a + b, 0) / N;
+	values = values.map((v) => v - avg);
+	if (sampleRate && sampleRate > 0) {
+		values = zeroPhaseBandpass(values, sampleRate, lowHz, highHz);
+	}
+
+	const im = hilbertImag(values);
+	const phase = values.map((re, i) => Math.atan2(im[i], re));
+	const uw = unwrapPhase(phase);
+
+	// Each 2*pi crossing of the unwrapped phase marks a beat; interpolate the
+	// crossing time linearly between the bracketing samples for sub-frame timing.
+	const crossings: number[] = [];
+	let level = Math.ceil(uw[0] / (2 * Math.PI)) * (2 * Math.PI);
+	for (let n = 1; n < N; n++) {
+		while (uw[n] >= level && uw[n - 1] < level) {
+			const denom = uw[n] - uw[n - 1];
+			const frac = denom > 0 ? (level - uw[n - 1]) / denom : 0;
+			crossings.push(times[n - 1] + frac * (times[n] - times[n - 1]));
+			level += 2 * Math.PI;
+		}
+	}
+
+	let beats = crossings;
+	if (trimEdges && beats.length >= 3) {
+		beats = beats.slice(1, beats.length - 1);
+	}
+	const ibisMs: number[] = [];
+	for (let i = 1; i < beats.length; i++) {
+		ibisMs.push(beats[i] - beats[i - 1]);
+	}
+	return { beatTimesMs: beats, ibisMs, unwrappedPhase: uw };
 }

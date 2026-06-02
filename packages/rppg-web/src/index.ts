@@ -85,6 +85,8 @@ export {
 	analyzePulseWindow,
 	calculateBpmViaAutocorrelation,
 	cleanNnIntervalsMs,
+	computeRmssdMs,
+	detectBeatsViaHilbertPhase,
 	detectPeaks,
 	estimateDominantBpm,
 	refinePeakByInterpolation,
@@ -93,12 +95,23 @@ export {
 } from "./pulseAnalysis";
 export type {
 	HarmonicRelation,
+	HilbertBeatOptions,
+	HilbertBeatResult,
 	PulseAcfResult,
 	PulseEstimatorResult,
 	PulsePeak,
 	PulseWindowAnalysis,
 	PulseWindowSample,
 } from "./pulseAnalysis";
+export { Bandpass, spectralSnr, zeroPhaseBandpass } from "./rppgSignalModel";
+export { FUSION_ROIS, MultiRoiRppgFuser } from "./multiRoiFusion";
+export type {
+	FusionRoiName,
+	MultiRoiFusionResult,
+	RoiRgbSample,
+} from "./multiRoiFusion";
+export { applyNoReferenceDisplayGuard } from "./displayGuard";
+export type { NoReferenceDisplayGuardDecision } from "./displayGuard";
 export { normalizeRppgError } from "./rppgErrors";
 export type {
 	RppgNormalizedError,
