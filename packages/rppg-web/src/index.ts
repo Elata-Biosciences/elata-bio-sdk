@@ -41,9 +41,22 @@ export type {
 } from "./demoRunner";
 export { MediaPipeFrameSource } from "./mediaPipeFrameSource";
 export { MediaPipeFaceFrameSource } from "./mediaPipeFaceFrameSource";
-export { loadFaceMesh } from "./mediapipeLoader";
+export { loadFaceLandmarker } from "./mediapipeLoader";
+export type {
+	FaceLandmarkerLike,
+	FaceLandmarkerResult,
+	LoadFaceLandmarkerOptions,
+} from "./mediapipeLoader";
 export { averageGreenInROI } from "./frameSource";
-export type { FrameSource, Frame, ROI } from "./frameSource";
+export type {
+	FrameSource,
+	Frame,
+	ROI,
+	FrameBlendshape,
+	FaceLandmarkPoint,
+} from "./frameSource";
+export { AffectTracker } from "./affectTracker";
+export type { AffectBaseline, AffectTrackerOptions } from "./affectTracker";
 export { loadWasmBackend } from "./wasmBackend";
 export { createUnavailableBackend } from "./wasmBackend";
 export type { LoadWasmBackendOptions, WasmImporter } from "./wasmBackend";

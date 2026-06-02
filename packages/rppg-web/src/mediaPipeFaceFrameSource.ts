@@ -3,29 +3,32 @@ import {
 	Frame,
 	ROI,
 	type FrameSourceError,
+	type FrameBlendshape,
+	type FaceLandmarkPoint,
 } from "./frameSource";
+import type { FaceLandmarkerLike } from "./mediapipeLoader";
 
-export type FaceMeshLike = {
-	onResults?: (results: any) => void;
-	send: (opts: { image: HTMLVideoElement }) => void;
-};
-
+/**
+ * Frame source backed by MediaPipe FaceLandmarker (tasks-vision). Each frame
+ * carries the face ROI + forehead/cheek sub-ROIs (for rPPG) plus the raw
+ * landmarks and blendshape coefficients (for affect / valence-arousal).
+ *
+ * Unlike the legacy FaceMesh (async send/onResults), FaceLandmarker.detectForVideo
+ * is synchronous, so detection happens inline in the capture loop.
+ */
 export class MediaPipeFaceFrameSource implements FrameSource {
 	public onFrame: ((frame: Frame) => void) | null = null;
 	public onError: ((error: FrameSourceError) => void) | null = null;
 	private running = false;
 	private canvas: HTMLCanvasElement;
 	private ctx: CanvasRenderingContext2D;
-	private lastResults: any = null;
-	private latestLandmarks: any[] | null = null;
 	private vfcHandle: number | null = null;
-	private callback: any = null;
 	private smoothedFaceRoi: ROI | null = null;
 	private lastError: FrameSourceError | null = null;
 
 	constructor(
 		private video: HTMLVideoElement,
-		private faceMesh: FaceMeshLike,
+		private faceLandmarker: FaceLandmarkerLike,
 		private fps = 30,
 	) {
 		this.canvas = document.createElement("canvas") as HTMLCanvasElement;
@@ -34,52 +37,24 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 		const ctx = this.canvas.getContext("2d");
 		if (!ctx) throw new Error("2D context unavailable");
 		this.ctx = ctx;
-
-		// hook faceMesh results
-		const handleResults = (res: any) => {
-			this.lastResults = res;
-			if (res && res.multiFaceLandmarks && res.multiFaceLandmarks.length > 0) {
-				this.latestLandmarks = res.multiFaceLandmarks[0];
-			}
-			// For environments without requestVideoFrameCallback, emit immediately.
-			if (!(this.video as any).requestVideoFrameCallback) {
-				this.captureAndEmitFrame(res, Date.now(), null);
-			}
-		};
-		const onResults = (this.faceMesh as any).onResults;
-		if (typeof onResults === "function") {
-			onResults.call(this.faceMesh, handleResults);
-		} else {
-			(this.faceMesh as any).onResults = handleResults;
-		}
 	}
 
 	async start(): Promise<void> {
 		if (this.running) return;
 		this.running = true;
-		// continuous send video frames to faceMesh
 		const interval = 1000 / this.fps;
 		const vfc = (this.video as any).requestVideoFrameCallback;
 		if (typeof vfc === "function") {
 			const cb = (now: number, metadata: any) => {
 				if (!this.running) return;
-				try {
-					this.faceMesh.send({ image: this.video });
-				} catch (error) {
-					this.reportError("face_mesh_failed", "face_mesh", error);
-				}
-				this.captureAndEmitFrame(this.lastResults, now, metadata);
+				this.detectAndEmit(now, metadata);
 				this.vfcHandle = (this.video as any).requestVideoFrameCallback(cb);
 			};
 			this.vfcHandle = (this.video as any).requestVideoFrameCallback(cb);
 		} else {
 			const tick = () => {
 				if (!this.running) return;
-				try {
-					this.faceMesh.send({ image: this.video });
-				} catch (error) {
-					this.reportError("face_mesh_failed", "face_mesh", error);
-				}
+				this.detectAndEmit(Date.now(), null);
 				setTimeout(tick, interval);
 			};
 			tick();
@@ -100,7 +75,29 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 		return this.lastError;
 	}
 
-	private captureAndEmitFrame(results?: any, now?: number, metadata?: any) {
+	private detectAndEmit(now: number, metadata: any) {
+		// Resize canvas if the video dimensions became known after construction.
+		if (this.video.videoWidth && this.canvas.width !== this.video.videoWidth) {
+			this.canvas.width = this.video.videoWidth;
+			this.canvas.height = this.video.videoHeight;
+		}
+
+		let landmarks: FaceLandmarkPoint[] | null = null;
+		let blendshapes: FrameBlendshape[] | undefined;
+		try {
+			const result = this.faceLandmarker.detectForVideo(this.video, now);
+			landmarks = result?.faceLandmarks?.[0] ?? null;
+			const categories = result?.faceBlendshapes?.[0]?.categories;
+			if (categories && categories.length) {
+				blendshapes = categories.map((c) => ({
+					categoryName: c.categoryName,
+					score: c.score,
+				}));
+			}
+		} catch (error) {
+			this.reportError("face_mesh_failed", "face_mesh", error);
+		}
+
 		try {
 			this.ctx.drawImage(
 				this.video as CanvasImageSource,
@@ -115,35 +112,35 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 				this.canvas.width,
 				this.canvas.height,
 			);
-			// Live MediaStream sources always report mediaTime: 0; prefer now for accurate windowing.
 			const ts =
 				typeof metadata?.mediaTime === "number" && metadata.mediaTime > 0
 					? metadata.mediaTime * 1000
-					: typeof now === "number"
-						? now
-						: Date.now();
+					: now;
 			const frame: Frame = {
 				data: img.data,
 				width: this.canvas.width,
 				height: this.canvas.height,
 				timestampMs: ts,
 			};
-			// compute ROI from results if available
-			const landmarks =
-				this.latestLandmarks ?? results?.multiFaceLandmarks?.[0] ?? null;
 			if (landmarks) {
 				const raw = this.landmarksToROI(landmarks, frame.width, frame.height);
 				const roi = this.smoothRoi(raw, frame.width, frame.height);
 				frame.roi = roi;
 				frame.rois = this.subRoisFromFace(roi);
+				frame.landmarks = landmarks;
 			}
+			if (blendshapes) frame.blendshapes = blendshapes;
 			if (this.onFrame) this.onFrame(frame);
 		} catch (error) {
 			this.reportError("capture_failed", "capture", error);
 		}
 	}
 
-	private landmarksToROI(landmarks: any[], width: number, height: number): ROI {
+	private landmarksToROI(
+		landmarks: FaceLandmarkPoint[],
+		width: number,
+		height: number,
+	): ROI {
 		let minX = Infinity,
 			minY = Infinity,
 			maxX = -Infinity,
@@ -156,7 +153,6 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 			if (x > maxX) maxX = x;
 			if (y > maxY) maxY = y;
 		}
-		// add small padding
 		const padX = Math.max(4, Math.floor((maxX - minX) * 0.15));
 		const padY = Math.max(4, Math.floor((maxY - minY) * 0.15));
 		const x = Math.max(0, Math.floor(minX - padX));
@@ -201,41 +197,11 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 		const h = face.h;
 		const rois: ROI[] = [];
 		// Forehead (top-middle)
-		rois.push(
-			clampRoi(
-				{
-					x: x + w * 0.3,
-					y: y + h * 0.05,
-					w: w * 0.4,
-					h: h * 0.22,
-				},
-				face,
-			),
-		);
+		rois.push(clampRoi({ x: x + w * 0.3, y: y + h * 0.05, w: w * 0.4, h: h * 0.22 }, face));
 		// Left cheek
-		rois.push(
-			clampRoi(
-				{
-					x: x + w * 0.1,
-					y: y + h * 0.35,
-					w: w * 0.3,
-					h: h * 0.25,
-				},
-				face,
-			),
-		);
+		rois.push(clampRoi({ x: x + w * 0.1, y: y + h * 0.35, w: w * 0.3, h: h * 0.25 }, face));
 		// Right cheek
-		rois.push(
-			clampRoi(
-				{
-					x: x + w * 0.6,
-					y: y + h * 0.35,
-					w: w * 0.3,
-					h: h * 0.25,
-				},
-				face,
-			),
-		);
+		rois.push(clampRoi({ x: x + w * 0.6, y: y + h * 0.35, w: w * 0.3, h: h * 0.25 }, face));
 		return rois.map((r) => ({
 			x: Math.max(0, Math.floor(r.x)),
 			y: Math.max(0, Math.floor(r.y)),
@@ -253,7 +219,7 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 			cause instanceof Error
 				? cause.message
 				: stage === "face_mesh"
-					? "FaceMesh failed while processing a browser video frame."
+					? "FaceLandmarker failed while processing a browser video frame."
 					: "Failed to capture a browser video frame.";
 		const error: FrameSourceError = {
 			code,

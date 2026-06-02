@@ -22,6 +22,8 @@ import type {
 	RppgSessionIssueCode,
 	RppgSessionState,
 } from "./rppgSession";
+import type { AffectState, FaceBlendshapeCategory } from "./affect";
+import { AffectTracker, type AffectTrackerOptions } from "./affectTracker";
 
 export type RppgAppStatus =
 	| "idle"
@@ -51,12 +53,16 @@ export type RppgAppAdapterSource = {
 	getMetrics(): Metrics;
 	getDiagnostics(): RppgSessionDiagnostics | null;
 	getTraceSnapshot(maxPoints?: number): RppgTraceSnapshot;
+	/** Latest face blendshapes (for affect). Optional — sources without face tracking omit it. */
+	getLastBlendshapes?(): { blendshapes: FaceBlendshapeCategory[]; atMs: number } | null;
 };
 
 export type CreateRppgAppAdapterOptions = {
 	maxTracePoints?: number;
 	gating?: RppgGatingOptions;
 	nowMs?: () => number;
+	/** Affect (valence/arousal) estimation config. Pass `false` to disable. */
+	affect?: AffectTrackerOptions | false;
 };
 
 export type RppgAppSnapshotListener = (snapshot: RppgAppSnapshot) => void;
@@ -74,6 +80,8 @@ export type RppgAppSnapshot = {
 	message: string;
 	guidance: RppgAppGuidance;
 	metrics: Metrics;
+	/** Dimensional affect: valence (face) + arousal (rPPG physiology fused with face). Null when disabled/unavailable. */
+	affect: AffectState | null;
 	diagnostics: RppgSessionDiagnostics | null;
 	trace: RppgTraceSnapshot;
 	normalizedError: RppgNormalizedError | null;
@@ -232,16 +240,20 @@ export class RppgAppAdapter {
 	private readonly gating: RppgGatingController;
 	private readonly nowMsValue: () => number;
 	private readonly maxTracePointsValue: number;
+	private readonly affectTracker: AffectTracker | null;
 
 	constructor(options: CreateRppgAppAdapterOptions = {}) {
 		this.gating = new RppgGatingController(options.gating);
 		this.nowMsValue = options.nowMs ?? (() => Date.now());
 		this.maxTracePointsValue =
 			options.maxTracePoints ?? DEFAULT_MAX_TRACE_POINTS;
+		this.affectTracker =
+			options.affect === false ? null : new AffectTracker(options.affect ?? {});
 	}
 
 	reset() {
 		this.gating.reset();
+		this.affectTracker?.reset();
 	}
 
 	getSnapshot(source: RppgAppAdapterSource): RppgAppSnapshot {
@@ -278,6 +290,26 @@ export class RppgAppAdapter {
 		const ready = status === "ready";
 		const canPublish = ready && gating.publishBpm != null;
 
+		// Affect: feed the face (blendshapes) + physiology (HR/HRV), then fuse.
+		// Physiology confidence comes from the metric confidence; face confidence
+		// from whether a face is currently tracked.
+		let affect: AffectState | null = null;
+		if (this.affectTracker && activeCapture) {
+			const face = source.getLastBlendshapes?.() ?? null;
+			if (face) this.affectTracker.observeFace(face.blendshapes, face.atMs);
+			this.affectTracker.observePhysiology(
+				metrics.bpm ?? null,
+				metrics.hrv_rmssd ?? null,
+			);
+			affect = this.affectTracker.compute({
+				bpm: metrics.bpm ?? null,
+				rmssd: metrics.hrv_rmssd ?? null,
+				physioConfidence: metrics.confidence ?? 0,
+				faceConfidence: inferHasFace(diagnostics) ? 1 : 0,
+				nowMs,
+			});
+		}
+
 		return {
 			status,
 			ready,
@@ -286,6 +318,7 @@ export class RppgAppAdapter {
 			message: guidance.message,
 			guidance,
 			metrics,
+			affect,
 			diagnostics,
 			trace,
 			normalizedError,

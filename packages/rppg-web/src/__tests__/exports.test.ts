@@ -41,9 +41,14 @@ describe('@elata-biosciences/rppg-web exports', () => {
     expect(typeof rppgWeb.MediaPipeFaceFrameSource).toBe('function');
   });
 
-  test('exports loadFaceMesh as a function', () => {
-    expect(rppgWeb.loadFaceMesh).toBeDefined();
-    expect(typeof rppgWeb.loadFaceMesh).toBe('function');
+  test('exports loadFaceLandmarker as a function', () => {
+    expect(rppgWeb.loadFaceLandmarker).toBeDefined();
+    expect(typeof rppgWeb.loadFaceLandmarker).toBe('function');
+  });
+
+  test('exports AffectTracker as a class', () => {
+    expect(rppgWeb.AffectTracker).toBeDefined();
+    expect(typeof rppgWeb.AffectTracker).toBe('function');
   });
 
   test('exports averageGreenInROI as a function', () => {
@@ -116,7 +121,8 @@ describe('@elata-biosciences/rppg-web exports', () => {
       'DemoRunner',
       'MediaPipeFrameSource',
       'MediaPipeFaceFrameSource',
-      'loadFaceMesh',
+      'loadFaceLandmarker',
+      'AffectTracker',
       'averageGreenInROI',
       'loadWasmBackend',
       'createRppgSession',

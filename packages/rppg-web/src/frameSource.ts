@@ -1,5 +1,10 @@
 export type ROI = { x: number; y: number; w: number; h: number };
 
+export type FaceLandmarkPoint = { x: number; y: number; z?: number };
+
+/** ARKit-style blendshape coefficient, as emitted by MediaPipe FaceLandmarker. */
+export type FrameBlendshape = { categoryName: string; score: number };
+
 export type Frame = {
 	// RGBA pixel data as a flat Uint8ClampedArray or number[] with length = width*height*4
 	data: Uint8ClampedArray | number[];
@@ -8,6 +13,10 @@ export type Frame = {
 	roi?: ROI;
 	rois?: ROI[];
 	timestampMs?: number;
+	/** Normalized face mesh landmarks (0..1), when a FaceLandmarker is active. */
+	landmarks?: FaceLandmarkPoint[];
+	/** Face blendshape coefficients (valence/arousal input), when available. */
+	blendshapes?: FrameBlendshape[];
 };
 
 export interface FrameSource {

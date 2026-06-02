@@ -1,5 +1,6 @@
 import { MediaPipeFaceFrameSource } from '../mediaPipeFaceFrameSource';
 import { Frame } from '../frameSource';
+import type { FaceLandmarkerLike, FaceLandmarkerResult } from '../mediapipeLoader';
 
 class FakeCtx {
   private data: Uint8ClampedArray;
@@ -52,39 +53,45 @@ function setupCanvasMock(w: number, h: number) {
   return () => { document.createElement = origCreate; };
 }
 
+type Lm = { x: number; y: number };
+
+/** Build a FaceLandmarker mock that returns the given landmarks/blendshapes on each detect. */
+function fakeLandmarker(
+  results: Array<{ landmarks?: Lm[]; blendshapes?: { categoryName: string; score: number }[] }>,
+): FaceLandmarkerLike & { detectForVideo: jest.Mock } {
+  let i = 0;
+  const detectForVideo = jest.fn((): FaceLandmarkerResult => {
+    const r = results[Math.min(i, results.length - 1)];
+    i += 1;
+    return {
+      faceLandmarks: r.landmarks ? [r.landmarks] : [],
+      faceBlendshapes: r.blendshapes ? [{ categories: r.blendshapes }] : undefined,
+    };
+  });
+  return { detectForVideo } as any;
+}
+
 test('MediaPipeFaceFrameSource computes ROI from landmarks and emits frame with roi', async () => {
   const restore = setupCanvasMock(200, 100);
-
   const video = new FakeVideo(200, 100) as unknown as HTMLVideoElement;
-  let onResultsCb: any = null;
-  const faceMesh = {
-    set onResults(cb: any) { onResultsCb = cb; },
-    send: jest.fn()
-  };
-
-  const src = new MediaPipeFaceFrameSource(video, faceMesh as any, 30);
-  const onFrame = jest.fn((f: Frame) => {
-    expect(f.roi).toBeDefined();
-    const roi = f.roi!;
-    expect(roi.x).toBeGreaterThan(30);
-    expect(roi.y).toBeGreaterThan(20);
-    expect(roi.w).toBeGreaterThan(10);
-    expect(roi.h).toBeGreaterThan(10);
-  });
-  src.onFrame = onFrame;
-  await src.start();
-
   const landmarks = [
     { x: 0.45, y: 0.4 },
     { x: 0.55, y: 0.4 },
     { x: 0.5, y: 0.5 },
   ];
-  onResultsCb({ multiFaceLandmarks: [landmarks] });
-
-  await new Promise((r) => setTimeout(r, 10));
+  const src = new MediaPipeFaceFrameSource(video, fakeLandmarker([{ landmarks }]), 30);
+  const frames: Frame[] = [];
+  src.onFrame = (f) => frames.push(f);
+  await src.start(); // setTimeout-path: first tick runs synchronously
   await src.stop();
-  expect(onFrame).toHaveBeenCalled();
 
+  expect(frames.length).toBeGreaterThan(0);
+  const roi = frames[0].roi!;
+  expect(roi).toBeDefined();
+  expect(roi.x).toBeGreaterThan(30);
+  expect(roi.y).toBeGreaterThan(20);
+  expect(roi.w).toBeGreaterThan(10);
+  expect(roi.h).toBeGreaterThan(10);
   restore();
 });
 
@@ -92,20 +99,10 @@ describe('MediaPipeFaceFrameSource edge cases', () => {
   test('no landmarks detected still emits a frame without roi', async () => {
     const restore = setupCanvasMock(200, 100);
     const video = new FakeVideo(200, 100) as unknown as HTMLVideoElement;
-    let onResultsCb: any = null;
-    const faceMesh = {
-      set onResults(cb: any) { onResultsCb = cb; },
-      send: jest.fn()
-    };
-
-    const src = new MediaPipeFaceFrameSource(video, faceMesh as any, 30);
+    const src = new MediaPipeFaceFrameSource(video, fakeLandmarker([{}]), 30);
     const frames: Frame[] = [];
     src.onFrame = (f) => frames.push(f);
     await src.start();
-
-    onResultsCb({ multiFaceLandmarks: [] });
-
-    await new Promise((r) => setTimeout(r, 10));
     await src.stop();
 
     expect(frames.length).toBeGreaterThan(0);
@@ -113,20 +110,34 @@ describe('MediaPipeFaceFrameSource edge cases', () => {
     restore();
   });
 
-  test('emits sub-ROIs (forehead + cheeks) when landmarks present', async () => {
-    const restore = setupCanvasMock(400, 400);
-    const video = new FakeVideo(400, 400) as unknown as HTMLVideoElement;
-    let onResultsCb: any = null;
-    const faceMesh = {
-      set onResults(cb: any) { onResultsCb = cb; },
-      send: jest.fn()
-    };
-
-    const src = new MediaPipeFaceFrameSource(video, faceMesh as any, 30);
+  test('emits blendshapes when the landmarker provides them', async () => {
+    const restore = setupCanvasMock(200, 100);
+    const video = new FakeVideo(200, 100) as unknown as HTMLVideoElement;
+    const landmarks = [
+      { x: 0.45, y: 0.4 },
+      { x: 0.55, y: 0.4 },
+      { x: 0.5, y: 0.5 },
+    ];
+    const blendshapes = [
+      { categoryName: 'mouthSmileLeft', score: 0.8 },
+      { categoryName: 'mouthSmileRight', score: 0.8 },
+    ];
+    const src = new MediaPipeFaceFrameSource(video, fakeLandmarker([{ landmarks, blendshapes }]), 30);
     const frames: Frame[] = [];
     src.onFrame = (f) => frames.push(f);
     await src.start();
+    await src.stop();
 
+    expect(frames[0].blendshapes).toBeDefined();
+    expect(frames[0].blendshapes!.length).toBe(2);
+    expect(frames[0].blendshapes![0].categoryName).toBe('mouthSmileLeft');
+    expect(frames[0].landmarks).toBeDefined();
+    restore();
+  });
+
+  test('emits sub-ROIs (forehead + cheeks) when landmarks present', async () => {
+    const restore = setupCanvasMock(400, 400);
+    const video = new FakeVideo(400, 400) as unknown as HTMLVideoElement;
     const landmarks = [
       { x: 0.3, y: 0.3 },
       { x: 0.7, y: 0.3 },
@@ -134,16 +145,16 @@ describe('MediaPipeFaceFrameSource edge cases', () => {
       { x: 0.7, y: 0.7 },
       { x: 0.5, y: 0.5 },
     ];
-    onResultsCb({ multiFaceLandmarks: [landmarks] });
-
-    await new Promise((r) => setTimeout(r, 10));
+    const src = new MediaPipeFaceFrameSource(video, fakeLandmarker([{ landmarks }]), 30);
+    const frames: Frame[] = [];
+    src.onFrame = (f) => frames.push(f);
+    await src.start();
     await src.stop();
 
     expect(frames.length).toBeGreaterThan(0);
     const frame = frames[0];
     expect(frame.rois).toBeDefined();
     expect(frame.rois!.length).toBe(3);
-
     for (const roi of frame.rois!) {
       expect(roi.x).toBeGreaterThanOrEqual(0);
       expect(roi.y).toBeGreaterThanOrEqual(0);
@@ -158,36 +169,31 @@ describe('MediaPipeFaceFrameSource edge cases', () => {
   test('ROI smoothing across multiple frames converges rather than jumping', async () => {
     const restore = setupCanvasMock(200, 200);
     const video = new FakeVideo(200, 200) as unknown as HTMLVideoElement;
-    let onResultsCb: any = null;
-    const faceMesh = {
-      set onResults(cb: any) { onResultsCb = cb; },
-      send: jest.fn()
-    };
-
-    const src = new MediaPipeFaceFrameSource(video, faceMesh as any, 30);
-    const frames: Frame[] = [];
-    src.onFrame = (f) => frames.push(f);
-    await src.start();
+    let vfcCb: any = null;
+    (video as any).requestVideoFrameCallback = jest.fn((cb: any) => { vfcCb = cb; return 1; });
+    (video as any).cancelVideoFrameCallback = jest.fn();
 
     const baseLandmarks = [
       { x: 0.4, y: 0.4 },
       { x: 0.6, y: 0.4 },
       { x: 0.5, y: 0.6 },
     ];
-    onResultsCb({ multiFaceLandmarks: [baseLandmarks] });
-
-    // Slightly shift landmarks
     const shiftedLandmarks = baseLandmarks.map((l) => ({ x: l.x + 0.01, y: l.y + 0.01 }));
-    onResultsCb({ multiFaceLandmarks: [shiftedLandmarks] });
+    const src = new MediaPipeFaceFrameSource(
+      video,
+      fakeLandmarker([{ landmarks: baseLandmarks }, { landmarks: shiftedLandmarks }]),
+      30,
+    );
+    const frames: Frame[] = [];
+    src.onFrame = (f) => frames.push(f);
+    await src.start();
 
-    await new Promise((r) => setTimeout(r, 10));
+    vfcCb(1, { mediaTime: 0 });
+    vfcCb(2, { mediaTime: 0 });
+
     await src.stop();
-
     expect(frames.length).toBeGreaterThanOrEqual(2);
-    const roi1 = frames[0].roi!;
-    const roi2 = frames[1].roi!;
-    // The second ROI should be smoothed, not jumping by the full shift
-    const dx = Math.abs(roi2.x - roi1.x);
+    const dx = Math.abs(frames[1].roi!.x - frames[0].roi!.x);
     expect(dx).toBeLessThan(20);
     restore();
   });
@@ -199,8 +205,7 @@ describe('MediaPipeFaceFrameSource edge cases', () => {
     (video as any).requestVideoFrameCallback = jest.fn((cb: any) => { vfcCb = cb; return 1; });
     (video as any).cancelVideoFrameCallback = jest.fn();
 
-    const faceMesh = { set onResults(_cb: any) {}, send: jest.fn() };
-    const src = new MediaPipeFaceFrameSource(video, faceMesh as any, 30);
+    const src = new MediaPipeFaceFrameSource(video, fakeLandmarker([{}]), 30);
     const frames: Frame[] = [];
     src.onFrame = (f) => frames.push(f);
     await src.start();
@@ -220,8 +225,7 @@ describe('MediaPipeFaceFrameSource edge cases', () => {
     (video as any).requestVideoFrameCallback = jest.fn((cb: any) => { vfcCb = cb; return 1; });
     (video as any).cancelVideoFrameCallback = jest.fn();
 
-    const faceMesh = { set onResults(_cb: any) {}, send: jest.fn() };
-    const src = new MediaPipeFaceFrameSource(video, faceMesh as any, 30);
+    const src = new MediaPipeFaceFrameSource(video, fakeLandmarker([{}]), 30);
     const frames: Frame[] = [];
     src.onFrame = (f) => frames.push(f);
     await src.start();
@@ -237,30 +241,17 @@ describe('MediaPipeFaceFrameSource edge cases', () => {
   test('uses requestVideoFrameCallback when available', async () => {
     const restore = setupCanvasMock(200, 100);
     const video = new FakeVideo(200, 100) as unknown as HTMLVideoElement;
-
     let vfcCallback: any = null;
-    (video as any).requestVideoFrameCallback = jest.fn((cb: any) => {
-      vfcCallback = cb;
-      return 42;
-    });
+    (video as any).requestVideoFrameCallback = jest.fn((cb: any) => { vfcCallback = cb; return 42; });
     (video as any).cancelVideoFrameCallback = jest.fn();
 
-    const faceMesh = {
-      set onResults(_cb: any) {},
-      send: jest.fn()
-    };
-
-    const src = new MediaPipeFaceFrameSource(video, faceMesh as any, 30);
+    const src = new MediaPipeFaceFrameSource(video, fakeLandmarker([{}]), 30);
     const frames: Frame[] = [];
     src.onFrame = (f) => frames.push(f);
     await src.start();
 
     expect((video as any).requestVideoFrameCallback).toHaveBeenCalled();
-
-    // Simulate a video frame callback
-    if (vfcCallback) {
-      vfcCallback(performance.now(), { mediaTime: 0.5 });
-    }
+    if (vfcCallback) vfcCallback(performance.now(), { mediaTime: 0.5 });
 
     await src.stop();
     expect((video as any).cancelVideoFrameCallback).toHaveBeenCalled();
@@ -271,19 +262,14 @@ describe('MediaPipeFaceFrameSource edge cases', () => {
     jest.useFakeTimers();
     const restore = setupCanvasMock(200, 100);
     const video = new FakeVideo(200, 100) as unknown as HTMLVideoElement;
-
-    const faceMesh = {
-      set onResults(_cb: any) {},
-      send: jest.fn()
-    };
-
-    const src = new MediaPipeFaceFrameSource(video, faceMesh as any, 30);
+    const landmarker = fakeLandmarker([{}]);
+    const src = new MediaPipeFaceFrameSource(video, landmarker, 30);
     const frames: Frame[] = [];
     src.onFrame = (f) => frames.push(f);
     await src.start();
 
     jest.advanceTimersByTime(100);
-    expect(faceMesh.send).toHaveBeenCalled();
+    expect(landmarker.detectForVideo).toHaveBeenCalled();
 
     await src.stop();
     restore();

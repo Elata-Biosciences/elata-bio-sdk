@@ -3,7 +3,7 @@ import { initDemo } from '../demoApp';
 const pushSample = jest.fn();
 
 jest.mock('../mediapipeLoader', () => ({
-  loadFaceMesh: jest.fn(async () => null),
+  loadFaceLandmarker: jest.fn(async () => null),
 }));
 
 jest.mock('../wasmBackend', () => ({

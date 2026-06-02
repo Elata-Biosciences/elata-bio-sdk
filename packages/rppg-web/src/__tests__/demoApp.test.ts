@@ -1,8 +1,8 @@
 import { initDemo } from '../demoApp';
-import { loadFaceMesh } from '../mediapipeLoader';
+import { loadFaceLandmarker } from '../mediapipeLoader';
 
 jest.mock('../mediapipeLoader', () => ({
-  loadFaceMesh: jest.fn(async () => null),
+  loadFaceLandmarker: jest.fn(async () => null),
 }));
 
 jest.mock('../wasmBackend', () => ({
@@ -15,7 +15,7 @@ jest.mock('../wasmBackend', () => ({
   })),
 }));
 
-const mockedLoadFaceMesh = loadFaceMesh as jest.MockedFunction<typeof loadFaceMesh>;
+const mockedLoadFaceMesh = loadFaceLandmarker as jest.MockedFunction<typeof loadFaceLandmarker>;
 
 class FakeVideo {
   videoWidth = 320;
@@ -96,8 +96,7 @@ test('initDemo falls back to MediaPipeFrameSource when faceMesh absent', async (
 
 test('initDemo uses MediaPipeFaceFrameSource when faceMesh is available', async () => {
   const fakeFaceMesh = {
-    onResults: jest.fn(),
-    send: jest.fn(),
+    detectForVideo: jest.fn(() => ({ faceLandmarks: [] })),
   };
   mockedLoadFaceMesh.mockResolvedValueOnce(fakeFaceMesh as any);
 

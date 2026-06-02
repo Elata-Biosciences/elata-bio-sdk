@@ -1,12 +1,18 @@
 import {
 	FrameSource,
 	Frame,
+	type FrameBlendshape,
 	averageGreenInROI,
 	averageGreenInROIWithSkinMaskStats,
 	averageRgbInROI,
 	averageRgbInROIWithSkinMaskStats,
 } from "./frameSource";
 import { RppgProcessor } from "./rppgProcessor";
+
+export type LastBlendshapes = {
+	blendshapes: FrameBlendshape[];
+	atMs: number;
+};
 
 export type DemoRunnerOptions = {
 	roi?: { x: number; y: number; w: number; h: number } | null;
@@ -87,6 +93,7 @@ export class DemoRunner {
 		lastRoiSource: null,
 	};
 	private lastError: DemoRunnerError | null = null;
+	private lastBlendshapes: LastBlendshapes | null = null;
 
 	constructor(
 		private source: FrameSource,
@@ -94,6 +101,11 @@ export class DemoRunner {
 		private opts: DemoRunnerOptions = {},
 	) {
 		this.source.onFrame = this.onFrame.bind(this);
+	}
+
+	/** Latest face blendshapes (for affect estimation), with capture timestamp. */
+	getLastBlendshapes(): LastBlendshapes | null {
+		return this.lastBlendshapes;
 	}
 
 	async start() {
@@ -117,6 +129,12 @@ export class DemoRunner {
 	private onFrame(frame: Frame) {
 		if (!this.running) return;
 		this.diagnostics.framesSeen += 1;
+		if (frame.blendshapes && frame.blendshapes.length) {
+			this.lastBlendshapes = {
+				blendshapes: frame.blendshapes,
+				atMs: frame.timestampMs ?? Date.now(),
+			};
+		}
 		const now =
 			typeof performance !== "undefined" ? performance.now() : Date.now();
 		this.frameTimes.push(now);

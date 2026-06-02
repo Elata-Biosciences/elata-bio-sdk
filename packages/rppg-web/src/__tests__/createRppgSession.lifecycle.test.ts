@@ -1,5 +1,5 @@
 jest.mock("../mediapipeLoader", () => ({
-	loadFaceMesh: jest.fn(async () => null),
+	loadFaceLandmarker: jest.fn(async () => null),
 }));
 
 jest.mock("../videoPlayback", () => ({
@@ -71,13 +71,13 @@ jest.mock("../demoRunner", () => ({
 }));
 
 import { createRppgSession } from "../rppgSession";
-import { loadFaceMesh } from "../mediapipeLoader";
+import { loadFaceLandmarker } from "../mediapipeLoader";
 import { ensureVideoPlaying } from "../videoPlayback";
 import { MediaPipeFrameSource } from "../mediaPipeFrameSource";
 import { MediaPipeFaceFrameSource } from "../mediaPipeFaceFrameSource";
 import { loadWasmBackend } from "../wasmBackend";
 
-const mockedLoadFaceMesh = loadFaceMesh as jest.MockedFunction<typeof loadFaceMesh>;
+const mockedLoadFaceMesh = loadFaceLandmarker as jest.MockedFunction<typeof loadFaceLandmarker>;
 const mockedEnsureVideoPlaying = ensureVideoPlaying as jest.MockedFunction<typeof ensureVideoPlaying>;
 const mockedMediaPipeFrameSource = MediaPipeFrameSource as unknown as jest.Mock;
 const mockedMediaPipeFaceFrameSource = MediaPipeFaceFrameSource as unknown as jest.Mock;
@@ -148,8 +148,7 @@ describe("createRppgSession lifecycle", () => {
 
 	test("uses the face frame source when FaceMesh resolves successfully", async () => {
 		mockedLoadFaceMesh.mockResolvedValueOnce({
-			onResults: jest.fn(),
-			send: jest.fn(),
+			detectForVideo: jest.fn(() => ({ faceLandmarks: [] })),
 		} as any);
 
 		const session = await createRppgSession({

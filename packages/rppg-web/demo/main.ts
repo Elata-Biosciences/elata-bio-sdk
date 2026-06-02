@@ -2,6 +2,7 @@ import { initDemo } from '../src/demoApp';
 import { MediaPipeFaceFrameSource } from '../src/mediaPipeFaceFrameSource';
 import { computeWaveformPeriodicityProfile } from '../src/rppgDiagnostics';
 import { replayBayesSession, type ReplayBayesSessionResult, type ReplaySyncSample } from '../src/rppgReplay';
+import { AffectTracker, classifyAffectLabel } from '../src';
 import type { DemoRunnerDiagnostics, RppgDebugSnapshot } from '../src';
 
 // --- DOM helpers ---
@@ -22,6 +23,10 @@ const bpmRawEl     = getEl('bpm-raw');
 const confEl       = getEl('confidence');
 const signalEl     = getEl('signal');
 const agreementEl  = getEl('agreement');
+const affectLabelEl = document.getElementById('affect-label');
+const affectValenceEl = document.getElementById('affect-valence');
+const affectArousalEl = document.getElementById('affect-arousal');
+const affectTracker = new AffectTracker();
 const backendBadge = getEl('backend-badge');
 const roiBadge     = getEl('roi-badge');
 const fpsBadge     = getEl('fps-badge');
@@ -375,6 +380,26 @@ async function startDemo() {
     confEl.textContent    = confidence.toFixed(2);
     signalEl.textContent  = signalQuality.toFixed(2);
     agreementEl.textContent = agreement.toFixed(2);
+
+    // --- Affect (valence from face blendshapes, arousal from rPPG physiology) ---
+    const lastFace = typeof runner.getLastBlendshapes === 'function'
+      ? runner.getLastBlendshapes()
+      : null;
+    if (lastFace) affectTracker.observeFace(lastFace.blendshapes, lastFace.atMs);
+    affectTracker.observePhysiology(metrics.bpm ?? null, (metrics as any).hrv_rmssd ?? null);
+    const affect = affectTracker.compute({
+      bpm: metrics.bpm ?? null,
+      rmssd: (metrics as any).hrv_rmssd ?? null,
+      physioConfidence: confidence,
+      faceConfidence: lastFace ? 1 : 0,
+    });
+    if (affectLabelEl) {
+      affectLabelEl.textContent = affect.arousalSource === 'none'
+        ? '--'
+        : classifyAffectLabel(affect.valence, affect.arousal);
+    }
+    if (affectValenceEl) affectValenceEl.textContent = affect.valence.toFixed(2);
+    if (affectArousalEl) affectArousalEl.textContent = affect.arousal.toFixed(2);
 
     // Heart animation
     if (smoothed !== null) {

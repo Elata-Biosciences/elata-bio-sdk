@@ -109,6 +109,10 @@ export class ManagedRppgSession {
 		return this.activeSession?.getMetrics() ?? safeMetrics();
 	}
 
+	getLastBlendshapes() {
+		return this.activeSession?.getLastBlendshapes() ?? null;
+	}
+
 	getTraceSnapshot(maxPoints = 300): RppgTraceSnapshot {
 		return this.activeSession?.getTraceSnapshot(maxPoints) ?? emptyTraceSnapshot();
 	}

@@ -3,12 +3,9 @@ import type {
 	FrameSourceError,
 	FrameSourceWithErrors,
 } from "./frameSource";
-import {
-	MediaPipeFaceFrameSource,
-	type FaceMeshLike,
-} from "./mediaPipeFaceFrameSource";
+import { MediaPipeFaceFrameSource } from "./mediaPipeFaceFrameSource";
 import { MediaPipeFrameSource } from "./mediaPipeFrameSource";
-import { loadFaceMesh } from "./mediapipeLoader";
+import { loadFaceLandmarker, type FaceLandmarkerLike } from "./mediapipeLoader";
 import { ensureVideoPlaying } from "./videoPlayback";
 import {
 	RppgProcessor,
@@ -107,9 +104,9 @@ export type CreateRppgSessionOptions = Omit<
 	 *   load. Check `diagnostics.faceTrackingMode` to confirm which mode is
 	 *   active: `"face_mesh"` means MediaPipe loaded; `"video_frame"` means it
 	 *   fell back.
-	 * - A `FaceMeshLike` instance — bring your own pre-loaded FaceMesh object.
+	 * - A `FaceLandmarkerLike` instance — bring your own pre-loaded FaceLandmarker.
 	 */
-	faceMesh?: FaceMeshLike | "auto" | "off";
+	faceMesh?: FaceLandmarkerLike | "auto" | "off";
 	ensureVideoPlayback?: boolean;
 	videoPlaybackTimeoutMs?: number;
 	enableTracker?:
@@ -183,6 +180,11 @@ export class RppgSession {
 
 	getMetrics(): Metrics {
 		return this.processor.getMetrics();
+	}
+
+	/** Latest face blendshapes for affect estimation (null until a face is tracked). */
+	getLastBlendshapes() {
+		return this.runner.getLastBlendshapes();
 	}
 
 	getDebugSnapshot(nowMs = Date.now()): RppgDebugSnapshot {
@@ -413,7 +415,7 @@ export async function createRppgSession(
 async function resolveFaceMesh(
 	faceMeshOption: CreateRppgSessionOptions["faceMesh"],
 ): Promise<{
-	faceMesh: FaceMeshLike | null;
+	faceMesh: FaceLandmarkerLike | null;
 	error: RppgSessionError | null;
 }> {
 	if (faceMeshOption && faceMeshOption !== "auto" && faceMeshOption !== "off") {
@@ -424,7 +426,7 @@ async function resolveFaceMesh(
 	}
 
 	try {
-		const faceMesh = await loadFaceMesh();
+		const faceMesh = await loadFaceLandmarker();
 		return { faceMesh, error: null };
 	} catch (cause) {
 		return {
