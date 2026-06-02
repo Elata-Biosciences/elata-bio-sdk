@@ -59,8 +59,8 @@
 		"start-demo": "pnpm build:demo && pnpm dlx http-server demo -p 8080 --silent",
 		"start-demo:quick": "pnpm dlx http-server demo -p 8080 --silent",
 		"prepare:wasm": "pnpm build:wasm",
-		"e2e": "pnpm dlx playwright test",
-		"ci:e2e": "pnpm dlx playwright test --project=chromium --retries=1",
+		"e2e": "pnpm exec playwright test",
+		"ci:e2e": "pnpm exec playwright test --project=chromium --retries=1",
 		"prepack": "pnpm run prepare:publish && pnpm run verify:publish"
 	},
 	"devDependencies": {
