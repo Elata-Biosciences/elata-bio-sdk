@@ -214,3 +214,37 @@ export const applyNoReferenceDisplayGuard = (options: {
 
 	return { bpm: candidateBpm, applied: false, reason: "none" };
 };
+
+/**
+ * Whether a large BPM jump should be allowed to reset the display smoothing.
+ * Requires a sustained jump streak (`bpmJumpCounter` past `requiredJumpCounter`)
+ * and then either a reference lock or a high-confidence tracker that agrees with
+ * the candidate. Used alongside the persistent-disagreement catch-up so a steady
+ * distant rate can take over the display without waiting on a manual pair.
+ */
+export const shouldAllowDisplayJumpReset = (options: {
+	hasReferenceLock?: boolean;
+	bpmJumpCounter?: number;
+	candidateBpm?: number | null;
+	trackerBpm?: number | null;
+	trackerConfidence?: number;
+	requiredJumpCounter?: number;
+}): boolean => {
+	const bpmJumpCounter = options.bpmJumpCounter ?? 0;
+	const requiredJumpCounter = options.requiredJumpCounter ?? 2;
+	if (bpmJumpCounter <= requiredJumpCounter) return false;
+
+	if (options.hasReferenceLock) return true;
+
+	const candidateBpm = options.candidateBpm ?? null;
+	const trackerBpm = options.trackerBpm ?? null;
+	const trackerConfidence = clamp(options.trackerConfidence ?? 0, 0, 1);
+	return (
+		candidateBpm != null &&
+		trackerBpm != null &&
+		Number.isFinite(candidateBpm) &&
+		Number.isFinite(trackerBpm) &&
+		trackerConfidence >= 0.68 &&
+		Math.abs(candidateBpm - trackerBpm) <= 10
+	);
+};

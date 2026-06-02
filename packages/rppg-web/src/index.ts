@@ -110,8 +110,29 @@ export type {
 	MultiRoiFusionResult,
 	RoiRgbSample,
 } from "./multiRoiFusion";
-export { applyNoReferenceDisplayGuard } from "./displayGuard";
+export {
+	applyNoReferenceDisplayGuard,
+	shouldAllowDisplayJumpReset,
+} from "./displayGuard";
 export type { NoReferenceDisplayGuardDecision } from "./displayGuard";
+export { DisplayBpmTracker } from "./displayBpm";
+export type {
+	DisplayBpmOptions,
+	DisplayBpmStatus,
+	DisplayBpmUpdate,
+	DisplayBpmUpdateContext,
+} from "./displayBpm";
+export {
+	computeFaceRoiRects,
+	drawFaceOverlay,
+	FACE_ROI_FRACTIONS,
+} from "./faceRoiOverlay";
+export type {
+	DrawFaceOverlayOptions,
+	FaceRoiName,
+	LandmarkLike,
+	MeshConnection,
+} from "./faceRoiOverlay";
 export { normalizeRppgError } from "./rppgErrors";
 export type {
 	RppgNormalizedError,

@@ -1,4 +1,7 @@
-import { applyNoReferenceDisplayGuard } from "../displayGuard";
+import {
+	applyNoReferenceDisplayGuard,
+	shouldAllowDisplayJumpReset,
+} from "../displayGuard";
 
 describe("applyNoReferenceDisplayGuard", () => {
 	test("passes the candidate through untouched when a reference lock exists", () => {
@@ -72,5 +75,49 @@ describe("applyNoReferenceDisplayGuard", () => {
 		expect(decision.applied).toBe(false);
 		expect(decision.reason).toBe("none");
 		expect(decision.bpm).toBe(102);
+	});
+});
+
+describe("shouldAllowDisplayJumpReset", () => {
+	test("requires a sustained jump streak", () => {
+		expect(
+			shouldAllowDisplayJumpReset({ bpmJumpCounter: 1, hasReferenceLock: true }),
+		).toBe(false);
+	});
+
+	test("allows once streak passes when a reference lock exists", () => {
+		expect(
+			shouldAllowDisplayJumpReset({ bpmJumpCounter: 3, hasReferenceLock: true }),
+		).toBe(true);
+	});
+
+	test("allows when a high-confidence tracker agrees with the candidate", () => {
+		expect(
+			shouldAllowDisplayJumpReset({
+				bpmJumpCounter: 3,
+				candidateBpm: 100,
+				trackerBpm: 96,
+				trackerConfidence: 0.75,
+			}),
+		).toBe(true);
+	});
+
+	test("rejects when the tracker disagrees or is low confidence", () => {
+		expect(
+			shouldAllowDisplayJumpReset({
+				bpmJumpCounter: 3,
+				candidateBpm: 100,
+				trackerBpm: 70,
+				trackerConfidence: 0.75,
+			}),
+		).toBe(false);
+		expect(
+			shouldAllowDisplayJumpReset({
+				bpmJumpCounter: 3,
+				candidateBpm: 100,
+				trackerBpm: 99,
+				trackerConfidence: 0.2,
+			}),
+		).toBe(false);
 	});
 });
