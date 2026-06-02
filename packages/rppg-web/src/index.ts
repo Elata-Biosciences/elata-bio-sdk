@@ -103,7 +103,14 @@ export type {
 	PulseWindowAnalysis,
 	PulseWindowSample,
 } from "./pulseAnalysis";
-export { Bandpass, spectralSnr, zeroPhaseBandpass } from "./rppgSignalModel";
+export {
+	Bandpass,
+	ChannelGainController,
+	ChromPulseModel,
+	computeSignalSnrDb,
+	spectralSnr,
+	zeroPhaseBandpass,
+} from "./rppgSignalModel";
 export { FUSION_ROIS, MultiRoiRppgFuser } from "./multiRoiFusion";
 export type {
 	FusionRoiName,
