@@ -57,6 +57,14 @@ export type {
 } from "./frameSource";
 export { AffectTracker } from "./affectTracker";
 export type { AffectBaseline, AffectTrackerOptions } from "./affectTracker";
+export {
+	BaselineCalibrator,
+	DEFAULT_BASELINE_CALIBRATOR_CONFIG,
+} from "./baselineCalibrator";
+export type {
+	BaselineCalibratorConfig,
+	BaselineCalibrationResult,
+} from "./baselineCalibrator";
 export { loadWasmBackend } from "./wasmBackend";
 export { createUnavailableBackend } from "./wasmBackend";
 export type { LoadWasmBackendOptions, WasmImporter } from "./wasmBackend";
@@ -157,8 +165,10 @@ export type {
 } from "./displayBpm";
 export {
 	computeFaceRoiRects,
+	computeFusionSubRois,
 	drawFaceOverlay,
 	FACE_ROI_FRACTIONS,
+	FUSION_ROI_NAMES,
 } from "./faceRoiOverlay";
 export type {
 	DrawFaceOverlayOptions,
@@ -207,3 +217,18 @@ export type {
 	ReplayWindowSummary,
 	ReplayBayesSessionResult,
 } from "./rppgReplay";
+export { RppgSessionRecorder } from "./rppgSessionRecorder";
+export type {
+	RppgRecorderOptions,
+	RecordMetricsContext,
+} from "./rppgSessionRecorder";
+export {
+	aggregateComparisons,
+	maeOf,
+	summarizeReplaySession,
+} from "./replayBenchmark";
+export type {
+	AbsErrorAccumulator,
+	CorpusComparison,
+	SessionComparison,
+} from "./replayBenchmark";
