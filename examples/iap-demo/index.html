@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Elata IAP Demo — canonical in-app purchase pattern</title>
+  <style>
+    :root {
+      --bg: #f7f7f5; --panel: #ffffff; --ink: #14110f; --muted: #6b6760;
+      --line: #e7e4df; --accent: #1ea97c; --accent-ink: #ffffff;
+      --warn-bg: #fff7ed; --warn-ink: #9a3412; --warn-line: #fed7aa;
+      --err-bg: #fef2f2; --err-ink: #991b1b; --err-line: #fecaca;
+      --radius: 12px;
+    }
+    /* Owning the "Dark Mode" item flips these — a visible, persisted perk. */
+    body.perk-dark {
+      --bg: #14110f; --panel: #1d1916; --ink: #f5f3ef; --muted: #a8a299;
+      --line: #2c2722;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
+      background: var(--bg); color: var(--ink); margin: 0; padding: 24px;
+      transition: background .25s, color .25s; line-height: 1.45;
+    }
+    main { max-width: 880px; margin: 0 auto; }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 28px 0 12px; }
+    .sub { color: var(--muted); margin: 0 0 20px; font-size: 14px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+    .card {
+      background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 16px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .card .title { font-weight: 600; }
+    .card .desc { color: var(--muted); font-size: 13px; flex: 1; }
+    .card .price { font-variant-numeric: tabular-nums; font-weight: 600; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+    .btn {
+      appearance: none; border: 1px solid var(--accent); background: var(--accent);
+      color: var(--accent-ink); border-radius: 8px; padding: 8px 14px; font-size: 14px;
+      cursor: pointer; font-weight: 600;
+    }
+    .btn:disabled { opacity: .55; cursor: default; }
+    .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+    .badge { font-size: 12px; font-weight: 700; color: var(--accent); }
+
+    .perk { opacity: .45; }
+    .perk.on { opacity: 1; }
+    .perk .lock { font-size: 12px; color: var(--muted); }
+
+    /* Toast + error banner */
+    #toast {
+      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+      background: var(--accent); color: #fff; padding: 10px 18px; border-radius: 999px;
+      font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: .25s;
+      box-shadow: 0 6px 20px rgba(0,0,0,.18);
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #banner {
+      display: none; background: var(--err-bg); color: var(--err-ink);
+      border: 1px solid var(--err-line); border-radius: 8px; padding: 10px 14px;
+      margin: 0 0 16px; font-size: 14px;
+    }
+    #banner.show { display: block; }
+
+    /* Dev controls — environment + mock host. Not part of the SDK contract. */
+    .dev {
+      background: var(--warn-bg); color: var(--warn-ink); border: 1px solid var(--warn-line);
+      border-radius: var(--radius); padding: 12px 14px; margin: 0 0 20px; font-size: 13px;
+    }
+    .dev .row { flex-wrap: wrap; }
+    .dev code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; }
+    .dev label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+
+    /* Mock checkout modal — stands in for the host's real payment UI. */
+    #mock-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none;
+      align-items: center; justify-content: center; z-index: 50;
+    }
+    #mock-modal.show { display: flex; }
+    #mock-modal .sheet {
+      background: var(--panel); color: var(--ink); border-radius: 16px; padding: 22px;
+      width: min(360px, 90vw); box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    }
+    #mock-modal .sheet h3 { margin: 0 0 4px; }
+    #mock-modal .sheet .mock-tag { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    #mock-modal .actions { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+    .muted { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Elata in-app purchase demo</h1>
+    <p class="sub">
+      The canonical reference for <code>@elata-biosciences/app-payments</code>:
+      catalog → ownership-gated UI → purchase (all branches) → applied, persisted benefit.
+    </p>
+
+    <!-- ── DEV CONTROLS (not part of the SDK; safe to delete in a real app) ── -->
+    <div class="dev">
+      <div class="row">
+        <span id="env-line">Detecting environment…</span>
+        <label>
+          <input type="checkbox" id="mock-toggle" />
+          Use mock host
+        </label>
+        <button class="btn ghost" id="reset-btn" style="padding:4px 10px;font-size:12px;">Reset mock ownership</button>
+        <button class="btn ghost" id="rebuy-btn" style="padding:4px 10px;font-size:12px;">Demo: re-buy an owned item</button>
+      </div>
+    </div>
+
+    <div id="banner"></div>
+
+    <h2>Store</h2>
+    <div class="grid" id="catalog"><p class="muted">Loading catalog…</p></div>
+
+    <h2>Your perks</h2>
+    <div class="grid" id="perks"><p class="muted">Reading entitlements…</p></div>
+  </main>
+
+  <div id="toast"></div>
+
+  <div id="mock-modal">
+    <div class="sheet">
+      <div class="mock-tag">Mock host · simulated checkout</div>
+      <h3 id="mock-title">Item</h3>
+      <p class="muted" id="mock-price"></p>
+      <p class="muted" style="font-size:13px">This stands in for the appstore's real payment modal so the demo runs standalone. Pick an outcome:</p>
+      <div class="actions">
+        <button class="btn" data-outcome="pay">Pay &amp; complete</button>
+        <button class="btn ghost" data-outcome="cancel">Cancel (close modal)</button>
+        <button class="btn ghost" data-outcome="error">Simulate verification error</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // The real, published SDK — exactly what an app developer installs.
+    import {
+      requestPurchase, hasItem, getOwnedItems, getCatalog, AppPaymentsError,
+    } from "https://esm.sh/@elata-biosciences/app-payments@0.2.0";
+
+    // ──────────────────────────────────────────────────────────────────────
+    //  App config
+    // ──────────────────────────────────────────────────────────────────────
+    // contentId → how owning it changes the app. THIS is the part that's a
+    // feature: the SDK records *that* you own it; the app decides what it does.
+    const PERKS = {
+      1: { label: "Dark Mode Theme", apply: on => document.body.classList.toggle("perk-dark", on) },
+      2: { label: "Bonus Level Pack", apply: () => {} },
+      3: { label: "Golden Avatar",   apply: () => {} },
+    };
+
+    // Display-only fallback catalog, used if getCatalog() is unavailable
+    // (host too old, offline). The host is always authoritative when reachable.
+    const FALLBACK_CATALOG = [
+      { contentId: 1, title: "Dark Mode Theme",  description: "Unlock a premium dark theme across the whole app.", priceUsdc: "10000" },
+      { contentId: 2, title: "Bonus Level Pack", description: "Three extra levels with new puzzles.",             priceUsdc: "50000" },
+      { contentId: 3, title: "Golden Avatar",    description: "A shiny cosmetic badge shown on your profile.",     priceUsdc: "20000" },
+    ];
+
+    const usd = base => `$${(Number(base) / 1e6).toFixed(2)}`;
+
+    // ──────────────────────────────────────────────────────────────────────
+    //  Environment + mock-host wiring
+    // ──────────────────────────────────────────────────────────────────────
+    const embedded = window.parent && window.parent !== window;
+    let mockEnabled = !embedded; // default: mock when opened directly, real host when embedded
+
+    // Every SDK call takes an optional `window`. In mock mode we hand it a fake
+    // window whose `.parent` is our in-page host; otherwise it uses the real one.
+    const iapOpts = (extra = {}) =>
+      mockEnabled ? { ...extra, window: mockHost.appWindow } : extra;
+
+    // ╔══════════════════════════════════════════════════════════════════════╗
+    // ║  DEV-ONLY MOCK HOST                                                    ║
+    // ║  Simulates the appstore parent so this file works with no backend.     ║
+    // ║  A real app ships NONE of this — delete the whole block.               ║
+    // ╚══════════════════════════════════════════════════════════════════════╝
+    const mockHost = (() => {
+      const KEY = "iap-demo:mock-owned";
+      const load = () => { try { return new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); } catch { return new Set(); } };
+      const save = s => localStorage.setItem(KEY, JSON.stringify([...s]));
+      let owned = load();
+
+      const listeners = new Set();
+      const host = { postMessage: msg => handle(msg) };          // SDK sees this as window.parent
+      const appWindow = {                                        // SDK sees this as its own window
+        parent: host,
+        addEventListener: (t, fn) => { if (t === "message") listeners.add(fn); },
+        removeEventListener: (t, fn) => { if (t === "message") listeners.delete(fn); },
+      };
+      const reply = (data, delay = 160) =>
+        setTimeout(() => { for (const fn of [...listeners]) fn({ source: host, data }); }, delay);
+
+      function handle(msg) {
+        const { type, requestId } = msg;
+        if (type === "elata:iap:getCatalog") {
+          reply({ type: "elata:iap:getCatalog:result", requestId, items: FALLBACK_CATALOG });
+        } else if (type === "elata:iap:listOwned") {
+          reply({ type: "elata:iap:listOwned:result", requestId, ownedContentIds: [...owned].sort((a, b) => a - b) });
+        } else if (type === "elata:iap:hasItem") {
+          reply({ type: "elata:iap:hasItem:result", requestId, owned: owned.has(msg.contentId) });
+        } else if (type === "elata:iap:request") {
+          // Already-owned short-circuit: the real host returns success + empty txHash, no charge.
+          if (owned.has(msg.contentId)) {
+            reply({ type: "elata:iap:result", requestId, status: "success", txHash: "" }, 80);
+            return;
+          }
+          openMockCheckout(msg, outcome => {
+            if (outcome === "cancel") {
+              reply({ type: "elata:iap:result", requestId, status: "cancelled" }, 50);
+            } else if (outcome === "error") {
+              reply({ type: "elata:iap:result", requestId, status: "error", error: "Mock: on-chain verification failed" }, 50);
+            } else {
+              owned.add(msg.contentId); save(owned);
+              const txHash = "0x" + requestId.replace(/-/g, "").padEnd(40, "0").slice(0, 40);
+              reply({ type: "elata:iap:result", requestId, status: "success", txHash }, 450);
+            }
+          });
+        }
+      }
+      return { appWindow, reset: () => { owned = new Set(); save(owned); } };
+    })();
+
+    const modal = document.getElementById("mock-modal");
+    function openMockCheckout(msg, done) {
+      document.getElementById("mock-title").textContent = msg.title || `Item #${msg.contentId}`;
+      document.getElementById("mock-price").textContent = msg.priceUsdc ? `${usd(msg.priceUsdc)} (display hint)` : "";
+      modal.classList.add("show");
+      const onClick = e => {
+        const outcome = e.target.getAttribute("data-outcome");
+        if (!outcome) return;
+        modal.classList.remove("show");
+        modal.removeEventListener("click", onClick);
+        done(outcome);
+      };
+      modal.addEventListener("click", onClick);
+    }
+    // ╚════════════════════════ end mock host ════════════════════════════════╝
+
+    // ──────────────────────────────────────────────────────────────────────
+    //  UI helpers
+    // ──────────────────────────────────────────────────────────────────────
+    const $ = id => document.getElementById(id);
+    let toastTimer;
+    function toast(text) {
+      const t = $("toast"); t.textContent = text; t.classList.add("show");
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2400);
+    }
+    function banner(text) {
+      const b = $("banner");
+      if (!text) { b.classList.remove("show"); return; }
+      b.textContent = text; b.classList.add("show");
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    //  State
+    // ──────────────────────────────────────────────────────────────────────
+    let catalog = [];
+    let owned = new Set();
+    let ownershipKnown = true; // false if entitlement queries are unavailable
+
+    function renderEnv() {
+      $("env-line").innerHTML = embedded
+        ? "Running <b>embedded</b> in an appstore host."
+        : "Running <b>standalone</b> (opened directly).";
+      $("mock-toggle").checked = mockEnabled;
+      $("reset-btn").disabled = !mockEnabled;
+    }
+
+    function renderCatalog() {
+      const el = $("catalog");
+      if (!catalog.length) { el.innerHTML = '<p class="muted">No items in the catalog.</p>'; return; }
+      el.innerHTML = "";
+      for (const item of catalog) {
+        const isOwned = owned.has(item.contentId);
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <div class="title">${item.title}</div>
+          <div class="desc">${item.description ?? ""}</div>
+          <div class="row">
+            <span class="price">${usd(item.priceUsdc)}</span>
+            ${isOwned
+              ? `<span class="badge">Owned ✓</span>`
+              : `<span class="muted">${ownershipKnown ? "" : "ownership unknown"}</span>`}
+          </div>
+          <div class="row">
+            ${isOwned
+              ? `<button class="btn ghost" data-use="${item.contentId}">Use it</button>`
+              : `<button class="btn" data-buy="${item.contentId}">Buy</button>`}
+          </div>`;
+        el.appendChild(card);
+      }
+    }
+
+    function renderPerks() {
+      const el = $("perks");
+      el.innerHTML = "";
+      for (const item of catalog) {
+        const on = owned.has(item.contentId);
+        const perk = document.createElement("div");
+        perk.className = "card perk" + (on ? " on" : "");
+        perk.innerHTML = `
+          <div class="title">${PERKS[item.contentId]?.label ?? item.title}</div>
+          <div class="lock">${on ? "Unlocked — active" : "🔒 Locked — buy to unlock"}</div>`;
+        el.appendChild(perk);
+      }
+    }
+
+    // Apply every owned perk's real effect. Called on load and after a purchase,
+    // so the benefit survives reloads — the host is the source of truth.
+    function applyOwnedPerks() {
+      for (const item of catalog) PERKS[item.contentId]?.apply(owned.has(item.contentId));
+    }
+
+    function rerender() { renderCatalog(); renderPerks(); applyOwnedPerks(); }
+
+    // ──────────────────────────────────────────────────────────────────────
+    //  Data loading
+    // ──────────────────────────────────────────────────────────────────────
+    async function loadCatalog() {
+      try {
+        const items = await getCatalog(iapOpts({ timeoutMs: 8000 }));
+        catalog = items.length ? items : FALLBACK_CATALOG;
+      } catch (err) {
+        // getCatalog unavailable (e.g. older host) — fall back to bundled list.
+        catalog = FALLBACK_CATALOG;
+        console.warn("getCatalog failed, using fallback:", err);
+      }
+    }
+
+    async function loadOwnership() {
+      try {
+        owned = new Set(await getOwnedItems(iapOpts({ timeoutMs: 8000 })));
+        ownershipKnown = true;
+        banner("");
+      } catch (err) {
+        // Graceful degradation: if the host can't answer ownership queries yet
+        // (e.g. appstore PR #472 not deployed), don't hard-fail — show every
+        // item as buyable and say so, rather than dead-ending the whole UI.
+        owned = new Set();
+        ownershipKnown = false;
+        const why = err instanceof AppPaymentsError ? err.code : String(err);
+        banner(`Ownership unavailable (${why}). Showing all items as available. ` +
+               `A real host needs the entitlement-query handlers to gate the UI.`);
+        console.warn("getOwnedItems failed:", err);
+      }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    //  Actions
+    // ──────────────────────────────────────────────────────────────────────
+    async function buy(contentId) {
+      const item = catalog.find(i => i.contentId === contentId);
+      if (!item) return;
+      try {
+        const result = await requestPurchase({
+          contentId,
+          priceUsdc: item.priceUsdc, // display hint only; host is authoritative
+          title: item.title,
+          description: item.description ?? undefined,
+          ...iapOpts(),
+        });
+        switch (result.status) {
+          case "success":
+            // Branch on status, NOT on txHash — it's "" for the already-owned path.
+            owned.add(contentId);
+            rerender();
+            toast(result.txHash ? `Purchased — ${item.title}` : `Already owned — ${item.title}`);
+            break;
+          case "cancelled":
+            break; // user backed out before paying: leave the UI as-is
+          case "error":
+            banner(`Purchase failed: ${result.error}`);
+            break;
+        }
+      } catch (err) {
+        // Thrown only for SDK-level problems (no parent, bad input, timeout).
+        banner(err instanceof AppPaymentsError ? `${err.code}: ${err.message}` : String(err));
+      }
+    }
+
+    function use(contentId) {
+      const item = catalog.find(i => i.contentId === contentId);
+      PERKS[contentId]?.apply(true);
+      toast(`Applied — ${PERKS[contentId]?.label ?? item?.title ?? "perk"}`);
+    }
+
+    async function reload() {
+      await loadCatalog();
+      await loadOwnership();
+      rerender();
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    //  Wiring
+    // ──────────────────────────────────────────────────────────────────────
+    document.getElementById("catalog").addEventListener("click", e => {
+      const buyId = e.target.getAttribute("data-buy");
+      const useId = e.target.getAttribute("data-use");
+      if (buyId) buy(Number(buyId));
+      else if (useId) use(Number(useId));
+    });
+
+    $("mock-toggle").addEventListener("change", async e => {
+      mockEnabled = e.target.checked;
+      renderEnv();
+      await reload();
+    });
+
+    $("reset-btn").addEventListener("click", async () => {
+      mockHost.reset();
+      toast("Mock ownership cleared");
+      await reload();
+    });
+
+    // Demonstrates §7 step 5: buying an item you already own returns success
+    // with an empty txHash and applies the benefit without a second charge.
+    $("rebuy-btn").addEventListener("click", () => {
+      const ownedItem = catalog.find(i => owned.has(i.contentId));
+      if (!ownedItem) { toast("Buy something first, then try this"); return; }
+      buy(ownedItem.contentId);
+    });
+
+    renderEnv();
+    reload();
+  </script>
+</body>
+</html>
