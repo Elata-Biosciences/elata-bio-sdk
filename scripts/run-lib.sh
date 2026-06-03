@@ -154,22 +154,41 @@ with_npm_registry_auth() {
     return "$rc"
 }
 
-# Fail fast with a clear message if the npm registry token cannot authenticate.
-# An invalid/expired/revoked token otherwise surfaces as a misleading 404 when
-# publishing: an unauthenticated PUT to a scoped package is reported as
-# "not found" rather than "unauthorized", to avoid leaking the scope's existence.
-verify_npm_token_or_die() {
+# Ensure we can authenticate to the npm registry before publishing.
+#
+# Two supported modes:
+#   1. NPM_TOKEN (CI / non-interactive): verified with `npm whoami`. The account
+#      has 2FA on writes, so the token must be an Automation or Granular Access
+#      token; a classic publish token will fail. An invalid/expired/revoked token
+#      otherwise surfaces as a misleading 404 when publishing (an unauthenticated
+#      PUT to a scoped package is reported as "not found" rather than
+#      "unauthorized", to avoid leaking the scope's existence).
+#   2. Interactive login (default, no NPM_TOKEN): if there is no existing session,
+#      run the npm web login flow, which authenticates through npmjs.com in the
+#      browser and supports a Yubikey/passkey as the second factor. The resulting
+#      session is stored in the user's npm config and reused by
+#      `npm publish --auth-type=web`.
+ensure_npm_auth_or_die() {
     local who rc=0
     who="$(with_npm_registry_auth npm whoami --registry=https://registry.npmjs.org/ 2>/dev/null)" || rc=$?
-    if [[ "$rc" -ne 0 || -z "$who" ]]; then
-        if [[ -n "${NPM_TOKEN:-}" ]]; then
-            die "npm authentication failed: NPM_TOKEN is invalid, expired, or revoked." \
-                "Generate a new Automation or Granular Access token (your account has 2FA on writes, so a classic publish token will not work non-interactively) at https://www.npmjs.com/settings/<your-user>/tokens/new and update NPM_TOKEN in ${ROOT_DIR}/.env."
-        else
-            die "npm authentication failed and no NPM_TOKEN is set." \
-                "Set NPM_TOKEN in ${ROOT_DIR}/.env or run 'npm login' so publishing can authenticate."
-        fi
+    if [[ "$rc" -eq 0 && -n "$who" ]]; then
+        echo "Authenticated to npm registry as '${who}'."
+        return 0
     fi
+
+    if [[ -n "${NPM_TOKEN:-}" ]]; then
+        die "npm authentication failed: NPM_TOKEN is invalid, expired, or revoked." \
+            "Generate a new Automation or Granular Access token (your account has 2FA on writes, so a classic publish token will not work non-interactively) at https://www.npmjs.com/settings/<your-user>/tokens/new and update NPM_TOKEN in ${ROOT_DIR}/.env."
+    fi
+
+    # No token: log in interactively via the npm website. A browser tab opens on
+    # npmjs.com so a Yubikey/passkey can be used as the second factor.
+    echo "Not logged in to npm; starting web login (a browser tab will open on npmjs.com)..."
+    npm login --auth-type=web --registry=https://registry.npmjs.org/ \
+        || die "npm web login failed." "Run 'npm login --auth-type=web' manually and retry, or set NPM_TOKEN in ${ROOT_DIR}/.env."
+
+    who="$(npm whoami --registry=https://registry.npmjs.org/ 2>/dev/null || true)"
+    [[ -n "$who" ]] || die "npm login did not produce a session." "Run 'npm login --auth-type=web' manually and retry."
     echo "Authenticated to npm registry as '${who}'."
 }
 
@@ -864,7 +883,7 @@ publish_packages() {
     require_cmds node
     require_package_manager
     ensure_npm_token_from_dotenv
-    verify_npm_token_or_die
+    ensure_npm_auth_or_die
 
     if [[ "$skip_verify" != "1" ]]; then
         verify_release_contract_for_target "$target"
@@ -904,10 +923,17 @@ publish_packages() {
         echo "Publishing ${pkg_name}@${version} with dist-tag '${dist_tag}'..."
         (
             cd "$ROOT_DIR/$pkg_dir"
-            if [[ "$PKG_MGR" == "pnpm" ]]; then
-                with_npm_registry_auth pnpm publish --access public --tag "$dist_tag" --no-git-checks
+            if [[ -n "${NPM_TOKEN:-}" ]]; then
+                # Token auth: no interactive 2FA round-trip needed.
+                if [[ "$PKG_MGR" == "pnpm" ]]; then
+                    with_npm_registry_auth pnpm publish --access public --tag "$dist_tag" --no-git-checks
+                else
+                    with_npm_registry_auth npm publish --access public --tag "$dist_tag"
+                fi
             else
-                with_npm_registry_auth npm publish --access public --tag "$dist_tag"
+                # Interactive login: web 2FA opens a browser tab so the publish can
+                # be confirmed with a Yubikey/passkey instead of a typed TOTP code.
+                npm publish --access public --tag "$dist_tag" --auth-type=web
             fi
         )
     done
