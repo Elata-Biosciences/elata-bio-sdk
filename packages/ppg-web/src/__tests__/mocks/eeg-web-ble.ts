@@ -1,7 +1,10 @@
 import type { HeadbandTransport } from "./eeg-web";
 
+// Loose stand-in for the real factory type; tests pass trivial decoder doubles.
+export type AthenaDecoderFactory = () => unknown;
+
 export interface MuseDeviceOptions {
-	athenaDecoderFactory?: () => unknown;
+	athenaDecoderFactory?: AthenaDecoderFactory;
 }
 
 export class BleTransport implements HeadbandTransport {
