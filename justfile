@@ -46,6 +46,14 @@ create *args:
 sync-to *args:
     @set -- sync-to "$@"; source "{{lib}}"
 
+# Build a package and pnpm-link it into a local app (default: rppg-web).
+link app pkg="rppg-web" profile="release":
+    @set -- link "{{app}}" "{{pkg}}" "{{profile}}"; source "{{lib}}"
+
+# Remove a local link from an app and reinstall its registry deps.
+unlink app:
+    @set -- unlink "{{app}}"; source "{{lib}}"
+
 # --- Quality ----------------------------------------------------------------
 
 # Run fast health checks (toolchain, repo audit, deps, artifact presence).

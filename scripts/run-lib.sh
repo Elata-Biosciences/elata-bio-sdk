@@ -226,6 +226,8 @@ usage() {
     cmd "demo" "Run in-repo demo: 'rppg' (default), 'ppg', 'hal', or 'eeg' (example: './run.sh demo ppg')"
     cmd "create" "Scaffold app via create-elata-demo (examples: './run.sh create ppg my-app', './run.sh create my-app')"
     cmd "sync-to" "Build eeg-web and install it into a local app (default app: ../my-app)"
+    cmd "link" "Build a package and pnpm-link it into a local app (default: rppg-web)"
+    cmd "unlink" "Remove a local link from an app and reinstall its registry deps"
 
     section "Quality"
     cmd "doctor" "Run fast health checks (toolchain, repo audit, deps, artifact presence)"
@@ -1413,6 +1415,66 @@ install_local_package_into_app() {
     fi
 }
 
+# Build a single workspace package so its dist is fresh before linking.
+link_build_for_target() {
+    local target="$1" profile="$2"
+    case "$target" in
+        rppg-web) build_rppg_web_package ;;
+        eeg-web) build_eeg_web_package "$profile" ;;
+        *) run_pkg_script "$(package_dir_for_target "$target")" "build" ;;
+    esac
+}
+
+# Build a workspace package and pnpm-link it into a local consuming app, so the
+# app resolves the local source before the package is published.
+link_package_into_app() {
+    local app_dir="$1" target="$2" profile="$3"
+    require_package_manager
+    if [[ ! -d "$app_dir" ]]; then
+        die "Target app directory not found: $app_dir" "Pass the consuming app path: ./run.sh link /path/to/app rppg-web"
+    fi
+    local pkg_dir pkg_name
+    pkg_dir="$(package_dir_for_target "$target")" || exit 1
+    pkg_name="$(package_name_for_target "$target")" || exit 1
+
+    echo "Building $pkg_name (profile: $profile) before linking..."
+    link_build_for_target "$target" "$profile"
+
+    echo "Linking $pkg_name into app: $app_dir (using $PKG_MGR)"
+    install_local_package_into_app "$app_dir" "$ROOT_DIR/$pkg_dir" 0
+
+    echo "Linked: $ROOT_DIR/$pkg_dir → $app_dir"
+    echo "Undo with: ./run.sh unlink $app_dir"
+}
+
+# Drop a local link from an app and reinstall so it resolves registry deps.
+# pnpm (v10) records `pnpm link` as an override in pnpm-workspace.yaml; remove
+# that override-only file, but never a real workspace definition.
+unlink_package_from_app() {
+    local app_dir="$1"
+    require_package_manager
+    if [[ ! -d "$app_dir" ]]; then
+        die "Target app directory not found: $app_dir" "Pass the consuming app path: ./run.sh unlink /path/to/app"
+    fi
+
+    if [[ "$PKG_MGR" == "pnpm" ]]; then
+        local ws="$app_dir/pnpm-workspace.yaml"
+        if [[ -f "$ws" ]]; then
+            if grep -q "link:" "$ws" && ! grep -qE "^[[:space:]]*packages:" "$ws"; then
+                echo "Removing pnpm link override: $ws"
+                rm -f "$ws"
+            else
+                echo "Note: $ws looks like a real workspace file; leaving it in place."
+                echo "Remove any 'link:' override under 'overrides:' manually if needed."
+            fi
+        fi
+    fi
+
+    echo "Reinstalling dependencies in $app_dir (using $PKG_MGR)..."
+    run_pkg_cmd "$app_dir" install
+    echo "Unlinked: $app_dir now resolves its registry dependencies."
+}
+
 cpu_cores() {
     if command -v getconf >/dev/null 2>&1; then
         getconf _NPROCESSORS_ONLN && return 0
@@ -2096,6 +2158,27 @@ case "$cmd" in
         install_local_package_into_app "$APP_DIR_ARG" "$ROOT_DIR/packages/eeg-web" "${SAVE:-0}"
 
         echo "Sync complete: $ROOT_DIR/packages/eeg-web → $APP_DIR_ARG"
+        ;;
+    link)
+        RUN_SH_TASK="link"
+        # Usage: ./run.sh link <app-dir> [package] [profile]
+        #   app-dir: APP_DIR env or first arg (default: ../my-app)
+        #   package: eeg|rppg|ppg|eeg-ble|create-elata-demo (default: rppg-web)
+        #   profile: release|debug (default: release)
+        # Builds the package and pnpm-links it into the app so the app resolves
+        # the local source before the package is published.
+        APP_DIR_ARG="${2:-${APP_DIR:-$ROOT_DIR/../my-app}}"
+        LINK_TARGET="$(normalize_release_target "${3:-rppg-web}")" || { usage; exit 1; }
+        PROFILE_ARG="$(normalize_profile "${4:-release}")" || exit 1
+        link_package_into_app "$APP_DIR_ARG" "$LINK_TARGET" "$PROFILE_ARG"
+        ;;
+    unlink)
+        RUN_SH_TASK="unlink"
+        # Usage: ./run.sh unlink <app-dir>
+        #   app-dir: APP_DIR env or first arg (default: ../my-app)
+        # Removes the local pnpm link override and reinstalls registry deps.
+        APP_DIR_ARG="${2:-${APP_DIR:-$ROOT_DIR/../my-app}}"
+        unlink_package_from_app "$APP_DIR_ARG"
         ;;
     test)
         RUN_SH_TASK="test"
