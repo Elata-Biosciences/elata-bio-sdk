@@ -1,6 +1,6 @@
 {
 	"name": "@elata-biosciences/rppg-web",
-	"version": "0.8.0",
+	"version": "0.9.0",
 	"description": "TypeScript wrapper for the Elata rPPG pipeline",
 	"license": "MIT",
 	"author": "Elata",
@@ -46,6 +46,7 @@
 		"prepare": "pnpm run build",
 		"lint": "pnpm exec biome lint src playwright.config.ts scripts/build-demo.mjs jest.config.cjs",
 		"test": "jest --config jest.config.cjs --passWithNoTests",
+		"bench:replay": "node ./bench/replaySessionBenchmark.mjs",
 		"test:consumer:node": "node ./scripts/verify-consumer-node-smoke.mjs",
 		"test:consumer:browser": "pnpm exec playwright test e2e/consumer.spec.ts --project=chromium",
 		"clean": "node ./scripts/clean.mjs",
@@ -64,6 +65,7 @@
 		"prepack": "pnpm run prepare:publish && pnpm run verify:publish"
 	},
 	"devDependencies": {
+		"@elata-biosciences/ppg-web": "workspace:*",
 		"@playwright/test": "1.58.2",
 		"@types/jest": "29.5.14",
 		"esbuild": "0.25.10",

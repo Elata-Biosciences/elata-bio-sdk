@@ -151,6 +151,9 @@ importers:
 
   packages/rppg-web:
     devDependencies:
+      '@elata-biosciences/ppg-web':
+        specifier: workspace:*
+        version: link:../ppg-web
       '@playwright/test':
         specifier: 1.58.2
         version: 1.58.2
