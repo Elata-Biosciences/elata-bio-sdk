@@ -98,6 +98,7 @@ Use this quick guide if you are starting from an existing app:
 | Run EEG WASM APIs in the browser | [`@elata-biosciences/eeg-web`](https://www.npmjs.com/package/@elata-biosciences/eeg-web) | Signal processing, models, and WASM helpers |
 | Connect to an EEG headset over Web Bluetooth in the browser | [`@elata-biosciences/eeg-web-ble`](https://www.npmjs.com/package/@elata-biosciences/eeg-web-ble) | Requires `@elata-biosciences/eeg-web` and Web Bluetooth; Muse built-in; [extend for other headsets](docs/contributing-eeg-transports.md) |
 | Run camera-based rPPG in a browser app | [`@elata-biosciences/rppg-web`](https://www.npmjs.com/package/@elata-biosciences/rppg-web) | Includes processor, backend loader, and demo helpers |
+| Add in-app purchases to an appstore app | [`@elata-biosciences/app-payments`](https://www.npmjs.com/package/@elata-biosciences/app-payments) | Purchases + entitlements over `postMessage`; see [guide](docs/guides/using-iap-in-a-browser-app.md) and [demo](examples/iap-demo) |
 
 If you are trying the SDK for the first time, prefer `create-elata-demo` over
 manual package setup.
@@ -121,6 +122,7 @@ Scope overview: [@elata-biosciences on npm](https://www.npmjs.com/org/elata-bios
 - [@elata-biosciences/eeg-web](https://www.npmjs.com/package/@elata-biosciences/eeg-web): EEG WASM wrapper and re-export surface
 - [@elata-biosciences/eeg-web-ble](https://www.npmjs.com/package/@elata-biosciences/eeg-web-ble): Web Bluetooth transport for EEG headbands (Muse built-in; [contributor extensions](docs/contributing-eeg-transports.md))
 - [@elata-biosciences/rppg-web](https://www.npmjs.com/package/@elata-biosciences/rppg-web): rPPG processing wrapper and demo helpers
+- [@elata-biosciences/app-payments](https://www.npmjs.com/package/@elata-biosciences/app-payments): in-app purchases and entitlements for sandboxed appstore apps
 - [@elata-biosciences/create-elata-demo](https://www.npmjs.com/package/@elata-biosciences/create-elata-demo): app scaffolder with multiple templates
 
 ## Compatibility Summary

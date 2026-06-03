@@ -65,3 +65,4 @@ dimensions where applicable, and **compressed WebP derivatives** (`preview-deskt
 - [getting-started.md](getting-started.md)
 - [using-eeg-in-a-browser-app.md](using-eeg-in-a-browser-app.md)
 - [using-rppg-in-a-browser-app.md](using-rppg-in-a-browser-app.md)
+- [using-iap-in-a-browser-app.md](using-iap-in-a-browser-app.md)

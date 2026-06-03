@@ -9,5 +9,6 @@ These guides are aimed at SDK consumers rather than repo maintainers.
 - [using-eeg-in-a-browser-app.md](using-eeg-in-a-browser-app.md): integrate EEG WASM APIs into a browser app
 - [using-web-bluetooth-with-supported-devices.md](using-web-bluetooth-with-supported-devices.md): Web Bluetooth headset flow in the browser (Muse built-in today)
 - [using-rppg-in-a-browser-app.md](using-rppg-in-a-browser-app.md): integrate browser-side rPPG processing
+- [using-iap-in-a-browser-app.md](using-iap-in-a-browser-app.md): add in-app purchases to an app running in the Elata appstore
 - [compatibility.md](compatibility.md): browser, device, Node, and package-manager expectations
 - [troubleshooting.md](troubleshooting.md): common setup and runtime failures
