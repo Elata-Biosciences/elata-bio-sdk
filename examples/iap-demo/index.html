@@ -139,13 +139,9 @@
 
   <script type="module">
     // The real, published SDK — exactly what an app developer installs.
-    // Namespace import (not named) so the module still loads if a published
-    // build is missing a newer export: `getCatalog` shipped after npm 0.2.0,
-    // so it's feature-detected below and the demo auto-upgrades once a version
-    // that includes it is pinned here.
-    import * as iap from "https://esm.sh/@elata-biosciences/app-payments@0.2.0";
-    const { requestPurchase, hasItem, getOwnedItems, AppPaymentsError } = iap;
-    const getCatalog = typeof iap.getCatalog === "function" ? iap.getCatalog : null;
+    import {
+      requestPurchase, hasItem, getOwnedItems, getCatalog, AppPaymentsError,
+    } from "https://esm.sh/@elata-biosciences/app-payments@0.3.0";
 
     // ──────────────────────────────────────────────────────────────────────
     //  App config
@@ -328,10 +324,6 @@
     //  Data loading
     // ──────────────────────────────────────────────────────────────────────
     async function loadCatalog() {
-      // getCatalog may be absent from the installed SDK build (it shipped after
-      // npm 0.2.0). When present we use it; otherwise we fall back to a bundled
-      // list so the rest of the flow still works.
-      if (!getCatalog) { catalog = FALLBACK_CATALOG; return; }
       try {
         const items = await getCatalog(iapOpts({ timeoutMs: 8000 }));
         catalog = items.length ? items : FALLBACK_CATALOG;
