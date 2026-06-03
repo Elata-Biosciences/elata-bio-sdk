@@ -53,14 +53,23 @@ and you have an ordinary embedded app.
 - **Embedded** (served inside the appstore): mock is off; the real host answers.
   Use the *"Use mock host"* toggle to force the mock even when embedded.
 
-## Note on host support
+## Note on SDK / host support
 
-`getCatalog` and `requestPurchase` are handled by the live appstore host today.
-The ownership queries (`getOwnedItems` / `hasItem`) require the host-side
-entitlement handlers (appstore PR #472). Until those ship, the demo **degrades
-gracefully** against a real host: an ownership-query timeout shows a banner and
-falls back to displaying every item as available, rather than dead-ending the
-UI. The mock host implements all four, so the full flow is demonstrable here now.
+Two gaps the demo works around, so it runs today and auto-upgrades as they close:
+
+- **`getCatalog` isn't in the published SDK yet.** It was added in source but
+  npm `0.2.0` predates it, so the demo feature-detects `getCatalog` (namespace
+  import) and falls back to a bundled catalog when the installed build lacks it.
+  Publish a version that includes `getCatalog` and bump the pin in `index.html`
+  to exercise the real call.
+- **Ownership queries need the host side.** `getOwnedItems` / `hasItem` require
+  the appstore's entitlement handlers (appstore PR #472). Until those ship, the
+  demo **degrades gracefully** against a real host: an ownership-query timeout
+  shows a banner and falls back to displaying every item as available, rather
+  than dead-ending the UI.
+
+The built-in mock host implements all four calls, so the full flow is fully
+demonstrable here right now regardless of those two.
 
 ## See also
 
