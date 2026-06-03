@@ -1,10 +1,11 @@
+import type { AthenaDecoderFactory } from "@elata-biosciences/eeg-web-ble";
 import {
 	createMusePpgSession,
 	type CreateMusePpgSessionOptions,
 } from "./ppgSession";
 
 type DemoWindow = Window & {
-	__ppgAthenaDecoderFactory?: () => unknown;
+	__ppgAthenaDecoderFactory?: AthenaDecoderFactory;
 	__ppgAthenaInitError?: string;
 };
 
