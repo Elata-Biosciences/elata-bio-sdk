@@ -24,6 +24,11 @@ import type {
 } from "./rppgSession";
 import type { AffectState, FaceBlendshapeCategory } from "./affect";
 import { AffectTracker, type AffectTrackerOptions } from "./affectTracker";
+import {
+	faceFramingFromBox,
+	type FaceBox,
+	type FramingGuidance,
+} from "./faceFraming";
 
 export type RppgAppStatus =
 	| "idle"
@@ -55,6 +60,8 @@ export type RppgAppAdapterSource = {
 	getTraceSnapshot(maxPoints?: number): RppgTraceSnapshot;
 	/** Latest face blendshapes (for affect). Optional — sources without face tracking omit it. */
 	getLastBlendshapes?(): { blendshapes: FaceBlendshapeCategory[]; atMs: number } | null;
+	/** Latest normalized head box (for framing). Optional — omitted by sources without face tracking. */
+	getLastFaceBox?(): { box: FaceBox; atMs: number } | null;
 };
 
 export type CreateRppgAppAdapterOptions = {
@@ -82,6 +89,10 @@ export type RppgAppSnapshot = {
 	metrics: Metrics;
 	/** Dimensional affect: valence (face) + arousal (rPPG physiology fused with face). Null when disabled/unavailable. */
 	affect: AffectState | null;
+	/** Normalized (0..1) head box of the tracked face, or null when none is in frame / face tracking is off. */
+	faceBox: FaceBox | null;
+	/** Framing guidance derived from {@link faceBox} (move closer / center / …), or null when face tracking is off. */
+	framing: FramingGuidance | null;
 	diagnostics: RppgSessionDiagnostics | null;
 	trace: RppgTraceSnapshot;
 	normalizedError: RppgNormalizedError | null;
@@ -105,6 +116,9 @@ export type RppgAppSnapshot = {
 
 const DEFAULT_MAX_TRACE_POINTS = 120;
 const DEFAULT_APP_MONITOR_INTERVAL_MS = 500;
+// A face box older than this is treated as "no face": detection runs per frame,
+// so once the face leaves, landmarks stop and the last box must not linger.
+const FACE_BOX_STALE_MS = 600;
 
 function isManagedState(
 	state: RppgSessionState | ManagedRppgSessionState,
@@ -271,13 +285,30 @@ export class RppgAppAdapter {
 			sessionState = source.state;
 		}
 		const activeCapture = managedState == null || managedState.status === "running";
-		const gating = activeCapture
-			? this.gating.update({
-					nowMs,
-					metrics,
-					hasFace: inferHasFace(diagnostics),
-			  })
-			: (this.gating.reset(), idleGating("Monitoring paused"));
+		// Resolve the tracked head box: `undefined` when the source can't report
+		// one (no face tracking), `null` when it can but the face is gone/stale,
+		// else the fresh box. Drives both gating's face presence and positioning.
+		const faceBoxEntry = source.getLastFaceBox?.();
+		const faceBox: FaceBox | null | undefined =
+			faceBoxEntry === undefined
+				? undefined
+				: faceBoxEntry && nowMs - faceBoxEntry.atMs <= FACE_BOX_STALE_MS
+					? faceBoxEntry.box
+					: null;
+		let gating: RppgGatingOutput;
+		if (activeCapture) {
+			gating = this.gating.update({
+				nowMs,
+				metrics,
+				hasFace: faceBox === undefined ? inferHasFace(diagnostics) : undefined,
+				faceBox,
+			});
+		} else {
+			this.gating.reset();
+			gating = idleGating("Monitoring paused");
+		}
+		const framing =
+			faceBox === undefined ? null : faceFramingFromBox(faceBox);
 		const status = deriveStatus(managedState, sessionState, normalizedError, gating);
 		const guidance = deriveGuidance(
 			status,
@@ -319,6 +350,8 @@ export class RppgAppAdapter {
 			guidance,
 			metrics,
 			affect,
+			faceBox: faceBox ?? null,
+			framing,
 			diagnostics,
 			trace,
 			normalizedError,

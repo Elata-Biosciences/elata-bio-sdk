@@ -7,10 +7,21 @@ import {
 	averageRgbInROI,
 	averageRgbInROIWithSkinMaskStats,
 } from "./frameSource";
+import {
+	faceBoxFromLandmarks,
+	padFaceBoxToHead,
+	type FaceBox,
+} from "./faceFraming";
 import { RppgProcessor } from "./rppgProcessor";
 
 export type LastBlendshapes = {
 	blendshapes: FrameBlendshape[];
+	atMs: number;
+};
+
+export type LastFaceBox = {
+	/** Normalized (0..1) head box — the mesh bounds padded out to the head. */
+	box: FaceBox;
 	atMs: number;
 };
 
@@ -94,6 +105,7 @@ export class DemoRunner {
 	};
 	private lastError: DemoRunnerError | null = null;
 	private lastBlendshapes: LastBlendshapes | null = null;
+	private lastFaceBox: LastFaceBox | null = null;
 
 	constructor(
 		private source: FrameSource,
@@ -106,6 +118,15 @@ export class DemoRunner {
 	/** Latest face blendshapes (for affect estimation), with capture timestamp. */
 	getLastBlendshapes(): LastBlendshapes | null {
 		return this.lastBlendshapes;
+	}
+
+	/**
+	 * Latest normalized head box (for framing guidance), with capture timestamp.
+	 * Null until a face is tracked; consumers should treat a stale entry as
+	 * "no face" against their own clock.
+	 */
+	getLastFaceBox(): LastFaceBox | null {
+		return this.lastFaceBox;
 	}
 
 	async start() {
@@ -134,6 +155,14 @@ export class DemoRunner {
 				blendshapes: frame.blendshapes,
 				atMs: frame.timestampMs ?? Date.now(),
 			};
+		}
+		// Capture the head box for framing guidance. Wall-clock `atMs` (not the
+		// frame's media time) so consumers can age it against Date.now().
+		if (frame.landmarks && frame.landmarks.length) {
+			const mesh = faceBoxFromLandmarks(frame.landmarks);
+			if (mesh) {
+				this.lastFaceBox = { box: padFaceBoxToHead(mesh), atMs: Date.now() };
+			}
 		}
 		const now =
 			typeof performance !== "undefined" ? performance.now() : Date.now();

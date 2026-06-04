@@ -1,5 +1,6 @@
 import { MediaPipeFaceFrameSource } from '../mediaPipeFaceFrameSource';
 import { Frame } from '../frameSource';
+import { computeFusionSubRois } from '../faceRoiOverlay';
 import type { FaceLandmarkerLike, FaceLandmarkerResult } from '../mediapipeLoader';
 
 class FakeCtx {
@@ -163,6 +164,29 @@ describe('MediaPipeFaceFrameSource edge cases', () => {
       expect(Number.isInteger(roi.x)).toBe(true);
       expect(Number.isInteger(roi.y)).toBe(true);
     }
+    restore();
+  });
+
+  test('sampled sub-ROIs match the shared overlay geometry (drawn == sampled)', async () => {
+    const restore = setupCanvasMock(400, 400);
+    const video = new FakeVideo(400, 400) as unknown as HTMLVideoElement;
+    const landmarks = [
+      { x: 0.3, y: 0.25 },
+      { x: 0.7, y: 0.25 },
+      { x: 0.3, y: 0.75 },
+      { x: 0.7, y: 0.75 },
+      { x: 0.5, y: 0.5 },
+    ];
+    const src = new MediaPipeFaceFrameSource(video, fakeLandmarker([{ landmarks }]), 30);
+    const frames: Frame[] = [];
+    src.onFrame = (f) => frames.push(f);
+    await src.start();
+    await src.stop();
+
+    // The frame source must populate frame.rois from the same geometry the
+    // overlay draws, so there is a single source of truth for ROI placement.
+    const expected = computeFusionSubRois(landmarks, 400, 400);
+    expect(frames[0].rois).toEqual(expected);
     restore();
   });
 

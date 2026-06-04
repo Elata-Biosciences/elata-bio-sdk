@@ -301,6 +301,20 @@
               </div>
               <pre id="replay-summary" class="min-h-[72px] rounded-lg bg-slate-900/70 border border-slate-800 p-3 text-[10px] leading-relaxed text-slate-400 overflow-x-auto">Waiting for enough windows...</pre>
             </div>
+
+            <!-- Session capture (tester) -->
+            <div class="mt-3 border-t border-slate-700/40 pt-3 space-y-2">
+              <div class="flex items-center justify-between gap-3">
+                <p class="text-[9px] uppercase tracking-widest text-slate-500">Session Capture</p>
+                <span id="capture-count" class="text-[10px] font-mono text-slate-400">0 samples / 0 refs</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button id="connect-muse-btn" class="px-2 py-1 rounded-md bg-slate-800 text-[10px] font-semibold uppercase tracking-wider text-indigo-300 border border-slate-700 hover:bg-slate-700 transition-colors">Connect Muse (ref)</button>
+                <button id="download-session-btn" class="px-2 py-1 rounded-md bg-slate-800 text-[10px] font-semibold uppercase tracking-wider text-emerald-300 border border-slate-700 hover:bg-slate-700 transition-colors" disabled>Download Session</button>
+                <button id="reset-session-btn" class="px-2 py-1 rounded-md bg-slate-800 text-[10px] font-semibold uppercase tracking-wider text-slate-300 border border-slate-700 hover:bg-slate-700 transition-colors">Reset</button>
+              </div>
+              <p id="muse-ref-status" class="text-[10px] text-slate-500">Muse reference: not connected (manual/none).</p>
+            </div>
           </div>
         </div>
 

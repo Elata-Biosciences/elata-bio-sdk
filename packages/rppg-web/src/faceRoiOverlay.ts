@@ -29,19 +29,30 @@ export const FACE_ROI_FRACTIONS: Record<
 	FaceRoiName,
 	[number, number, number, number]
 > = {
-	forehead: [0.3, 0.04, 0.7, 0.28],
+	// Mid-forehead band. The top edge is dropped off the hairline (was 0.04, which
+	// sat at the very top of the mesh) down to the glabella→mid-forehead region,
+	// and the sides are pulled in off the temples. This mirrors TradeLock's
+	// landmark-anchored forehead ROI (glabella/mid-forehead, indices 9/151/108/337)
+	// which deliberately targets the least hair-contaminated forehead skin.
+	forehead: [0.32, 0.13, 0.68, 0.3],
 	leftCheek: [0.16, 0.42, 0.43, 0.7],
 	rightCheek: [0.57, 0.42, 0.84, 0.7],
 	centralFace: [0.25, 0.25, 0.75, 0.78],
 	broadFace: [0.12, 0.12, 0.88, 0.9],
 };
 
-/** Default regions drawn by the overlay — the forehead + cheek fusion ROIs. */
-const DEFAULT_OVERLAY_ROIS: readonly FaceRoiName[] = [
+/**
+ * The forehead + cheek regions fused for the pulse signal — also the default
+ * regions drawn by the overlay, so what is sampled is exactly what is shown.
+ */
+export const FUSION_ROI_NAMES: readonly FaceRoiName[] = [
 	"forehead",
 	"leftCheek",
 	"rightCheek",
 ];
+
+/** @deprecated internal alias retained for readability below. */
+const DEFAULT_OVERLAY_ROIS = FUSION_ROI_NAMES;
 
 function clamp(value: number, min: number, max: number): number {
 	return Math.min(max, Math.max(min, value));
@@ -90,6 +101,27 @@ export function computeFaceRoiRects(
 		rects[roiName] = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
 	}
 	return rects;
+}
+
+/**
+ * Ordered list of the forehead + cheek sub-ROIs sampled for the pulse signal —
+ * the exact rectangles {@link drawFaceOverlay} draws. A frame source should use
+ * this to populate `frame.rois` so the sampled pixels match the overlay (and so
+ * the ROI geometry has a single source of truth). Regions whose rect collapses
+ * to nothing (e.g. a degenerate landmark cloud) are omitted.
+ */
+export function computeFusionSubRois(
+	landmarks: LandmarkLike[],
+	width: number,
+	height: number,
+): ROI[] {
+	const rects = computeFaceRoiRects(landmarks, width, height);
+	const out: ROI[] = [];
+	for (const name of FUSION_ROI_NAMES) {
+		const rect = rects[name];
+		if (rect) out.push(rect);
+	}
+	return out;
 }
 
 export interface MeshConnection {

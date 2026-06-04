@@ -817,6 +817,8 @@ function replayBayesSession(session, options) {
       quality: clamp3((sample.outputs?.signalQuality ?? 0) / 100, 0, 1),
       waveformProfile
     });
+    const recordedFinalBpm = safeNumber(estimators.finalBpm);
+    const recordedManualLock = /manual_tracker_lock|snap_manual/.test(estimators.bpmSource ?? "") || estimators.snapApplied === true;
     points.push({
       ts: sample.epochTs,
       stage: sample.stage ?? "unknown",
@@ -824,8 +826,10 @@ function replayBayesSession(session, options) {
       replayBayesConfidence: replayEstimate.confidence,
       recordedBayesBpm: safeNumber(estimators.bayesBpm),
       recordedBayesConfidence: safeNumber(estimators.bayesConfidence),
-      recordedFinalBpm: safeNumber(estimators.finalBpm),
-      referenceBpm: latestReferenceBpm
+      recordedFinalBpm,
+      referenceBpm: latestReferenceBpm,
+      recordedTrusted: recordedFinalBpm != null && estimators.suppressed !== true,
+      recordedManualLock
     });
   }
   const pairWindowMs = options?.pairWindowMs ?? 2e4;

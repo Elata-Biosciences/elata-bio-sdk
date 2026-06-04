@@ -21,6 +21,13 @@ export interface ReplayEstimatorSample {
 	snrDb?: number | null;
 	motion?: number | null;
 	activeReferenceBpm?: number | null;
+	/** TradeLock held its output this sample (low quality); `finalBpm` is null. */
+	suppressed?: boolean | null;
+	/** Pipeline-stage trail, e.g. "acf_doubleFix|snap_manual|bayes". Used to
+	 *  detect human/manual locks that should be excluded from fair comparison. */
+	bpmSource?: string | null;
+	/** Whether a snap-to-reference was applied this sample. */
+	snapApplied?: boolean | null;
 }
 
 export interface ReplaySyncSample {
@@ -55,6 +62,13 @@ export interface ReplayPoint {
 	recordedBayesConfidence: number | null;
 	recordedFinalBpm: number | null;
 	referenceBpm: number | null;
+	/** TradeLock emitted a trusted estimate here (not suppressed, finalBpm set).
+	 *  Comparisons should gate on this — suppressed samples are TradeLock holding
+	 *  on low quality, not a fair head-to-head with the free-running replay. */
+	recordedTrusted: boolean;
+	/** TradeLock's output was human/manually locked or snapped this sample, so it
+	 *  is not algorithm output and should be excluded from fair comparison. */
+	recordedManualLock: boolean;
 }
 
 export interface ReplayWindowSummary {
@@ -232,6 +246,10 @@ export function replayBayesSession(
 			waveformProfile,
 		});
 
+		const recordedFinalBpm = safeNumber(estimators.finalBpm);
+		const recordedManualLock =
+			/manual_tracker_lock|snap_manual/.test(estimators.bpmSource ?? "") ||
+			estimators.snapApplied === true;
 		points.push({
 			ts: sample.epochTs,
 			stage: sample.stage ?? "unknown",
@@ -239,8 +257,10 @@ export function replayBayesSession(
 			replayBayesConfidence: replayEstimate.confidence,
 			recordedBayesBpm: safeNumber(estimators.bayesBpm),
 			recordedBayesConfidence: safeNumber(estimators.bayesConfidence),
-			recordedFinalBpm: safeNumber(estimators.finalBpm),
+			recordedFinalBpm,
 			referenceBpm: latestReferenceBpm,
+			recordedTrusted: recordedFinalBpm != null && estimators.suppressed !== true,
+			recordedManualLock,
 		});
 	}
 

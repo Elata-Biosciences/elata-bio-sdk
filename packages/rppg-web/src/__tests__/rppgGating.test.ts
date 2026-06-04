@@ -135,5 +135,40 @@ describe("RppgGatingController", () => {
 		expect(lowLight.state).toBe("needs_light");
 		expect(lowLight.guidance.code).toBe("increase_lighting");
 	});
+
+	test("a supplied face box drives positioning guidance", () => {
+		const gate = new RppgGatingController({
+			minSignalQualityForPulse: 0.25,
+		});
+		const baseMetrics = {
+			bpm: null,
+			confidence: 0,
+			signal_quality: 0.1,
+			motion_mean: 0.01,
+		};
+
+		// No box → no_face, regardless of skin heuristic.
+		const noFace = gate.update({ nowMs: 0, metrics: baseMetrics, faceBox: null });
+		expect(noFace.state).toBe("needs_face");
+		expect(noFace.guidance.code).toBe("no_face");
+
+		// Present but small → positioning beats the low-signal hint.
+		const tooFar = gate.update({
+			nowMs: 100,
+			metrics: baseMetrics,
+			faceBox: { x: 0.43, y: 0.43, width: 0.14, height: 0.14 },
+		});
+		expect(tooFar.state).toBe("needs_position");
+		expect(tooFar.guidance.code).toBe("move_closer");
+
+		// Well-framed but dim → falls through to the light hint.
+		const framed = gate.update({
+			nowMs: 200,
+			metrics: baseMetrics,
+			faceBox: { x: 0.3, y: 0.3, width: 0.4, height: 0.4 },
+		});
+		expect(framed.state).toBe("needs_light");
+		expect(framed.guidance.code).toBe("increase_lighting");
+	});
 });
 

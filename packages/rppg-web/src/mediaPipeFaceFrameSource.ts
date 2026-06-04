@@ -6,6 +6,7 @@ import {
 	type FrameBlendshape,
 	type FaceLandmarkPoint,
 } from "./frameSource";
+import { computeFusionSubRois } from "./faceRoiOverlay";
 import type { FaceLandmarkerLike } from "./mediapipeLoader";
 
 /**
@@ -126,7 +127,10 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 				const raw = this.landmarksToROI(landmarks, frame.width, frame.height);
 				const roi = this.smoothRoi(raw, frame.width, frame.height);
 				frame.roi = roi;
-				frame.rois = this.subRoisFromFace(roi);
+				// Forehead/cheek sub-ROIs come from the shared overlay geometry, so the
+				// pixels sampled for the pulse are exactly the boxes drawn by
+				// drawFaceOverlay (single source of truth for ROI placement).
+				frame.rois = computeFusionSubRois(landmarks, frame.width, frame.height);
 				frame.landmarks = landmarks;
 			}
 			if (blendshapes) frame.blendshapes = blendshapes;
@@ -188,26 +192,6 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 		const clamped = clampRoi(blended, { x: 0, y: 0, w: width, h: height });
 		this.smoothedFaceRoi = clamped;
 		return clamped;
-	}
-
-	private subRoisFromFace(face: ROI): ROI[] {
-		const x = face.x;
-		const y = face.y;
-		const w = face.w;
-		const h = face.h;
-		const rois: ROI[] = [];
-		// Forehead (top-middle)
-		rois.push(clampRoi({ x: x + w * 0.3, y: y + h * 0.05, w: w * 0.4, h: h * 0.22 }, face));
-		// Left cheek
-		rois.push(clampRoi({ x: x + w * 0.1, y: y + h * 0.35, w: w * 0.3, h: h * 0.25 }, face));
-		// Right cheek
-		rois.push(clampRoi({ x: x + w * 0.6, y: y + h * 0.35, w: w * 0.3, h: h * 0.25 }, face));
-		return rois.map((r) => ({
-			x: Math.max(0, Math.floor(r.x)),
-			y: Math.max(0, Math.floor(r.y)),
-			w: Math.max(1, Math.floor(r.w)),
-			h: Math.max(1, Math.floor(r.h)),
-		}));
 	}
 
 	private reportError(

@@ -2483,6 +2483,85 @@ function computeSignalSnrDb(values) {
   if (snr <= 0) return -100;
   return 10 * Math.log10(snr);
 }
+var BIQUAD_DEFAULT_Q = Math.SQRT1_2;
+function designBiquad(type, sampleRate, cutoffHz, Q = BIQUAD_DEFAULT_Q) {
+  const nyquistSafe = Math.max(
+    1e-4,
+    Math.min(cutoffHz, sampleRate / 2 - 1e-4)
+  );
+  const w0 = 2 * Math.PI * nyquistSafe / sampleRate;
+  const cosw0 = Math.cos(w0);
+  const sinw0 = Math.sin(w0);
+  const alpha = sinw0 / (2 * Q);
+  if (type === "lowpass") {
+    return {
+      b0: (1 - cosw0) / 2,
+      b1: 1 - cosw0,
+      b2: (1 - cosw0) / 2,
+      a0: 1 + alpha,
+      a1: -2 * cosw0,
+      a2: 1 - alpha
+    };
+  }
+  return {
+    b0: (1 + cosw0) / 2,
+    b1: -(1 + cosw0),
+    b2: (1 + cosw0) / 2,
+    a0: 1 + alpha,
+    a1: -2 * cosw0,
+    a2: 1 - alpha
+  };
+}
+var BiquadState = class {
+  constructor(coeffs) {
+    this.x1 = 0;
+    this.x2 = 0;
+    this.y1 = 0;
+    this.y2 = 0;
+    this.b0 = coeffs.b0 / coeffs.a0;
+    this.b1 = coeffs.b1 / coeffs.a0;
+    this.b2 = coeffs.b2 / coeffs.a0;
+    this.a1 = coeffs.a1 / coeffs.a0;
+    this.a2 = coeffs.a2 / coeffs.a0;
+  }
+  reset() {
+    this.x1 = 0;
+    this.x2 = 0;
+    this.y1 = 0;
+    this.y2 = 0;
+  }
+  process(x0) {
+    const y0 = this.b0 * x0 + this.b1 * this.x1 + this.b2 * this.x2 - this.a1 * this.y1 - this.a2 * this.y2;
+    this.x2 = this.x1;
+    this.x1 = x0;
+    this.y2 = this.y1;
+    this.y1 = y0;
+    return y0;
+  }
+};
+var Bandpass = class {
+  constructor(sampleRate, lowHz = 0.7, highHz = 4) {
+    this.hp = new BiquadState(designBiquad("highpass", sampleRate, lowHz));
+    this.lp = new BiquadState(designBiquad("lowpass", sampleRate, highHz));
+  }
+  reset() {
+    this.hp.reset();
+    this.lp.reset();
+  }
+  process(value) {
+    return this.lp.process(this.hp.process(value));
+  }
+};
+function zeroPhaseBandpass(values, sampleRate, lowHz = 0.7, highHz = 3.5) {
+  if (!values.length || sampleRate <= 0) return values.slice();
+  const forward = new Bandpass(sampleRate, lowHz, highHz);
+  const a = values.map((v) => forward.process(v));
+  a.reverse();
+  const backward = new Bandpass(sampleRate, lowHz, highHz);
+  const b = a.map((v) => backward.process(v));
+  b.reverse();
+  return b;
+}
 function mean(values) {
   if (!values.length) return 0;
   let total = 0;
@@ -2509,12 +2588,17 @@ function analyzePulseWindow(samples) {
   const spectral = estimateDominantBpm(norm, fs, 0.7, 3.3);
   const acf = calculateBpmViaAutocorrelation(norm, fs, spectral?.bpm ?? null);
   const waveformProfile = computeWaveformPeriodicityProfile(norm, fs);
-  const peaksDetected = detectPeaks(
-    samples.map((sample, idx) => ({ value: norm[idx], time: sample.timestampMs })),
-    spectral?.bpm ?? acf?.bpm ?? null
-  );
+  const signalPoints = samples.map((sample, idx) => ({
+    value: norm[idx],
+    time: sample.timestampMs
+  }));
+  const peaksDetected = detectPeaks(signalPoints, spectral?.bpm ?? acf?.bpm ?? null);
   const peakBpm = peaksDetected.length >= 2 ? bpmFromPeaks(peaksDetected) : null;
-  const hrvRmssd = rmssdFromPeaks(peaksDetected);
+  const hilbertBeats = detectBeatsViaHilbertPhase(signalPoints, {
+    sampleRate: fs,
+    centerBpm: spectral?.bpm ?? acf?.bpm ?? null
+  });
+  const hrvRmssd = rmssdFromPeaks(hilbertBeats.beatTimesMs.map((time) => ({ value: 1, time }))) ?? rmssdFromPeaks(peaksDetected);
   const respirationEstimate = estimateDominantBpm(norm, fs, 0.08, 0.5);
   const respiration = respirationEstimate && respirationEstimate.bpm >= 4 && respirationEstimate.bpm <= 24 ? respirationEstimate.bpm : null;
   const skinMean = samples.reduce((acc, sample) => acc + clamp2(sample.skinRatio, 0, 1), 0) / n;
@@ -2789,6 +2873,101 @@ function std(values) {
     acc += delta * delta;
   }
   return Math.sqrt(acc / values.length);
+}
+function hilbertImag(x) {
+  const N = x.length;
+  const Xre = new Array(N).fill(0);
+  const Xim = new Array(N).fill(0);
+  for (let k = 0; k < N; k++) {
+    let re = 0;
+    let im = 0;
+    for (let n = 0; n < N; n++) {
+      const a = -2 * Math.PI * k * n / N;
+      re += x[n] * Math.cos(a);
+      im += x[n] * Math.sin(a);
+    }
+    Xre[k] = re;
+    Xim[k] = im;
+  }
+  const h = new Array(N).fill(0);
+  h[0] = 1;
+  if (N % 2 === 0) {
+    h[N / 2] = 1;
+    for (let k = 1; k < N / 2; k++) h[k] = 2;
+  } else {
+    for (let k = 1; k < (N + 1) / 2; k++) h[k] = 2;
+  }
+  for (let k = 0; k < N; k++) {
+    Xre[k] *= h[k];
+    Xim[k] *= h[k];
+  }
+  const zim = new Array(N).fill(0);
+  for (let n = 0; n < N; n++) {
+    let im = 0;
+    for (let k = 0; k < N; k++) {
+      const a = 2 * Math.PI * k * n / N;
+      im += Xre[k] * Math.sin(a) + Xim[k] * Math.cos(a);
+    }
+    zim[n] = im / N;
+  }
+  return zim;
+}
+function unwrapPhase(phase) {
+  if (phase.length === 0) return [];
+  const out = [phase[0]];
+  for (let i = 1; i < phase.length; i++) {
+    let d = phase[i] - phase[i - 1];
+    while (d > Math.PI) d -= 2 * Math.PI;
+    while (d < -Math.PI) d += 2 * Math.PI;
+    out.push(out[i - 1] + d);
+  }
+  return out;
+}
+function detectBeatsViaHilbertPhase(data, options = {}) {
+  const {
+    sampleRate,
+    centerBpm,
+    bandMarginBpm = 25,
+    trimEdges = true
+  } = options;
+  let { lowHz = 0.7, highHz = 3.5 } = options;
+  if (centerBpm != null && Number.isFinite(centerBpm) && centerBpm > 0) {
+    const lo = Math.max(30, centerBpm - bandMarginBpm);
+    const hi = Math.min(220, centerBpm + bandMarginBpm);
+    lowHz = lo / 60;
+    highHz = hi / 60;
+  }
+  const N = data.length;
+  if (N < 8) return { beatTimesMs: [], ibisMs: [], unwrappedPhase: [] };
+  const times = data.map((d) => d.time);
+  let values = data.map((d) => d.value);
+  const avg = values.reduce((a, b) => a + b, 0) / N;
+  values = values.map((v) => v - avg);
+  if (sampleRate && sampleRate > 0) {
+    values = zeroPhaseBandpass(values, sampleRate, lowHz, highHz);
+  }
+  const im = hilbertImag(values);
+  const phase = values.map((re, i) => Math.atan2(im[i], re));
+  const uw = unwrapPhase(phase);
+  const crossings = [];
+  let level = Math.ceil(uw[0] / (2 * Math.PI)) * (2 * Math.PI);
+  for (let n = 1; n < N; n++) {
+    while (uw[n] >= level && uw[n - 1] < level) {
+      const denom = uw[n] - uw[n - 1];
+      const frac = denom > 0 ? (level - uw[n - 1]) / denom : 0;
+      crossings.push(times[n - 1] + frac * (times[n] - times[n - 1]));
+      level += 2 * Math.PI;
+    }
+  }
+  let beats = crossings;
+  if (trimEdges && beats.length >= 3) {
+    beats = beats.slice(1, beats.length - 1);
+  }
+  const ibisMs = [];
+  for (let i = 1; i < beats.length; i++) {
+    ibisMs.push(beats[i] - beats[i - 1]);
+  }
+  return { beatTimesMs: beats, ibisMs, unwrappedPhase: uw };
 }
 
 // src/ppgProcessor.ts

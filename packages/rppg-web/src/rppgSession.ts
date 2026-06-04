@@ -187,6 +187,11 @@ export class RppgSession {
 		return this.runner.getLastBlendshapes();
 	}
 
+	/** Latest normalized head box for framing guidance (null until a face is tracked). */
+	getLastFaceBox() {
+		return this.runner.getLastFaceBox();
+	}
+
 	getDebugSnapshot(nowMs = Date.now()): RppgDebugSnapshot {
 		return this.processor.getDebugSnapshot(nowMs);
 	}

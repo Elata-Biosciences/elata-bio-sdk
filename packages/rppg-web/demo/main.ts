@@ -2,7 +2,7 @@ import { initDemo } from '../src/demoApp';
 import { MediaPipeFaceFrameSource } from '../src/mediaPipeFaceFrameSource';
 import { computeWaveformPeriodicityProfile } from '../src/rppgDiagnostics';
 import { replayBayesSession, type ReplayBayesSessionResult, type ReplaySyncSample } from '../src/rppgReplay';
-import { AffectTracker, classifyAffectLabel } from '../src';
+import { AffectTracker, classifyAffectLabel, RppgSessionRecorder } from '../src';
 import type { DemoRunnerDiagnostics, RppgDebugSnapshot } from '../src';
 
 // --- DOM helpers ---
@@ -52,6 +52,11 @@ const diagWindowDurationEl = getEl('diag-window-duration');
 const diagIssuesEl = getEl('diag-issues');
 const replaySummaryEl = getEl<HTMLPreElement>('replay-summary');
 const copyReplayBtn = getEl<HTMLButtonElement>('copy-replay-btn');
+const captureCountEl = getEl('capture-count');
+const downloadSessionBtn = getEl<HTMLButtonElement>('download-session-btn');
+const resetSessionBtn = getEl<HTMLButtonElement>('reset-session-btn');
+const connectMuseBtn = getEl<HTMLButtonElement>('connect-muse-btn');
+const museRefStatus = getEl('muse-ref-status');
 const reasonsEl    = getEl('reasons');
 const reasonWrap   = getEl('reason-wrap');
 const statusBadge  = getEl('status-badge');
@@ -79,6 +84,55 @@ const SIGNAL_WINDOW_MS = 10_000;
 const replaySamples: ReplaySyncSample[] = [];
 const MAX_REPLAY_SAMPLES = 24;
 let lastReplayResult: ReplayBayesSessionResult | null = null;
+
+// Full-session recorder (the tester): captures every metrics tick into the
+// ReplayDebugSession format and pairs in a ground-truth reference (Muse PPG BPM)
+// so recordings can be replayed and benchmarked against truth.
+const recorder = new RppgSessionRecorder();
+let museRefSession: { dispose?: () => Promise<void> } | null = null;
+
+function updateCaptureCount() {
+  captureCountEl.textContent = `${recorder.sampleCount} samples / ${recorder.pairCount} refs`;
+  downloadSessionBtn.disabled = recorder.sampleCount === 0;
+}
+
+downloadSessionBtn.addEventListener('click', () => {
+  const blob = new Blob([recorder.toJSON()], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `rppg-session-${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+resetSessionBtn.addEventListener('click', () => {
+  recorder.reset();
+  updateCaptureCount();
+});
+
+connectMuseBtn.addEventListener('click', async () => {
+  if (museRefSession) return;
+  museRefStatus.textContent = 'Muse reference: connecting...';
+  try {
+    // Lazy import so the base demo does not require the BLE stack.
+    const { createMusePpgSession } = await import('@elata-biosciences/ppg-web');
+    museRefSession = await createMusePpgSession({
+      onMetrics: (m) => {
+        if (m.bpm != null && Number.isFinite(m.bpm)) {
+          recorder.recordReference(m.bpm);
+          museRefStatus.textContent = `Muse reference: ${m.bpm.toFixed(0)} bpm`;
+          updateCaptureCount();
+        }
+      },
+    });
+    connectMuseBtn.textContent = 'Muse connected';
+    connectMuseBtn.disabled = true;
+  } catch (err) {
+    museRefStatus.textContent = `Muse reference: failed (${err instanceof Error ? err.message : 'error'})`;
+    museRefSession = null;
+  }
+});
 
 function pushSignalPoint(value: number) {
   const now = performance.now();
@@ -494,6 +548,14 @@ async function startDemo() {
       replaySummaryEl.textContent = formatReplaySummary(lastReplayResult);
       (window as any).__rppg_demo.replayResult = lastReplayResult;
     }
+
+    // Full-session capture for the offline replay benchmark.
+    recorder.recordMetrics(metrics, {
+      timestampMs: Date.now(),
+      sampleRate: waveformSampleRate ?? trackFps ?? 30,
+      stage: sampleCount < CALIBRATION_SAMPLES ? 'calibrating' : 'tracked',
+    });
+    updateCaptureCount();
 
     // Reason codes
     const reasons = metrics.reason_codes && metrics.reason_codes.length > 0 ? metrics.reason_codes : null;

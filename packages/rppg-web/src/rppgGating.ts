@@ -1,6 +1,20 @@
+import {
+	DEFAULT_FRAMING_THRESHOLDS,
+	faceFramingFromBox,
+	type FaceBox,
+	type FramingThresholds,
+} from "./faceFraming";
+
 export type RppgGuidanceCode =
 	| "idle"
 	| "no_face"
+	// Positioning guidance — emitted when a face is present but mis-framed
+	// (which is itself a common cause of low signal quality).
+	| "move_closer"
+	| "move_back"
+	| "center_face"
+	| "face_too_high"
+	| "face_too_low"
 	| "increase_lighting"
 	| "finding_pulse"
 	| "calibrating"
@@ -10,6 +24,7 @@ export type RppgGuidanceCode =
 export type RppgGatingState =
 	| "idle"
 	| "needs_face"
+	| "needs_position"
 	| "needs_light"
 	| "finding_pulse"
 	| "calibrating"
@@ -34,6 +49,13 @@ export type RppgGatingInputs = {
 	 * MediaPipe FaceMesh), pass it here to improve guidance accuracy.
 	 */
 	hasFace?: boolean;
+	/**
+	 * Normalized (0..1) head box for the tracked face, or `null` when no face
+	 * is in frame. When provided, it drives both face presence and positioning
+	 * guidance (move closer / center / …). Omit (leave `undefined`) to keep the
+	 * legacy skin-ratio face heuristic and no positioning hints.
+	 */
+	faceBox?: FaceBox | null;
 };
 
 export type RppgGatingOptions = {
@@ -54,6 +76,8 @@ export type RppgGatingOptions = {
 	minConfidenceForStable?: number;
 	/** How long a stable BPM can be shown when metrics go null. */
 	stableDisplayHoldMs?: number;
+	/** Distance/centering tolerances for positioning guidance (head-box terms). */
+	framingThresholds?: FramingThresholds;
 };
 
 export type RppgGatingOutput = {
@@ -78,6 +102,10 @@ function pickGuidance(state: RppgGatingState): RppgGatingOutput["guidance"] {
 	switch (state) {
 		case "needs_face":
 			return { code: "no_face", message: "Position your face in frame" };
+		case "needs_position":
+			// Overridden with the specific framing message by the caller; this is
+			// only the fallback if framing detail is somehow unavailable.
+			return { code: "center_face", message: "Center your face in the frame" };
 		case "needs_light":
 			return { code: "increase_lighting", message: "Increase lighting" };
 		case "finding_pulse":
@@ -118,6 +146,8 @@ export class RppgGatingController {
 			minSignalQualityForPulse: options.minSignalQualityForPulse ?? 0.25,
 			minConfidenceForStable: options.minConfidenceForStable ?? 0.45,
 			stableDisplayHoldMs: options.stableDisplayHoldMs ?? 2500,
+			framingThresholds:
+				options.framingThresholds ?? DEFAULT_FRAMING_THRESHOLDS,
 		};
 	}
 
@@ -137,11 +167,25 @@ export class RppgGatingController {
 		const skin = clamp01(Number(metrics.skin_ratio_mean ?? 0));
 		const motion = clamp01(Number(metrics.motion_mean ?? 0));
 
+		// When a face box is supplied, framing is authoritative for both face
+		// presence and positioning; otherwise fall back to the skin heuristic.
+		const framing =
+			input.faceBox === undefined
+				? null
+				: faceFramingFromBox(input.faceBox, this.opts.framingThresholds);
+
 		const hasFace =
 			input.hasFace ??
-			(skin >= this.opts.minSkinRatio &&
-				(metrics.reason_codes == null ||
-					!metrics.reason_codes.includes("no_face")));
+			(framing
+				? framing.code !== "no_face"
+				: skin >= this.opts.minSkinRatio &&
+					(metrics.reason_codes == null ||
+						!metrics.reason_codes.includes("no_face")));
+
+		// A present-but-mis-framed face (move closer / center / …) — the most
+		// actionable thing to fix, and a frequent root cause of low signal.
+		const misframed =
+			framing != null && framing.code !== "ok" && framing.code !== "no_face";
 
 		const calibrated =
 			metrics.baseline_bpm != null ||
@@ -203,6 +247,11 @@ export class RppgGatingController {
 		if (!hasFace) {
 			state = "needs_face";
 			reasons.push("no_face");
+		} else if (misframed) {
+			// Fix positioning before light: re-sizing/centering the face is what
+			// actually recovers the signal here.
+			state = "needs_position";
+			reasons.push(`framing_${framing!.code}`);
 		} else if (signalQ < this.opts.minSignalQualityForPulse) {
 			state = "needs_light";
 			reasons.push("low_signal_quality");
@@ -219,7 +268,16 @@ export class RppgGatingController {
 			state = "active";
 		}
 
-		const guidance = pickGuidance(state);
+		// Positioning carries five distinct messages, so surface the framing
+		// detail directly rather than the single-message fallback.
+		const guidance =
+			state === "needs_position" && framing
+				? {
+						// `misframed` guarantees a positioning code here (never "ok").
+						code: framing.code as RppgGuidanceCode,
+						message: framing.message,
+					}
+				: pickGuidance(state);
 
 		return {
 			state,

@@ -176,6 +176,19 @@ export type {
 	LandmarkLike,
 	MeshConnection,
 } from "./faceRoiOverlay";
+export {
+	DEFAULT_FRAMING_THRESHOLDS,
+	FRAMING_MESSAGES,
+	faceBoxFromLandmarks,
+	faceFramingFromBox,
+	padFaceBoxToHead,
+} from "./faceFraming";
+export type {
+	FaceBox,
+	FramingCode,
+	FramingGuidance,
+	FramingThresholds,
+} from "./faceFraming";
 export { normalizeRppgError } from "./rppgErrors";
 export type {
 	RppgNormalizedError,
