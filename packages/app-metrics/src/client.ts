@@ -7,6 +7,7 @@
  */
 
 import {
+	type AffectReport,
 	type AppRecord,
 	type AppScore,
 	type HostErrorCode,
@@ -14,14 +15,18 @@ import {
 	INIT_MESSAGE_KIND,
 	PROTOCOL_VERSION,
 	type QueryFilter,
+	type ReportAffectResult,
 	type ScoreFilter,
 } from "./protocol";
 
 export type {
+	AffectDimension,
+	AffectReport,
 	AppRecord,
 	AppScore,
 	HostErrorCode,
 	QueryFilter,
+	ReportAffectResult,
 	ScoreFilter,
 	ScoreOrder,
 } from "./protocol";
@@ -60,6 +65,13 @@ export interface MetricsClient {
 	clear(): Promise<void>;
 	saveScore(input: SaveScoreInput): Promise<WriteResult>;
 	loadScores(filter?: ScoreFilter): Promise<AppScore[]>;
+	/**
+	 * Forward a derived per-session affect aggregate to the platform-owned
+	 * biometric Score. Requires the host to have the `biometrics` scope and the
+	 * user's consent (else rejects with `scope_denied`); the server re-verifies.
+	 * Never sends raw signal — only the derived scalars in {@link AffectReport}.
+	 */
+	reportAffect(report: AffectReport): Promise<ReportAffectResult>;
 	/** Whether the host handshake has completed. */
 	isReady(): boolean;
 	/** Resolves when the host handshake completes; rejects on timeout. */
@@ -227,6 +239,8 @@ export function createMetricsClient(
 				meta: input.meta,
 			}),
 		loadScores: (filter = {}) => send<AppScore[]>({ op: "loadScores", filter }),
+		reportAffect: (report) =>
+			send<ReportAffectResult>({ op: "reportAffect", report }),
 		dispose() {
 			if (disposed) return;
 			disposed = true;

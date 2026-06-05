@@ -55,6 +55,80 @@ describe("createMetricsClient", () => {
 		client.dispose();
 	});
 
+	test("reportAffect forwards a derived report and returns the host result", async () => {
+		const win = makeFakeWindow();
+		const client = createMetricsClient({ window: win as unknown as Window });
+
+		const channel = new MessageChannel();
+		const hostPort = channel.port1;
+		let seen: { op: string; report: unknown } | null = null;
+		hostPort.onmessage = (ev) => {
+			const req = ev.data as { id: string; op: string; report: unknown };
+			seen = { op: req.op, report: req.report };
+			hostPort.postMessage({
+				v: 1,
+				id: req.id,
+				ok: true,
+				result: { accepted: true, calibrating: false, score: 72 },
+			} satisfies HostResponse);
+		};
+		hostPort.start();
+
+		fireInit(win, channel.port2);
+		await client.ready();
+
+		const report = {
+			dimension: "calm" as const,
+			baselineValue: 0.4,
+			sessionValue: 0.6,
+			delta: 0.2,
+			meanHr: 64,
+			signalQuality: 0.8,
+			confidence: 0.7,
+			source: "rppg",
+			durationSec: 30,
+		};
+		const result = await client.reportAffect(report);
+		expect(seen).toEqual({ op: "reportAffect", report });
+		expect(result).toEqual({ accepted: true, calibrating: false, score: 72 });
+		client.dispose();
+	});
+
+	test("reportAffect rejects with scope_denied when the host refuses", async () => {
+		const win = makeFakeWindow();
+		const client = createMetricsClient({ window: win as unknown as Window });
+
+		const channel = new MessageChannel();
+		const hostPort = channel.port1;
+		hostPort.onmessage = (ev) => {
+			const req = ev.data as { id: string };
+			hostPort.postMessage({
+				v: 1,
+				id: req.id,
+				ok: false,
+				error: "scope_denied",
+			} satisfies HostResponse);
+		};
+		hostPort.start();
+
+		fireInit(win, channel.port2);
+		await client.ready();
+
+		await expect(
+			client.reportAffect({
+				dimension: "calm",
+				baselineValue: 0.5,
+				sessionValue: 0.5,
+				delta: 0,
+				signalQuality: 0.9,
+				confidence: 0.6,
+				source: "rppg",
+				durationSec: 20,
+			}),
+		).rejects.toMatchObject({ code: "scope_denied" });
+		client.dispose();
+	});
+
 	test("calls made before handshake queue and resolve after init", async () => {
 		const win = makeFakeWindow();
 		const client = createMetricsClient({ window: win as unknown as Window });

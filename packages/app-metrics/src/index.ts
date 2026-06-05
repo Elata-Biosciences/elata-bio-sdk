@@ -15,10 +15,13 @@ export type {
 	WriteResult,
 } from "./client";
 export type {
+	AffectDimension,
+	AffectReport,
 	AppRecord,
 	AppScore,
 	HostErrorCode,
 	QueryFilter,
+	ReportAffectResult,
 	ScoreFilter,
 	ScoreOrder,
 } from "./protocol";

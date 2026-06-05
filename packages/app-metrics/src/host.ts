@@ -9,14 +9,17 @@
 import { createMemoryAdapter } from "./adapters/memory";
 import type { StorageAdapter } from "./adapters/types";
 import {
+	type AffectReport,
 	type ClientRequest,
 	type HostErrorCode,
 	type HostResponse,
 	INIT_MESSAGE_KIND,
 	isClientRequest,
+	isValidAffectReport,
 	isValidScoreValue,
 	isValidType,
 	PROTOCOL_VERSION,
+	type ReportAffectResult,
 	type StoredRecord,
 	type StoredScore,
 	toAppRecord,
@@ -27,12 +30,15 @@ export { createIndexedDbAdapter } from "./adapters/indexeddb";
 export { createMemoryAdapter } from "./adapters/memory";
 export type { StorageAdapter } from "./adapters/types";
 export type {
+	AffectDimension,
+	AffectReport,
 	AppRecord,
 	AppScore,
 	ClientRequest,
 	HostErrorCode,
 	HostResponse,
 	QueryFilter,
+	ReportAffectResult,
 	ScoreFilter,
 	ScoreOrder,
 	StoredRecord,
@@ -49,6 +55,19 @@ export interface MetricsHostOptions {
 	writeRateLimit?: { count: number; windowMs: number };
 	now?: () => number;
 	randomId?: () => string;
+	/** Capabilities granted to this app (from the embed handshake). */
+	scopes?: "biometrics"[];
+	/** Whether the user has consented to biometric contribution. */
+	biometricsConsent?: boolean;
+	/**
+	 * Forwards a derived affect report to the platform-owned Score (provided by
+	 * the appstore host). If omitted, `reportAffect` returns `not_supported`.
+	 * Never persisted locally — the server is the source of truth.
+	 */
+	onReportAffect?: (
+		report: AffectReport,
+		ctx: { appId: string; walletAddress: string },
+	) => Promise<ReportAffectResult>;
 }
 
 export interface MetricsHost {
@@ -71,6 +90,9 @@ export function createMetricsHost(options: MetricsHostOptions): MetricsHost {
 		writeRateLimit = DEFAULT_RATE,
 		now = Date.now,
 		randomId = defaultRandomId,
+		scopes = [],
+		biometricsConsent = false,
+		onReportAffect,
 	} = options;
 
 	if (!appId || typeof appId !== "string") {
@@ -124,12 +146,36 @@ export function createMetricsHost(options: MetricsHostOptions): MetricsHost {
 			const rows = await storage.queryScores(walletAddress, appId, req.filter);
 			return { v: 1, id: req.id, ok: true, result: rows.map(toAppScore) };
 		}
+		if (req.op === "reportAffect") return handleReportAffect(req);
 		return {
 			v: 1,
 			id: (req as { id: string }).id,
 			ok: false,
 			error: "invalid_payload",
 		};
+	};
+
+	const handleReportAffect = async (
+		req: Extract<ClientRequest, { op: "reportAffect" }>,
+	): Promise<HostResponse> => {
+		// No server forwarder wired → the op is unsupported on this host.
+		if (!onReportAffect) {
+			return { v: 1, id: req.id, ok: false, error: "not_supported" };
+		}
+		// Gate on the biometrics scope AND explicit user consent.
+		if (!scopes.includes("biometrics") || !biometricsConsent) {
+			return { v: 1, id: req.id, ok: false, error: "scope_denied" };
+		}
+		if (!isValidAffectReport(req.report)) {
+			return { v: 1, id: req.id, ok: false, error: "invalid_payload" };
+		}
+		// Affect reports are writes — rate-limit like record/saveScore.
+		const rateError = checkRate();
+		if (rateError) return { v: 1, id: req.id, ok: false, error: rateError };
+
+		// Forward to the platform. Not persisted locally — the server owns it.
+		const result = await onReportAffect(req.report, { appId, walletAddress });
+		return { v: 1, id: req.id, ok: true, result };
 	};
 
 	const handleRecord = async (

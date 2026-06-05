@@ -33,18 +33,49 @@ export interface ScoreFilter {
 	limit?: number;
 }
 
+/** v0 dimension is 'calm'; others reserved for later sensors. */
+export type AffectDimension = "calm" | "stress" | "focus";
+
+/**
+ * Derived per-session aggregate sent by `reportAffect` — the one op that is NOT
+ * local-only. The host forwards it to the platform-owned biometric Score, gated
+ * by the `biometrics` scope + user consent. All values are derived scalars —
+ * never raw signal.
+ */
+export interface AffectReport {
+	dimension: AffectDimension;
+	baselineValue: number; // 0..1
+	sessionValue: number; // 0..1
+	delta: number; // -1..1
+	meanHr?: number; // session-aggregate vital, not a waveform
+	signalQuality: number; // 0..1
+	confidence: number; // 0..1
+	source: string; // 'rppg' | 'rppg+hrv' | …
+	durationSec: number;
+}
+
+/** Result of a `reportAffect` op (host → client). */
+export interface ReportAffectResult {
+	accepted: boolean; // false if dropped as unqualified
+	calibrating: boolean; // true while below cold-start
+	score: number | null; // 0–100 once calibrated, else null
+}
+
 export type ClientRequest =
 	| { v: 1; id: string; op: "record"; type: string; data: unknown }
 	| { v: 1; id: string; op: "query"; filter: QueryFilter }
 	| { v: 1; id: string; op: "clear"; scope: "app" }
 	| { v: 1; id: string; op: "saveScore"; value: number; meta?: unknown }
-	| { v: 1; id: string; op: "loadScores"; filter: ScoreFilter };
+	| { v: 1; id: string; op: "loadScores"; filter: ScoreFilter }
+	| { v: 1; id: string; op: "reportAffect"; report: AffectReport };
 
 export type HostErrorCode =
 	| "quota_exceeded"
 	| "invalid_payload"
 	| "rate_limited"
-	| "internal";
+	| "internal"
+	| "scope_denied" // app lacks the biometrics scope, or user has not consented
+	| "not_supported"; // host has no reportAffect handler wired
 
 export type HostResponse =
 	| { v: 1; id: string; ok: true; result?: unknown }
@@ -94,6 +125,33 @@ export function isValidScoreValue(value: unknown): value is number {
 	return typeof value === "number" && Number.isFinite(value);
 }
 
+export function isValidAffectReport(value: unknown): value is AffectReport {
+	if (!value || typeof value !== "object") return false;
+	const r = value as Record<string, unknown>;
+	const in01 = (n: unknown): n is number =>
+		typeof n === "number" && n >= 0 && n <= 1;
+	return (
+		(r.dimension === "calm" ||
+			r.dimension === "stress" ||
+			r.dimension === "focus") &&
+		in01(r.baselineValue) &&
+		in01(r.sessionValue) &&
+		typeof r.delta === "number" &&
+		r.delta >= -1 &&
+		r.delta <= 1 &&
+		in01(r.signalQuality) &&
+		in01(r.confidence) &&
+		typeof r.source === "string" &&
+		r.source.length > 0 &&
+		r.source.length <= 64 &&
+		typeof r.durationSec === "number" &&
+		Number.isInteger(r.durationSec) &&
+		r.durationSec >= 0 &&
+		(r.meanHr === undefined ||
+			(typeof r.meanHr === "number" && r.meanHr >= 20 && r.meanHr <= 240))
+	);
+}
+
 export function isClientRequest(value: unknown): value is ClientRequest {
 	if (!value || typeof value !== "object") return false;
 	const v = value as Record<string, unknown>;
@@ -113,6 +171,9 @@ export function isClientRequest(value: unknown): value is ClientRequest {
 	}
 	if (v.op === "loadScores") {
 		return typeof v.filter === "object" && v.filter !== null;
+	}
+	if (v.op === "reportAffect") {
+		return isValidAffectReport(v.report);
 	}
 	return false;
 }
