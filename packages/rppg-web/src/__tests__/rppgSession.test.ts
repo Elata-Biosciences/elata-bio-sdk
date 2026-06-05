@@ -33,6 +33,9 @@ function createRunnerStub(diagnostics: Partial<DemoRunnerDiagnostics> = {}) {
     lastMotion: null,
     lastProcessorMethod: null,
     lastRoiSource: null,
+    framesWithFusion: 0,
+    lastFusionWeights: null,
+    lastFusedSnr: null,
   };
   return {
     start: jest.fn(async () => {}),

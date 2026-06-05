@@ -478,6 +478,10 @@ export class RppgProcessor {
 	private readonly bayesTracker = new BpmBayesTracker(BPM_MIN, BPM_MAX);
 	private readonly channelGain = new ChannelGainController();
 	private readonly chromPulse = new ChromPulseModel();
+	// Quality scalar supplied by an external multi-ROI fuser (see pushFusedSample).
+	// When set, it overrides the backend's RGB-derived signal_quality, because the
+	// fused path bypasses the backend CHROM stage. Cleared by any non-fused push.
+	private fusedQuality: number | null = null;
 	private baselineBpm: number | null = null;
 	private baselineDeviationStartMs: number | null = null;
 	private lastBayesUpdateMs: number | null = null;
@@ -571,6 +575,20 @@ export class RppgProcessor {
 		);
 	}
 
+	/**
+	 * Push a pre-extracted, fused pulse value from the multi-ROI fuser
+	 * ({@link MultiRoiRppgFuser}). The fuser already ran CHROM + bandpass per face
+	 * region and blended them by in-band spectral SNR, so we feed the fused pulse
+	 * through the intensity path for spectral BPM/HRV and carry the fuser's
+	 * `fusedSnr` as the quality scalar — the backend's RGB-derived signal_quality
+	 * doesn't apply once its CHROM stage is bypassed.
+	 */
+	pushFusedSample(timestampMs: number, fusedValue: number, fusedSnr: number) {
+		if (!Number.isFinite(timestampMs) || !Number.isFinite(fusedValue)) return;
+		this.pushSample(timestampMs, fusedValue);
+		this.fusedQuality = Number.isFinite(fusedSnr) ? fusedSnrToQuality(fusedSnr) : null;
+	}
+
 	pushSampleRgb(
 		timestampMs: number,
 		r: number,
@@ -578,6 +596,7 @@ export class RppgProcessor {
 		b: number,
 		skinRatio = 1.0,
 	) {
+		this.fusedQuality = null; // non-fused RGB path → use backend quality
 		if (
 			!Number.isFinite(timestampMs) ||
 			!Number.isFinite(r) ||
@@ -628,6 +647,7 @@ export class RppgProcessor {
 		motion = 0.0,
 		clipRatio = 0.0,
 	) {
+		this.fusedQuality = null; // non-fused RGB path → use backend quality
 		if (
 			!Number.isFinite(timestampMs) ||
 			!Number.isFinite(r) ||
@@ -696,6 +716,7 @@ export class RppgProcessor {
 		this.bayesTracker.reset();
 		this.channelGain.reset();
 		this.chromPulse.reset();
+		this.fusedQuality = null;
 		this.baselineBpm = null;
 		this.baselineDeviationStartMs = null;
 		this.lastBayesUpdateMs = null;
@@ -748,7 +769,11 @@ export class RppgProcessor {
 		const backendMetrics = this.readBackendMetrics();
 		if (this.failedBackendError) return backendMetrics;
 		const advanced = this.computeAdvancedMetrics(backendMetrics);
-		return { ...backendMetrics, ...advanced };
+		const metrics = { ...backendMetrics, ...advanced };
+		// In multi-ROI fusion mode the backend CHROM (and its RGB-derived quality)
+		// is bypassed — the fuser's in-band SNR is the authoritative quality.
+		if (this.fusedQuality != null) metrics.signal_quality = this.fusedQuality;
+		return metrics;
 	}
 
 	getDebugSnapshot(nowMs = Date.now()): RppgDebugSnapshot {
@@ -1213,6 +1238,15 @@ function deriveDebugIssues(
 		issues.push("high_clipping");
 	}
 	return Array.from(new Set(issues));
+}
+
+/**
+ * Map a multi-ROI fuser in-band spectral SNR (linear; ~1 = no usable pulse) to a
+ * 0..1 quality scalar. Saturates near SNR ~6 (a clean forehead pulse), matching
+ * the backend's signal_quality range so downstream gates behave consistently.
+ */
+function fusedSnrToQuality(snr: number): number {
+	return Math.min(1, Math.max(0, (snr - 1) / 5));
 }
 
 function normalizeMetrics(raw: any): Metrics {

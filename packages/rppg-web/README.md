@@ -292,6 +292,14 @@ sample count if you want to show a progress indicator.
 MediaPipe fails to load. Check `diagnostics.faceTrackingMode` to see which
 mode is active — `"face_mesh"` or `"video_frame"`.
 
+**Multi-ROI fusion (on by default):** in `face_mesh` mode the session runs CHROM +
+bandpass independently on the forehead and both cheeks and blends them by in-band
+spectral SNR, so glare/hair/glasses-glint or partial occlusion on one region no
+longer poisons the pulse. It falls back automatically to the single aggregated-ROI
+path in `video_frame` mode or when the skin mask is off. Disable with
+`multiRoiFusion: false`. Runner diagnostics expose `lastFusionWeights` (per-region,
+SNR-driven), `lastFusedSnr`, and `lastProcessorMethod: "fused"`.
+
 Intentional `faceMesh: "off"` sessions use `video_frame` mode without being
 reported as a FaceMesh failure. If a fatal processor exception occurs,
 `session.state` switches to terminal `failed`, later metrics reads return safe

@@ -12,6 +12,13 @@ import {
 	padFaceBoxToHead,
 	type FaceBox,
 } from "./faceFraming";
+import {
+	FUSION_ROIS,
+	type FusionRoiName,
+	type MultiRoiFusionResult,
+	MultiRoiRppgFuser,
+	type RoiRgbSample,
+} from "./multiRoiFusion";
 import { RppgProcessor } from "./rppgProcessor";
 
 export type LastBlendshapes = {
@@ -43,6 +50,14 @@ export type DemoRunnerOptions = {
 	onDiagnostics?: (diagnostics: DemoRunnerDiagnostics) => void;
 	onError?: (error: DemoRunnerError) => void;
 	skinRatioSmoothingAlpha?: number;
+	/**
+	 * Multi-ROI rPPG fusion: run CHROM + bandpass per face region (forehead +
+	 * both cheeks) and blend by in-band spectral SNR, so glare/hair/occlusion on
+	 * one region no longer poisons the estimate. Requires sub-ROIs on the frame
+	 * (face-mesh mode) + the skin mask. Defaults to on; falls back to the single
+	 * aggregated-ROI path when sub-ROIs are unavailable.
+	 */
+	multiRoiFusion?: boolean;
 };
 
 export type DemoRunnerDropReason =
@@ -64,8 +79,14 @@ export type DemoRunnerDiagnostics = {
 	lastSkinRatio: number | null;
 	lastClipRatio: number | null;
 	lastMotion: number | null;
-	lastProcessorMethod: "rgb_meta" | "rgb" | "intensity" | null;
+	lastProcessorMethod: "rgb_meta" | "rgb" | "intensity" | "fused" | null;
 	lastRoiSource: "multi_roi" | "face_roi" | "fallback_roi" | null;
+	/** Frames fed through the multi-ROI fuser (subset of framesWithMultiRoi). */
+	framesWithFusion: number;
+	/** Per-region fusion weights (sum to 1), SNR-driven; null until fusion runs. */
+	lastFusionWeights: Record<FusionRoiName, number> | null;
+	/** In-band spectral SNR (linear) of the fused signal, or null. */
+	lastFusedSnr: number | null;
 };
 
 export type DemoRunnerError = {
@@ -102,10 +123,14 @@ export class DemoRunner {
 		lastMotion: null,
 		lastProcessorMethod: null,
 		lastRoiSource: null,
+		framesWithFusion: 0,
+		lastFusionWeights: null,
+		lastFusedSnr: null,
 	};
 	private lastError: DemoRunnerError | null = null;
 	private lastBlendshapes: LastBlendshapes | null = null;
 	private lastFaceBox: LastFaceBox | null = null;
+	private fuser: MultiRoiRppgFuser | null = null;
 
 	constructor(
 		private source: FrameSource,
@@ -113,6 +138,9 @@ export class DemoRunner {
 		private opts: DemoRunnerOptions = {},
 	) {
 		this.source.onFrame = this.onFrame.bind(this);
+		if (opts.multiRoiFusion !== false) {
+			this.fuser = new MultiRoiRppgFuser(opts.sampleRate ?? 30);
+		}
 	}
 
 	/** Latest face blendshapes (for affect estimation), with capture timestamp. */
@@ -136,6 +164,7 @@ export class DemoRunner {
 
 	async stop() {
 		this.running = false;
+		this.fuser?.reset();
 		await this.source.stop();
 	}
 
@@ -181,6 +210,7 @@ export class DemoRunner {
 		let intensity = 0;
 		let motion = 0;
 		let roiSource: DemoRunnerDiagnostics["lastRoiSource"] = null;
+		let fusionResult: MultiRoiFusionResult | null = null;
 
 		const rois = frame.rois && frame.rois.length > 0 ? frame.rois : null;
 		if (rois) {
@@ -191,6 +221,12 @@ export class DemoRunner {
 			skinRatio = agg.skinRatio;
 			clipRatio = agg.clipRatio;
 			intensity = agg.g;
+			// Multi-ROI fusion: per-region CHROM blended by in-band SNR. The
+			// aggregate above is still computed for diagnostics/onStats and as the
+			// fallback if the fuser can't produce a valid frame this tick.
+			if (this.fuser && useSkinMask) {
+				fusionResult = this.runFusion(frame, rois);
+			}
 			if (frame.roi) {
 				motion = computeMotion(frame.roi, this.lastCenter);
 				this.lastCenter = {
@@ -276,7 +312,18 @@ export class DemoRunner {
 		const ts = frame.timestampMs ?? Date.now();
 		const proc = this.processor as any;
 		try {
-			if (typeof proc.pushSampleRgbMeta === "function") {
+			if (
+				fusionResult?.valid &&
+				typeof proc.pushFusedSample === "function"
+			) {
+				// Fused pulse already carries CHROM + SNR-weighted blending; feed it
+				// straight to spectral BPM/HRV, with the fused SNR as quality.
+				proc.pushFusedSample(ts, fusionResult.fused, fusionResult.fusedSnr);
+				this.diagnostics.lastProcessorMethod = "fused";
+				this.diagnostics.framesWithFusion += 1;
+				this.diagnostics.lastFusionWeights = fusionResult.weights;
+				this.diagnostics.lastFusedSnr = fusionResult.fusedSnr;
+			} else if (typeof proc.pushSampleRgbMeta === "function") {
 				proc.pushSampleRgbMeta(
 					ts,
 					rgb.r,
@@ -324,6 +371,32 @@ export class DemoRunner {
 				motion,
 			});
 		}
+	}
+
+	/**
+	 * Sample per-region skin-masked RGB and push one frame through the fuser. The
+	 * sub-ROIs arrive ordered as {@link FUSION_ROIS} (forehead, leftCheek,
+	 * rightCheek) from `computeFusionSubRois`; a region with too little skin is
+	 * skipped by the fuser.
+	 */
+	private runFusion(
+		frame: Frame,
+		rois: { x: number; y: number; w: number; h: number }[],
+	): MultiRoiFusionResult | null {
+		if (!this.fuser) return null;
+		const samples: Partial<Record<FusionRoiName, RoiRgbSample>> = {};
+		const n = Math.min(FUSION_ROIS.length, rois.length);
+		for (let i = 0; i < n; i++) {
+			const c = clampRoiToFrame(rois[i]!, frame.width, frame.height);
+			const s = averageRgbInROIWithSkinMaskStats(frame, c.x, c.y, c.w, c.h);
+			samples[FUSION_ROIS[i]!] = {
+				r: s.r,
+				g: s.g,
+				b: s.b,
+				skinFraction: s.skinRatio,
+			};
+		}
+		return this.fuser.pushFrame(samples);
 	}
 
 	private recordDrop(reason: DemoRunnerDropReason) {

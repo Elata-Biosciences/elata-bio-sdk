@@ -46,6 +46,9 @@ function createDiagnostics(overrides: Partial<RppgSessionDiagnostics> = {}): Rpp
     lastMotion: 0.02,
     lastProcessorMethod: 'rgb_meta',
     lastRoiSource: 'fallback_roi',
+    framesWithFusion: 0,
+    lastFusionWeights: null,
+    lastFusedSnr: null,
     ...overrides,
   };
 }

@@ -366,8 +366,10 @@ export async function createRppgSession(
 
 	const runner = new DemoRunner(source, processor, {
 		roi: options.roi,
+		sampleRate,
 		roiSmoothingAlpha: options.roiSmoothingAlpha ?? 0.25,
 		useSkinMask: options.useSkinMask ?? true,
+		multiRoiFusion: options.multiRoiFusion,
 		onStats: options.onStats,
 		skinRatioSmoothingAlpha: options.skinRatioSmoothingAlpha,
 		onDiagnostics: () => {

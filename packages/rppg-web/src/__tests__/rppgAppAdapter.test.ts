@@ -52,6 +52,9 @@ function createDiagnostics(
 		lastMotion: 0.01,
 		lastProcessorMethod: "rgb_meta",
 		lastRoiSource: "fallback_roi",
+		framesWithFusion: 0,
+		lastFusionWeights: null,
+		lastFusedSnr: null,
 		...overrides,
 	};
 }

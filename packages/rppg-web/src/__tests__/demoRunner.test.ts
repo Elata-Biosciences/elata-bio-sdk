@@ -130,6 +130,57 @@ describe('DemoRunner multi-ROI path', () => {
     expect(b).toBeGreaterThan(0);
     await runner.stop();
   });
+
+  test('uses multi-ROI fusion (pushFusedSample) when sub-ROIs + skin mask present', async () => {
+    const src = new MockFrameSource();
+    const proc = new MockProcessor() as any;
+    proc.pushFusedSample = jest.fn();
+    const runner = new DemoRunner(src as any, proc as any, {
+      useSkinMask: true,
+      multiRoiFusion: true,
+      sampleRate: 30,
+    });
+    await runner.start();
+
+    const frame = makeSkinFrame(30, 30);
+    frame.rois = [
+      { x: 0, y: 0, w: 10, h: 10 },
+      { x: 10, y: 10, w: 10, h: 10 },
+      { x: 20, y: 0, w: 10, h: 10 },
+    ];
+    src.emit(frame);
+
+    expect(proc.pushFusedSample).toHaveBeenCalledTimes(1);
+    expect(proc.pushSampleRgbMeta).not.toHaveBeenCalled();
+    const [ts, fused, snr] = proc.pushFusedSample.mock.calls[0];
+    expect(Number.isFinite(ts)).toBe(true);
+    expect(Number.isFinite(fused)).toBe(true);
+    expect(Number.isFinite(snr)).toBe(true);
+    await runner.stop();
+  });
+
+  test('falls back to aggregate path when multiRoiFusion is disabled', async () => {
+    const src = new MockFrameSource();
+    const proc = new MockProcessor() as any;
+    proc.pushFusedSample = jest.fn();
+    const runner = new DemoRunner(src as any, proc as any, {
+      useSkinMask: true,
+      multiRoiFusion: false,
+    });
+    await runner.start();
+
+    const frame = makeSkinFrame(30, 30);
+    frame.rois = [
+      { x: 0, y: 0, w: 10, h: 10 },
+      { x: 10, y: 10, w: 10, h: 10 },
+      { x: 20, y: 0, w: 10, h: 10 },
+    ];
+    src.emit(frame);
+
+    expect(proc.pushFusedSample).not.toHaveBeenCalled();
+    expect(proc.pushSampleRgbMeta).toHaveBeenCalledTimes(1);
+    await runner.stop();
+  });
 });
 
 describe('DemoRunner onStats callback', () => {

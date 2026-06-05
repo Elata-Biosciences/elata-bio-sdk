@@ -45,6 +45,7 @@ const diagFramesSeenEl = getEl('diag-frames-seen');
 const diagSamplesPushedEl = getEl('diag-samples-pushed');
 const diagRoiSourceEl = getEl('diag-roi-source');
 const diagProcessorMethodEl = getEl('diag-processor-method');
+const diagFusionEl = getEl('diag-fusion');
 const diagDroppedFramesEl = getEl('diag-dropped-frames');
 const diagLastDropEl = getEl('diag-last-drop');
 const diagWindowSamplesEl = getEl('diag-window-samples');
@@ -265,11 +266,21 @@ function formatRunnerRoiSource(value: DemoRunnerDiagnostics['lastRoiSource'] | n
   }
 }
 
+function formatFusion(diag: DemoRunnerDiagnostics | null): string {
+  if (!diag || diag.lastFusionWeights == null) return '--';
+  const w = diag.lastFusionWeights;
+  const snr = diag.lastFusedSnr ?? 0;
+  const pct = (n: number) => `${Math.round(n * 100)}%`;
+  // Forehead / left cheek / right cheek — SNR-driven weights, plus the fused SNR.
+  return `SNR ${snr.toFixed(1)} · F ${pct(w.forehead)} L ${pct(w.leftCheek)} R ${pct(w.rightCheek)}`;
+}
+
 function formatProcessorPath(value: DemoRunnerDiagnostics['lastProcessorMethod'] | null): string {
   switch (value) {
     case 'rgb_meta': return 'rgb-meta';
     case 'rgb': return 'rgb';
     case 'intensity': return 'intensity';
+    case 'fused': return 'fused (multi-roi)';
     default: return '--';
   }
 }
@@ -506,6 +517,7 @@ async function startDemo() {
     diagSamplesPushedEl.textContent = lastRunnerDiagnostics ? String(lastRunnerDiagnostics.samplesPushed) : '--';
     diagRoiSourceEl.textContent = formatRunnerRoiSource(lastRunnerDiagnostics?.lastRoiSource ?? null);
     diagProcessorMethodEl.textContent = formatProcessorPath(lastRunnerDiagnostics?.lastProcessorMethod ?? null);
+    diagFusionEl.textContent = formatFusion(lastRunnerDiagnostics ?? null);
     diagDroppedFramesEl.textContent = lastRunnerDiagnostics ? String(lastRunnerDiagnostics.droppedFrames) : '--';
     diagLastDropEl.textContent = lastRunnerDiagnostics?.lastDropReason ?? '--';
     diagWindowSamplesEl.textContent = debugSnapshot ? String(debugSnapshot.windowSampleCount) : '--';
