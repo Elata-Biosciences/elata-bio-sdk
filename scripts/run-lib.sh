@@ -282,6 +282,7 @@ normalize_release_target() {
         rppg|rppg-web|@elata-biosciences/rppg-web) echo "rppg-web" ;;
         ppg|ppg-web|@elata-biosciences/ppg-web) echo "ppg-web" ;;
         create-elata-demo|@elata-biosciences/create-elata-demo) echo "create-elata-demo" ;;
+        app-metrics|@elata-biosciences/app-metrics) echo "app-metrics" ;;
         *)
             echo "Unknown release target: $raw" >&2
             return 1
@@ -296,6 +297,7 @@ package_dir_for_target() {
         rppg-web) echo "packages/rppg-web" ;;
         ppg-web) echo "packages/ppg-web" ;;
         create-elata-demo) echo "packages/create-elata-demo" ;;
+        app-metrics) echo "packages/app-metrics" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -310,6 +312,7 @@ package_name_for_target() {
         rppg-web) echo "@elata-biosciences/rppg-web" ;;
         ppg-web) echo "@elata-biosciences/ppg-web" ;;
         create-elata-demo) echo "@elata-biosciences/create-elata-demo" ;;
+        app-metrics) echo "@elata-biosciences/app-metrics" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -324,6 +327,7 @@ release_tag_prefix_for_target() {
         rppg-web) echo "rppg-web" ;;
         ppg-web) echo "ppg-web" ;;
         create-elata-demo) echo "create-elata-demo" ;;
+        app-metrics) echo "app-metrics" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -335,7 +339,7 @@ release_targets_for() {
     local target="$1"
     if [[ "$target" == "all" ]]; then
         # Keep repo-published dependency order.
-        echo "eeg-web eeg-web-ble rppg-web ppg-web create-elata-demo"
+        echo "eeg-web eeg-web-ble rppg-web ppg-web create-elata-demo app-metrics"
     else
         echo "$target"
     fi

@@ -106,6 +106,28 @@ const packages = [
 			"coverage/",
 		],
 	},
+	{
+		name: "@elata-biosciences/app-metrics",
+		aliases: ["app-metrics", "packages/app-metrics"],
+		dir: "packages/app-metrics",
+		requiredFiles: [
+			"dist/index.js",
+			"dist/index.d.ts",
+			"dist/host.js",
+			"dist/host.d.ts",
+			"README.md",
+			"package.json",
+		],
+		forbiddenPatterns: [
+			"__tests__",
+			".test.ts",
+			".test.js",
+			"node_modules/",
+			"tsconfig",
+			"jest.config",
+			"coverage/",
+		],
+	},
 ];
 
 const requested = process.argv.slice(2);
