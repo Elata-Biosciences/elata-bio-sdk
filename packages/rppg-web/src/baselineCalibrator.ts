@@ -31,6 +31,14 @@ export interface BaselineCalibratorConfig {
 	stabilityStdDev: number;
 	/** Fraction of each tail dropped before the median (per side). */
 	trimFraction: number;
+	/**
+	 * When a per-push capture confidence is supplied, readings below this score
+	 * are rejected — progress *pauses* (it never retreats) instead of folding a
+	 * motion/lighting-corrupted reading into the baseline. The reason is exposed
+	 * via {@link BaselineCalibrator.stallReason} so the UI can say what to fix
+	 * rather than leave the user staring at a frozen percentage.
+	 */
+	minCaptureConfidence: number;
 }
 
 // Tuned for a ~300 ms poll: ~13 s hard cap, early-exit ~5–6 s once the
@@ -42,6 +50,7 @@ export const DEFAULT_BASELINE_CALIBRATOR_CONFIG: BaselineCalibratorConfig = {
 	stabilityWindow: 12,
 	stabilityStdDev: 2.5,
 	trimFraction: 0.1,
+	minCaptureConfidence: 0.4,
 };
 
 function median(xs: number[]): number {
@@ -63,6 +72,22 @@ export interface BaselineCalibrationResult {
 	hrv: number | null;
 }
 
+/** The capture-confidence snapshot a caller may attach to each push. */
+export interface CalibrationCaptureGate {
+	/** 0..1 overall capture confidence (see CaptureConfidenceScorer). */
+	score: number;
+	/** Limiting dimension, surfaced as the stall reason when gating. */
+	limiting?: "motion" | "lighting" | null;
+	/** Actionable reason codes, surfaced as the stall reason when gating. */
+	reasons?: string[];
+}
+
+/** Why calibration progress is currently paused, for actionable UI. */
+export interface CalibrationStall {
+	limiting: "motion" | "lighting" | null;
+	reasons: string[];
+}
+
 export class BaselineCalibrator {
 	private readonly cfg: BaselineCalibratorConfig;
 	private bpm: number[] = [];
@@ -70,6 +95,8 @@ export class BaselineCalibrator {
 	private rejectStreak = 0;
 	private rejected = 0;
 	private qualitySum = 0;
+	private gatedByCapture = 0;
+	private lastStall: CalibrationStall | null = null;
 
 	constructor(
 		cfg: BaselineCalibratorConfig = DEFAULT_BASELINE_CALIBRATOR_CONFIG,
@@ -80,9 +107,28 @@ export class BaselineCalibrator {
 	/**
 	 * Offer one reading (with its 0..1 signal quality). Outliers are rejected —
 	 * they don't advance progress and they count against the confidence score.
+	 *
+	 * When `capture` is supplied and its `score` is below
+	 * `cfg.minCaptureConfidence`, the reading is gated out: progress pauses and
+	 * {@link stallReason} reports the limiting motion/lighting factor. Omitting
+	 * `capture` preserves the original BPM-outlier-only behaviour.
 	 */
-	push(bpm: number, hrv: number | null, quality = 1): void {
+	push(
+		bpm: number,
+		hrv: number | null,
+		quality = 1,
+		capture?: CalibrationCaptureGate,
+	): void {
 		if (!Number.isFinite(bpm)) return;
+		if (capture != null && capture.score < this.cfg.minCaptureConfidence) {
+			this.gatedByCapture += 1;
+			this.lastStall = {
+				limiting: capture.limiting ?? null,
+				reasons: capture.reasons ?? [],
+			};
+			return;
+		}
+		this.lastStall = null;
 		if (this.bpm.length > 5) {
 			const avg = this.bpm.reduce((a, b) => a + b, 0) / this.bpm.length;
 			if (Math.abs(bpm - avg) > this.cfg.outlierBpm) {
@@ -109,6 +155,20 @@ export class BaselineCalibrator {
 
 	get sampleCount(): number {
 		return this.bpm.length;
+	}
+
+	/** Count of readings dropped because capture confidence was too low. */
+	get captureGatedCount(): number {
+		return this.gatedByCapture;
+	}
+
+	/**
+	 * Why progress is currently paused due to poor capture, or null when the
+	 * most recent reading was not capture-gated. Drives actionable UI (e.g.
+	 * "Too much motion — hold still" / "Increase lighting").
+	 */
+	get stallReason(): CalibrationStall | null {
+		return this.lastStall;
 	}
 
 	/** True once the recent window has converged to a stable bpm. */
@@ -173,5 +233,7 @@ export class BaselineCalibrator {
 		this.rejectStreak = 0;
 		this.rejected = 0;
 		this.qualitySum = 0;
+		this.gatedByCapture = 0;
+		this.lastStall = null;
 	}
 }

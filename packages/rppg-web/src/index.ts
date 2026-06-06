@@ -64,7 +64,22 @@ export {
 export type {
 	BaselineCalibratorConfig,
 	BaselineCalibrationResult,
+	CalibrationCaptureGate,
+	CalibrationStall,
 } from "./baselineCalibrator";
+export {
+	CAPTURE_MOTION_RELIABILITY,
+	CaptureConfidenceScorer,
+	DEFAULT_CAPTURE_CONFIDENCE_CONFIG,
+	scoreCaptureFeatures,
+} from "./captureConfidence";
+export type {
+	CaptureConfidenceConfig,
+	CaptureConfidenceResult,
+	CaptureFeatureInputs,
+	CaptureFrameSample,
+	CaptureLimiting,
+} from "./captureConfidence";
 export { loadWasmBackend } from "./wasmBackend";
 export { createUnavailableBackend } from "./wasmBackend";
 export type { LoadWasmBackendOptions, WasmImporter } from "./wasmBackend";
@@ -124,6 +139,18 @@ export type {
 	PulseWindowAnalysis,
 	PulseWindowSample,
 } from "./pulseAnalysis";
+export {
+	amplitudeEnvelope,
+	dominantInBand,
+	estimateRespiration,
+	resampleTachogram,
+} from "./respirationAnalysis";
+export type {
+	RespCueEstimate,
+	RespirationEstimate,
+	RespirationInput,
+	RespSource,
+} from "./respirationAnalysis";
 export {
 	Bandpass,
 	ChannelGainController,

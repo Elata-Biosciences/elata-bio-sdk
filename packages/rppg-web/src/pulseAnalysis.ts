@@ -2,6 +2,7 @@ import {
 	computeWaveformPeriodicityProfile,
 	type WaveformPeriodicityProfile,
 } from "./rppgDiagnostics";
+import { estimateRespiration } from "./respirationAnalysis";
 import { computeSignalSnrDb, zeroPhaseBandpass } from "./rppgSignalModel";
 
 export type HarmonicRelation = "fundamental" | "half" | "double";
@@ -34,6 +35,8 @@ export type PulseWindowAnalysis = {
 	peaks: PulseEstimatorResult | null;
 	waveformProfile: WaveformPeriodicityProfile | null;
 	respiration: number | null;
+	/** Confidence (0..1) of the respiration estimate; null when no estimate. */
+	respirationConfidence: number | null;
 	hrvRmssd: number | null;
 	quality: number;
 	snrDb: number;
@@ -87,13 +90,21 @@ export function analyzePulseWindow(
 		rmssdFromPeaks(hilbertBeats.beatTimesMs.map((time) => ({ value: 1, time }))) ??
 		rmssdFromPeaks(peaksDetected);
 
-	const respirationEstimate = estimateDominantBpm(norm, fs, 0.08, 0.5);
-	const respiration =
-		respirationEstimate &&
-		respirationEstimate.bpm >= 4 &&
-		respirationEstimate.bpm <= 24
-			? respirationEstimate.bpm
-			: null;
+	// Respiration: fuse three independent camera cues (baseline RIIV, amplitude
+	// RIAV, beat-timing RSA). Multi-cue agreement survives a motion artifact that
+	// corrupts any single cue — where the old lone spectral peak either got fooled
+	// or abstained. Reuses the Hilbert beats already computed above for the RSA
+	// tachogram. See respirationAnalysis.ts.
+	const respirationResult = estimateRespiration({
+		signal: norm,
+		sampleRate: fs,
+		ibisMs: hilbertBeats.ibisMs,
+		beatTimesMs: hilbertBeats.beatTimesMs,
+	});
+	const respiration = respirationResult ? respirationResult.brpm : null;
+	const respirationConfidence = respirationResult
+		? respirationResult.confidence
+		: null;
 
 	const skinMean =
 		samples.reduce((acc, sample) => acc + clamp(sample.skinRatio, 0, 1), 0) / n;
@@ -113,6 +124,7 @@ export function analyzePulseWindow(
 		peaks: peakBpm,
 		waveformProfile,
 		respiration,
+		respirationConfidence,
 		hrvRmssd,
 		quality,
 		snrDb,

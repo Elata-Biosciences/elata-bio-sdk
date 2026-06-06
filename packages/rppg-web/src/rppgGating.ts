@@ -43,6 +43,10 @@ export type RppgGatingInputs = {
 		clip_mean?: number;
 		calibration_trained?: boolean;
 		baseline_bpm?: number | null;
+		/** 0..1 capture-environment confidence (motion + lighting), if available. */
+		capture_confidence?: number;
+		/** Which dimension is limiting capture confidence, if available. */
+		capture_limiting?: "motion" | "lighting" | null;
 	};
 	/**
 	 * If the host app already knows whether a face is detected (e.g. via
@@ -78,6 +82,12 @@ export type RppgGatingOptions = {
 	stableDisplayHoldMs?: number;
 	/** Distance/centering tolerances for positioning guidance (head-box terms). */
 	framingThresholds?: FramingThresholds;
+	/**
+	 * Below this `capture_confidence`, while still finding the pulse / calibrating,
+	 * guidance is overridden with the limiting motion/lighting hint so the user
+	 * fixes the environment instead of waiting on a stalled bar.
+	 */
+	minCaptureConfidence?: number;
 };
 
 export type RppgGatingOutput = {
@@ -148,6 +158,7 @@ export class RppgGatingController {
 			stableDisplayHoldMs: options.stableDisplayHoldMs ?? 2500,
 			framingThresholds:
 				options.framingThresholds ?? DEFAULT_FRAMING_THRESHOLDS,
+			minCaptureConfidence: options.minCaptureConfidence ?? 0.4,
 		};
 	}
 
@@ -270,7 +281,7 @@ export class RppgGatingController {
 
 		// Positioning carries five distinct messages, so surface the framing
 		// detail directly rather than the single-message fallback.
-		const guidance =
+		let guidance =
 			state === "needs_position" && framing
 				? {
 						// `misframed` guarantees a positioning code here (never "ok").
@@ -278,6 +289,30 @@ export class RppgGatingController {
 						message: framing.message,
 					}
 				: pickGuidance(state);
+
+		// While still acquiring (finding pulse / calibrating), a stalled bar is
+		// only frustrating if the user doesn't know why. When capture confidence
+		// is low, replace the generic message with the limiting motion/lighting
+		// hint so they fix the environment and the bar starts moving.
+		const captureConfidence = metrics.capture_confidence;
+		if (
+			(state === "finding_pulse" || state === "calibrating") &&
+			captureConfidence != null &&
+			captureConfidence < this.opts.minCaptureConfidence
+		) {
+			reasons.push(`low_capture_confidence_${metrics.capture_limiting ?? "unknown"}`);
+			if (metrics.capture_limiting === "lighting") {
+				guidance = {
+					code: "increase_lighting",
+					message: "Increase lighting to calibrate",
+				};
+			} else {
+				guidance = {
+					code: "motion_hold",
+					message: "Hold still to calibrate",
+				};
+			}
+		}
 
 		return {
 			state,

@@ -14,6 +14,12 @@ import {
 	analyzePulseWindow,
 	type HarmonicRelation,
 } from "./pulseAnalysis";
+import {
+	CaptureConfidenceScorer,
+	type CaptureConfidenceConfig,
+	type CaptureConfidenceResult,
+	type CaptureFrameSample,
+} from "./captureConfidence";
 
 export type Backend = {
 	newPipeline: (sampleRate: number, windowSec: number) => any;
@@ -116,6 +122,23 @@ export type Metrics = {
 	hrv_rmssd?: number | null;
 	/** Estimated respiration rate (breaths/min) derived from the rPPG waveform. Experimental. */
 	respiration_rate?: number | null;
+	/** Confidence (0..1) of `respiration_rate`; null when no estimate is available. */
+	respiration_confidence?: number | null;
+	/**
+	 * 0..1 confidence in the *capture environment* (motion + lighting), distinct
+	 * from `confidence`/`signal_quality`. Present only when the host feeds frames
+	 * via {@link RppgProcessor.pushCaptureFrame}. Gate calibration on this and
+	 * surface `capture_limiting` so the user knows what to fix.
+	 */
+	capture_confidence?: number;
+	/** Motion-only component of `capture_confidence` (0..1). */
+	capture_motion?: number;
+	/** Lighting-only component of `capture_confidence` (0..1). */
+	capture_lighting?: number;
+	/** Which dimension is holding capture confidence down, or null when fine. */
+	capture_limiting?: "motion" | "lighting" | null;
+	/** Actionable capture reason codes (e.g. "high_ti", "clipping", "low_light"). */
+	capture_reasons?: string[];
 };
 
 export type RppgDebugIssueCode =
@@ -482,6 +505,11 @@ export class RppgProcessor {
 	// When set, it overrides the backend's RGB-derived signal_quality, because the
 	// fused path bypasses the backend CHROM stage. Cleared by any non-fused push.
 	private fusedQuality: number | null = null;
+	// Capture-confidence (motion + lighting) scorer. Lazily created the first
+	// time the host feeds a frame via pushCaptureFrame; null/no-op otherwise so
+	// non-face hosts pay nothing and `capture_*` metrics stay absent.
+	private captureScorer: CaptureConfidenceScorer | null = null;
+	private lastCapture: CaptureConfidenceResult | null = null;
 	private baselineBpm: number | null = null;
 	private baselineDeviationStartMs: number | null = null;
 	private lastBayesUpdateMs: number | null = null;
@@ -519,6 +547,29 @@ export class RppgProcessor {
 				throw error;
 			}
 		}
+	}
+
+	/**
+	 * Feed one frame's capture cues (motion + lighting). Returns the current
+	 * capture-confidence result, which is also folded into `getMetrics()` as the
+	 * `capture_*` fields. Optional and independent of the RGB/pulse path — hosts
+	 * that don't call this simply get no `capture_*` metrics. Pass `config` on
+	 * the first call to tune the scorer.
+	 */
+	pushCaptureFrame(
+		sample: CaptureFrameSample,
+		config?: Partial<CaptureConfidenceConfig>,
+	): CaptureConfidenceResult {
+		if (this.captureScorer == null) {
+			this.captureScorer = new CaptureConfidenceScorer(config ?? {});
+		}
+		this.lastCapture = this.captureScorer.push(sample);
+		return this.lastCapture;
+	}
+
+	/** Latest capture-confidence result, or null if no frames have been fed. */
+	getCaptureConfidence(): CaptureConfidenceResult | null {
+		return this.lastCapture;
 	}
 
 	isBackendFailed(): boolean {
@@ -717,6 +768,8 @@ export class RppgProcessor {
 		this.channelGain.reset();
 		this.chromPulse.reset();
 		this.fusedQuality = null;
+		this.captureScorer?.reset();
+		this.lastCapture = null;
 		this.baselineBpm = null;
 		this.baselineDeviationStartMs = null;
 		this.lastBayesUpdateMs = null;
@@ -773,6 +826,13 @@ export class RppgProcessor {
 		// In multi-ROI fusion mode the backend CHROM (and its RGB-derived quality)
 		// is bypassed — the fuser's in-band SNR is the authoritative quality.
 		if (this.fusedQuality != null) metrics.signal_quality = this.fusedQuality;
+		if (this.lastCapture != null) {
+			metrics.capture_confidence = this.lastCapture.score;
+			metrics.capture_motion = this.lastCapture.motion;
+			metrics.capture_lighting = this.lastCapture.lighting;
+			metrics.capture_limiting = this.lastCapture.limiting;
+			metrics.capture_reasons = this.lastCapture.reasons;
+		}
 		return metrics;
 	}
 
@@ -1168,6 +1228,7 @@ export class RppgProcessor {
 					: null,
 			hrv_rmssd: analysis.hrvRmssd,
 			respiration_rate: analysis.respiration,
+			respiration_confidence: analysis.respirationConfidence,
 		};
 	}
 
@@ -1307,6 +1368,7 @@ function failedMetrics(): Metrics {
 		baseline_delta: null,
 		hrv_rmssd: null,
 		respiration_rate: null,
+		respiration_confidence: null,
 	};
 }
 

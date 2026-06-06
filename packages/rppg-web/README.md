@@ -252,6 +252,37 @@ and `get_metrics` or camelCase equivalents.
 - `createRppgAppMonitor`
 - `ensureVideoPlaying`
 - `replayBayesSession`
+- `CaptureConfidenceScorer`
+
+## Capture Confidence (motion + lighting)
+
+rPPG is fragile under motion and bad lighting, and the classic failure is a
+calibration bar that silently freezes. `CaptureConfidenceScorer` turns that into
+honest UX: a 0..1 confidence in the **capture environment** — separate from the
+pulse-domain `confidence`/`signal_quality` — plus the limiting factor
+(`"motion"` vs `"lighting"`) and actionable reason codes, so you can gate
+calibration and tell the user exactly what to fix.
+
+```ts
+import { CaptureConfidenceScorer } from "@elata-biosciences/rppg-web";
+
+const capture = new CaptureConfidenceScorer();
+// Per processed frame (everything optional — it degrades to what you have):
+const c = capture.push({ landmarks, faceBox, motion, clipRatio, skinRatio, meanLuma });
+// c.score, c.motion, c.lighting, c.limiting, c.reasons, c.ready
+```
+
+Or let `RppgProcessor` carry it for you: call `proc.pushCaptureFrame(sample)` each
+frame and read the `capture_confidence` / `capture_motion` / `capture_lighting` /
+`capture_limiting` fields from `getMetrics()`. `BaselineCalibrator.push(bpm, hrv,
+quality, capture)` then gates intake on it — progress *pauses* (never retreats)
+with `calibrator.stallReason` naming the fix instead of leaving a frozen %.
+
+The motion half ports the open features (TI / FMX / FMY / FSM) from
+Arevalillo-Herráez et al., _Motion-Based Confidence Score…_, J. Med. Syst. (2026)
+50:82, combined by a transparent noisy-OR weighted by the paper's published
+correlations. The lighting term is our extension (the paper is motion-only). The
+paper's trained classifier is intentionally **not** reproduced here.
 
 ## Session Diagnostics
 
