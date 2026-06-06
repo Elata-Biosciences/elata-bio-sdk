@@ -772,6 +772,70 @@ validate_dist_tag() {
     esac
 }
 
+# Refuse to publish/release with a dirty working tree (override: ALLOW_DIRTY=1).
+# A release publishes irreversibly, so the tree should reflect exactly what is
+# committed before version bumps and tags are layered on top.
+require_clean_worktree() {
+    local context="$1"
+    if [[ "${ALLOW_DIRTY:-0}" == "1" ]]; then
+        echo "ALLOW_DIRTY=1 set; skipping clean-working-tree check for ${context}." >&2
+        return 0
+    fi
+    if [[ -n "$(git -C "$ROOT_DIR" status --porcelain 2>/dev/null)" ]]; then
+        echo "Refusing to ${context}: the working tree has uncommitted changes." >&2
+        echo "Commit or stash them first, or set ALLOW_DIRTY=1 to override." >&2
+        git -C "$ROOT_DIR" status --short >&2
+        exit 1
+    fi
+}
+
+# Warn loudly when a semver-bump release would leave pending changesets unflushed
+# (the semver path bypasses `changeset version`, so CHANGELOGs would drift).
+warn_pending_changesets() {
+    local dir="$ROOT_DIR/.changeset"
+    local pending=() f
+    if [[ -d "$dir" ]]; then
+        for f in "$dir"/*.md; do
+            [[ -e "$f" ]] || continue
+            [[ "$(basename "$f")" == "README.md" ]] && continue
+            pending+=("$(basename "$f")")
+        done
+    fi
+    (( ${#pending[@]} == 0 )) && return 0
+    echo "WARNING: ${#pending[@]} pending changeset(s) will NOT be flushed by a semver-bump release:" >&2
+    for f in "${pending[@]}"; do echo "  - $f" >&2; done
+    echo "  CHANGELOG.md won't be updated and these accumulate. For changelog-driven releases," >&2
+    echo "  run './run.sh bump' (changeset version), then './run.sh release' without major|minor|patch." >&2
+}
+
+# Block an accidental 0.x -> 1.0.0 jump on a `major` bump (override: ALLOW_MAJOR=1).
+guard_major_zerover() {
+    local pkg pkg_dir ver entry
+    local zerover=()
+    for pkg in $(release_targets_for all); do
+        pkg_dir="$(package_dir_for_target "$pkg")"
+        ver="$(node -p "require('$ROOT_DIR/$pkg_dir/package.json').version" 2>/dev/null)" || continue
+        [[ "$ver" == 0.* ]] && zerover+=("${pkg} ${ver} -> 1.0.0")
+    done
+    (( ${#zerover[@]} == 0 )) && return 0
+    echo "A 'major' bump will take these 0.x packages straight to 1.0.0:" >&2
+    for entry in "${zerover[@]}"; do echo "  - $entry" >&2; done
+    if [[ "${ALLOW_MAJOR:-0}" == "1" ]]; then
+        echo "ALLOW_MAJOR=1 set; proceeding with the 1.0.0 jump." >&2
+        return 0
+    fi
+    if [[ ! -t 0 ]]; then
+        echo "Refusing non-interactive 0.x->1.0.0 jump. Set ALLOW_MAJOR=1 to proceed, or use minor/patch." >&2
+        exit 1
+    fi
+    local reply
+    read -r -p "Proceed to 1.0.0 for all packages? [y/N] " reply
+    case "$reply" in
+        [yY] | [yY][eE][sS]) ;;
+        *) echo "Aborted." >&2; exit 1 ;;
+    esac
+}
+
 bump_publish_packages() {
     local level="$1"
     local pkg
@@ -830,7 +894,7 @@ resolve_release_target_and_dist_tag() {
 
 verify_script_for_target() {
     case "$1" in
-        eeg-web|eeg-web-ble|rppg-web|ppg-web|create-elata-demo) echo "verify:publish" ;;
+        eeg-web|eeg-web-ble|rppg-web|ppg-web|create-elata-demo|app-metrics) echo "verify:publish" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -840,7 +904,7 @@ verify_script_for_target() {
 
 prepare_script_for_target() {
     case "$1" in
-        eeg-web|eeg-web-ble|rppg-web|ppg-web|create-elata-demo) echo "prepare:publish" ;;
+        eeg-web|eeg-web-ble|rppg-web|ppg-web|create-elata-demo|app-metrics) echo "prepare:publish" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -1654,6 +1718,32 @@ build_targets() {
     esac
 }
 
+# Open a URL in the default browser without blocking the (foreground) dev server.
+# Backgrounds a short delay so the server has time to bind before the tab loads.
+# Skipped in CI or when NO_OPEN=1; a no-op when no opener is found.
+open_browser_async() {
+    local url="$1"
+    if [[ "${NO_OPEN:-0}" == "1" || -n "${CI:-}" ]]; then
+        echo "Auto-open skipped (NO_OPEN/CI). Open $url manually."
+        return 0
+    fi
+    local opener=""
+    if command -v open >/dev/null 2>&1; then
+        opener="open"            # macOS
+    elif command -v xdg-open >/dev/null 2>&1; then
+        opener="xdg-open"        # Linux
+    elif command -v wslview >/dev/null 2>&1; then
+        opener="wslview"         # WSL
+    fi
+    if [[ -z "$opener" ]]; then
+        echo "No browser opener found; open $url manually (set NO_OPEN=1 to silence)."
+        return 0
+    fi
+    echo "Opening $url ..."
+    ( sleep 1.5; "$opener" "$url" >/dev/null 2>&1 || true ) &
+    disown 2>/dev/null || true
+}
+
 run_rppg_demo() {
     require_cmds node
     require_package_manager
@@ -1699,6 +1789,7 @@ run_rppg_demo() {
     echo "Tip: set KEEP_TMP=1 to keep the temp dir after exit."
 
     # Serve the copied demo directory. It contains pkg/ with the wasm bundle, so /pkg/* works.
+    open_browser_async "http://127.0.0.1:$port/index.html"
     pnpm dlx http-server "$tmp_dir/demo" -p "$port" --silent
 }
 
@@ -1749,6 +1840,7 @@ run_ppg_demo() {
     echo "  http://127.0.0.1:$port/index.html"
     echo "Tip: set KEEP_TMP=1 to keep the temp dir after exit."
 
+    open_browser_async "http://127.0.0.1:$port/index.html"
     pnpm dlx http-server "$tmp_dir/demo" -p "$port" --silent
 }
 
@@ -1790,6 +1882,7 @@ run_eeg_demo() {
     if [[ "${EEG_DEMO_BLE:-0}" != "1" ]]; then
         echo "Tip: set EEG_DEMO_BLE=1 to also build packages/eeg-web-ble (and EEG_DEMO_BLE_TEST=1 to run tests)."
     fi
+    open_browser_async "http://127.0.0.1:$port/"
     (
         cd "$ROOT_DIR/eeg-demo"
         PORT="$port" node e2e/server.js
@@ -2084,6 +2177,11 @@ case "$cmd" in
         #   ./run.sh release latest
         #   ./run.sh release eeg-web latest
         # Runs: build -> publish -> tag-release -> push-tags
+        require_clean_worktree "release"
+        case "${2:-}" in
+            major) warn_pending_changesets; guard_major_zerover ;;
+            minor | patch) warn_pending_changesets ;;
+        esac
         read -r release_target release_dist_tag < <(resolve_release_target_and_dist_tag "${2:-all}" "${3:-}")
         release_packages "$release_target" "$release_dist_tag"
         ;;
@@ -2097,6 +2195,11 @@ case "$cmd" in
         #   ./run.sh publish all next
         #   ./run.sh publish latest
         #   ./run.sh publish eeg-web latest
+        require_clean_worktree "publish"
+        case "${2:-}" in
+            major) warn_pending_changesets; guard_major_zerover ;;
+            minor | patch) warn_pending_changesets ;;
+        esac
         read -r publish_target publish_dist_tag < <(resolve_release_target_and_dist_tag "${2:-all}" "${3:-}")
         publish_packages "$publish_target" "$publish_dist_tag"
         ;;
