@@ -26,6 +26,8 @@ const agreementEl  = getEl('agreement');
 const affectLabelEl = document.getElementById('affect-label');
 const affectValenceEl = document.getElementById('affect-valence');
 const affectArousalEl = document.getElementById('affect-arousal');
+const respRateEl = document.getElementById('resp-rate');
+const respConfidenceEl = document.getElementById('resp-confidence');
 const affectTracker = new AffectTracker();
 const backendBadge = getEl('backend-badge');
 const roiBadge     = getEl('roi-badge');
@@ -155,7 +157,7 @@ function drawWaveform() {
   ctx.clearRect(0, 0, width, height);
 
   // Centre grid line
-  ctx.strokeStyle = '#1e293b'; // slate-800
+  ctx.strokeStyle = '#e2e8f0'; // slate-200 (light grid)
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(0, height / 2);
@@ -378,6 +380,9 @@ async function startDemo() {
 
   let lastStats = { intensity: 0, skinRatio: 0, fps: trackFps, r: 0, g: 0, b: 0, clipRatio: 0, motion: 0 };
   let lastRunnerDiagnostics: DemoRunnerDiagnostics | null = null;
+  // Assigned right after initDemo resolves; the per-frame onStats below feeds it
+  // capture cues (motion + lighting) for the capture-confidence score.
+  let captureProc: { pushCaptureFrame: (s: { motion?: number; clipRatio?: number; skinRatio?: number }) => unknown } | null = null;
 
   const { proc, source, runner } = await initDemo(video, {
     sampleRate: trackFps ?? 30,
@@ -390,8 +395,15 @@ async function startDemo() {
       sampleCount++;
       // Feed intensity into waveform buffer
       pushSignalPoint(s.intensity);
+      // Per-frame capture cues — motion (TI fallback) + lighting (clip/skin).
+      captureProc?.pushCaptureFrame({
+        motion: s.motion,
+        clipRatio: s.clipRatio,
+        skinRatio: s.skinRatio,
+      });
     },
   });
+  captureProc = proc;
 
   // ROI source label
   const usingFace = source instanceof MediaPipeFaceFrameSource;
@@ -402,8 +414,8 @@ async function startDemo() {
   const backendLabel = backendAvailable ? 'WASM' : 'JS';
   backendBadge.textContent = backendLabel;
   backendBadge.className = backendAvailable
-    ? 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-900/40 text-emerald-300 border border-emerald-700/50'
-    : 'text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+    ? 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-300'
+    : 'text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-300';
 
   setStatusBadge('Calibrating... Hold still', 'calibrating');
 
@@ -465,6 +477,20 @@ async function startDemo() {
     }
     if (affectValenceEl) affectValenceEl.textContent = affect.valence.toFixed(2);
     if (affectArousalEl) affectArousalEl.textContent = affect.arousal.toFixed(2);
+
+    // --- Respiration (breaths/min) — gate the rate on its own confidence so a
+    // low-confidence estimate reads as "--" rather than a misleading number. ---
+    const respRate = metrics.respiration_rate ?? null;
+    const respConfidence = metrics.respiration_confidence ?? null;
+    if (respRateEl) {
+      // `respiration_rate` is null during warm-up; once present, show it and let
+      // the confidence readout below convey how much to trust it.
+      respRateEl.textContent = respRate != null ? respRate.toFixed(1) : '--';
+    }
+    if (respConfidenceEl) {
+      respConfidenceEl.textContent =
+        respConfidence != null ? respConfidence.toFixed(2) : '--';
+    }
 
     // Heart animation
     if (smoothed !== null) {
@@ -575,6 +601,7 @@ async function startDemo() {
     const combinedReasons = [
       ...(reasons ?? []),
       ...(issueCodes ?? []),
+      ...(metrics.capture_reasons ?? []),
     ];
     const uniqueReasons = combinedReasons.length > 0 ? Array.from(new Set(combinedReasons)) : null;
     if (uniqueReasons) {
@@ -587,7 +614,17 @@ async function startDemo() {
     // Status badge logic
     if (sampleCount < CALIBRATION_SAMPLES) {
       const pct = Math.round((sampleCount / CALIBRATION_SAMPLES) * 100);
-      setStatusBadge(`Calibrating... ${pct}%`, 'calibrating');
+      // Capture-confidence gate: don't leave the user staring at a stalled bar —
+      // when motion/lighting is the problem, say what to fix instead of just %.
+      const capture = metrics.capture_confidence;
+      if (capture != null && capture < 0.4) {
+        const fix = metrics.capture_limiting === 'lighting'
+          ? 'Increase lighting to calibrate'
+          : 'Hold still to calibrate';
+        setStatusBadge(`${fix} (${pct}%)`, 'warning');
+      } else {
+        setStatusBadge(`Calibrating... ${pct}%`, 'calibrating');
+      }
     } else {
       const status = deriveStatusFromDiagnostics(
         debugSnapshot,

@@ -283,6 +283,23 @@ export default function App() {
               </p>
             </div>
 
+            <div className="bpm-block" aria-label="Respiration">
+              <p className="bpm-label">Respiration</p>
+              <div className="bpm-value-row">
+                <span className="bpm-number">
+                  {metrics.respiration_rate != null
+                    ? formatMetric(metrics.respiration_rate, 1)
+                    : '—'}
+                </span>
+                <span className="bpm-unit">br/min</span>
+              </div>
+              <p className="bpm-sub">
+                {metrics.respiration_confidence != null
+                  ? `confidence ${metrics.respiration_confidence.toFixed(2)}`
+                  : 'derived from the rPPG waveform'}
+              </p>
+            </div>
+
             <div className="meter-group">
               <div className="meter">
                 <div className="meter-head">

@@ -31,10 +31,10 @@ function setStatus(text: string, tone: "idle" | "good" | "bad" = "idle") {
 	statusEl.textContent = text;
 	statusEl.className =
 		tone === "good"
-			? "text-[11px] text-emerald-300"
+			? "text-[11px] text-emerald-600"
 			: tone === "bad"
-				? "text-[11px] text-rose-300"
-				: "text-[11px] text-slate-400";
+				? "text-[11px] text-rose-600"
+				: "text-[11px] text-slate-600";
 }
 
 function formatJson(value: unknown): string {

@@ -1,16 +1,16 @@
 :root {
-  --bg: #091118;
-  --bg-2: #061017;
-  --panel: rgba(9, 24, 36, 0.82);
-  --panel-strong: rgba(6, 18, 28, 0.94);
-  --border: rgba(128, 177, 198, 0.18);
-  --text: #ebfbff;
-  --muted: #8db6c5;
-  --accent: #5eead4;
-  --accent-strong: #14b8a6;
-  --warning: #fbbf24;
-  --good: #34d399;
-  --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  --bg: #ffffff;
+  --bg-2: #eef2f7;
+  --panel: rgba(255, 255, 255, 0.90);
+  --panel-strong: #ffffff;
+  --border: rgba(15, 23, 42, 0.12);
+  --text: #0f172a;
+  --muted: #475569;
+  --accent: #0d9488;
+  --accent-strong: #0f766e;
+  --warning: #d97706;
+  --good: #059669;
+  --shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
 }
 
 body {
@@ -31,7 +31,7 @@ code {
   font-size: 0.88em;
   padding: 0.1em 0.32em;
   border-radius: 6px;
-  background: rgba(0, 0, 0, 0.24);
+  background: rgba(15, 23, 42, 0.06);
   border: 1px solid var(--border);
 }
 
@@ -92,7 +92,7 @@ code {
   padding: 10px 14px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: rgba(6, 18, 28, 0.74);
+  background: rgba(255, 255, 255, 0.85);
   color: var(--muted);
   max-width: 100%;
 }
@@ -143,8 +143,8 @@ code {
 .metric-card {
   padding: 18px;
   border-radius: 20px;
-  border: 1px solid rgba(128, 177, 198, 0.14);
-  background: rgba(5, 15, 24, 0.56);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(15, 23, 42, 0.03);
 }
 
 .metric-label {
@@ -197,7 +197,7 @@ code {
   background:
     linear-gradient(180deg, rgba(94, 234, 212, 0.08), transparent),
     rgba(4, 12, 18, 0.94);
-  border: 1px solid rgba(128, 177, 198, 0.14);
+  border: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 .meta-grid {
@@ -209,8 +209,8 @@ code {
 .meta-card {
   padding: 16px;
   border-radius: 18px;
-  border: 1px solid rgba(128, 177, 198, 0.14);
-  background: rgba(5, 15, 24, 0.56);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(15, 23, 42, 0.03);
 }
 
 .meta-card strong {
@@ -249,8 +249,8 @@ code {
 .tips li {
   padding: 14px 16px;
   border-radius: 16px;
-  background: rgba(5, 15, 24, 0.56);
-  border: 1px solid rgba(128, 177, 198, 0.14);
+  background: rgba(15, 23, 42, 0.03);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   color: var(--muted);
   line-height: 1.5;
 }

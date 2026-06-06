@@ -1,26 +1,26 @@
 /* Presentable defaults for demos and screen recording: high contrast, large type, calm motion */
 
 :root {
-  color-scheme: dark;
-  --bg0: #070a0f;
-  --bg1: #0c1118;
-  --surface: rgba(18, 26, 38, 0.92);
-  --surface-elevated: rgba(24, 34, 50, 0.95);
-  --border: rgba(148, 163, 184, 0.14);
-  --border-strong: rgba(148, 163, 184, 0.22);
-  --text: #f1f5f9;
-  --muted: #94a3b8;
+  color-scheme: light;
+  --bg0: #ffffff;
+  --bg1: #eef2f7;
+  --surface: rgba(255, 255, 255, 0.92);
+  --surface-elevated: #ffffff;
+  --border: rgba(15, 23, 42, 0.10);
+  --border-strong: rgba(15, 23, 42, 0.16);
+  --text: #0f172a;
+  --muted: #475569;
   --dim: #64748b;
-  --accent: #38bdf8;
-  --accent-dim: rgba(56, 189, 248, 0.12);
-  --good: #34d399;
-  --warn: #fbbf24;
-  --bad: #f87171;
+  --accent: #0284c7;
+  --accent-dim: rgba(2, 132, 199, 0.12);
+  --good: #059669;
+  --warn: #d97706;
+  --bad: #dc2626;
   --font: 'DM Sans', system-ui, -apple-system, sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, monospace;
   --radius: 16px;
   --radius-lg: 22px;
-  --shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  --shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
   --max-w: 1120px;
 }
 
@@ -62,7 +62,7 @@ code {
   font-size: 0.88em;
   padding: 0.12em 0.35em;
   border-radius: 6px;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(15, 23, 42, 0.06);
   border: 1px solid var(--border);
 }
 
@@ -94,7 +94,7 @@ code {
   flex-wrap: wrap;
   padding: 1rem clamp(1rem, 4vw, 2rem);
   border-bottom: 1px solid var(--border);
-  background: rgba(7, 10, 15, 0.75);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
 }
 
@@ -363,7 +363,7 @@ code {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text);
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(8px);
 }
@@ -424,7 +424,7 @@ code {
   letter-spacing: -0.04em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  background: linear-gradient(180deg, #fff 0%, #cbd5e1 100%);
+  background: linear-gradient(180deg, #0f172a 0%, #334155 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -503,7 +503,7 @@ code {
 .meter-track {
   height: 8px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(15, 23, 42, 0.06);
   border: 1px solid var(--border);
   overflow: hidden;
 }
@@ -556,7 +556,7 @@ code {
   gap: 0.2rem;
   padding: 0.65rem 0.75rem;
   border-radius: var(--radius);
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(15, 23, 42, 0.04);
   border: 1px solid var(--border);
   min-width: 0;
 }
@@ -717,7 +717,7 @@ code {
 }
 
 .panel-disclosure summary:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(15, 23, 42, 0.04);
 }
 
 .panel-inner {

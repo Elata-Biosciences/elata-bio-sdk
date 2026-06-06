@@ -2,8 +2,8 @@
 
 html, body, #root {
   min-height: 100vh;
-  background: #091118;
-  color: #ebfbff;
+  background: #ffffff;
+  color: #0f172a;
   font-family: 'IBM Plex Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
