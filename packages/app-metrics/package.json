@@ -1,6 +1,6 @@
 {
 	"name": "@elata-biosciences/app-metrics",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"description": "Per-user metrics storage for sandboxed apps in the Elata appstore",
 	"license": "MIT",
 	"author": "Elata",
