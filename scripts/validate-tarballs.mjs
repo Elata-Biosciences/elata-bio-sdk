@@ -90,6 +90,27 @@ const packages = [
 			],
 	},
 	{
+		name: "@elata-biosciences/app-payments",
+		aliases: ["app-payments", "packages/app-payments"],
+		dir: "packages/app-payments",
+		requiredFiles: [
+			"dist/index.js",
+			"dist/index.d.ts",
+			"README.md",
+			"package.json",
+		],
+		forbiddenPatterns: [
+			"__tests__",
+			".test.ts",
+			".test.js",
+			"node_modules/",
+			"tsconfig",
+			"jest.config",
+			"coverage/",
+			"scripts/",
+		],
+	},
+	{
 		name: "@elata-biosciences/create-elata-demo",
 		aliases: ["create-elata-demo", "packages/create-elata-demo"],
 		dir: "packages/create-elata-demo",

@@ -283,6 +283,7 @@ normalize_release_target() {
         ppg|ppg-web|@elata-biosciences/ppg-web) echo "ppg-web" ;;
         create-elata-demo|@elata-biosciences/create-elata-demo) echo "create-elata-demo" ;;
         app-metrics|@elata-biosciences/app-metrics) echo "app-metrics" ;;
+        app-payments|@elata-biosciences/app-payments) echo "app-payments" ;;
         *)
             echo "Unknown release target: $raw" >&2
             return 1
@@ -298,6 +299,7 @@ package_dir_for_target() {
         ppg-web) echo "packages/ppg-web" ;;
         create-elata-demo) echo "packages/create-elata-demo" ;;
         app-metrics) echo "packages/app-metrics" ;;
+        app-payments) echo "packages/app-payments" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -313,6 +315,7 @@ package_name_for_target() {
         ppg-web) echo "@elata-biosciences/ppg-web" ;;
         create-elata-demo) echo "@elata-biosciences/create-elata-demo" ;;
         app-metrics) echo "@elata-biosciences/app-metrics" ;;
+        app-payments) echo "@elata-biosciences/app-payments" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -328,6 +331,7 @@ release_tag_prefix_for_target() {
         ppg-web) echo "ppg-web" ;;
         create-elata-demo) echo "create-elata-demo" ;;
         app-metrics) echo "app-metrics" ;;
+        app-payments) echo "app-payments" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -894,7 +898,7 @@ resolve_release_target_and_dist_tag() {
 
 verify_script_for_target() {
     case "$1" in
-        eeg-web|eeg-web-ble|rppg-web|ppg-web|create-elata-demo|app-metrics) echo "verify:publish" ;;
+        eeg-web|eeg-web-ble|rppg-web|ppg-web|create-elata-demo|app-metrics|app-payments) echo "verify:publish" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
