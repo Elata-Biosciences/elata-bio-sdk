@@ -20,6 +20,8 @@ Fixes (see README): copy `node_modules/.../rppg-web/pkg/` to **`public/pkg/`**, 
 - Bayesian ambiguity penalties are off by default. Opt in with a validated `elata.rppg.bpm-tracker-config/v1`; diagnostics expose the config ID and applied penalty.
 - External evidence-quality models belong behind `BpmEvidenceQualityProvider`; SDK bounds all outputs and treats failures as neutral.
 - Waveform reconstruction is diagnostic and opt-in through `experimental.waveformReconstructor`; it remains off the frame path and cannot feed BPM (`useReconstructedBpmEvidence` only accepts `false`).
+- `extractWaveformMorphology()` exposes gated, source-labelled cycle features; any physiological trend proxy remains under `experimentalProxies`.
+- `normalizePhysiologyFeatures()` has no labels. `createPhysiologyInterpreter()` adds generic policy-free states; its activation score is distinct from face affect, emotional valence, stress, and clinical interpretation.
 
 ## Related
 If a project uses both **`rppg-web`** and **`eeg-web`**, prefer **matching published versions** unless release notes say otherwise.

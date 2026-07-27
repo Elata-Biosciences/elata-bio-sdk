@@ -149,6 +149,13 @@ const waveform = computeTraceWaveformDebug(session.getTraceSnapshot(300));
 console.log(waveform.peaks);
 ```
 
+Experimental reconstructed or filtered waveforms can also be passed to
+`extractWaveformMorphology()`. Treat its gated `experimentalProxies` as relative
+trends only. Baseline-normalized physiology and generic state mapping are
+separate calls (`normalizePhysiologyFeatures()` and
+`createPhysiologyInterpreter()`); physiology activation is not facial affect,
+stress, or a clinical measurement.
+
 ## Error Normalization
 
 Use `normalizeRppgError()` instead of parsing raw message text in app code:

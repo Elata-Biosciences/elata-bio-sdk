@@ -251,6 +251,28 @@ export type {
 } from "./waveformModel";
 export { WaveformReconstructionController } from "./waveformReconstructionController";
 export {
+	createWaveformMorphologyBaseline,
+	extractWaveformMorphology,
+} from "./waveformMorphology";
+export type {
+	WaveformMorphologyBaselineV1,
+	WaveformMorphologySource,
+	WaveformMorphologyV1,
+} from "./waveformMorphology";
+export {
+	createPhysiologyInterpreter,
+	DEFAULT_PHYSIOLOGY_INTERPRETER_CONFIG_V1,
+	normalizePhysiologyFeatures,
+} from "./physiologyFeatures";
+export type {
+	PhysiologyBaselineV1,
+	PhysiologyFeaturesV1,
+	PhysiologyInterpretationV1,
+	PhysiologyInterpreter,
+	PhysiologyInterpreterConfigV1,
+	PhysiologyState,
+} from "./physiologyFeatures";
+export {
 	DEFAULT_FRAMING_THRESHOLDS,
 	FRAMING_MESSAGES,
 	faceBoxFromLandmarks,

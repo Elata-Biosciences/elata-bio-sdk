@@ -418,6 +418,20 @@ the frame callback, contains model failures, and exposes
 `session.dispose()` to release the plugin runtime. A profile mismatch prevents
 window construction rather than silently changing model preprocessing.
 
+### Experimental morphology and physiology interpretation
+
+`extractWaveformMorphology()` converts a filtered or reconstructed waveform
+into source-labelled cycle features. Physiological trend proxies appear only
+under `experimentalProxies` after reliability gates pass.
+
+`normalizePhysiologyFeatures()` computes baseline-relative HR, HRV, and
+respiration features without assigning labels. Pass those features to
+`createPhysiologyInterpreter()` only if generic `baseline`, `activated`, or
+`recovering` states are useful to your app. Its `activationScore` is
+physiology-derived evidence, not facial affect, emotional valence, stress, or a
+clinical measurement; use `affect.ts` separately when face-derived affect is
+actually intended.
+
 Intentional `faceMesh: "off"` sessions use `video_frame` mode without being
 reported as a FaceMesh failure. If a fatal processor exception occurs,
 `session.state` switches to terminal `failed`, later metrics reads return safe
