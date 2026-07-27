@@ -27,6 +27,10 @@ import {
 	type DemoRunnerError,
 	type DemoRunnerOptions,
 } from "./demoRunner";
+import type {
+	BpmEvidenceQualityProvider,
+	BpmTrackerConfigV1,
+} from "./bpmBayesTracker";
 
 export type RppgSessionBackendPreference = "auto" | "wasm";
 export type RppgSessionBackendMode = "wasm" | "unavailable";
@@ -90,6 +94,8 @@ export type CreateRppgSessionOptions = Omit<
 	"onDiagnostics" | "onError"
 > & {
 	video: HTMLVideoElement;
+	bpmTrackerConfig?: BpmTrackerConfigV1;
+	bpmEvidenceQualityProvider?: BpmEvidenceQualityProvider;
 	sampleRate?: number;
 	windowSec?: number;
 	backend?: RppgSessionBackendPreference;
@@ -361,6 +367,10 @@ export async function createRppgSession(
 		backendResult.backend,
 		sampleRate,
 		windowSec,
+		{
+			bpmTrackerConfig: options.bpmTrackerConfig,
+			bpmEvidenceQualityProvider: options.bpmEvidenceQualityProvider,
+		},
 	);
 	applyTrackerConfiguration(processor, enableTracker);
 	let session: RppgSession | null = null;

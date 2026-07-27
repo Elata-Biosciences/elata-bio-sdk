@@ -369,6 +369,30 @@ emits the versioned `elata.rppg.roi-sample/v1` boundary with RGB, raw skin
 fraction, compatibility skin fraction, clipping, luminance statistics, and both
 profile IDs.
 
+### Experimental Bayesian ambiguity penalty
+
+The default tracker remains unchanged. To reduce confidence when estimators
+strongly disagree, pass a validated, versioned configuration:
+
+```ts
+const session = await createRppgSession({
+  video,
+  bpmTrackerConfig: {
+    schema: "elata.rppg.bpm-tracker-config/v1",
+    id: "ambiguity-v1",
+    ambiguityPenalty: { enabled: true, spreadStartBpm: 18, spreadRangeBpm: 90, maxPenalty: 0.28 },
+  },
+});
+```
+
+Metrics expose `bayes_ambiguity` and `bayes_tracker_config_id`. Invalid or
+out-of-range configurations are rejected during session creation.
+
+Advanced integrations may pass a `bpmEvidenceQualityProvider`. Its per-source
+multipliers and ambiguity penalty are bounded by the SDK; missing, non-finite,
+or thrown results become neutral. Keep learned trust artifacts outside this
+package and provide them through this interface.
+
 Intentional `faceMesh: "off"` sessions use `video_frame` mode without being
 reported as a FaceMesh failure. If a fatal processor exception occurs,
 `session.state` switches to terminal `failed`, later metrics reads return safe

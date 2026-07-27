@@ -22,8 +22,15 @@ export type {
 	RppgTracePoint,
 	RppgTraceSnapshot,
 } from "./rppgProcessor";
-export { BpmBayesTracker } from "./bpmBayesTracker";
+export {
+	BpmBayesTracker,
+	DEFAULT_BPM_TRACKER_CONFIG_V1,
+	parseBpmTrackerConfigV1,
+} from "./bpmBayesTracker";
 export type {
+	BpmTrackerConfigV1,
+	BpmEvidenceQuality,
+	BpmEvidenceQualityProvider,
 	BpmBayesSnapshot,
 	EstimatorMeasurement,
 	TrackerReferenceOrigin,

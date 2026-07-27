@@ -1,5 +1,7 @@
 import {
 	BpmBayesTracker,
+	type BpmEvidenceQualityProvider,
+	type BpmTrackerConfigV1,
 	type EstimatorMeasurement,
 	type TrackerEstimate,
 } from "./bpmBayesTracker";
@@ -106,6 +108,9 @@ export type Metrics = {
 	bayes_bpm?: number | null;
 	/** Confidence of the Bayesian tracker output. */
 	bayes_confidence?: number;
+	bayes_ambiguity?: number;
+	bayes_tracker_config_id?: string;
+	bayes_quality_provider_id?: string | null;
 	/** Bayesian BPM after online calibration model correction. Used as the basis for `bpm`. */
 	calibrated_bpm?: number | null;
 	/** Final fused estimate combining camera rPPG with an optional external BPM reference (e.g. Muse headband). Same as `bpm` when no external source is active. */
@@ -498,7 +503,7 @@ export class RppgProcessor {
 	private readonly bpmHistory: number[] = [];
 	private readonly cameraCalibration = new MuseCalibrationModel();
 	private readonly fusion = new MuseFusionCalibrator();
-	private readonly bayesTracker = new BpmBayesTracker(BPM_MIN, BPM_MAX);
+	private readonly bayesTracker: BpmBayesTracker;
 	private readonly channelGain = new ChannelGainController();
 	private readonly chromPulse = new ChromPulseModel();
 	// Quality scalar supplied by an external multi-ROI fuser (see pushFusedSample).
@@ -524,9 +529,20 @@ export class RppgProcessor {
 		private backend: Backend,
 		sampleRate = 30,
 		windowSec = 5,
+		options: {
+			bpmTrackerConfig?: BpmTrackerConfigV1;
+			bpmEvidenceQualityProvider?: BpmEvidenceQualityProvider;
+		} = {},
 	) {
 		this.sampleRate = sampleRate;
 		this.windowSec = windowSec;
+		this.bayesTracker = new BpmBayesTracker(
+			BPM_MIN,
+			BPM_MAX,
+			1,
+			options.bpmTrackerConfig,
+			options.bpmEvidenceQualityProvider,
+		);
 		this.pipeline = this.backend.newPipeline(sampleRate, windowSec);
 	}
 
@@ -1217,6 +1233,9 @@ export class RppgProcessor {
 			alias_flag: aliasFlag,
 			bayes_bpm: bayes.bpm,
 			bayes_confidence: bayes.confidence,
+			bayes_ambiguity: bayes.ambiguity,
+			bayes_tracker_config_id: this.bayesTracker.getConfig().id,
+			bayes_quality_provider_id: bayes.qualityProviderId,
 			calibrated_bpm: calibratedBpm,
 			fused_bpm: lowConfidenceGate ? null : fused.bpm,
 			fused_source: lowConfidenceGate ? "none" : fused.source,

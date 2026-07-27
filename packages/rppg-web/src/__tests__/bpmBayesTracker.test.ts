@@ -1,4 +1,8 @@
-import { BpmBayesTracker } from "../bpmBayesTracker";
+import {
+	BpmBayesTracker,
+	DEFAULT_BPM_TRACKER_CONFIG_V1,
+	parseBpmTrackerConfigV1,
+} from "../bpmBayesTracker";
 import { computeWaveformPeriodicityProfile } from "../rppgDiagnostics";
 
 function buildWaveformProfile(bpm: number, fs = 30) {
@@ -86,5 +90,93 @@ describe("BpmBayesTracker reference state", () => {
 
 		expect(estimate.bpm).not.toBeNull();
 		expect(Math.abs((estimate.bpm ?? 0) - 72)).toBeLessThanOrEqual(4);
+	});
+});
+
+describe("BpmBayesTracker configuration", () => {
+	const context = { motion: 0, snrDb: 8, quality: 0.9 };
+	const measurements = [
+		{ source: "acf" as const, bpm: 70, confidence: 0.8 },
+		{ source: "spectral" as const, bpm: 130, confidence: 0.8 },
+	];
+
+	test("preserves default confidence behavior and records config provenance", () => {
+		const tracker = new BpmBayesTracker();
+		const estimate = tracker.update(measurements, 1 / 30, context);
+		expect(estimate.ambiguity).toBe(0);
+		expect(tracker.getSnapshot().trackerConfigId).toBe("elata-default-v1");
+		expect(tracker.getConfig()).toEqual(DEFAULT_BPM_TRACKER_CONFIG_V1);
+	});
+
+	test("explicit default config is replay-identical to the compatibility path", () => {
+		const control = new BpmBayesTracker();
+		const configured = new BpmBayesTracker(
+			40,
+			180,
+			1,
+			DEFAULT_BPM_TRACKER_CONFIG_V1,
+		);
+		for (let index = 0; index < 4; index++) {
+			expect(configured.update(measurements, 1 / 30, context)).toEqual(
+				control.update(measurements, 1 / 30, context),
+			);
+		}
+	});
+
+	test("applies bounded ambiguity only when explicitly enabled", () => {
+		const tracker = new BpmBayesTracker(40, 180, 1, {
+			...DEFAULT_BPM_TRACKER_CONFIG_V1,
+			id: "ambiguity-test-v1",
+			ambiguityPenalty: {
+				enabled: true,
+				spreadStartBpm: 18,
+				spreadRangeBpm: 90,
+				maxPenalty: 0.28,
+			},
+		});
+		const estimate = tracker.update(measurements, 1 / 30, context);
+		expect(estimate.ambiguity).toBeGreaterThan(0);
+		expect(estimate.ambiguity).toBeLessThanOrEqual(0.28);
+		expect(tracker.getSnapshot().trackerConfigId).toBe("ambiguity-test-v1");
+	});
+
+	test("rejects malformed or unsafe configs", () => {
+		expect(() => parseBpmTrackerConfigV1({})).toThrow(TypeError);
+		expect(() =>
+			parseBpmTrackerConfigV1({
+				...DEFAULT_BPM_TRACKER_CONFIG_V1,
+				ambiguityPenalty: {
+					...DEFAULT_BPM_TRACKER_CONFIG_V1.ambiguityPenalty,
+					maxPenalty: 2,
+				},
+			}),
+		).toThrow(RangeError);
+	});
+
+	test("bounds provider output and neutralizes provider failures", () => {
+		const bounded = new BpmBayesTracker(
+			40,
+			180,
+			1,
+			DEFAULT_BPM_TRACKER_CONFIG_V1,
+			{
+				id: "quality-test-v1",
+				evaluate: () => ({
+					sourceMultiplier: { peaks: -10, spectral: 10 },
+					ambiguityPenalty: 10,
+				}),
+			},
+		).update(measurements, 1 / 30, context);
+		expect(bounded.ambiguity).toBe(0.65);
+		expect(bounded.qualityProviderId).toBe("quality-test-v1");
+
+		const failed = new BpmBayesTracker(
+			40,
+			180,
+			1,
+			DEFAULT_BPM_TRACKER_CONFIG_V1,
+			{ id: "failed-v1", evaluate: () => { throw new Error("failed"); } },
+		).update(measurements, 1 / 30, context);
+		expect(failed.ambiguity).toBe(0);
 	});
 });
