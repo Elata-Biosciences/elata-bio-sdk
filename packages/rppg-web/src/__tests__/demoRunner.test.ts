@@ -1,6 +1,8 @@
 import { DemoRunner } from '../demoRunner';
 import { FrameSource, Frame } from '../frameSource';
 import { RppgProcessor } from '../rppgProcessor';
+import { MCD_PROXY_INPUT_V1_PROFILE } from '../roiProfile';
+import type { RoiPixelSampler } from '../roiPixelSampler';
 
 class MockFrameSource implements FrameSource {
   onFrame: ((frame: Frame) => void) | null = null;
@@ -66,6 +68,50 @@ test('DemoRunner uses frame ROI when opts.roi is not set', async () => {
 });
 
 describe('DemoRunner skin mask', () => {
+  test('uses an explicit pixel sampler and reports both profile IDs', async () => {
+    const src = new MockFrameSource();
+    const proc = new MockProcessor();
+    const sampler: RoiPixelSampler = {
+      id: 'test-sampler-v1',
+      sample: jest.fn(() => ({
+        r: 0.1,
+        g: 0.2,
+        b: 0.3,
+        skinFraction: 0.4,
+        effectiveSkinFraction: 0.5,
+        clipRatio: 0.6,
+        meanLuma: 0.2,
+        lumaStd: 0.1,
+        pixelCount: 4,
+        skinPixelCount: 2,
+        usedSkinPixels: true,
+      })),
+    };
+    const runner = new DemoRunner(src as any, proc as any, {
+      roi: { x: 0, y: 0, w: 2, h: 2 },
+      roiGeometryProfile: MCD_PROXY_INPUT_V1_PROFILE,
+      roiPixelSampler: sampler,
+    });
+    await runner.start();
+    src.emit(makeSkinFrame(2, 2));
+
+    expect(sampler.sample).toHaveBeenCalledTimes(1);
+    expect(proc.pushSampleRgbMeta).toHaveBeenCalledWith(
+      expect.any(Number),
+      0.1,
+      0.2,
+      0.3,
+      0.5,
+      expect.any(Number),
+      0.6,
+    );
+    expect(runner.getDiagnostics()).toMatchObject({
+      roiGeometryProfileId: 'mcd-proxy-input-v1',
+      roiPixelSamplerId: 'test-sampler-v1',
+    });
+    await runner.stop();
+  });
+
   test('useSkinMask: true (default) uses skin-masked RGB path', async () => {
     const src = new MockFrameSource();
     const proc = new MockProcessor();

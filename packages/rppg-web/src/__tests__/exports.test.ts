@@ -135,6 +135,12 @@ describe('@elata-biosciences/rppg-web exports', () => {
       'createRppgAppMonitor',
       'ensureVideoPlaying',
       'replayBayesSession',
+      'ELATA_FACE_YCBCR_V1_PROFILE',
+      'MCD_PROXY_INPUT_V1_PROFILE',
+      'TRADELOCK_LIVE_FOREHEAD_V1_PROFILE',
+      'ELATA_YCBCR_V1_PIXEL_SAMPLER',
+      'TRADELOCK_RGB_WEIGHTED_V1_PIXEL_SAMPLER',
+      'sampleRppgRoi',
     ];
     for (const key of expectedKeys) {
       expect((rppgWeb as Record<string, unknown>)[key]).toBeDefined();

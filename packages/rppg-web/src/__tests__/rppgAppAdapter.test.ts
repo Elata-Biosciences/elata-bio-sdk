@@ -55,6 +55,8 @@ function createDiagnostics(
 		framesWithFusion: 0,
 		lastFusionWeights: null,
 		lastFusedSnr: null,
+		roiGeometryProfileId: "elata-face-ycbcr-v1",
+		roiPixelSamplerId: "elata-ycbcr-v1",
 		...overrides,
 	};
 }

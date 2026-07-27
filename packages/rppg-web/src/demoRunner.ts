@@ -20,6 +20,14 @@ import {
 	type RoiRgbSample,
 } from "./multiRoiFusion";
 import { RppgProcessor } from "./rppgProcessor";
+import {
+	ELATA_YCBCR_V1_PIXEL_SAMPLER,
+	type RoiPixelSampler,
+} from "./roiPixelSampler";
+import {
+	ELATA_FACE_YCBCR_V1_PROFILE,
+	type RoiGeometryProfile,
+} from "./roiProfile";
 
 export type LastBlendshapes = {
 	blendshapes: FrameBlendshape[];
@@ -34,6 +42,8 @@ export type LastFaceBox = {
 
 export type DemoRunnerOptions = {
 	roi?: { x: number; y: number; w: number; h: number } | null;
+	/** Face-mesh ROI geometry profile. */
+	roiGeometryProfile?: RoiGeometryProfile;
 	sampleRate?: number;
 	roiSmoothingAlpha?: number;
 	useSkinMask?: boolean;
@@ -58,6 +68,11 @@ export type DemoRunnerOptions = {
 	 * aggregated-ROI path when sub-ROIs are unavailable.
 	 */
 	multiRoiFusion?: boolean;
+	/**
+	 * Pixel-selection and spatial-weighting profile. When omitted, the original
+	 * SDK YCbCr helper is used unchanged.
+	 */
+	roiPixelSampler?: RoiPixelSampler;
 };
 
 export type DemoRunnerDropReason =
@@ -87,6 +102,9 @@ export type DemoRunnerDiagnostics = {
 	lastFusionWeights: Record<FusionRoiName, number> | null;
 	/** In-band spectral SNR (linear) of the fused signal, or null. */
 	lastFusedSnr: number | null;
+	/** Versioned ROI contracts active for this runner. */
+	roiGeometryProfileId: string;
+	roiPixelSamplerId: string;
 };
 
 export type DemoRunnerError = {
@@ -126,6 +144,8 @@ export class DemoRunner {
 		framesWithFusion: 0,
 		lastFusionWeights: null,
 		lastFusedSnr: null,
+		roiGeometryProfileId: ELATA_FACE_YCBCR_V1_PROFILE.id,
+		roiPixelSamplerId: ELATA_YCBCR_V1_PIXEL_SAMPLER.id,
 	};
 	private lastError: DemoRunnerError | null = null;
 	private lastBlendshapes: LastBlendshapes | null = null;
@@ -138,6 +158,10 @@ export class DemoRunner {
 		private opts: DemoRunnerOptions = {},
 	) {
 		this.source.onFrame = this.onFrame.bind(this);
+		this.diagnostics.roiGeometryProfileId =
+			opts.roiGeometryProfile?.id ?? ELATA_FACE_YCBCR_V1_PROFILE.id;
+		this.diagnostics.roiPixelSamplerId =
+			opts.roiPixelSampler?.id ?? ELATA_YCBCR_V1_PIXEL_SAMPLER.id;
 		if (opts.multiRoiFusion !== false) {
 			this.fuser = new MultiRoiRppgFuser(opts.sampleRate ?? 30);
 		}
@@ -216,7 +240,12 @@ export class DemoRunner {
 		if (rois) {
 			roiSource = "multi_roi";
 			this.diagnostics.framesWithMultiRoi += 1;
-			const agg = aggregateRgbFromRois(frame, rois, useSkinMask);
+			const agg = aggregateRgbFromRois(
+				frame,
+				rois,
+				useSkinMask,
+				this.opts.roiPixelSampler,
+			);
 			rgb = { r: agg.r, g: agg.g, b: agg.b };
 			skinRatio = agg.skinRatio;
 			clipRatio = agg.clipRatio;
@@ -270,12 +299,10 @@ export class DemoRunner {
 			);
 			this.smoothedRoi = smoothedClamped;
 			if (useSkinMask) {
-				const rgbRes = averageRgbInROIWithSkinMaskStats(
+				const rgbRes = sampleRgbWithSkinMask(
 					frame,
-					smoothedClamped.x,
-					smoothedClamped.y,
-					smoothedClamped.w,
-					smoothedClamped.h,
+					smoothedClamped,
+					this.opts.roiPixelSampler,
 				);
 				rgb = { r: rgbRes.r, g: rgbRes.g, b: rgbRes.b };
 				skinRatio = rgbRes.skinRatio;
@@ -388,7 +415,11 @@ export class DemoRunner {
 		const n = Math.min(FUSION_ROIS.length, rois.length);
 		for (let i = 0; i < n; i++) {
 			const c = clampRoiToFrame(rois[i]!, frame.width, frame.height);
-			const s = averageRgbInROIWithSkinMaskStats(frame, c.x, c.y, c.w, c.h);
+			const s = sampleRgbWithSkinMask(
+				frame,
+				c,
+				this.opts.roiPixelSampler,
+			);
 			samples[FUSION_ROIS[i]!] = {
 				r: s.r,
 				g: s.g,
@@ -469,6 +500,7 @@ function aggregateRgbFromRois(
 	frame: Frame,
 	rois: { x: number; y: number; w: number; h: number }[],
 	useSkinMask: boolean,
+	pixelSampler?: RoiPixelSampler,
 ) {
 	let sumR = 0;
 	let sumG = 0;
@@ -482,13 +514,7 @@ function aggregateRgbFromRois(
 		const area = clamped.w * clamped.h;
 		sumArea += area;
 		if (useSkinMask) {
-			const rgbRes = averageRgbInROIWithSkinMaskStats(
-				frame,
-				clamped.x,
-				clamped.y,
-				clamped.w,
-				clamped.h,
-			);
+			const rgbRes = sampleRgbWithSkinMask(frame, clamped, pixelSampler);
 			// Keep ROI contribution from collapsing to near-zero on transient skin-mask misses.
 			const weight = area * Math.max(0.15, rgbRes.skinRatio);
 			sumR += rgbRes.r * weight;
@@ -521,6 +547,30 @@ function aggregateRgbFromRois(
 		b: sumB / sumW,
 		skinRatio: sumSkinArea / sumArea,
 		clipRatio: sumClipArea / sumArea,
+	};
+}
+
+function sampleRgbWithSkinMask(
+	frame: Frame,
+	roi: { x: number; y: number; w: number; h: number },
+	pixelSampler?: RoiPixelSampler,
+) {
+	if (!pixelSampler) {
+		return averageRgbInROIWithSkinMaskStats(
+			frame,
+			roi.x,
+			roi.y,
+			roi.w,
+			roi.h,
+		);
+	}
+	const sample = pixelSampler.sample(frame, roi);
+	return {
+		r: sample.r,
+		g: sample.g,
+		b: sample.b,
+		skinRatio: sample.effectiveSkinFraction,
+		clipRatio: sample.clipRatio,
 	};
 }
 

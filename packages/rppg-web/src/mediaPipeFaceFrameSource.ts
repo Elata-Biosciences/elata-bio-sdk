@@ -8,6 +8,10 @@ import {
 } from "./frameSource";
 import { computeFusionSubRois } from "./faceRoiOverlay";
 import type { FaceLandmarkerLike } from "./mediapipeLoader";
+import {
+	ELATA_FACE_YCBCR_V1_PROFILE,
+	type RoiGeometryProfile,
+} from "./roiProfile";
 
 /**
  * Frame source backed by MediaPipe FaceLandmarker (tasks-vision). Each frame
@@ -31,6 +35,8 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 		private video: HTMLVideoElement,
 		private faceLandmarker: FaceLandmarkerLike,
 		private fps = 30,
+		private roiGeometryProfile: RoiGeometryProfile =
+			ELATA_FACE_YCBCR_V1_PROFILE,
 	) {
 		this.canvas = document.createElement("canvas") as HTMLCanvasElement;
 		this.canvas.width = video.videoWidth || (video as any).width || 320;
@@ -130,7 +136,12 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 				// Forehead/cheek sub-ROIs come from the shared overlay geometry, so the
 				// pixels sampled for the pulse are exactly the boxes drawn by
 				// drawFaceOverlay (single source of truth for ROI placement).
-				frame.rois = computeFusionSubRois(landmarks, frame.width, frame.height);
+				frame.rois = computeFusionSubRois(
+					landmarks,
+					frame.width,
+					frame.height,
+					this.roiGeometryProfile,
+				);
 				frame.landmarks = landmarks;
 			}
 			if (blendshapes) frame.blendshapes = blendshapes;

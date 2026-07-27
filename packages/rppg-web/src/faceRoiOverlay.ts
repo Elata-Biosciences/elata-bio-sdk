@@ -1,121 +1,59 @@
 import type { ROI } from "./frameSource";
+import {
+	ELATA_FACE_YCBCR_V1_FRACTIONS,
+	ELATA_FACE_YCBCR_V1_PROFILE,
+	FUSION_ROI_NAMES,
+	type FaceRoiFraction,
+	type FaceRoiName,
+	type LandmarkLike,
+	type RoiGeometryProfile,
+	computeFractionalFaceRoiRects,
+} from "./roiProfile";
+
+export {
+	ELATA_FACE_YCBCR_V1_FRACTIONS as FACE_ROI_FRACTIONS,
+	FUSION_ROI_NAMES,
+} from "./roiProfile";
+export type { FaceRoiName, LandmarkLike } from "./roiProfile";
 
 /**
- * Face ROI geometry + a canvas debug overlay.
- *
- * {@link computeFaceRoiRects} maps face-mesh landmarks to the pixel rectangles
- * sampled for the pulse signal (the single source of truth shared with the
- * sampler), and {@link drawFaceOverlay} renders the mesh tessellation plus those
- * ROI boxes over a camera canvas so it is visually obvious which pixels feed the
- * estimate, with box brightness tracking each region's live fusion weight.
- *
- * This module has no MediaPipe dependency: landmarks are plain normalized
- * {x, y} points and the tessellation connection list (if any) is passed in by
- * the caller — e.g. `FaceLandmarker.FACE_LANDMARKS_TESSELATION` from
- * `@mediapipe/tasks-vision`.
+ * Face ROI geometry plus a canvas debug overlay. The default geometry preserves
+ * the SDK's existing rectangles; alternative profiles can be selected explicitly.
  */
 
-export type LandmarkLike = { x: number; y: number };
-
-export type FaceRoiName =
-	| "forehead"
-	| "leftCheek"
-	| "rightCheek"
-	| "centralFace"
-	| "broadFace";
-
-/** [x0, y0, x1, y1] as fractions of the face bounding box. */
-export const FACE_ROI_FRACTIONS: Record<
-	FaceRoiName,
-	[number, number, number, number]
-> = {
-	// Mid-forehead band. The top edge is dropped off the hairline (was 0.04, which
-	// sat at the very top of the mesh) down to the glabella→mid-forehead region,
-	// and the sides are pulled in off the temples. This mirrors TradeLock's
-	// landmark-anchored forehead ROI (glabella/mid-forehead, indices 9/151/108/337)
-	// which deliberately targets the least hair-contaminated forehead skin.
-	forehead: [0.32, 0.13, 0.68, 0.3],
-	leftCheek: [0.16, 0.42, 0.43, 0.7],
-	rightCheek: [0.57, 0.42, 0.84, 0.7],
-	centralFace: [0.25, 0.25, 0.75, 0.78],
-	broadFace: [0.12, 0.12, 0.88, 0.9],
-};
-
-/**
- * The forehead + cheek regions fused for the pulse signal — also the default
- * regions drawn by the overlay, so what is sampled is exactly what is shown.
- */
-export const FUSION_ROI_NAMES: readonly FaceRoiName[] = [
-	"forehead",
-	"leftCheek",
-	"rightCheek",
-];
-
-/** @deprecated internal alias retained for readability below. */
+/** @deprecated Internal alias retained for readability below. */
 const DEFAULT_OVERLAY_ROIS = FUSION_ROI_NAMES;
 
 function clamp(value: number, min: number, max: number): number {
 	return Math.min(max, Math.max(min, value));
 }
 
-function percentileBounds(
-	points: LandmarkLike[],
-	width: number,
-	height: number,
-) {
-	const xs = points.map((p) => clamp(p.x, 0, 1)).sort((a, b) => a - b);
-	const ys = points.map((p) => clamp(p.y, 0, 1)).sort((a, b) => a - b);
-	const pick = (values: number[], p: number) =>
-		values[Math.min(values.length - 1, Math.max(0, Math.floor((values.length - 1) * p)))];
-	const x0 = pick(xs, 0.05) * width;
-	const x1 = pick(xs, 0.95) * width;
-	const y0 = pick(ys, 0.03) * height;
-	const y1 = pick(ys, 0.97) * height;
-	return { x0, y0, w: Math.max(1, x1 - x0), h: Math.max(1, y1 - y0) };
-}
-
 /**
  * Pixel rectangles for each named face ROI, derived from the 5th/95th-percentile
- * bounding box of the landmarks. Returns an empty object when there are no
- * landmarks or the canvas has no area.
+ * bounding box of the landmarks. This compatibility wrapper preserves the
+ * original SDK API; new code may use a {@link RoiGeometryProfile} directly.
  */
 export function computeFaceRoiRects(
 	landmarks: LandmarkLike[],
 	width: number,
 	height: number,
 	fractions: Partial<
-		Record<FaceRoiName, [number, number, number, number]>
-	> = FACE_ROI_FRACTIONS,
+		Record<FaceRoiName, FaceRoiFraction>
+	> = ELATA_FACE_YCBCR_V1_FRACTIONS,
 ): Partial<Record<FaceRoiName, ROI>> {
-	if (!landmarks.length || width <= 0 || height <= 0) return {};
-	const bounds = percentileBounds(landmarks, width, height);
-	const rects: Partial<Record<FaceRoiName, ROI>> = {};
-	for (const roiName of Object.keys(fractions) as FaceRoiName[]) {
-		const frac = fractions[roiName];
-		if (!frac) continue;
-		const [fx0, fy0, fx1, fy1] = frac;
-		const x0 = Math.max(0, Math.min(width - 1, Math.round(bounds.x0 + bounds.w * fx0)));
-		const y0 = Math.max(0, Math.min(height - 1, Math.round(bounds.y0 + bounds.h * fy0)));
-		const x1 = Math.max(x0 + 1, Math.min(width, Math.round(bounds.x0 + bounds.w * fx1)));
-		const y1 = Math.max(y0 + 1, Math.min(height, Math.round(bounds.y0 + bounds.h * fy1)));
-		rects[roiName] = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
-	}
-	return rects;
+	return computeFractionalFaceRoiRects(landmarks, width, height, fractions);
 }
 
 /**
- * Ordered list of the forehead + cheek sub-ROIs sampled for the pulse signal —
- * the exact rectangles {@link drawFaceOverlay} draws. A frame source should use
- * this to populate `frame.rois` so the sampled pixels match the overlay (and so
- * the ROI geometry has a single source of truth). Regions whose rect collapses
- * to nothing (e.g. a degenerate landmark cloud) are omitted.
+ * Ordered forehead and cheek sub-ROIs sampled for the pulse signal.
  */
 export function computeFusionSubRois(
 	landmarks: LandmarkLike[],
 	width: number,
 	height: number,
+	profile: RoiGeometryProfile = ELATA_FACE_YCBCR_V1_PROFILE,
 ): ROI[] {
-	const rects = computeFaceRoiRects(landmarks, width, height);
+	const rects = profile.compute(landmarks, width, height);
 	const out: ROI[] = [];
 	for (const name of FUSION_ROI_NAMES) {
 		const rect = rects[name];
@@ -131,26 +69,26 @@ export interface MeshConnection {
 
 export interface DrawFaceOverlayOptions {
 	/**
-	 * Mesh tessellation connections (e.g.
+	 * Mesh tessellation connections (for example,
 	 * `FaceLandmarker.FACE_LANDMARKS_TESSELATION`). When omitted, only the ROI
 	 * boxes are drawn.
 	 */
 	tessellation?: ReadonlyArray<MeshConnection>;
-	/** Which ROIs to box (default forehead + both cheeks). */
+	/** Which ROIs to box (default forehead plus both cheeks). */
 	rois?: readonly FaceRoiName[];
-	/** Live per-ROI fusion weights (0..1); drives box brightness + labels. */
+	/** Live per-ROI fusion weights (0..1); drives box brightness and labels. */
 	weights?: Partial<Record<FaceRoiName, number>>;
+	/** Geometry profile used for the boxes (defaults to the SDK profile). */
+	geometryProfile?: RoiGeometryProfile;
 	/**
 	 * Set when the canvas is CSS-mirrored to match a flipped selfie video, so
-	 * labels are counter-flipped to render the right way round (default true).
+	 * labels are counter-flipped to render correctly (default true).
 	 */
 	mirrored?: boolean;
 }
 
 /**
- * Draw the face mesh tessellation + the rPPG ROI boxes onto a 2D canvas
- * context. Box stroke/fill brightness is proportional to each region's current
- * fusion weight (equal weighting when none is supplied).
+ * Draw the face mesh tessellation and rPPG ROI boxes onto a 2D canvas.
  */
 export function drawFaceOverlay(
 	ctx: CanvasRenderingContext2D,
@@ -160,28 +98,30 @@ export function drawFaceOverlay(
 	options: DrawFaceOverlayOptions = {},
 ): void {
 	if (!landmarks.length || width <= 0 || height <= 0) return;
-	const { tessellation, weights, mirrored = true } = options;
+	const {
+		tessellation,
+		weights,
+		mirrored = true,
+		geometryProfile = ELATA_FACE_YCBCR_V1_PROFILE,
+	} = options;
 	const rois = options.rois ?? DEFAULT_OVERLAY_ROIS;
 
-	// 1. Face mesh tessellation (single batched path for performance).
 	if (tessellation && tessellation.length) {
 		ctx.save();
 		ctx.strokeStyle = "rgba(120,230,255,0.35)";
 		ctx.lineWidth = 1;
 		ctx.beginPath();
-		for (const c of tessellation) {
-			const a = landmarks[c.start];
-			const b = landmarks[c.end];
-			if (!a || !b) continue;
-			ctx.moveTo(a.x * width, a.y * height);
-			ctx.lineTo(b.x * width, b.y * height);
+		for (const connection of tessellation) {
+			const start = landmarks[connection.start];
+			const end = landmarks[connection.end];
+			if (!start || !end) continue;
+			ctx.moveTo(start.x * width, start.y * height);
+			ctx.lineTo(end.x * width, end.y * height);
 		}
 		ctx.stroke();
 		ctx.restore();
 	}
 
-	// Text would render backwards on a mirrored canvas, so draw each label
-	// through a local horizontal counter-flip.
 	const drawLabel = (text: string, cx: number, y: number, color: string) => {
 		ctx.save();
 		ctx.translate(cx, y);
@@ -193,22 +133,25 @@ export function drawFaceOverlay(
 		ctx.restore();
 	};
 
-	// 2. The rPPG ROIs. Brightness tracks the live fusion weight so the dominant
-	//    region is obvious.
-	const rects = computeFaceRoiRects(landmarks, width, height);
+	const rects = geometryProfile.compute(landmarks, width, height);
 	for (const roi of rois) {
 		const rect = rects[roi];
 		if (!rect) continue;
-		const w = weights ? clamp(weights[roi] ?? 0, 0, 1) : 1 / rois.length;
+		const weight = weights ? clamp(weights[roi] ?? 0, 0, 1) : 1 / rois.length;
 		ctx.save();
 		ctx.setLineDash([]);
-		ctx.lineWidth = 1.5 + 2.5 * w;
-		ctx.strokeStyle = `rgba(34,197,94,${(0.35 + 0.6 * w).toFixed(3)})`;
-		ctx.fillStyle = `rgba(34,197,94,${(0.05 + 0.35 * w).toFixed(3)})`;
+		ctx.lineWidth = 1.5 + 2.5 * weight;
+		ctx.strokeStyle = `rgba(34,197,94,${(0.35 + 0.6 * weight).toFixed(3)})`;
+		ctx.fillStyle = `rgba(34,197,94,${(0.05 + 0.35 * weight).toFixed(3)})`;
 		ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
 		ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
 		ctx.restore();
-		const label = weights ? `${roi} ${Math.round(w * 100)}%` : roi;
-		drawLabel(label, rect.x + rect.w / 2, rect.y + 12, "rgba(187,247,208,0.95)");
+		const label = weights ? `${roi} ${Math.round(weight * 100)}%` : roi;
+		drawLabel(
+			label,
+			rect.x + rect.w / 2,
+			rect.y + 12,
+			"rgba(187,247,208,0.95)",
+		);
 	}
 }

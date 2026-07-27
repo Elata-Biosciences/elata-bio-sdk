@@ -15,6 +15,8 @@ Fixes (see README): copy `node_modules/.../rppg-web/pkg/` to **`public/pkg/`**, 
 ## Session behavior
 - Roughly **~10 s warmup** before first BPM; during warmup diagnostics often include **`insufficient_window`**.
 - Check **`diagnostics.state`**, **`backendMode`**, and **`faceTrackingMode`** (`face_mesh` vs `video_frame` when `faceMesh: "auto"`).
+- ROI behavior is versioned and composable. Omit `roiGeometryProfile` and `roiPixelSampler` for existing SDK behavior. Use `MCD_PROXY_INPUT_V1_PROFILE` only for the frozen model-input geometry, `TRADELOCK_LIVE_FOREHEAD_V1_PROFILE` for live-pipeline replay, and `TRADELOCK_RGB_WEIGHTED_V1_PIXEL_SAMPLER` for TradeLock pixel-selection replay. Do not treat those two geometry profiles as interchangeable.
+- `sampleRppgRoi()` produces `elata.rppg.roi-sample/v1`, including raw and compatibility skin fractions plus geometry/sampler IDs for traceability.
 
 ## Related
 If a project uses both **`rppg-web`** and **`eeg-web`**, prefer **matching published versions** unless release notes say otherwise.

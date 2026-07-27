@@ -348,6 +348,7 @@ export async function createRppgSession(
 				options.video,
 				faceMeshResult.faceMesh,
 				sampleRate,
+				options.roiGeometryProfile,
 			)
 		: new MediaPipeFrameSource(options.video, { fps: sampleRate });
 
@@ -366,10 +367,12 @@ export async function createRppgSession(
 
 	const runner = new DemoRunner(source, processor, {
 		roi: options.roi,
+		roiGeometryProfile: options.roiGeometryProfile,
 		sampleRate,
 		roiSmoothingAlpha: options.roiSmoothingAlpha ?? 0.25,
 		useSkinMask: options.useSkinMask ?? true,
 		multiRoiFusion: options.multiRoiFusion,
+		roiPixelSampler: options.roiPixelSampler,
 		onStats: options.onStats,
 		skinRatioSmoothingAlpha: options.skinRatioSmoothingAlpha,
 		onDiagnostics: () => {

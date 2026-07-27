@@ -204,6 +204,32 @@ export type {
 	MeshConnection,
 } from "./faceRoiOverlay";
 export {
+	ELATA_FACE_YCBCR_V1_FRACTIONS,
+	ELATA_FACE_YCBCR_V1_PROFILE,
+	MCD_PROXY_INPUT_V1_FRACTIONS,
+	MCD_PROXY_INPUT_V1_PROFILE,
+	TRADELOCK_LIVE_FOREHEAD_V1_PROFILE,
+	computeFractionalFaceRoiRects,
+} from "./roiProfile";
+export type {
+	FaceRoiFraction,
+	FaceRoiFractions,
+	RoiGeometryProfile,
+} from "./roiProfile";
+export {
+	ELATA_YCBCR_V1_PIXEL_SAMPLER,
+	TRADELOCK_RGB_WEIGHTED_V1_PIXEL_SAMPLER,
+	isTradeLockSkinPixel,
+	isYcbcrSkinPixel,
+	sampleRppgRoi,
+	tradeLockSpatialWeight,
+} from "./roiPixelSampler";
+export type {
+	RoiPixelSampler,
+	RppgRoiSampleV1,
+	RppgRoiStatistics,
+} from "./roiPixelSampler";
+export {
 	DEFAULT_FRAMING_THRESHOLDS,
 	FRAMING_MESSAGES,
 	faceBoxFromLandmarks,

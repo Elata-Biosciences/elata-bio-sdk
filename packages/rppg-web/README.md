@@ -331,6 +331,44 @@ path in `video_frame` mode or when the skin mask is off. Disable with
 `multiRoiFusion: false`. Runner diagnostics expose `lastFusionWeights` (per-region,
 SNR-driven), `lastFusedSnr`, and `lastProcessorMethod: "fused"`.
 
+### Versioned ROI profiles
+
+ROI geometry and pixel selection are separate, versioned contracts. Normal
+applications should omit both options and retain the existing SDK behavior.
+Replay studies and learned models can select a frozen profile explicitly:
+
+```ts
+import {
+  TRADELOCK_RGB_WEIGHTED_V1_PIXEL_SAMPLER,
+  MCD_PROXY_INPUT_V1_PROFILE,
+  createRppgSession,
+} from "@elata-biosciences/rppg-web";
+
+const session = await createRppgSession({
+  video: videoEl,
+  faceMesh: "auto",
+  roiGeometryProfile: MCD_PROXY_INPUT_V1_PROFILE,
+  roiPixelSampler: TRADELOCK_RGB_WEIGHTED_V1_PIXEL_SAMPLER,
+});
+```
+
+The built-in profiles have deliberately narrow meanings:
+
+| Profile | Contract |
+|---------|----------|
+| `ELATA_FACE_YCBCR_V1_PROFILE` | Current SDK forehead/cheek geometry; default. |
+| `MCD_PROXY_INPUT_V1_PROFILE` | Frozen five-ROI geometry used by the MCD waveform proxy. |
+| `TRADELOCK_LIVE_FOREHEAD_V1_PROFILE` | Landmark-anchored forehead rectangle for TradeLock live-pipeline replay and ablation. |
+| `ELATA_YCBCR_V1_PIXEL_SAMPLER` | SDK YCbCr skin predicate and fallback semantics. |
+| `TRADELOCK_RGB_WEIGHTED_V1_PIXEL_SAMPLER` | TradeLock normalized-RGB skin predicate with center weighting. |
+
+Geometry and sampling profiles are independent because the MCD model input
+geometry and the TradeLock live forehead ROI are not the same algorithm. Keep
+the model's expected profile ID with its artifact metadata. `sampleRppgRoi()`
+emits the versioned `elata.rppg.roi-sample/v1` boundary with RGB, raw skin
+fraction, compatibility skin fraction, clipping, luminance statistics, and both
+profile IDs.
+
 Intentional `faceMesh: "off"` sessions use `video_frame` mode without being
 reported as a FaceMesh failure. If a fatal processor exception occurs,
 `session.state` switches to terminal `failed`, later metrics reads return safe
