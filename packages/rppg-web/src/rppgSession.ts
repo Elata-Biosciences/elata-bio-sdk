@@ -31,6 +31,13 @@ import type {
 	BpmEvidenceQualityProvider,
 	BpmTrackerConfigV1,
 } from "./bpmBayesTracker";
+import { WaveformFeatureWindowBuilder } from "./waveformFeatureWindow";
+import type {
+	RppgModelDiagnosticsV1,
+	WaveformReconstructionV1,
+	WaveformReconstructor,
+} from "./waveformModel";
+import { WaveformReconstructionController } from "./waveformReconstructionController";
 
 export type RppgSessionBackendPreference = "auto" | "wasm";
 export type RppgSessionBackendMode = "wasm" | "unavailable";
@@ -87,6 +94,7 @@ export type RppgSessionDiagnostics = DemoRunnerDiagnostics & {
 	processorFailure: RppgProcessorBackendFailure | null;
 	state: RppgSessionState;
 	lastError: RppgSessionError | null;
+	modelDiagnostics?: RppgModelDiagnosticsV1 | null;
 };
 
 export type CreateRppgSessionOptions = Omit<
@@ -96,6 +104,12 @@ export type CreateRppgSessionOptions = Omit<
 	video: HTMLVideoElement;
 	bpmTrackerConfig?: BpmTrackerConfigV1;
 	bpmEvidenceQualityProvider?: BpmEvidenceQualityProvider;
+	experimental?: {
+		waveformReconstructor: WaveformReconstructor;
+		inferenceIntervalMs?: number;
+		/** Reserved for later validation; reconstructed BPM evidence is disabled. */
+		useReconstructedBpmEvidence?: false;
+	};
 	sampleRate?: number;
 	windowSec?: number;
 	backend?: RppgSessionBackendPreference;
@@ -162,6 +176,7 @@ type SessionInternals = {
 	backendDegraded?: boolean;
 	faceTrackingDegraded?: boolean;
 	beforeStart?: () => Promise<void>;
+	waveformController?: WaveformReconstructionController;
 };
 
 export class RppgSession {
@@ -204,6 +219,14 @@ export class RppgSession {
 
 	getTraceSnapshot(maxPoints = 300): RppgTraceSnapshot {
 		return this.processor.getTraceSnapshot(maxPoints);
+	}
+
+	getLatestWaveformReconstruction(): WaveformReconstructionV1 | null {
+		return this.internals.waveformController?.getLatest() ?? null;
+	}
+
+	getModelDiagnostics(): RppgModelDiagnosticsV1 | null {
+		return this.internals.waveformController?.getDiagnostics() ?? null;
 	}
 
 	getState(): RppgSessionState {
@@ -296,6 +319,7 @@ export class RppgSession {
 			processorFailure,
 			state,
 			lastError: this.lastErrorValue,
+			modelDiagnostics: this.getModelDiagnostics(),
 		};
 	}
 
@@ -312,6 +336,7 @@ export class RppgSession {
 
 	async dispose(): Promise<void> {
 		await this.stop();
+		await this.internals.waveformController?.dispose();
 		this.processor.dispose();
 	}
 
@@ -374,6 +399,15 @@ export async function createRppgSession(
 	);
 	applyTrackerConfiguration(processor, enableTracker);
 	let session: RppgSession | null = null;
+	const waveformBuilder = options.experimental
+		? new WaveformFeatureWindowBuilder()
+		: null;
+	const waveformController = options.experimental
+		? new WaveformReconstructionController(
+				options.experimental.waveformReconstructor,
+				options.experimental.inferenceIntervalMs,
+			)
+		: undefined;
 
 	const runner = new DemoRunner(source, processor, {
 		roi: options.roi,
@@ -383,6 +417,18 @@ export async function createRppgSession(
 		useSkinMask: options.useSkinMask ?? true,
 		multiRoiFusion: options.multiRoiFusion,
 		roiPixelSampler: options.roiPixelSampler,
+		onRoiSamples: (samples) => {
+			options.onRoiSamples?.(samples);
+			if (!waveformBuilder || !waveformController || !options.experimental) return;
+			for (const sample of samples) waveformBuilder.push(sample);
+			const manifest = options.experimental.waveformReconstructor.manifest;
+			const window = waveformBuilder.build({
+				profileId: manifest.input.profileId,
+				channels: manifest.input.channels,
+				length: manifest.input.length,
+			});
+			if (window) waveformController.offer(window);
+		},
 		onStats: options.onStats,
 		skinRatioSmoothingAlpha: options.skinRatioSmoothingAlpha,
 		onDiagnostics: () => {
@@ -410,13 +456,15 @@ export async function createRppgSession(
 			onError: options.onError,
 			backendDegraded: backendResult.mode !== "wasm",
 			faceTrackingDegraded: faceMeshResult.error != null,
-			beforeStart:
-				options.ensureVideoPlayback === false
-					? undefined
-					: () =>
-							ensureVideoPlaying(options.video, {
-								timeoutMs: options.videoPlaybackTimeoutMs,
-							}),
+			waveformController,
+			beforeStart: async () => {
+				await waveformController?.init();
+				if (options.ensureVideoPlayback !== false) {
+					await ensureVideoPlaying(options.video, {
+						timeoutMs: options.videoPlaybackTimeoutMs,
+					});
+				}
+			},
 		},
 	);
 

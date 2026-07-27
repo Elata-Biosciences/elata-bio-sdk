@@ -6,10 +6,10 @@ import {
 	type FrameBlendshape,
 	type FaceLandmarkPoint,
 } from "./frameSource";
-import { computeFusionSubRois } from "./faceRoiOverlay";
 import type { FaceLandmarkerLike } from "./mediapipeLoader";
 import {
 	ELATA_FACE_YCBCR_V1_PROFILE,
+	FUSION_ROI_NAMES,
 	type RoiGeometryProfile,
 } from "./roiProfile";
 
@@ -136,11 +136,13 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 				// Forehead/cheek sub-ROIs come from the shared overlay geometry, so the
 				// pixels sampled for the pulse are exactly the boxes drawn by
 				// drawFaceOverlay (single source of truth for ROI placement).
-				frame.rois = computeFusionSubRois(
+				frame.namedRois = this.roiGeometryProfile.compute(
 					landmarks,
 					frame.width,
 					frame.height,
-					this.roiGeometryProfile,
+				);
+				frame.rois = FUSION_ROI_NAMES.flatMap((name) =>
+					frame.namedRois?.[name] ? [frame.namedRois[name]!] : [],
 				);
 				frame.landmarks = landmarks;
 			}

@@ -19,6 +19,7 @@ Fixes (see README): copy `node_modules/.../rppg-web/pkg/` to **`public/pkg/`**, 
 - `sampleRppgRoi()` produces `elata.rppg.roi-sample/v1`, including raw and compatibility skin fractions plus geometry/sampler IDs for traceability.
 - Bayesian ambiguity penalties are off by default. Opt in with a validated `elata.rppg.bpm-tracker-config/v1`; diagnostics expose the config ID and applied penalty.
 - External evidence-quality models belong behind `BpmEvidenceQualityProvider`; SDK bounds all outputs and treats failures as neutral.
+- Waveform reconstruction is diagnostic and opt-in through `experimental.waveformReconstructor`; it remains off the frame path and cannot feed BPM (`useReconstructedBpmEvidence` only accepts `false`).
 
 ## Related
 If a project uses both **`rppg-web`** and **`eeg-web`**, prefer **matching published versions** unless release notes say otherwise.

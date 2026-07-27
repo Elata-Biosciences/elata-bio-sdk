@@ -393,6 +393,31 @@ multipliers and ambiguity penalty are bounded by the SDK; missing, non-finite,
 or thrown results become neutral. Keep learned trust artifacts outside this
 package and provide them through this interface.
 
+### Experimental waveform reconstruction
+
+Learned reconstruction is an optional diagnostic plugin and never replaces the
+deterministic BPM path:
+
+```ts
+const session = await createRppgSession({
+  video,
+  faceMesh: "auto",
+  roiGeometryProfile: MCD_PROXY_INPUT_V1_PROFILE,
+  roiPixelSampler: TRADELOCK_RGB_WEIGHTED_V1_PIXEL_SAMPLER,
+  experimental: {
+    waveformReconstructor,
+    inferenceIntervalMs: 1000,
+    useReconstructedBpmEvidence: false,
+  },
+});
+```
+
+The SDK builds the frozen five-ROI, 15-channel window, runs inference outside
+the frame callback, contains model failures, and exposes
+`getModelDiagnostics()` and `getLatestWaveformReconstruction()`. Always call
+`session.dispose()` to release the plugin runtime. A profile mismatch prevents
+window construction rather than silently changing model preprocessing.
+
 Intentional `faceMesh: "off"` sessions use `video_frame` mode without being
 reported as a FaceMesh failure. If a fatal processor exception occurs,
 `session.state` switches to terminal `failed`, later metrics reads return safe

@@ -1,3 +1,5 @@
+import type { FaceRoiName } from "./roiProfile";
+
 export type ROI = { x: number; y: number; w: number; h: number };
 
 export type FaceLandmarkPoint = { x: number; y: number; z?: number };
@@ -12,6 +14,7 @@ export type Frame = {
 	height: number;
 	roi?: ROI;
 	rois?: ROI[];
+	namedRois?: Partial<Record<FaceRoiName, ROI>>;
 	timestampMs?: number;
 	/** Normalized face mesh landmarks (0..1), when a FaceLandmarker is active. */
 	landmarks?: FaceLandmarkPoint[];

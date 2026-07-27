@@ -237,6 +237,20 @@ export type {
 	RppgRoiStatistics,
 } from "./roiPixelSampler";
 export {
+	MCD_WAVEFORM_CHANNELS,
+	MCD_WAVEFORM_ROIS,
+	WaveformFeatureWindowBuilder,
+} from "./waveformFeatureWindow";
+export type {
+	RppgModelDiagnosticsV1,
+	WaveformFeatureWindowV1,
+	WaveformModelManifestV1,
+	WaveformModelStatus,
+	WaveformReconstructionV1,
+	WaveformReconstructor,
+} from "./waveformModel";
+export { WaveformReconstructionController } from "./waveformReconstructionController";
+export {
 	DEFAULT_FRAMING_THRESHOLDS,
 	FRAMING_MESSAGES,
 	faceBoxFromLandmarks,

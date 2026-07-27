@@ -23,6 +23,8 @@ import { RppgProcessor } from "./rppgProcessor";
 import {
 	ELATA_YCBCR_V1_PIXEL_SAMPLER,
 	type RoiPixelSampler,
+	type RppgRoiSampleV1,
+	sampleRppgRoi,
 } from "./roiPixelSampler";
 import {
 	ELATA_FACE_YCBCR_V1_PROFILE,
@@ -73,6 +75,7 @@ export type DemoRunnerOptions = {
 	 * SDK YCbCr helper is used unchanged.
 	 */
 	roiPixelSampler?: RoiPixelSampler;
+	onRoiSamples?: (samples: readonly RppgRoiSampleV1[]) => void;
 };
 
 export type DemoRunnerDropReason =
@@ -228,6 +231,24 @@ export class DemoRunner {
 			if (dt > 0) this.lastFps = (this.frameTimes.length - 1) / dt;
 		}
 		const useSkinMask = this.opts.useSkinMask !== false;
+		if (this.opts.onRoiSamples && frame.namedRois) {
+			const sampler =
+				this.opts.roiPixelSampler ?? ELATA_YCBCR_V1_PIXEL_SAMPLER;
+			const samples = Object.entries(frame.namedRois).flatMap(([name, roi]) =>
+				roi
+					? [
+							sampleRppgRoi(
+								frame,
+								name as keyof typeof frame.namedRois,
+								roi,
+								this.diagnostics.roiGeometryProfileId,
+								sampler,
+							),
+						]
+					: [],
+			);
+			this.opts.onRoiSamples(samples);
+		}
 		let rgb = { r: 0, g: 0, b: 0 };
 		let skinRatio = 1;
 		let clipRatio = 0;
