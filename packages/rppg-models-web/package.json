@@ -3,6 +3,16 @@
 	"version": "0.1.0",
 	"description": "Optional diagnostic waveform models for Elata browser rPPG",
 	"license": "MIT",
+	"author": "Elata",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Elata-Biosciences/elata-bio-sdk.git",
+		"directory": "packages/rppg-models-web"
+	},
+	"homepage": "https://github.com/Elata-Biosciences/elata-bio-sdk#readme",
+	"bugs": "https://github.com/Elata-Biosciences/elata-bio-sdk/issues",
+	"keywords": ["rppg", "waveform", "onnx", "elata"],
+	"engines": { "node": ">=20" },
 	"type": "module",
 	"sideEffects": false,
 	"main": "./dist/index.js",
@@ -16,8 +26,13 @@
 	"files": ["dist", "README.md", "llms.txt"],
 	"publishConfig": { "access": "public" },
 	"scripts": {
+		"lint": "pnpm exec biome lint src jest.config.cjs",
 		"build": "tsc -p tsconfig.json",
-		"test": "jest --config jest.config.cjs --passWithNoTests"
+		"test": "jest --config jest.config.cjs --passWithNoTests",
+		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts",
+		"verify:publish": "pnpm run verify:build",
+		"prepare:publish": "pnpm run build",
+		"prepack": "pnpm run prepare:publish && pnpm run verify:publish"
 	},
 	"dependencies": {
 		"@elata-biosciences/rppg-web": "workspace:*",

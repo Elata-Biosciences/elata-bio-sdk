@@ -17,6 +17,28 @@ const root = path.resolve(__dirname, "..");
 
 const packages = [
 	{
+		name: "@elata-biosciences/rppg-models-web",
+		aliases: ["rppg-models-web", "packages/rppg-models-web"],
+		dir: "packages/rppg-models-web",
+		requiredFiles: [
+			"dist/index.js",
+			"dist/index.d.ts",
+			"README.md",
+			"llms.txt",
+			"package.json",
+		],
+		forbiddenPatterns: [
+			"__tests__",
+			".test.ts",
+			".test.js",
+			"node_modules/",
+			"tsconfig",
+			"jest.config",
+			"coverage/",
+			".onnx",
+		],
+	},
+	{
 		name: "@elata-biosciences/rppg-web",
 		aliases: ["rppg-web", "packages/rppg-web"],
 		dir: "packages/rppg-web",
@@ -87,7 +109,7 @@ const packages = [
 			"jest.config",
 			"coverage/",
 			"scripts/",
-			],
+		],
 	},
 	{
 		name: "@elata-biosciences/app-payments",
@@ -121,11 +143,7 @@ const packages = [
 			"templates/rppg-demo/package.json",
 			"templates/eeg-demo/package.json",
 		],
-		forbiddenPatterns: [
-			"node_modules/",
-			"index.test.mjs",
-			"coverage/",
-		],
+		forbiddenPatterns: ["node_modules/", "index.test.mjs", "coverage/"],
 	},
 	{
 		name: "@elata-biosciences/app-metrics",
@@ -152,7 +170,9 @@ const packages = [
 ];
 
 const requested = process.argv.slice(2);
-const normalizedRequested = new Set(requested.map((entry) => entry.trim()).filter(Boolean));
+const normalizedRequested = new Set(
+	requested.map((entry) => entry.trim()).filter(Boolean),
+);
 
 const selectedPackages =
 	normalizedRequested.size === 0
@@ -167,7 +187,10 @@ const selectedPackages =
 				return false;
 			});
 
-if (normalizedRequested.size > 0 && selectedPackages.length !== normalizedRequested.size) {
+if (
+	normalizedRequested.size > 0 &&
+	selectedPackages.length !== normalizedRequested.size
+) {
 	const known = new Set(
 		packages.flatMap((pkg) => [pkg.name, pkg.dir, ...(pkg.aliases ?? [])]),
 	);

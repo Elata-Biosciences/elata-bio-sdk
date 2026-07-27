@@ -175,6 +175,12 @@ This makes threshold changes comparable.
 
 ## Waveform Metrics
 
+The optional `rppg-models-web` adapter is diagnostic only. Its immutable
+manifest records `[1, 15, 300]` input, `[1, 1, 300]` output, opset, and hashes,
+but the package intentionally excludes learned weights pending license
+provenance. Mock-runtime contract tests do not satisfy ONNX parity,
+live-browser/contact-PPG validation, or promotion gates in this document.
+
 For waveform reconstruction models, BPM error is not enough. Record:
 
 - Pearson correlation against contact PPG

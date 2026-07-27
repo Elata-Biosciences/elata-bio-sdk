@@ -146,6 +146,11 @@ wrong estimates, not only higher average SNR.
 
 ## Phase 4.6: Learned reconstruction and distilled low-latency models
 
+Current SDK status: the model-neutral host lives in `rppg-web`, while the
+diagnostic ONNX adapter lives in the optional `rppg-models-web` package. The
+learned asset is not bundled pending license provenance, and reconstructed BPM
+evidence remains disabled.
+
 Detailed design note:
 [rppg-multi-roi-learned-reconstruction.md](rppg-multi-roi-learned-reconstruction.md).
 

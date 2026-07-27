@@ -49,6 +49,7 @@ Published packages currently include:
 - `@elata-biosciences/eeg-web`
 - `@elata-biosciences/eeg-web-ble`
 - `@elata-biosciences/rppg-web`
+- `@elata-biosciences/rppg-models-web`
 - `@elata-biosciences/create-elata-demo`
 
 Before changing release docs, verify the package set against current

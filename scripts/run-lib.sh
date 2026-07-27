@@ -280,6 +280,7 @@ normalize_release_target() {
         eeg|eeg-web|@elata-biosciences/eeg-web) echo "eeg-web" ;;
         eeg-web-ble|ble|@elata-biosciences/eeg-web-ble) echo "eeg-web-ble" ;;
         rppg|rppg-web|@elata-biosciences/rppg-web) echo "rppg-web" ;;
+        rppg-models|rppg-models-web|@elata-biosciences/rppg-models-web) echo "rppg-models-web" ;;
         ppg|ppg-web|@elata-biosciences/ppg-web) echo "ppg-web" ;;
         create-elata-demo|@elata-biosciences/create-elata-demo) echo "create-elata-demo" ;;
         app-metrics|@elata-biosciences/app-metrics) echo "app-metrics" ;;
@@ -296,6 +297,7 @@ package_dir_for_target() {
         eeg-web) echo "packages/eeg-web" ;;
         eeg-web-ble) echo "packages/eeg-web-ble" ;;
         rppg-web) echo "packages/rppg-web" ;;
+        rppg-models-web) echo "packages/rppg-models-web" ;;
         ppg-web) echo "packages/ppg-web" ;;
         create-elata-demo) echo "packages/create-elata-demo" ;;
         app-metrics) echo "packages/app-metrics" ;;
@@ -312,6 +314,7 @@ package_name_for_target() {
         eeg-web) echo "@elata-biosciences/eeg-web" ;;
         eeg-web-ble) echo "@elata-biosciences/eeg-web-ble" ;;
         rppg-web) echo "@elata-biosciences/rppg-web" ;;
+        rppg-models-web) echo "@elata-biosciences/rppg-models-web" ;;
         ppg-web) echo "@elata-biosciences/ppg-web" ;;
         create-elata-demo) echo "@elata-biosciences/create-elata-demo" ;;
         app-metrics) echo "@elata-biosciences/app-metrics" ;;
@@ -328,6 +331,7 @@ release_tag_prefix_for_target() {
         eeg-web) echo "eeg-web" ;;
         eeg-web-ble) echo "eeg-web-ble" ;;
         rppg-web) echo "rppg-web" ;;
+        rppg-models-web) echo "rppg-models-web" ;;
         ppg-web) echo "ppg-web" ;;
         create-elata-demo) echo "create-elata-demo" ;;
         app-metrics) echo "app-metrics" ;;
@@ -343,7 +347,7 @@ release_targets_for() {
     local target="$1"
     if [[ "$target" == "all" ]]; then
         # Keep repo-published dependency order.
-        echo "eeg-web eeg-web-ble rppg-web ppg-web create-elata-demo app-metrics"
+        echo "eeg-web eeg-web-ble rppg-web rppg-models-web ppg-web create-elata-demo app-metrics"
     else
         echo "$target"
     fi
@@ -898,7 +902,7 @@ resolve_release_target_and_dist_tag() {
 
 verify_script_for_target() {
     case "$1" in
-        eeg-web|eeg-web-ble|rppg-web|ppg-web|create-elata-demo|app-metrics|app-payments) echo "verify:publish" ;;
+        eeg-web|eeg-web-ble|rppg-web|rppg-models-web|ppg-web|create-elata-demo|app-metrics|app-payments) echo "verify:publish" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -908,7 +912,7 @@ verify_script_for_target() {
 
 prepare_script_for_target() {
     case "$1" in
-        eeg-web|eeg-web-ble|rppg-web|ppg-web|create-elata-demo|app-metrics) echo "prepare:publish" ;;
+        eeg-web|eeg-web-ble|rppg-web|rppg-models-web|ppg-web|create-elata-demo|app-metrics) echo "prepare:publish" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1

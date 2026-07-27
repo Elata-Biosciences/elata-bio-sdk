@@ -5,6 +5,7 @@ This repository publishes npm packages independently:
 - `@elata-biosciences/eeg-web`
 - `@elata-biosciences/eeg-web-ble`
 - `@elata-biosciences/rppg-web`
+- `@elata-biosciences/rppg-models-web`
 - `@elata-biosciences/ppg-web`
 - `@elata-biosciences/create-elata-demo`
 
@@ -115,7 +116,8 @@ the commit/tags.
 
    Optional shorthand when you want a raw semver bump on **every** publishable package before publishing (same order as below): `./run.sh release patch`, `./run.sh release minor`, or `./run.sh release major`. Prefer `./run.sh bump` first when you are cutting a **Changesets** release so changelogs stay accurate.
 
-Release order is fixed in `run.sh`: `eeg-web` → `eeg-web-ble` → `rppg-web` → `ppg-web` → `create-elata-demo`.
+Release order is fixed in `run.sh`: `eeg-web` → `eeg-web-ble` → `rppg-web` → `rppg-models-web` → `ppg-web` → `create-elata-demo`.
+`rppg-models-web` follows `rppg-web` because it depends on the base package.
 `eeg-web-ble` must follow `eeg-web` because it has an `eeg-web` peer dependency.
 
 ## Contributors: adding a changeset
@@ -137,6 +139,7 @@ When your PR changes something that should be released, run **`./run.sh changese
 pnpm --dir packages/eeg-web pack --dry-run --json
 pnpm --dir packages/eeg-web-ble pack --dry-run --json
 pnpm --dir packages/rppg-web pack --dry-run --json
+pnpm --dir packages/rppg-models-web pack --dry-run --json
 pnpm --dir packages/create-elata-demo pack --dry-run --json
 ```
 
@@ -176,6 +179,7 @@ Use package-scoped git tags in this monorepo:
 - `eeg-web-vX.Y.Z`
 - `eeg-web-ble-vX.Y.Z`
 - `rppg-web-vX.Y.Z`
+- `rppg-models-web-vX.Y.Z`
 - `create-elata-demo-vX.Y.Z`
 
 Example:

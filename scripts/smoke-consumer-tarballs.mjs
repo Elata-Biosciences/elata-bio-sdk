@@ -155,6 +155,7 @@ try {
   tarballs.eegWeb = packPackage("packages/eeg-web");
   tarballs.eegWebBle = packPackage("packages/eeg-web-ble");
   tarballs.rppgWeb = packPackage("packages/rppg-web");
+  tarballs.rppgModelsWeb = packPackage("packages/rppg-models-web");
 
   const scaffoldRoot = path.join(tempRoot, "scaffolded");
   mkdirSync(scaffoldRoot, { recursive: true });
@@ -205,7 +206,17 @@ try {
     "import { RppgProcessor } from '@elata-biosciences/rppg-web';\n\nconst backend = {\n  newPipeline: () => ({\n    push_sample() {},\n    get_metrics() {\n      return { bpm: null, confidence: 0, signal_quality: 0 };\n    },\n  }),\n};\n\nexport default function App() {\n  const processor = new RppgProcessor(backend, 30, 5);\n  const metrics = processor.getMetrics();\n  return <main>rPPG confidence {metrics.confidence.toFixed(2)}</main>;\n}\n",
   );
 
-  for (const appDir of [eegApp, bleApp, rppgApp]) {
+  const rppgModelsApp = path.join(tempRoot, "consumer-rppg-models-web");
+  createBaseApp(
+    rppgModelsApp,
+    {
+      "@elata-biosciences/rppg-web": tarballs.rppgWeb,
+      "@elata-biosciences/rppg-models-web": tarballs.rppgModelsWeb,
+    },
+    "import { MCD_WAVEFORM_MODEL_MANIFEST_V1 } from '@elata-biosciences/rppg-models-web';\n\nexport default function App() {\n  return <main>Waveform model {MCD_WAVEFORM_MODEL_MANIFEST_V1.status}</main>;\n}\n",
+  );
+
+  for (const appDir of [eegApp, bleApp, rppgApp, rppgModelsApp]) {
     run("pnpm", ["install"], appDir);
     run("pnpm", ["run", "build"], appDir);
   }
