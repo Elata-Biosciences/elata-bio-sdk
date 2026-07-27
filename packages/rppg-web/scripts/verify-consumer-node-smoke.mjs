@@ -21,9 +21,20 @@ const npmCacheDir = path.join(tempRoot, "npm-cache");
 
 mkdirSync(npmCacheDir, { recursive: true });
 
-function run(cmd, args, cwd, capture = false, envOverride) {
+function run(cmd, args, cwd, capture = false, envOverride = undefined) {
 	const env = envOverride ? { ...process.env, ...envOverride } : process.env;
-	const result = spawnSync(cmd, args, {
+	const useBundledNpm = process.platform === "win32" && cmd === "npm";
+	const executable = useBundledNpm ? process.execPath : cmd;
+	const executableArgs = useBundledNpm
+		? [
+				path.join(
+					path.dirname(process.execPath),
+					"node_modules/npm/bin/npm-cli.js",
+				),
+				...args,
+			]
+		: args;
+	const result = spawnSync(executable, executableArgs, {
 		cwd,
 		encoding: "utf8",
 		stdio: capture ? "pipe" : "inherit",
@@ -36,7 +47,9 @@ function run(cmd, args, cwd, capture = false, envOverride) {
 		const details = capture
 			? `\n${result.stdout ?? ""}\n${result.stderr ?? ""}`
 			: "";
-		throw new Error(`Command failed (${result.status}): ${cmd} ${args.join(" ")}${details}`);
+		throw new Error(
+			`Command failed (${result.status}): ${cmd} ${args.join(" ")}${details}`,
+		);
 	}
 	return result.stdout ?? "";
 }
@@ -44,18 +57,12 @@ function run(cmd, args, cwd, capture = false, envOverride) {
 function packPackage() {
 	// When invoked from `pnpm pack --dry-run`, pnpm propagates `npm_config_dry_run=true`
 	// into nested npm commands; force real packing here.
-	const output = run(
-		"npm",
-		["pack", "--ignore-scripts"],
-		packageRoot,
-		true,
-		{
-			npm_config_dry_run: "false",
-			NPM_CONFIG_DRY_RUN: "false",
-			npm_config_cache: npmCacheDir,
-			NPM_CONFIG_CACHE: npmCacheDir,
-		},
-	);
+	const output = run("npm", ["pack", "--ignore-scripts"], packageRoot, true, {
+		npm_config_dry_run: "false",
+		NPM_CONFIG_DRY_RUN: "false",
+		npm_config_cache: npmCacheDir,
+		NPM_CONFIG_CACHE: npmCacheDir,
+	});
 	// `npm pack` output can become JSON-ified under some pnpm pack contexts.
 	// Extract the bare tarball filename robustly (no surrounding quotes).
 	const matches = output.match(/([A-Za-z0-9][A-Za-z0-9@._-]*\.tgz)/g);
@@ -76,7 +83,14 @@ function extractTarball(tarballPath, destinationDir) {
 	mkdirSync(destinationDir, { recursive: true });
 	run(
 		"tar",
-		["-xzf", tarballPath, "-C", destinationDir, "--strip-components=1", "package"],
+		[
+			"-xzf",
+			tarballPath,
+			"-C",
+			destinationDir,
+			"--strip-components=1",
+			"package",
+		],
 		packageRoot,
 	);
 }
@@ -85,7 +99,7 @@ function writeConsumerApp(appDir) {
 	mkdirSync(appDir, { recursive: true });
 	writeFileSync(
 		path.join(appDir, "package.json"),
-		JSON.stringify(
+		`${JSON.stringify(
 			{
 				name: "rppg-web-consumer-node-smoke",
 				private: true,
@@ -93,7 +107,7 @@ function writeConsumerApp(appDir) {
 			},
 			null,
 			2,
-		) + "\n",
+		)}\n`,
 	);
 	writeFileSync(
 		path.join(appDir, "app.mjs"),
@@ -186,11 +200,11 @@ try {
 	run(process.execPath, ["app.mjs"], appDir);
 } catch (error) {
 	console.error(
-		`[rppg-web] Consumer Node smoke failed: ${
-			error instanceof Error ? error.message : String(error)
-		}`,
+		`[rppg-web] Consumer Node smoke failed: ${error instanceof Error ? error.message : String(error)}`,
 	);
-	console.error(`[rppg-web] Preserving temp directory for inspection: ${tempRoot}`);
+	console.error(
+		`[rppg-web] Preserving temp directory for inspection: ${tempRoot}`,
+	);
 	process.exitCode = 1;
 } finally {
 	if (!process.exitCode) {

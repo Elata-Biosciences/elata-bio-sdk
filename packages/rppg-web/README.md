@@ -414,9 +414,12 @@ const session = await createRppgSession({
 
 The SDK builds the frozen five-ROI, 15-channel window, runs inference outside
 the frame callback, contains model failures, and exposes
-`getModelDiagnostics()` and `getLatestWaveformReconstruction()`. Always call
-`session.dispose()` to release the plugin runtime. A profile mismatch prevents
-window construction rather than silently changing model preprocessing.
+`getModelDiagnostics()` and `getLatestWaveformReconstruction()`. `stop()`
+aborts in-flight model work and releases its runtime; a later `start()`
+reinitializes it. `dispose()` is terminal and idempotent. Diagnostics distinguish
+insufficient/alignment/profile/channel input failures from model initialization,
+inference, and output failures. A profile mismatch prevents window construction
+rather than silently changing model preprocessing.
 
 ### Experimental morphology and physiology interpretation
 

@@ -2,6 +2,7 @@ import {
 	MCD_WAVEFORM_CHANNELS,
 	type WaveformFeatureWindowV1,
 } from "@elata-biosciences/rppg-web";
+import { WaveformModelError } from "@elata-biosciences/rppg-web";
 import {
 	createMcdWaveformReconstructor,
 	MCD_WAVEFORM_MODEL_MANIFEST_V1,
@@ -42,15 +43,18 @@ test("runs the exact manifest tensor contract and normalizes output", async () =
 	});
 
 	await model.init();
+	await model.init();
 	const result = await model.reconstruct(window());
 
 	expect(runtime.InferenceSession.create).toHaveBeenCalledWith(
 		"/caller-owned/model.onnx",
 		{ executionProviders: ["wasm"] },
 	);
+	expect(runtime.InferenceSession.create).toHaveBeenCalledTimes(1);
 	const input = run.mock.calls[0][0].input as Tensor;
 	expect(input.dims).toEqual([1, 15, 300]);
 	expect(result?.values).toHaveLength(300);
+	expect(result?.sampleRate).toBeCloseTo(29.9);
 	expect(result?.values[0]).toBeLessThan(0);
 	expect(result?.values[299]).toBeGreaterThan(0);
 	await model.dispose();
@@ -79,4 +83,56 @@ test("rejects windows outside the immutable model contract", async () => {
 	expect(Object.isFrozen(MCD_WAVEFORM_MODEL_MANIFEST_V1.input.channels)).toBe(
 		true,
 	);
+});
+
+test("rejects non-finite input and output tensors with typed errors", async () => {
+	const run = jest.fn(async () => ({
+		reconstructed: {
+			data: Float32Array.from({ length: 300 }, (_, index) =>
+				index === 10 ? Number.NaN : index,
+			),
+		},
+	}));
+	const runtime = {
+		Tensor: class {},
+		InferenceSession: { create: jest.fn(async () => ({ run, release: jest.fn() })) },
+	};
+	const model = createMcdWaveformReconstructor({
+		modelUrl: "/model.onnx",
+		runtimeImporter: async () => runtime as never,
+	});
+	await model.init();
+	const invalidInput = window();
+	invalidInput.data[0] = Number.NaN;
+	await expect(model.reconstruct(invalidInput)).rejects.toMatchObject({
+		code: "invalid_input",
+	});
+	await expect(model.reconstruct(window())).rejects.toEqual(
+		expect.objectContaining<Partial<WaveformModelError>>({
+			code: "invalid_output",
+		}),
+	);
+});
+
+test("releases a session created after initialization is aborted", async () => {
+	const release = jest.fn(async () => {});
+	let finishCreate!: (session: { run: jest.Mock; release: typeof release }) => void;
+	const create = jest.fn(
+		async () =>
+			new Promise<{ run: jest.Mock; release: typeof release }>((resolve) => {
+				finishCreate = resolve;
+			}),
+	);
+	const model = createMcdWaveformReconstructor({
+		modelUrl: "/model.onnx",
+		runtimeImporter: async () =>
+			({ Tensor: class {}, InferenceSession: { create } }) as never,
+	});
+	const abort = new AbortController();
+	const initializing = model.init(abort.signal);
+	await Promise.resolve();
+	abort.abort();
+	finishCreate({ run: jest.fn(), release });
+	await expect(initializing).rejects.toMatchObject({ name: "AbortError" });
+	expect(release).toHaveBeenCalledTimes(1);
 });

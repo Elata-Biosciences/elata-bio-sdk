@@ -2,4 +2,5 @@
 
 Optional ONNX Runtime browser adapter for the diagnostic MCD waveform proxy.
 The asset is intentionally not bundled pending license provenance. It cannot
-replace deterministic/Bayesian BPM and must be disposed with its session.
+replace deterministic/Bayesian BPM. stop() aborts work and releases ONNX;
+start() reinitializes it, and dispose() is terminal.

@@ -3,6 +3,7 @@ import type {
 	WaveformFeatureWindowV1,
 	WaveformReconstructor,
 } from "../waveformModel";
+import { WaveformModelError } from "../waveformModel";
 
 const manifest = {
 	schema: "elata.rppg.waveform-model/v1",
@@ -70,4 +71,69 @@ test("contains model failures without throwing into deterministic processing", a
 		modelStatus: "failed",
 		fallbackReason: "model_init_failed",
 	});
+});
+
+test("aborts in-flight work on stop and can initialize again", async () => {
+	const init = jest.fn(async () => {});
+	const dispose = jest.fn(async () => {});
+	const reconstruct = jest.fn(
+		async (_window: WaveformFeatureWindowV1, signal?: AbortSignal) =>
+			new Promise<null>((resolve) => {
+				signal?.addEventListener("abort", () => resolve(null), { once: true });
+			}),
+	);
+	const controller = new WaveformReconstructionController({
+		manifest,
+		init,
+		reconstruct,
+		dispose,
+	});
+	await controller.init();
+	expect(controller.offer(window, 1000)).toBe(true);
+
+	await controller.stop();
+	expect(dispose).toHaveBeenCalledTimes(1);
+	expect(controller.getDiagnostics().modelStatus).toBe("disposed");
+	expect(controller.getLatest()).toBeNull();
+
+	await controller.init();
+	expect(init).toHaveBeenCalledTimes(2);
+	expect(controller.getDiagnostics().modelStatus).toBe("ready");
+});
+
+test("terminal dispose is idempotent and late work cannot overwrite it", async () => {
+	let finish!: (value: null) => void;
+	const dispose = jest.fn(async () => {});
+	const controller = new WaveformReconstructionController({
+		manifest,
+		init: async () => {},
+		reconstruct: async () => new Promise<null>((resolve) => { finish = resolve; }),
+		dispose,
+	});
+	await controller.init();
+	controller.offer(window, 1000);
+	const disposing = controller.dispose();
+	finish(null);
+	await disposing;
+	await controller.dispose();
+	await controller.init();
+
+	expect(dispose).toHaveBeenCalledTimes(1);
+	expect(controller.getDiagnostics().modelStatus).toBe("disposed");
+});
+
+test("reports typed tensor failures separately from inference failures", async () => {
+	const controller = new WaveformReconstructionController({
+		manifest,
+		init: async () => {},
+		reconstruct: async () => {
+			throw new WaveformModelError("invalid_output", "bad tensor");
+		},
+		dispose: async () => {},
+	}, 0);
+	await controller.init();
+	controller.offer(window, 1000);
+	await Promise.resolve();
+	await Promise.resolve();
+	expect(controller.getDiagnostics().fallbackReason).toBe("invalid_output");
 });

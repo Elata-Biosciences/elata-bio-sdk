@@ -1,4 +1,14 @@
 // src/bpmBayesTracker.ts
+var DEFAULT_BPM_TRACKER_CONFIG_V1 = {
+  schema: "elata.rppg.bpm-tracker-config/v1",
+  id: "elata-default-v1",
+  ambiguityPenalty: {
+    enabled: false,
+    spreadStartBpm: 18,
+    spreadRangeBpm: 90,
+    maxPenalty: 0.28
+  }
+};
 var MODES = ["half", "fundamental", "double"];
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -15,8 +25,34 @@ function gaussian(x, mu, sigma) {
   const z = (x - mu) / sigma;
   return Math.exp(-0.5 * z * z) + 1e-9;
 }
+function parseBpmTrackerConfigV1(value) {
+  if (!value || typeof value !== "object") {
+    throw new TypeError("BPM tracker config must be an object");
+  }
+  const raw = value;
+  const ambiguity = raw.ambiguityPenalty;
+  if (raw.schema !== "elata.rppg.bpm-tracker-config/v1" || typeof raw.id !== "string" || !raw.id.trim() || !ambiguity || typeof ambiguity.enabled !== "boolean") {
+    throw new TypeError("Invalid BPM tracker config schema");
+  }
+  const spreadStartBpm = Number(ambiguity.spreadStartBpm);
+  const spreadRangeBpm = Number(ambiguity.spreadRangeBpm);
+  const maxPenalty = Number(ambiguity.maxPenalty);
+  if (!Number.isFinite(spreadStartBpm) || spreadStartBpm < 0 || !Number.isFinite(spreadRangeBpm) || spreadRangeBpm <= 0 || !Number.isFinite(maxPenalty) || maxPenalty < 0 || maxPenalty > 0.8) {
+    throw new RangeError("Invalid BPM tracker ambiguity bounds");
+  }
+  return {
+    schema: raw.schema,
+    id: raw.id.trim(),
+    ambiguityPenalty: {
+      enabled: ambiguity.enabled,
+      spreadStartBpm,
+      spreadRangeBpm,
+      maxPenalty
+    }
+  };
+}
 var BpmBayesTracker = class {
-  constructor(minBpm = 40, maxBpm = 180, stepBpm = 1) {
+  constructor(minBpm = 40, maxBpm = 180, stepBpm = 1, config = DEFAULT_BPM_TRACKER_CONFIG_V1, qualityProvider) {
     this.sourceReliability = {
       peaks: 0.75,
       acf: 0.85,
@@ -37,6 +73,9 @@ var BpmBayesTracker = class {
     this.referencePriorOrigin = "none";
     this.referencePriorLastUpdatedTs = null;
     this.waveformReliability = 0.22;
+    this.evidenceAmbiguity = 0;
+    this.config = parseBpmTrackerConfigV1(config);
+    this.qualityProvider = qualityProvider;
     this.minBpm = minBpm;
     this.maxBpm = maxBpm;
     this.stepBpm = stepBpm;
@@ -62,6 +101,7 @@ var BpmBayesTracker = class {
     this.referencePriorOrigin = "none";
     this.referencePriorLastUpdatedTs = null;
     this.waveformReliability = 0.22;
+    this.evidenceAmbiguity = 0;
   }
   update(measurements, dtSec, context) {
     this.applyTemporalPrior(dtSec, context);
@@ -69,13 +109,19 @@ var BpmBayesTracker = class {
     const motion = clamp(context.motion, 0, 1);
     const quality = clamp(context.quality, 0, 1);
     const snrPenalty = context.snrDb < 0 ? clamp(-context.snrDb / 10, 0, 2) : 0;
+    const externalQuality = this.evaluateQualityProvider(measurements, context);
+    this.evidenceAmbiguity = clamp(
+      this.estimateEvidenceAmbiguity(measurements) + externalQuality.ambiguityPenalty,
+      0,
+      0.65
+    );
     for (const measurement of measurements) {
       if (measurement.bpm == null || !Number.isFinite(measurement.bpm) || measurement.confidence <= 0) {
         continue;
       }
       const confidence = clamp(measurement.confidence, 0, 1);
       const reliability = clamp(
-        this.sourceReliability[measurement.source] * confidence * (0.5 + quality * 0.5),
+        this.sourceReliability[measurement.source] * confidence * (0.5 + quality * 0.5) * externalQuality.sourceMultiplier[measurement.source],
         0.1,
         1.5
       );
@@ -213,6 +259,7 @@ var BpmBayesTracker = class {
   }
   getSnapshot() {
     return {
+      trackerConfigId: this.config.id,
       minBpm: this.minBpm,
       maxBpm: this.maxBpm,
       stepBpm: this.stepBpm,
@@ -225,6 +272,12 @@ var BpmBayesTracker = class {
       referencePriorOrigin: this.referencePriorOrigin,
       referencePriorLastUpdatedTs: this.referencePriorLastUpdatedTs,
       waveformReliability: this.waveformReliability
+    };
+  }
+  getConfig() {
+    return {
+      ...this.config,
+      ambiguityPenalty: { ...this.config.ambiguityPenalty }
     };
   }
   getReferenceState() {
@@ -357,7 +410,9 @@ var BpmBayesTracker = class {
         bpm: null,
         confidence: 0,
         modeProbabilities: modeMass,
-        entropy: 1
+        entropy: 1,
+        ambiguity: this.evidenceAmbiguity,
+        qualityProviderId: this.qualityProvider?.id ?? null
       };
     }
     let localMass = 0;
@@ -374,13 +429,53 @@ var BpmBayesTracker = class {
     }
     const maxEntropy = Math.log(this.posterior.length);
     const normalizedEntropy = maxEntropy > 0 ? entropy / maxEntropy : 1;
-    const confidence = clamp(localMass * (1 - normalizedEntropy * 0.35), 0, 1);
+    const confidence = clamp(
+      localMass * (1 - normalizedEntropy * 0.35) * (1 - this.evidenceAmbiguity),
+      0,
+      1
+    );
     return {
       bpm: bestBpm,
       confidence,
       modeProbabilities: modeMass,
-      entropy: normalizedEntropy
+      entropy: normalizedEntropy,
+      ambiguity: this.evidenceAmbiguity,
+      qualityProviderId: this.qualityProvider?.id ?? null
     };
+  }
+  evaluateQualityProvider(measurements, context) {
+    const neutral = {
+      sourceMultiplier: { peaks: 1, acf: 1, spectral: 1 },
+      ambiguityPenalty: 0
+    };
+    if (!this.qualityProvider) return neutral;
+    try {
+      const result = this.qualityProvider.evaluate({ measurements, context });
+      for (const source of Object.keys(neutral.sourceMultiplier)) {
+        const value = Number(result?.sourceMultiplier?.[source]);
+        if (Number.isFinite(value)) {
+          neutral.sourceMultiplier[source] = clamp(value, 0.25, 1.75);
+        }
+      }
+      const penalty = Number(result?.ambiguityPenalty);
+      if (Number.isFinite(penalty)) {
+        neutral.ambiguityPenalty = clamp(penalty, 0, 0.65);
+      }
+    } catch {
+    }
+    return neutral;
+  }
+  estimateEvidenceAmbiguity(measurements) {
+    const options = this.config.ambiguityPenalty;
+    if (!options.enabled) return 0;
+    const bpms = measurements.map((measurement) => measurement.bpm).filter((bpm) => bpm != null && Number.isFinite(bpm));
+    if (bpms.length < 2) return 0;
+    const spread = Math.max(...bpms) - Math.min(...bpms);
+    return clamp(
+      (spread - options.spreadStartBpm) / options.spreadRangeBpm,
+      0,
+      1
+    ) * options.maxPenalty;
   }
   normalize() {
     let sum = 0;

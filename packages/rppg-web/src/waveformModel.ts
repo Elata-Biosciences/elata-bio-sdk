@@ -51,6 +51,27 @@ export interface WaveformReconstructor {
 	dispose(): Promise<void>;
 }
 
+export type RppgModelFallbackReason =
+	| "insufficient_window"
+	| "profile_mismatch"
+	| "timestamp_mismatch"
+	| "channel_mismatch"
+	| "invalid_input"
+	| "model_init_failed"
+	| "inference_failed"
+	| "invalid_output"
+	| "reconstruction_unavailable";
+
+export class WaveformModelError extends Error {
+	constructor(
+		public readonly code: "invalid_input" | "invalid_output",
+		message: string,
+	) {
+		super(message);
+		this.name = "WaveformModelError";
+	}
+}
+
 export interface RppgModelDiagnosticsV1 {
 	modelId: string;
 	modelStatus:
@@ -65,6 +86,6 @@ export interface RppgModelDiagnosticsV1 {
 	lastInferenceAtMs: number | null;
 	inputSampleCount: number;
 	skippedInferenceCount: number;
-	fallbackReason: string | null;
+	fallbackReason: RppgModelFallbackReason | null;
 	reconstructionReliability: number | null;
 }

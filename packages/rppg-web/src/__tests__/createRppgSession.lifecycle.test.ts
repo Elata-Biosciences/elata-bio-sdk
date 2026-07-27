@@ -182,4 +182,42 @@ describe("createRppgSession lifecycle", () => {
 
 		expect(free).toHaveBeenCalledTimes(1);
 	});
+
+	test("stops and reinitializes an experimental model with the session", async () => {
+		const model = {
+			manifest: {
+				schema: "elata.rppg.waveform-model/v1",
+				id: "lifecycle-model",
+				version: "1",
+				status: "diagnostic",
+				input: {
+					profileId: "mcd-proxy-input-v1",
+					channels: ["x"],
+					length: 2,
+					normalization: "test",
+				},
+				output: { kind: "normalized-waveform", length: 2 },
+				hashes: { modelSha256: "a", metadataSha256: "b" },
+				runtime: { engine: "test" },
+			} as const,
+			init: jest.fn(async () => {}),
+			reconstruct: jest.fn(async () => null),
+			dispose: jest.fn(async () => {}),
+		};
+		const session = await createRppgSession({
+			video: document.createElement("video"),
+			faceMesh: "off",
+			ensureVideoPlayback: false,
+			experimental: { waveformReconstructor: model },
+		});
+		await session.stop();
+		expect(model.dispose).toHaveBeenCalledTimes(1);
+		expect(session.getModelDiagnostics()?.modelStatus).toBe("disposed");
+
+		await session.start();
+		expect(model.init).toHaveBeenCalledTimes(2);
+		expect(session.getModelDiagnostics()?.modelStatus).toBe("ready");
+		await session.dispose();
+		expect(model.dispose).toHaveBeenCalledTimes(2);
+	});
 });

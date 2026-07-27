@@ -25,7 +25,10 @@ mkdirSync(tarballDir, { recursive: true });
 function run(cmd, args, cwd, opts = {}) {
   const full = `${cmd} ${args.join(" ")}`;
   console.log(`[smoke-consumers] ${full}`);
-  const res = spawnSync(cmd, args, {
+  const useCmd = process.platform === "win32" && cmd === "pnpm";
+  const executable = useCmd ? (process.env.ComSpec ?? "cmd.exe") : cmd;
+  const executableArgs = useCmd ? ["/d", "/s", "/c", cmd, ...args] : args;
+  const res = spawnSync(executable, executableArgs, {
     cwd,
     encoding: "utf8",
     stdio: opts.capture ? "pipe" : "inherit",
@@ -47,7 +50,9 @@ function packPackage(relativeDir) {
   const output = run("pnpm", ["pack"], pkgDir, { capture: true });
   const match = output.match(/([^\s]+\.tgz)/g);
   if (!match || match.length === 0) {
-    throw new Error(`Could not find tarball name in pnpm pack output for ${relativeDir}`);
+    throw new Error(
+      `Could not find tarball name in pnpm pack output for ${relativeDir}`,
+    );
   }
   const filename = match.at(-1);
   const src = path.join(pkgDir, filename);
@@ -125,7 +130,7 @@ function createBaseApp(appDir, extraDeps, appCode) {
   );
   writeFileSync(
     path.join(appDir, "index.html"),
-    "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>consumer-smoke</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"/src/main.tsx\"></script>\n  </body>\n</html>\n",
+    '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>consumer-smoke</title>\n  </head>\n  <body>\n    <div id="root"></div>\n    <script type="module" src="/src/main.tsx"></script>\n  </body>\n</html>\n',
   );
   writeFileSync(
     path.join(appDir, "src", "main.tsx"),
@@ -226,7 +231,9 @@ try {
   console.error(
     `[smoke-consumers] ${error instanceof Error ? error.message : String(error)}`,
   );
-  console.error(`[smoke-consumers] Preserving temp directory for inspection: ${tempRoot}`);
+  console.error(
+    `[smoke-consumers] Preserving temp directory for inspection: ${tempRoot}`,
+  );
   process.exitCode = 1;
 } finally {
   if (!process.exitCode) {

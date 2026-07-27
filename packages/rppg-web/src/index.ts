@@ -243,12 +243,15 @@ export {
 } from "./waveformFeatureWindow";
 export type {
 	RppgModelDiagnosticsV1,
+	RppgModelFallbackReason,
 	WaveformFeatureWindowV1,
 	WaveformModelManifestV1,
 	WaveformModelStatus,
 	WaveformReconstructionV1,
 	WaveformReconstructor,
 } from "./waveformModel";
+export { WaveformModelError } from "./waveformModel";
+export type { WaveformWindowFailureReason } from "./waveformFeatureWindow";
 export { WaveformReconstructionController } from "./waveformReconstructionController";
 export {
 	createWaveformMorphologyBaseline,

@@ -2,6 +2,13 @@ import type { RppgRoiSampleV1 } from "./roiPixelSampler";
 import type { FaceRoiName } from "./roiProfile";
 import type { WaveformFeatureWindowV1 } from "./waveformModel";
 
+export type WaveformWindowFailureReason =
+	| "insufficient_window"
+	| "profile_mismatch"
+	| "timestamp_mismatch"
+	| "channel_mismatch"
+	| "invalid_input";
+
 export const MCD_WAVEFORM_ROIS = [
 	"forehead",
 	"leftCheek",
@@ -29,11 +36,24 @@ export class WaveformFeatureWindowBuilder {
 	private readonly buffers = Object.fromEntries(
 		MCD_WAVEFORM_ROIS.map((roi) => [roi, [] as Point[]]),
 	) as Record<(typeof MCD_WAVEFORM_ROIS)[number], Point[]>;
+	private lastFailure: WaveformWindowFailureReason | null = null;
 
 	constructor(private readonly capacity = 300) {}
 
 	push(sample: RppgRoiSampleV1): void {
 		if (!(sample.roi in this.buffers)) return;
+		if (
+			![
+				sample.timestampMs,
+				sample.rgb.r,
+				sample.rgb.g,
+				sample.rgb.b,
+				sample.quality.skinFraction,
+			].every(Number.isFinite)
+		) {
+			this.lastFailure = "invalid_input";
+			return;
+		}
 		const buffer = this.buffers[sample.roi as keyof typeof this.buffers];
 		buffer.push({
 			timestampMs: sample.timestampMs,
@@ -53,6 +73,10 @@ export class WaveformFeatureWindowBuilder {
 		);
 	}
 
+	get lastFailureReason(): WaveformWindowFailureReason | null {
+		return this.lastFailure;
+	}
+
 	build(options: {
 		profileId: string;
 		length?: number;
@@ -60,18 +84,46 @@ export class WaveformFeatureWindowBuilder {
 		channels?: readonly string[];
 		qualityWeightFloor?: number;
 	}): WaveformFeatureWindowV1 | null {
+		this.lastFailure = null;
 		const length = options.length ?? 300;
-		const count = Math.min(length, this.sampleCount);
-		if (count < (options.minSamples ?? 120)) return null;
+		if (!Number.isInteger(length) || length < 2) {
+			this.lastFailure = "invalid_input";
+			return null;
+		}
+		const commonTimestamps = this.buffers.forehead
+			.map((point) => point.timestampMs)
+			.filter((timestamp) =>
+				MCD_WAVEFORM_ROIS.slice(1).every((roi) =>
+					this.buffers[roi].some((point) => point.timestampMs === timestamp),
+				),
+			)
+			.slice(-length);
+		const count = commonTimestamps.length;
+		if (count < (options.minSamples ?? 120)) {
+			this.lastFailure =
+				this.sampleCount >= (options.minSamples ?? 120)
+					? "timestamp_mismatch"
+					: "insufficient_window";
+			return null;
+		}
 		const channels = options.channels ?? MCD_WAVEFORM_CHANNELS;
 		const windows = Object.fromEntries(
-			MCD_WAVEFORM_ROIS.map((roi) => [roi, this.buffers[roi].slice(-count)]),
+			MCD_WAVEFORM_ROIS.map((roi) => {
+				const byTimestamp = new Map(
+					this.buffers[roi].map((point) => [point.timestampMs, point]),
+				);
+				return [
+					roi,
+					commonTimestamps.map((timestamp) => byTimestamp.get(timestamp)!),
+				] as const;
+			}),
 		) as typeof this.buffers;
 		if (
 			Object.values(windows).some((points) =>
 				points.some((point) => point.profileId !== options.profileId),
 			)
 		) {
+			this.lastFailure = "profile_mismatch";
 			return null;
 		}
 		const weights = qualityWeights(windows, options.qualityWeightFloor ?? 0.25);
@@ -80,7 +132,10 @@ export class WaveformFeatureWindowBuilder {
 		for (let channelIndex = 0; channelIndex < channels.length; channelIndex++) {
 			const [, roi, kind] = channels[channelIndex].split(":");
 			const points = windows[roi as keyof typeof windows];
-			if (!points) return null;
+			if (!points) {
+				this.lastFailure = "channel_mismatch";
+				return null;
+			}
 			const values =
 				kind === "green"
 					? points.map((point) => point.g)
@@ -89,7 +144,10 @@ export class WaveformFeatureWindowBuilder {
 						: kind === "chrom"
 							? pulseProjection(points, "chrom")
 							: null;
-			if (!values) return null;
+			if (!values) {
+				this.lastFailure = "channel_mismatch";
+				return null;
+			}
 			const normalized = zscore(resample(values, length));
 			for (let index = 0; index < length; index++) {
 				data[channelIndex * length + index] = normalized[index] * weights[roi]!;
@@ -99,6 +157,10 @@ export class WaveformFeatureWindowBuilder {
 		const reference = windows.forehead;
 		const startTimeMs = reference[0].timestampMs;
 		const endTimeMs = reference[reference.length - 1].timestampMs;
+		if (endTimeMs <= startTimeMs || !data.every(Number.isFinite)) {
+			this.lastFailure = "invalid_input";
+			return null;
+		}
 		return {
 			schema: "elata.rppg.waveform-window/v1",
 			profileId: options.profileId,

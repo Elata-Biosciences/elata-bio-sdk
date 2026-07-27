@@ -24,12 +24,16 @@ const session = await createRppgSession({
 });
 
 console.log(session.getModelDiagnostics());
+await session.stop(); // aborts work and releases the ONNX session
+await session.start(); // reinitializes it when capture resumes
 await session.dispose();
 ```
 
 Model failures are contained and do not stop deterministic BPM, HRV,
 respiration, or quality outputs. A preprocessing/profile mismatch is rejected
-instead of being silently adapted.
+instead of being silently adapted. Input/output tensors and timing must be
+finite; reconstructed cadence is derived from the 300 output samples and window
+duration, not copied from the camera rate.
 
 ## Frozen model contract
 

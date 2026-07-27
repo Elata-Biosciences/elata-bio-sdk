@@ -2,6 +2,7 @@ import {
 	MCD_WAVEFORM_CHANNELS,
 	type WaveformFeatureWindowV1,
 	type WaveformModelManifestV1,
+	WaveformModelError,
 	type WaveformReconstructionV1,
 	type WaveformReconstructor,
 } from "@elata-biosciences/rppg-web";
@@ -46,7 +47,7 @@ export const MCD_WAVEFORM_MODEL_CARD_V1 = {
 	],
 } as const;
 
-type OrtModule = typeof import("onnxruntime-web");
+type OrtModule = typeof import("onnxruntime-web/wasm");
 
 export function createMcdWaveformReconstructor(options: {
 	modelUrl: string;
@@ -60,12 +61,22 @@ export function createMcdWaveformReconstructor(options: {
 	return {
 		manifest: MCD_WAVEFORM_MODEL_MANIFEST_V1,
 		async init(signal) {
+			if (session) return;
+			if (!options.modelUrl.trim()) {
+				throw new WaveformModelError("invalid_input", "Model URL is required");
+			}
 			if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
 			runtime = await (options.runtimeImporter?.() ??
-				import("onnxruntime-web"));
-			session = await runtime.InferenceSession.create(options.modelUrl, {
+				import("onnxruntime-web/wasm"));
+			const created = await runtime.InferenceSession.create(options.modelUrl, {
 				executionProviders: ["wasm"],
 			});
+			if (signal?.aborted) {
+				await created.release();
+				runtime = null;
+				throw new DOMException("Aborted", "AbortError");
+			}
+			session = created;
 		},
 		async reconstruct(window, signal) {
 			if (!runtime || !session) throw new Error("Model is not initialized");
@@ -74,8 +85,15 @@ export function createMcdWaveformReconstructor(options: {
 			const tensor = new runtime.Tensor("float32", window.data, [1, 15, 300]);
 			const output = await session.run({ input: tensor });
 			const raw = output.reconstructed?.data;
-			if (!raw || raw.length !== 300) {
-				throw new Error("Unexpected reconstructed waveform tensor");
+			if (
+				!raw ||
+				raw.length !== 300 ||
+				!Array.from(raw as ArrayLike<number>).every(Number.isFinite)
+			) {
+				throw new WaveformModelError(
+					"invalid_output",
+					"Unexpected reconstructed waveform tensor",
+				);
 			}
 			return reconstruction(
 				window,
@@ -96,12 +114,21 @@ function validateWindow(window: WaveformFeatureWindowV1): void {
 		window.profileId !== expected.profileId ||
 		window.length !== expected.length ||
 		window.data.length !== expected.channels.length * expected.length ||
+		!window.data.every(Number.isFinite) ||
+		!Number.isFinite(window.sourceSampleRate) ||
+		window.sourceSampleRate <= 0 ||
+		!Number.isFinite(window.startTimeMs) ||
+		!Number.isFinite(window.endTimeMs) ||
+		window.endTimeMs <= window.startTimeMs ||
 		window.channels.length !== expected.channels.length ||
 		window.channels.some(
 			(channel, index) => channel !== expected.channels[index],
 		)
 	) {
-		throw new Error("Waveform window does not match the model manifest");
+		throw new WaveformModelError(
+			"invalid_input",
+			"Waveform window does not match the model manifest",
+		);
 	}
 }
 
@@ -118,7 +145,10 @@ function reconstruction(
 		modelId: MCD_WAVEFORM_MODEL_MANIFEST_V1.id,
 		startTimeMs: window.startTimeMs,
 		endTimeMs: window.endTimeMs,
-		sampleRate: window.sourceSampleRate,
+		sampleRate:
+			window.endTimeMs > window.startTimeMs
+				? ((values.length - 1) * 1000) / (window.endTimeMs - window.startTimeMs)
+				: 0,
 		values: Float32Array.from(values, (value) =>
 			std > 1e-8 ? (value - mean) / std : 0,
 		),

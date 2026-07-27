@@ -232,7 +232,8 @@ export class RppgSession {
 	getState(): RppgSessionState {
 		const processorFailure = this.processor.getBackendFailure();
 		const lastError = this.lastErrorValue;
-		const terminal = processorFailure != null || lastError?.code === "processor_error";
+		const terminal =
+			processorFailure != null || lastError?.code === "processor_error";
 		if (terminal) {
 			return {
 				status: "failed",
@@ -297,7 +298,8 @@ export class RppgSession {
 		const state = this.getState();
 		const issues = new Set<RppgSessionIssueCode>(debugSnapshot.issues);
 		if (this.internals.backendDegraded) issues.add("backend_unavailable");
-		if (this.internals.faceTrackingDegraded) issues.add("face_mesh_unavailable");
+		if (this.internals.faceTrackingDegraded)
+			issues.add("face_mesh_unavailable");
 		if (state.status === "failed") issues.add("processor_failed");
 
 		return {
@@ -331,6 +333,7 @@ export class RppgSession {
 
 	async stop(): Promise<void> {
 		await this.runner.stop();
+		await this.internals.waveformController?.stop();
 		this.emitDiagnostics();
 	}
 
@@ -419,7 +422,8 @@ export async function createRppgSession(
 		roiPixelSampler: options.roiPixelSampler,
 		onRoiSamples: (samples) => {
 			options.onRoiSamples?.(samples);
-			if (!waveformBuilder || !waveformController || !options.experimental) return;
+			if (!waveformBuilder || !waveformController || !options.experimental)
+				return;
 			for (const sample of samples) waveformBuilder.push(sample);
 			const manifest = options.experimental.waveformReconstructor.manifest;
 			const window = waveformBuilder.build({
@@ -427,7 +431,14 @@ export async function createRppgSession(
 				channels: manifest.input.channels,
 				length: manifest.input.length,
 			});
-			if (window) waveformController.offer(window);
+			if (window) {
+				waveformController.offer(window);
+			} else {
+				waveformController.reportInputUnavailable(
+					waveformBuilder.lastFailureReason ?? "insufficient_window",
+					waveformBuilder.sampleCount,
+				);
+			}
 		},
 		onStats: options.onStats,
 		skinRatioSmoothingAlpha: options.skinRatioSmoothingAlpha,
