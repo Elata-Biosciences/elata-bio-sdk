@@ -1,0 +1,5 @@
+# @elata-biosciences/rppg-models-web
+
+Optional ONNX Runtime browser adapter for the diagnostic MCD waveform proxy.
+The asset is intentionally not bundled pending license provenance. It cannot
+replace deterministic/Bayesian BPM and must be disposed with its session.

@@ -60,6 +60,12 @@ Use this package when you need:
 - camera-driven app helpers and diagnostics
 - packaged WASM backend loading
 
+### `packages/rppg-models-web`
+
+Owns the optional ONNX Runtime adapter and immutable manifest for diagnostic
+waveform reconstruction. It depends on `rppg-web`; callers supply the model URL
+because learned weights are not bundled pending license provenance.
+
 ### `packages/create-elata-demo`
 
 Owns:

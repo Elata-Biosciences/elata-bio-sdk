@@ -98,6 +98,7 @@ Use this quick guide if you are starting from an existing app:
 | Run EEG WASM APIs in the browser | [`@elata-biosciences/eeg-web`](https://www.npmjs.com/package/@elata-biosciences/eeg-web) | Signal processing, models, and WASM helpers |
 | Connect to an EEG headset over Web Bluetooth in the browser | [`@elata-biosciences/eeg-web-ble`](https://www.npmjs.com/package/@elata-biosciences/eeg-web-ble) | Requires `@elata-biosciences/eeg-web` and Web Bluetooth; Muse built-in; [extend for other headsets](docs/contributing-eeg-transports.md) |
 | Run camera-based rPPG in a browser app | [`@elata-biosciences/rppg-web`](https://www.npmjs.com/package/@elata-biosciences/rppg-web) | Includes processor, backend loader, and demo helpers |
+| Add optional diagnostic waveform reconstruction | [`@elata-biosciences/rppg-models-web`](packages/rppg-models-web/README.md) | Requires `rppg-web`; model weights are caller-supplied pending license provenance |
 | Add in-app purchases to an appstore app | [`@elata-biosciences/app-payments`](https://www.npmjs.com/package/@elata-biosciences/app-payments) | Purchases + entitlements over `postMessage`; see [guide](docs/guides/using-iap-in-a-browser-app.md) and [demo](examples/iap-demo) |
 
 If you are trying the SDK for the first time, prefer `create-elata-demo` over
@@ -122,6 +123,7 @@ Scope overview: [@elata-biosciences on npm](https://www.npmjs.com/org/elata-bios
 - [@elata-biosciences/eeg-web](https://www.npmjs.com/package/@elata-biosciences/eeg-web): EEG WASM wrapper and re-export surface
 - [@elata-biosciences/eeg-web-ble](https://www.npmjs.com/package/@elata-biosciences/eeg-web-ble): Web Bluetooth transport for EEG headbands (Muse built-in; [contributor extensions](docs/contributing-eeg-transports.md))
 - [@elata-biosciences/rppg-web](https://www.npmjs.com/package/@elata-biosciences/rppg-web): rPPG processing wrapper and demo helpers
+- [@elata-biosciences/rppg-models-web](packages/rppg-models-web/README.md): optional diagnostic waveform adapter; learned asset not bundled
 - [@elata-biosciences/app-payments](https://www.npmjs.com/package/@elata-biosciences/app-payments): in-app purchases and entitlements for sandboxed appstore apps
 - [@elata-biosciences/create-elata-demo](https://www.npmjs.com/package/@elata-biosciences/create-elata-demo): app scaffolder with multiple templates
 
@@ -133,12 +135,14 @@ Scope overview: [@elata-biosciences on npm](https://www.npmjs.com/org/elata-bios
 | `eeg-web` | Supported | Supported | Supported | `>= 20` for local repo tooling |
 | `eeg-web-ble` | Supported in secure context | Not supported for this workflow | Not supported for this workflow | `>= 20` for local repo tooling |
 | `rppg-web` | Supported | Supported | Supported with camera permissions | `>= 20` for local repo tooling |
+| `rppg-models-web` | Supported | Supported | Supported | `>= 20` for local repo tooling |
 
 Browser caveats:
 
 - `eeg-web-ble` requires Web Bluetooth and an `https://` origin or `localhost`
 - Safari and the system iOS browser do not provide usable Web Bluetooth for this workflow; use Chrome or Edge on desktop, Chrome on Android, or **Bluefy** on iOS if you need in-browser BLE
 - `rppg-web` needs camera access and packaged WASM assets when using `loadWasmBackend()`
+- `rppg-models-web` needs an explicit model URL; no learned asset is bundled
 
 Package docs:
 

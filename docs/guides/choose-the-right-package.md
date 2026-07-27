@@ -42,6 +42,10 @@ Use `@elata-biosciences/rppg-web` when you need:
 - packaged WASM backend loading
 - demo helpers for camera-driven prototypes
 
+Add `@elata-biosciences/rppg-models-web` only for optional diagnostic waveform
+reconstruction. It does not replace deterministic or Bayesian BPM, and its
+learned asset must be supplied explicitly.
+
 ## Local Repo Development
 
 Use `./run.sh sync-to` only if you are modifying `packages/eeg-web` inside the
