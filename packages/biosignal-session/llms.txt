@@ -1,0 +1,19 @@
+# @elata-biosciences/biosignal-session
+
+Canonical package for Elata Biosignal Session v1.
+
+- Root export: contracts, validation, Arrow codec, storage, recorder, transport,
+  archive import/export, and adapters.
+- `/arrow`: independently decodable Arrow IPC stream chunk codec.
+- `/host`: MessagePort/window host bridge plus IndexedDB and OPFS storage.
+- `/adapters`: structural HeadbandFrameV1 and rPPG ReplayDebugSession adapters.
+- IndexedDB is the authoritative commit catalog. OPFS holds immutable payloads;
+  IndexedDB binary storage is the compatibility fallback.
+- ACK only after validation, checksum verification, payload persistence, and
+  catalog commit. Duplicate hashes are idempotent; conflicts fail.
+- Recovery marks open sessions interrupted; resume is explicit and scope-bound.
+- Session offsets are safe integer microseconds from the session origin.
+- `.elata` is a checksummed ZIP container; Arrow IPC is its dense stream
+  encoding, not the entire session standard.
+- Do not put host scope or direct user/wallet identity in portable manifests.
+- Do not route raw recordings through `app-metrics`.
