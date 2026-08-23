@@ -167,6 +167,32 @@ const packages = [
 			"coverage/",
 		],
 	},
+	{
+		name: "@elata-biosciences/biosignal-session",
+		aliases: ["biosignal-session", "packages/biosignal-session"],
+		dir: "packages/biosignal-session",
+		requiredFiles: [
+			"dist/index.js",
+			"dist/index.d.ts",
+			"dist/arrow.js",
+			"dist/host.js",
+			"dist/adapters.js",
+			"README.md",
+			"CHANGELOG.md",
+			"llms.txt",
+			"package.json",
+		],
+		forbiddenPatterns: [
+			"__tests__",
+			".test.ts",
+			".test.js",
+			"node_modules/",
+			"tsconfig",
+			"jest.config",
+			"coverage/",
+			"scripts/",
+		],
+	},
 ];
 
 const requested = process.argv.slice(2);
