@@ -4,8 +4,8 @@
  * and run the same assertions — any schema change must regenerate the
  * fixture and update both repos in a paired change.
  */
-import fs from "node:fs";
-import path from "node:path";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { checksumOf, crc32cHex } from "../arrow/checksum";
 import { decodeChunk, readFloat32Column, readTimeUsColumn } from "../arrow/decode";
 import { isValidName } from "../contracts/ids";
