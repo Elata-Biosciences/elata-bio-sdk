@@ -1,0 +1,19 @@
+[package]
+name = "elata-biosignal-features-wasm"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.94"
+description = "WebAssembly bindings for elata-biosignal-features"
+license = "MIT"
+repository = "https://github.com/Elata-Biosciences/elata-bio-sdk"
+homepage = "https://github.com/Elata-Biosciences/elata-bio-sdk#readme"
+publish = false
+
+[lib]
+name = "biosignal_features_wasm"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+elata-biosignal-features = { workspace = true }
+wasm-bindgen = "0.2"
+serde_json = "1.0"
