@@ -81,6 +81,7 @@ over the injected port. You own its clock tick.
 
 ```ts
 import { RecorderCore } from "@elata-biosciences/biosignal-session/browser";
+import type { ProtocolPort } from "@elata-biosciences/biosignal-session/browser";
 
 const core = new RecorderCore({
   emit(message) {
@@ -95,8 +96,15 @@ const core = new RecorderCore({
 });
 
 const ticker = setInterval(() => core.tick(), 500);  // retries, backoff, heartbeat
-core.handle({ t: "init", port });
+core.handle({ t: "init", port: port as unknown as ProtocolPort });
 ```
+
+The engine talks to a structural `ProtocolPort`
+(`postMessage` / `onmessage` / `start` / `close`). A live `MessagePort`
+satisfies it at runtime, but not under `strictFunctionTypes`: `ProtocolPort`'s
+`onmessage` accepts `{ data: unknown }` while `MessagePort`'s requires a full
+`MessageEvent`, and function-typed properties are compared contravariantly.
+Hence the cast — or supply your own object implementing `ProtocolPort`.
 
 To run the engine off the UI thread instead, `launchRecordingWorker()` returns a
 module `Worker` running the same class; post it the identical messages
