@@ -1,0 +1,9 @@
+# Canonical oracle environment for regenerating the golden fixtures.
+# The frozen fixture set committed in ../../fixtures was generated with
+# numpy+scipy only (see fixtures/manifest.json for the exact versions used);
+# mne and neurokit2 are listed for the full future oracle surface
+# (evoked/epochs cross-checks and NeuroKit2 HRV cross-validation).
+numpy==2.5.2
+scipy==1.18.0
+mne==1.8.0
+neurokit2==0.2.11
