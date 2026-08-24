@@ -7,7 +7,14 @@ This repository publishes npm packages independently:
 - `@elata-biosciences/rppg-web`
 - `@elata-biosciences/rppg-models-web`
 - `@elata-biosciences/ppg-web`
+- `@elata-biosciences/app-metrics`
+- `@elata-biosciences/app-payments`
+- `@elata-biosciences/app-state`
+- `@elata-biosciences/biosignal-session`
+- `@elata-biosciences/biosignal-analytics`
 - `@elata-biosciences/create-elata-demo`
+
+Not all of them are in the `all` release set — see [Release order](#release-order) below.
 
 We use [Changesets](https://github.com/changesets/changesets) for versioning and changelogs. Contributors add changesets in PRs; maintainers bump versions and release.
 
@@ -116,9 +123,22 @@ the commit/tags.
 
    Optional shorthand when you want a raw semver bump on **every** publishable package before publishing (same order as below): `./run.sh release patch`, `./run.sh release minor`, or `./run.sh release major`. Prefer `./run.sh bump` first when you are cutting a **Changesets** release so changelogs stay accurate.
 
-Release order is fixed in `run.sh`: `eeg-web` → `eeg-web-ble` → `rppg-web` → `rppg-models-web` → `ppg-web` → `create-elata-demo`.
+### Release order
+
+Release order is fixed in `release_targets_for` (`scripts/run-lib.sh`): `eeg-web` → `eeg-web-ble` → `rppg-web` → `rppg-models-web` → `ppg-web` → `create-elata-demo` → `app-metrics` → `biosignal-session`.
 `rppg-models-web` follows `rppg-web` because it depends on the base package.
 `eeg-web-ble` must follow `eeg-web` because it has an `eeg-web` peer dependency.
+
+Two publishable packages are deliberately **excluded from the `all` set** and
+released individually while their APIs settle:
+
+- `app-payments` — `./run.sh release app-payments`
+- `biosignal-analytics` — `./run.sh release biosignal-analytics`
+
+`app-state` is publishable by its manifest but is not registered as a release
+target yet; add it to `normalize_release_target`, `package_dir_for_target`,
+`package_name_for_target`, and `release_tag_prefix_for_target` before releasing
+it through `run.sh`.
 
 ## Contributors: adding a changeset
 
@@ -140,6 +160,12 @@ pnpm --dir packages/eeg-web pack --dry-run --json
 pnpm --dir packages/eeg-web-ble pack --dry-run --json
 pnpm --dir packages/rppg-web pack --dry-run --json
 pnpm --dir packages/rppg-models-web pack --dry-run --json
+pnpm --dir packages/ppg-web pack --dry-run --json
+pnpm --dir packages/app-metrics pack --dry-run --json
+pnpm --dir packages/app-payments pack --dry-run --json
+pnpm --dir packages/app-state pack --dry-run --json
+pnpm --dir packages/biosignal-session pack --dry-run --json
+pnpm --dir packages/biosignal-analytics pack --dry-run --json
 pnpm --dir packages/create-elata-demo pack --dry-run --json
 ```
 
@@ -148,7 +174,13 @@ pnpm --dir packages/create-elata-demo pack --dry-run --json
 - no test-only files
 - no local-only demo artifacts unless intentionally shipped
 - expected entry points and type declarations are present
-- required packaged WASM assets are present for `eeg-web` and `rppg-web`
+- required packaged WASM assets are present for `eeg-web`, `rppg-web`, and `biosignal-analytics`
+
+`node scripts/validate-tarballs.mjs` asserts those contents non-interactively and
+is what CI runs. It currently covers `eeg-web`, `eeg-web-ble`, `rppg-web`,
+`rppg-models-web`, `app-metrics`, `app-payments`, `biosignal-session`,
+`biosignal-analytics`, and `create-elata-demo`; `ppg-web` and `app-state` are not
+registered there yet, so pack those manually.
 
 `prepack` now rebuilds and verifies publishable artifacts for the published
 packages, but maintainers should still run the repo-level checks above before
@@ -180,7 +212,14 @@ Use package-scoped git tags in this monorepo:
 - `eeg-web-ble-vX.Y.Z`
 - `rppg-web-vX.Y.Z`
 - `rppg-models-web-vX.Y.Z`
+- `ppg-web-vX.Y.Z`
+- `app-metrics-vX.Y.Z`
+- `app-payments-vX.Y.Z`
+- `biosignal-session-vX.Y.Z`
+- `biosignal-analytics-vX.Y.Z`
 - `create-elata-demo-vX.Y.Z`
+
+The prefixes come from `release_tag_prefix_for_target` in `scripts/run-lib.sh`.
 
 Example:
 

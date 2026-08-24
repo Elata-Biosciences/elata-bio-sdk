@@ -10,5 +10,6 @@ These guides are aimed at SDK consumers rather than repo maintainers.
 - [using-web-bluetooth-with-supported-devices.md](using-web-bluetooth-with-supported-devices.md): Web Bluetooth headset flow in the browser (Muse built-in today)
 - [using-rppg-in-a-browser-app.md](using-rppg-in-a-browser-app.md): integrate browser-side rPPG processing
 - [using-iap-in-a-browser-app.md](using-iap-in-a-browser-app.md): add in-app purchases to an app running in the Elata appstore
+- [using-biosignal-sessions.md](using-biosignal-sessions.md): record a biosignal session to local device storage (contracts, wire protocol, Arrow chunks)
 - [compatibility.md](compatibility.md): browser, device, Node, and package-manager expectations
 - [troubleshooting.md](troubleshooting.md): common setup and runtime failures

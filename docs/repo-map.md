@@ -66,6 +66,51 @@ Owns the optional ONNX Runtime adapter and immutable manifest for diagnostic
 waveform reconstruction. It depends on `rppg-web`; callers supply the model URL
 because learned weights are not bundled pending license provenance.
 
+### `packages/ppg-web`
+
+Owns browser-side Muse PPG heart-rate and HRV estimation over the normalized
+`HeadbandFrameV1` stream. Use it when a headband exposes PPG and you want BPM /
+RMSSD / SDNN without touching the rPPG camera pipeline.
+
+### `packages/app-metrics`, `packages/app-payments`, `packages/app-state`
+
+The **sandboxed-app SDKs**. Apps in the Elata appstore run inside an iframe with
+no backend or wallet access and talk to the parent frame over `postMessage`:
+
+- `app-metrics` — per-user metrics storage (app entry plus a `./host` entry for
+  the embedding appstore)
+- `app-payments` — in-app purchases and entitlement reads; the parent owns all
+  payment UI and settlement
+- `app-state` — per-user, per-app key-value storage for save games, settings,
+  and small JSON blobs
+
+Use these when writing or hosting a sandboxed appstore app, never for direct
+device access.
+
+### `packages/biosignal-session`
+
+Owns local-first biosignal **recording**:
+
+- the `Session → Source → Stream → Chunk → Event` contracts and canonical
+  microsecond time model
+- the MessagePort wire protocol (handshake, chunk commit, idempotent replay,
+  in-flight window, error codes)
+- Arrow IPC chunk encode/decode with CRC32C checksums
+- device adapters (headband / rPPG / PPG) and deterministic synthetic sources
+
+Raw data recorded through it stays on the device; the package contains no
+remote mirror. The storage plane (OPFS payloads + IndexedDB catalog) lives in
+the embedding host, not here. See
+[guides/using-biosignal-sessions.md](guides/using-biosignal-sessions.md).
+
+### `packages/biosignal-analytics`
+
+Owns local **analysis** of what `biosignal-session` recorded: a versioned metric
+registry, WASM-backed EEG window features (built from
+`crates/elata-biosignal-features-wasm`), HRV and robust statistics, and
+transparent headline-score formulas. Kept separate from `biosignal-session` so
+recording has no analysis dependency.
+
 ### `packages/create-elata-demo`
 
 Owns:
