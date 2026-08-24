@@ -1,0 +1,29 @@
+# @elata-biosciences/biosignal-session
+
+Local-first biosignal session recording: contracts + MessagePort wire
+protocol + Arrow IPC chunk encoding. Raw data is local-only by default.
+
+Model: Session -> Source -> Stream -> Chunk -> Event.
+Time: session-relative integer microseconds; anchor = (Date.now(),
+performance.now()) captured on the client UI thread at session create.
+Regular streams carry no per-sample time column — time derives from
+sampleIndexStart + sampleRateHz; gaps are explicit DiscontinuityV1 records.
+
+Entries:
+- "." (DOM-free): contracts (BiosignalSessionV1, SourceDescriptorV1,
+  StreamDescriptorV1, ChunkDescriptorV1, SessionEventV1,
+  ClockAlignmentObservationV1), protocol (BIOSIGNAL_PROTOCOL_VERSION=1,
+  init kind "__elata_biosignal_init", ClientToHost/HostToClient unions,
+  BiosignalErrorCode, BIOSIGNAL_LIMITS), crc32c/crc32cHex/checksumOf,
+  createSessionClock/captureClockAnchor/sampleTimeUs.
+- "./browser": BiosignalSource/SourceSink/StreamHandle adapter contracts,
+  Arrow schema builders (regular-wide-f32@1, battery@1, rppg-trace@1,
+  rppg-metrics@1, ppg-metrics@1), encodeWideF32Chunk/encodeRowsChunk,
+  decodeChunk/readFloat32Column/readTimeUsColumn.
+- "./testing": mulberry32, gaussian, createFakeClock.
+
+Key invariants: host assigns identities (never the app); ACK = durable local
+commit; idempotency key (sessionId, streamId, sequence) + crc32c; duplicate
+with equal checksum replays ok, different checksum = sequence_conflict;
+chunk payloads are complete Arrow IPC files, independently decodable, with
+schema metadata keys elata:sessionId / elata:streamId / elata:arrowSchemaId.
