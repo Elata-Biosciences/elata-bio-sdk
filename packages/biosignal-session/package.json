@@ -51,6 +51,7 @@
 		"test": "jest --config ./jest.config.cjs --passWithNoTests",
 		"test:coverage": "jest --config ./jest.config.cjs --coverage --passWithNoTests",
 		"clean": "node ./scripts/clean.mjs",
+		"bench": "node ./bench/protocolBenchmark.mjs",
 		"build": "tsc -p tsconfig.json && node ./scripts/fix-dist-import-specifiers.mjs && node ./scripts/verify-dist-esm.mjs",
 		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts && node ../../scripts/verify-package-build.mjs dist/browser.js dist/browser.d.ts && node ../../scripts/verify-package-build.mjs dist/testing.js dist/testing.d.ts",
 		"verify:publish": "pnpm run verify:build",

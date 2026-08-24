@@ -42,3 +42,73 @@ payload and its catalog row are durably committed. Retries with the same
 checksum is a fatal `sequence_conflict`.
 
 See `llms.txt` and the type declarations in `dist/` for the full contract.
+
+## Benchmark results (2026-08-20)
+
+`bench/protocolBenchmark.mjs` (`pnpm bench`, after `pnpm build`) drives the real
+`RecorderCore` against `createMemoryHost` over a loopback `MessagePort` pair,
+fed by `createSyntheticSource`, across chunk target {64 KiB, 256 KiB, 1 MiB} ×
+in-flight window {2, 4, 8} on the wide layout. It reports encode ms/chunk, ACK
+round-trip latency, sustained MiB/s, peak in-flight bytes and chunk counts, and
+runs a host-stall probe per cell. Raw output is not committed — re-run it to
+reproduce.
+
+Measured on node 24 / darwin-arm64. **Structural numbers (rows per chunk, chunk
+duration, payload size, chunk counts, retained bytes) are exact and
+deterministic; timings vary ±40 % run to run**, so they are quoted to one
+significant figure.
+
+**Chunk geometry under the shipped 30 s duration cap**
+
+| profile | target | rows/chunk | chunk duration | payload/chunk | closed by |
+| --- | --- | --- | --- | --- | --- |
+| 4 ch @ 256 Hz | 64 KiB | 4096 | 16.0 s | 64 KiB | byte target |
+| 4 ch @ 256 Hz | 256 KiB | 7680 | 30.0 s | 121 KiB | 30 s cap |
+| 4 ch @ 256 Hz | 1 MiB | 7680 | 30.0 s | 121 KiB | 30 s cap |
+| 16 ch @ 1000 Hz | 64 KiB | 1024 | 1.0 s | 66 KiB | byte target |
+| 16 ch @ 1000 Hz | 256 KiB | 4096 | 4.1 s | 255 KiB | byte target |
+| 16 ch @ 1000 Hz | 1 MiB | 16384 | 16.4 s | 989 KiB | byte target |
+
+**Headline timings** (16 ch @ 1000 Hz, the profile where the byte target binds)
+
+| target | encode ms/chunk | encode MiB/s | ACK p50 ms | ACK p95 ms | CPU % of realtime |
+| --- | --- | --- | --- | --- | --- |
+| 64 KiB | ~0.6 | ~100 | ~0.8 | ~1.5 | ~0.3 % |
+| 256 KiB | ~2.6 | ~100 | ~3 | ~6 | ~0.2 % |
+| 1 MiB | ~7.4 | ~130 | ~11 | ~14 | ~0.2 % |
+
+At 4 ch @ 256 Hz every cell costs 0.01–0.07 % of one core; encode is
+0.3–0.8 ms/chunk. ACK latency is against the in-memory host (checksum
+re-verification plus catalog bookkeeping) — a real OPFS + IndexedDB host adds
+its own durability cost on top of these numbers.
+
+**In-flight window.** In steady state the window is inert: the host ACKs before
+the next chunk closes, so peak retention is exactly one chunk at every window
+setting and throughput does not vary with it. The window is only observable
+under a stalled host, where it does exactly what it specifies — max unACKed
+chunks equals the window (2/4/8 measured at 64 KiB, where a full window fits
+inside the 15 s ACK timeout). Retained bytes during a stall scale with stall
+duration × byte rate, not with the window; worst case measured was 5.04 MiB
+(15.7 % of the 32 MiB soft limit) at 1 MiB × window 8.
+
+### Chosen defaults
+
+**The shipped defaults — `chunkTargetBytes` 256 KiB, `inFlightWindow` 4 — are
+supported by this data and are not changing.**
+
+- **256 KiB target.** For the consumer headset profile the 30 s duration cap
+  binds first, so 256 KiB and 1 MiB produce *identical* 121 KiB / 30 s chunks —
+  raising the target buys nothing there. For high-rate streams 256 KiB keeps a
+  chunk at ~4 s of data (bounded crash loss, bounded recovery) and each commit
+  blocks for single-digit milliseconds. 1 MiB triples per-commit blocking
+  (~11 ms p50) and stretches a chunk to 16.4 s of unACKed data for no
+  throughput gain; 64 KiB shortens the loss window further but quadruples chunk
+  count and per-chunk protocol overhead at equal encode throughput.
+- **Window 4.** No throughput evidence discriminates the window with a
+  same-thread host, so the choice rests on what it bounds: unACKed retention
+  (4 × 256 KiB = 1 MiB, 3 % of the soft buffer limit) and resend cost after a
+  host failure. Window 8 doubles both for no measured benefit; window 2
+  under-pipelines the moment a host commit acquires real latency.
+- The 30 s `chunkMaxDurationUs` cap, not the byte target, is what governs
+  ordinary consumer sessions. It is the constant to revisit first if chunk
+  granularity ever needs tuning.
