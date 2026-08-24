@@ -286,6 +286,7 @@ normalize_release_target() {
         app-metrics|@elata-biosciences/app-metrics) echo "app-metrics" ;;
         app-payments|@elata-biosciences/app-payments) echo "app-payments" ;;
         biosignal-session|@elata-biosciences/biosignal-session) echo "biosignal-session" ;;
+        biosignal-analytics|@elata-biosciences/biosignal-analytics) echo "biosignal-analytics" ;;
         *)
             echo "Unknown release target: $raw" >&2
             return 1
@@ -304,6 +305,7 @@ package_dir_for_target() {
         app-metrics) echo "packages/app-metrics" ;;
         app-payments) echo "packages/app-payments" ;;
         biosignal-session) echo "packages/biosignal-session" ;;
+        biosignal-analytics) echo "packages/biosignal-analytics" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -322,6 +324,7 @@ package_name_for_target() {
         app-metrics) echo "@elata-biosciences/app-metrics" ;;
         app-payments) echo "@elata-biosciences/app-payments" ;;
         biosignal-session) echo "@elata-biosciences/biosignal-session" ;;
+        biosignal-analytics) echo "@elata-biosciences/biosignal-analytics" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -340,6 +343,7 @@ release_tag_prefix_for_target() {
         app-metrics) echo "app-metrics" ;;
         app-payments) echo "app-payments" ;;
         biosignal-session) echo "biosignal-session" ;;
+        biosignal-analytics) echo "biosignal-analytics" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -906,7 +910,7 @@ resolve_release_target_and_dist_tag() {
 
 verify_script_for_target() {
     case "$1" in
-        eeg-web|eeg-web-ble|rppg-web|rppg-models-web|ppg-web|create-elata-demo|app-metrics|app-payments|biosignal-session) echo "verify:publish" ;;
+        eeg-web|eeg-web-ble|rppg-web|rppg-models-web|ppg-web|create-elata-demo|app-metrics|app-payments|biosignal-session|biosignal-analytics) echo "verify:publish" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1
@@ -916,7 +920,7 @@ verify_script_for_target() {
 
 prepare_script_for_target() {
     case "$1" in
-        eeg-web|eeg-web-ble|rppg-web|rppg-models-web|ppg-web|create-elata-demo|app-metrics|biosignal-session) echo "prepare:publish" ;;
+        eeg-web|eeg-web-ble|rppg-web|rppg-models-web|ppg-web|create-elata-demo|app-metrics|biosignal-session|biosignal-analytics) echo "prepare:publish" ;;
         *)
             echo "Unknown package target: $1" >&2
             return 1

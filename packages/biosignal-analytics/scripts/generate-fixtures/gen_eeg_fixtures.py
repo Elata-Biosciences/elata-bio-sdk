@@ -120,7 +120,7 @@ def main() -> None:
         "eeg/spectral_entropy.json",
         {
             "schema": "elata.golden-fixture/v1",
-            "algorithm": "spectral_entropy@1",
+            "algorithm": "spectral_entropy@1 + dominant_frequency@1",
             "oracle": {"lib": "numpy over scipy.signal.welch PSD"},
             "tolerances": {"rtol": 1e-3},
             "cases": [

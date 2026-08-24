@@ -49,7 +49,7 @@ def main() -> None:
         "pulse/hrv_time_domain.json",
         {
             "schema": "elata.golden-fixture/v1",
-            "algorithm": "hrv_time_domain@1",
+            "algorithm": "hrv_time_domain@1 + nn_clean@1",
             "oracle": {
                 "lib": "numpy",
                 "note": (

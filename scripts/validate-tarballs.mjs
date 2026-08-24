@@ -194,6 +194,35 @@ const packages = [
 			"fixtures/",
 		],
 	},
+	{
+		name: "@elata-biosciences/biosignal-analytics",
+		aliases: ["biosignal-analytics", "packages/biosignal-analytics"],
+		dir: "packages/biosignal-analytics",
+		requiredFiles: [
+			"dist/index.js",
+			"dist/index.d.ts",
+			"dist/registry/index.js",
+			"dist/insights/index.js",
+			"dist/worker/analyticsWorker.js",
+			"wasm/biosignal_features_wasm.js",
+			"wasm/biosignal_features_wasm_bg.wasm",
+			"README.md",
+			"llms.txt",
+			"package.json",
+		],
+		forbiddenPatterns: [
+			"__tests__",
+			"__mocks__",
+			".test.ts",
+			".test.js",
+			"node_modules/",
+			"tsconfig",
+			"jest.config",
+			"coverage/",
+			"fixtures/",
+			"scripts/generate-fixtures/",
+		],
+	},
 ];
 
 const requested = process.argv.slice(2);

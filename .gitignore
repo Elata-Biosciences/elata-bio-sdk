@@ -54,6 +54,8 @@ packages/rppg-web/pkg/
 packages/rppg-web/demo/demo.js
 packages/eeg-web/wasm/*
 !packages/eeg-web/wasm/.gitkeep
+packages/biosignal-analytics/wasm/*
+!packages/biosignal-analytics/wasm/.gitkeep
 packages/eeg-web/src/*.js
 packages/eeg-web/src/*.d.ts
 packages/eeg-web/src/*.d.ts.map
