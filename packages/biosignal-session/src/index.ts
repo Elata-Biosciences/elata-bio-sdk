@@ -14,4 +14,6 @@ export * from "./contracts/session";
 export * from "./contracts/time";
 export * from "./protocol/errors";
 export * from "./protocol/messages";
+export * from "./protocol/stateMachine";
+export * from "./protocol/window";
 export * from "./arrow/checksum";

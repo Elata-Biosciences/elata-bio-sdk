@@ -11,7 +11,7 @@ import type {
 	SourceDescriptorDraft,
 	StreamDescriptorDraft,
 } from "../contracts/session";
-import type { SessionUs } from "../contracts/time";
+import type { DiscontinuityV1, SessionUs } from "../contracts/time";
 
 export interface BiosignalSource {
 	descriptor(): SourceDescriptorDraft;
@@ -50,5 +50,11 @@ export interface StreamHandle {
 	): void;
 	/** Metric-object streams (rppg-metrics / ppg-metrics rows). */
 	pushMetricRow(timeUs: SessionUs, row: Record<string, unknown>): void;
+	/**
+	 * Optional: attribute the next detected timeline discontinuity (e.g.
+	 * a transport `sequenceId` gap → `"ble-reconnect"`). Additive and
+	 * optional so existing implementations stay valid.
+	 */
+	hintDiscontinuity?(reason: NonNullable<DiscontinuityV1["reason"]>): void;
 	close(endUs: SessionUs): void;
 }
