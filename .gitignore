@@ -76,3 +76,6 @@ packages/eeg-web/src/*.d.ts.map
 # Playwright test artifacts
 **/test-results/
 **/playwright-report/
+
+# Cross-language verification scratch output
+packages/biosignal-session/.cross-language/

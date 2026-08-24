@@ -112,3 +112,19 @@ supported by this data and are not changing.**
 - The 30 s `chunkMaxDurationUs` cap, not the byte target, is what governs
   ordinary consumer sessions. It is the constant to revisit first if chunk
   granularity ever needs tuning.
+
+## Cross-language verification
+
+A chunk is only useful if something other than this library can read it.
+`scripts/cross-language/` emits one chunk per Arrow schema and verifies them
+with **pyarrow** — independently re-reading the files, recomputing the CRC32C
+in Python, checking the Elata identity metadata survived, and asserting the
+time-column contract (regular streams carry no time column; irregular streams
+carry an `int64` microsecond column, never an Arrow timestamp type, which
+would imply an epoch these values do not have).
+
+```bash
+pnpm build && pnpm run verify:cross-language   # needs python3 with pyarrow
+```
+
+If the JS and Python readers ever disagree, the chunk format is the problem.

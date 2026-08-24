@@ -56,7 +56,8 @@
 		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts && node ../../scripts/verify-package-build.mjs dist/browser.js dist/browser.d.ts && node ../../scripts/verify-package-build.mjs dist/testing.js dist/testing.d.ts",
 		"verify:publish": "pnpm run verify:build",
 		"prepare:publish": "pnpm run build",
-		"prepack": "pnpm run prepare:publish && pnpm run verify:publish"
+		"prepack": "pnpm run prepare:publish && pnpm run verify:publish",
+		"verify:cross-language": "node ./scripts/cross-language/emit-chunks.mjs .cross-language && \"${ELATA_PYTHON:-python3}\" ./scripts/cross-language/verify_chunks.py .cross-language"
 	},
 	"dependencies": {
 		"apache-arrow": "21.2.0"
