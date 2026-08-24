@@ -519,6 +519,22 @@ export function createMemoryHost(options: MemoryHostOptions = {}): MemoryHost {
 			fail(request.id, "invalid_payload", "payload must be an ArrayBuffer");
 			return;
 		}
+		// NaN/Infinity would poison the catalog's time ranges and every query
+		// built on them, so timing is checked before anything is stored.
+		for (const [field, value] of [
+			["startUs", meta.startUs],
+			["endUs", meta.endUs],
+			["rowCount", meta.rowCount],
+		] as const) {
+			if (!Number.isFinite(value)) {
+				fail(request.id, "invalid_payload", `${field} must be finite`);
+				return;
+			}
+		}
+		if (meta.endUs < meta.startUs) {
+			fail(request.id, "invalid_payload", "endUs precedes startUs");
+			return;
+		}
 		const payload = new Uint8Array(request.payload);
 		if (corruptPayload) {
 			corruptPayload = false;
@@ -594,6 +610,12 @@ export function createMemoryHost(options: MemoryHostOptions = {}): MemoryHost {
 		const session = host.sessions.get(request.sessionId);
 		if (!session) {
 			fail(request.id, "unknown_session");
+			return;
+		}
+		// Events belong to a live recording: a finalized or aborted session is
+		// sealed, exactly as it is for chunk commits.
+		if (session.state !== "recording") {
+			fail(request.id, "bad_state", `session ${session.state}`);
 			return;
 		}
 		if (!Array.isArray(request.events)) {
