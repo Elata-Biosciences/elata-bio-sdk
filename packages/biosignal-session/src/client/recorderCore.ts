@@ -115,6 +115,8 @@ export class RecorderCore {
 	private readonly pending = new Map<string, PendingRequest>();
 	private readonly streams = new Map<string, StreamRuntime>();
 	private readonly deferredOpens: string[] = [];
+	/** Declared source name → the id the host assigned to it. */
+	private readonly assignedSourceIds = new Map<string, string>();
 
 	private stopRequest: { mode: "finalize" | "abort"; reason?: string } | null =
 		null;
@@ -585,9 +587,18 @@ export class RecorderCore {
 	private sendStreamOpen(stream: StreamRuntime): void {
 		if (stream.openSent || this.currentSessionId === null) return;
 		stream.openSent = true;
+		// The host assigns source ids; an app only knows the source *name* it
+		// declared. Translate here so a draft may carry either, and the wire
+		// always carries the id the host issued. Hosts that validate strictly
+		// would otherwise reject every stream an app opens.
+		const assignedId = this.assignedSourceIds.get(stream.draft.sourceId);
+		const draft =
+			assignedId === undefined
+				? stream.draft
+				: { ...stream.draft, sourceId: assignedId };
 		const id = this.request("stream/open", {
 			sessionId: this.currentSessionId,
-			stream: stream.draft,
+			stream: draft,
 		});
 		this.pending.set(id, {
 			op: "stream/open",
@@ -743,10 +754,21 @@ export class RecorderCore {
 				return;
 			case "session/create": {
 				const parsed = result as
-					| { sessionId?: string; session?: { sessionId?: string } }
+					| {
+							sessionId?: string;
+							session?: { sessionId?: string };
+							sources?: { sourceId?: string; name?: string }[];
+					  }
 					| undefined;
 				const sessionId =
 					parsed?.sessionId ?? parsed?.session?.sessionId ?? null;
+				// Remember what the host called each declared source, so
+				// `stream/open` can carry the assigned id (see sendStreamOpen).
+				for (const source of parsed?.sources ?? []) {
+					if (source?.name && source.sourceId) {
+						this.assignedSourceIds.set(source.name, source.sourceId);
+					}
+				}
 				if (sessionId === null) {
 					this.setState("error");
 					this.emitError(

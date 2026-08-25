@@ -427,6 +427,16 @@ export function createMemoryHost(options: MemoryHostOptions = {}): MemoryHost {
 			fail(request.id, "invalid_payload", "bad stream draft");
 			return;
 		}
+		// KNOWN DIVERGENCE FROM PRODUCTION HOSTS: this host does not check that
+		// `draft.sourceId` refers to a source the session declared, so unit
+		// tests can use arbitrary ids for streams whose subject is chunking or
+		// backpressure rather than identity. Real hosts assign source ids and
+		// reject unknown ones — `RecorderCore` therefore translates a declared
+		// source *name* into the assigned id before sending `stream/open`
+		// (see sendStreamOpen). The strict path is exercised end to end by the
+		// App Store's scripts/verify-cross-repo-integration.ts. Tightening this
+		// to match production means giving every existing test a declared
+		// source, and is worth doing when that churn is affordable.
 		if (
 			draft.sampling === "regular" &&
 			!(draft.sampleRateHz && draft.sampleRateHz > 0)

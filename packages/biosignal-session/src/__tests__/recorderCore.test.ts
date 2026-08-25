@@ -1,7 +1,10 @@
 import { decodeChunk, readFloat32Column } from "../arrow/decode";
 import type { StreamDescriptorDraft } from "../contracts/session";
 import { createLoopbackPortPair } from "../testing/memoryHost";
-import { createRecorderHarness } from "../testing/recorderHarness";
+import {
+	createRecorderHarness,
+	HARNESS_SOURCE,
+} from "../testing/recorderHarness";
 
 const eegDraft = (channels = 2, sampleRateHz = 100): StreamDescriptorDraft => ({
 	sourceId: "src",
@@ -250,5 +253,37 @@ describe("heartbeat", () => {
 		await h.advance(10_000);
 		// Each heartbeat ping produced one ok reply.
 		expect(h.host.sentReplies.length).toBe(before + 2);
+	});
+});
+
+describe("host-assigned source ids", () => {
+	it("sends the id the host assigned, not the name the app declared", async () => {
+		const h = createRecorderHarness();
+		await h.start();
+		// The harness declares one source; the host assigns it a real id.
+		const assigned = [...h.host.sources.values()][0];
+		expect(assigned).toBeDefined();
+		expect(assigned.name).toBe(HARNESS_SOURCE.name);
+		expect(assigned.sourceId).not.toBe(HARNESS_SOURCE.name);
+
+		// A draft referring to the source by NAME must reach the host carrying
+		// the assigned id — production hosts reject anything else.
+		h.sink.openStream({
+			sourceId: HARNESS_SOURCE.name,
+			modality: "eeg",
+			sampling: "regular",
+			sampleRateHz: 256,
+			channels: [{ name: "ch1" }],
+			encoding: "arrow-ipc",
+			arrowSchemaId: "regular-wide-f32@1",
+			layout: "wide",
+			clockSource: "local",
+		});
+		await h.settle();
+
+		const stream = [...h.host.streams.values()].find(
+			(candidate) => candidate.modality === "eeg",
+		);
+		expect(stream?.sourceId).toBe(assigned.sourceId);
 	});
 });
