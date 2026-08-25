@@ -5,9 +5,9 @@
  */
 
 import {
+	type PersonalBaseline,
 	isBaselineUsable,
 	robustZFromBaseline,
-	type PersonalBaseline,
 } from "./baseline.js";
 
 export interface ScoreContributor {
@@ -23,13 +23,33 @@ export interface ScoreContributor {
 export type HeadlineScoreId =
 	| "elata.measurement_quality"
 	| "elata.activation"
-	| "elata.recovery";
+	| "elata.recovery"
+	| "elata.focus"
+	| "elata.readiness"
+	| "elata.resilience";
 
 export type WithheldReason =
 	| "insufficient_baseline"
 	| "insufficient_quality"
 	| "no_activation_detected"
-	| "inputs_missing";
+	| "inputs_missing"
+	/** Longitudinal scores below their minimum-history policy. */
+	| "insufficient_history"
+	/** Focus without a task to be focused on. */
+	| "no_task_context"
+	/** The recording ended before the activation had recovered. */
+	| "recovery_incomplete";
+
+/**
+ * One unmet requirement behind a withheld score, so the UI can say "8 more
+ * days" instead of "not enough data".
+ */
+export interface WithheldRequirement {
+	/** Stable machine-readable key, e.g. "qualified_days". */
+	requirement: string;
+	have: number;
+	need: number;
+}
 
 export interface HeadlineScoreV1 {
 	scoreId: HeadlineScoreId;
@@ -37,6 +57,11 @@ export interface HeadlineScoreV1 {
 	/** 0-100; null = withheld — never a silent neutral 50. */
 	value: number | null;
 	withheldReason?: WithheldReason;
+	/**
+	 * Quantified shortfall behind `withheldReason`. Present only when the
+	 * shortfall is countable (history/episode floors), absent otherwise.
+	 */
+	withheldDetail?: readonly WithheldRequirement[];
 	/** Full drill-down, always emitted. */
 	contributors: readonly ScoreContributor[];
 	/** MQ always attached to any score. */
@@ -63,6 +88,13 @@ export interface ContributorInput {
 	weight: number;
 	/** Negate the z (e.g. RMSSD contributes inversely to activation). */
 	negate?: boolean;
+	/**
+	 * When set, the baseline must have been cut from this context bucket (e.g.
+	 * "morning"). A morning reading compared against an all-day baseline is a
+	 * different measurement, so the mismatch excludes the contributor rather
+	 * than being quietly tolerated.
+	 */
+	requiredContextBucket?: string;
 }
 
 /** Assemble a contributor: baseline gating + robust z + inclusion verdict. */
@@ -95,6 +127,17 @@ export function buildContributor(input: ContributorInput): ScoreContributor {
 			z: null,
 			included: false,
 			excludedReason: "insufficient_quality",
+		};
+	}
+	if (
+		input.requiredContextBucket !== undefined &&
+		input.baseline.contextBucket !== input.requiredContextBucket
+	) {
+		return {
+			...base,
+			z: null,
+			included: false,
+			excludedReason: "baseline_context_mismatch",
 		};
 	}
 	const { z, degenerate } = robustZFromBaseline(input.value, input.baseline);

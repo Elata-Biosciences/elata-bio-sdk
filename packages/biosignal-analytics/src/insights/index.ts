@@ -22,7 +22,30 @@ export type {
 	HeadlineScoreV1,
 	ScoreContributor,
 	WithheldReason,
+	WithheldRequirement,
 } from "./contributors.js";
+export {
+	computeRollingBaseline,
+	contextBucketForHour,
+	DAY_MS,
+	describePersonalRange,
+	HAMPEL_OUTLIER_Z,
+	ROLLING_BASELINE_MIN_DAYS,
+	ROLLING_BASELINE_MIN_QUALITY,
+	ROLLING_BASELINE_MIN_SPAN_DAYS,
+	ROLLING_BASELINE_WINDOW_DAYS,
+} from "./longitudinal.js";
+export type {
+	ContextBucket,
+	DailyMetricSample,
+	HistoryCoverage,
+	PersonalRange,
+	PersonalRangeBand,
+	RollingBaseline,
+	RollingBaselineOptions,
+	RollingBaselineResult,
+	RollingBaselineWithheldReason,
+} from "./longitudinal.js";
 export {
 	MQ_MIN_VALID_DURATION_S,
 	scoreMeasurementQuality,
