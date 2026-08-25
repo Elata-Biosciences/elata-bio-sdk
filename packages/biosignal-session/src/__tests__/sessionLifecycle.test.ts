@@ -19,7 +19,7 @@ describe("120 s synthetic session", () => {
 	beforeAll(async () => {
 		h = createRecorderHarness();
 		const source = createSyntheticSource({ seed: 42 });
-		await h.start();
+		await h.start({ sources: [source.descriptor()] });
 		await h.startSource(source);
 		for (let slice = 0; slice < 4; slice++) {
 			source.pump(30_000);

@@ -29,7 +29,7 @@ describe("8 h virtual session", () => {
 			rppgMetrics: { rateHz: 1 },
 			ppgMetrics: { rateHz: 0.5 },
 		});
-		await h.start();
+		await h.start({ sources: [source.descriptor()] });
 		await h.startSource(source);
 
 		let bufferHighwater = 0;

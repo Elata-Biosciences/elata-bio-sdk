@@ -29,7 +29,7 @@ async function record(seconds: number): Promise<RunResult> {
 		rppgMetrics: { rateHz: 1 },
 		ppgMetrics: { rateHz: 0.5 },
 	});
-	await harness.start();
+	await harness.start({ sources: [source.descriptor()] });
 	await harness.startSource(source);
 
 	const sliceSeconds = 60;

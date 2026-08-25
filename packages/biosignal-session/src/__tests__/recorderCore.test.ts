@@ -7,7 +7,7 @@ import {
 } from "../testing/recorderHarness";
 
 const eegDraft = (channels = 2, sampleRateHz = 100): StreamDescriptorDraft => ({
-	sourceId: "src",
+	sourceId: HARNESS_SOURCE.name,
 	modality: "eeg",
 	sampling: "regular",
 	sampleRateHz,
@@ -21,7 +21,7 @@ const eegDraft = (channels = 2, sampleRateHz = 100): StreamDescriptorDraft => ({
 });
 
 const rppgDraft: StreamDescriptorDraft = {
-	sourceId: "src",
+	sourceId: HARNESS_SOURCE.name,
 	modality: "rppg-metrics",
 	sampling: "irregular",
 	channels: [],
@@ -125,7 +125,7 @@ describe("stream open and chunk flow", () => {
 		const h = createRecorderHarness();
 		await h.start();
 		const handle = h.sink.openStream({
-			sourceId: "src",
+			sourceId: HARNESS_SOURCE.name,
 			modality: "battery",
 			sampling: "irregular",
 			channels: [{ name: "battery_pct" }],

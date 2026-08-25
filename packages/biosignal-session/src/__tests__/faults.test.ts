@@ -7,10 +7,13 @@
  */
 
 import type { StreamDescriptorDraft } from "../contracts/session";
-import { createRecorderHarness } from "../testing/recorderHarness";
+import {
+	createRecorderHarness,
+	HARNESS_SOURCE,
+} from "../testing/recorderHarness";
 
 const eegDraft: StreamDescriptorDraft = {
-	sourceId: "src",
+	sourceId: HARNESS_SOURCE.name,
 	modality: "eeg",
 	sampling: "regular",
 	sampleRateHz: 100,

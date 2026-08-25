@@ -55,20 +55,29 @@ function harness() {
 	return { host, clientPort, replies, send, replyFor };
 }
 
-async function createSessionAndStream(h: ReturnType<typeof harness>) {
+/** Create a session and return the session id plus its host-assigned sources. */
+async function createSession(h: ReturnType<typeof harness>) {
 	const createId = h.send({ op: "session/create", spec: baseSpec() });
 	await settleMicrotasks();
 	const created = h.replyFor(createId) as Extract<HostToClient, { ok: true }>;
-	const { session } = created.result as { session: { sessionId: string } };
+	const { session, sources } = created.result as {
+		session: { sessionId: string };
+		sources: { sourceId: string }[];
+	};
+	return { sessionId: session.sessionId, sourceId: sources[0].sourceId };
+}
+
+async function createSessionAndStream(h: ReturnType<typeof harness>) {
+	const { sessionId, sourceId } = await createSession(h);
 	const openId = h.send({
 		op: "stream/open",
-		sessionId: session.sessionId,
-		stream: eegDraft("src-1"),
+		sessionId,
+		stream: eegDraft(sourceId),
 	});
 	await settleMicrotasks();
 	const opened = h.replyFor(openId) as Extract<HostToClient, { ok: true }>;
 	const { stream } = opened.result as { stream: { streamId: string } };
-	return { sessionId: session.sessionId, streamId: stream.streamId };
+	return { sessionId, sourceId, streamId: stream.streamId };
 }
 
 function baseSpec() {
@@ -130,23 +139,68 @@ describe("session and stream lifecycle", () => {
 
 	it("requires sampleRateHz on regular streams and a known arrow schema", async () => {
 		const h = harness();
-		const createId = h.send({ op: "session/create", spec: baseSpec() });
-		await settleMicrotasks();
-		const created = h.replyFor(createId) as Extract<HostToClient, { ok: true }>;
-		const { session } = created.result as { session: { sessionId: string } };
+		const { sessionId, sourceId } = await createSession(h);
 		const badRate = h.send({
 			op: "stream/open",
-			sessionId: session.sessionId,
-			stream: { ...eegDraft("s"), sampleRateHz: undefined },
+			sessionId,
+			stream: { ...eegDraft(sourceId), sampleRateHz: undefined },
 		});
 		const badSchema = h.send({
 			op: "stream/open",
-			sessionId: session.sessionId,
-			stream: { ...eegDraft("s"), arrowSchemaId: "bogus@9" },
+			sessionId,
+			stream: { ...eegDraft(sourceId), arrowSchemaId: "bogus@9" },
 		});
 		await settleMicrotasks();
 		expect(h.replyFor(badRate)).toMatchObject({ ok: false, error: "invalid_payload" });
 		expect(h.replyFor(badSchema)).toMatchObject({ ok: false, error: "invalid_payload" });
+	});
+
+	it("rejects a stream whose sourceId was never declared", async () => {
+		const h = harness();
+		const { sessionId, sourceId } = await createSession(h);
+		// The *name* the app declared is not the id the host assigned: a client
+		// that sends the name (or anything else it invented) is refused, exactly
+		// as a production host refuses it.
+		const undeclared = h.send({
+			op: "stream/open",
+			sessionId,
+			stream: eegDraft(sourceDraft.name),
+		});
+		await settleMicrotasks();
+		expect(h.replyFor(undeclared)).toMatchObject({
+			ok: false,
+			error: "invalid_payload",
+			detail: "unknown sourceId",
+		});
+		expect(h.host.streams.size).toBe(0);
+
+		// The assigned id is accepted.
+		const declared = h.send({
+			op: "stream/open",
+			sessionId,
+			stream: eegDraft(sourceId),
+		});
+		await settleMicrotasks();
+		expect(h.replyFor(declared)).toMatchObject({ ok: true });
+		expect(h.host.streams.size).toBe(1);
+	});
+
+	it("rejects a sourceId that belongs to a different session", async () => {
+		const h = harness();
+		const first = await createSession(h);
+		const second = await createSession(h);
+		const id = h.send({
+			op: "stream/open",
+			sessionId: second.sessionId,
+			stream: eegDraft(first.sourceId),
+		});
+		await settleMicrotasks();
+		expect(h.replyFor(id)).toMatchObject({
+			ok: false,
+			error: "invalid_payload",
+			detail: "unknown sourceId",
+		});
+		expect(h.host.streams.size).toBe(0);
 	});
 
 	it("finalize closes open streams and completes the session", async () => {

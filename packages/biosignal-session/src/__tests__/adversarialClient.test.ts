@@ -87,20 +87,29 @@ const baseSpec = () => ({
 	provenance: { recorderVersion: "0.1.0", protocolVersion: 1, sdkPackages: [] },
 });
 
-async function openSession(h: ReturnType<typeof harness>) {
+/** Create a session and return its id plus the source id the host assigned. */
+async function createSession(h: ReturnType<typeof harness>) {
 	const createId = h.send({ op: "session/create", spec: baseSpec() });
 	await settleMicrotasks();
 	const created = h.replyFor(createId) as Extract<HostToClient, { ok: true }>;
-	const { session } = created.result as { session: { sessionId: string } };
+	const { session, sources } = created.result as {
+		session: { sessionId: string };
+		sources: { sourceId: string }[];
+	};
+	return { sessionId: session.sessionId, sourceId: sources[0].sourceId };
+}
+
+async function openSession(h: ReturnType<typeof harness>) {
+	const { sessionId, sourceId } = await createSession(h);
 	const openId = h.send({
 		op: "stream/open",
-		sessionId: session.sessionId,
-		stream: eegDraft("src-1"),
+		sessionId,
+		stream: eegDraft(sourceId),
 	});
 	await settleMicrotasks();
 	const opened = h.replyFor(openId) as Extract<HostToClient, { ok: true }>;
 	const { stream } = opened.result as { stream: { streamId: string } };
-	return { sessionId: session.sessionId, streamId: stream.streamId };
+	return { sessionId, sourceId, streamId: stream.streamId };
 }
 
 describe("a hostile client cannot forge identity", () => {
@@ -232,24 +241,41 @@ describe("a hostile client cannot corrupt the stream", () => {
 
 	it("refuses a stream declaring an unknown modality or schema", async () => {
 		const h = harness();
-		const createId = h.send({ op: "session/create", spec: baseSpec() });
-		await settleMicrotasks();
-		const created = h.replyFor(createId) as Extract<HostToClient, { ok: true }>;
-		const { session } = created.result as { session: { sessionId: string } };
+		const { sessionId, sourceId } = await createSession(h);
 
 		const badModality = await h.outcomeOf({
 			op: "stream/open",
-			sessionId: session.sessionId,
-			stream: { ...eegDraft("src-1"), modality: "telepathy" },
+			sessionId,
+			stream: { ...eegDraft(sourceId), modality: "telepathy" },
 		});
 		expect(badModality).toBe("invalid_payload");
 
 		const badSchema = await h.outcomeOf({
 			op: "stream/open",
-			sessionId: session.sessionId,
-			stream: { ...eegDraft("src-1"), arrowSchemaId: "made-up@9" },
+			sessionId,
+			stream: { ...eegDraft(sourceId), arrowSchemaId: "made-up@9" },
 		});
 		expect(badSchema).toBe("invalid_payload");
+	});
+
+	it("refuses a stream hung off a source the session never declared", async () => {
+		const h = harness();
+		const { sessionId } = await createSession(h);
+		// A forged id, and a real id belonging to someone else's session.
+		const forged = await h.outcomeOf({
+			op: "stream/open",
+			sessionId,
+			stream: eegDraft("src-1"),
+		});
+		expect(forged).toBe("invalid_payload");
+		const other = await createSession(h);
+		const crossSession = await h.outcomeOf({
+			op: "stream/open",
+			sessionId,
+			stream: eegDraft(other.sourceId),
+		});
+		expect(crossSession).toBe("invalid_payload");
+		expect(h.host.streams.size).toBe(0);
 	});
 
 	it("refuses writes to a session that has already been finalized", async () => {

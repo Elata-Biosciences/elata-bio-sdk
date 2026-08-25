@@ -13,11 +13,14 @@ import {
 	createMemoryHost,
 	settleMicrotasks,
 } from "../testing/memoryHost";
-import { createRecorderHarness } from "../testing/recorderHarness";
+import {
+	createRecorderHarness,
+	HARNESS_SOURCE,
+} from "../testing/recorderHarness";
 import type { ProtocolPort, RecorderWorkerToClient } from "../worker/workerMessages";
 
 const eegDraft: StreamDescriptorDraft = {
-	sourceId: "src",
+	sourceId: HARNESS_SOURCE.name,
 	modality: "eeg",
 	sampling: "regular",
 	sampleRateHz: 100,
@@ -87,7 +90,14 @@ async function windowScenario(windowSize: number) {
 			startedAtUtcMs: clock.utcNow(),
 			startedAtMonotonicMs: clock.monotonicNow(),
 			sources: [
-				{ kind: "synthetic", name: "s", adapter: "synthetic@1", sdkPackages: [] },
+				{
+					kind: "synthetic",
+					// Same name the stream draft below refers to: the host assigns
+					// the id and RecorderCore translates the name on the way out.
+					name: eegDraft.sourceId,
+					adapter: "synthetic@1",
+					sdkPackages: [],
+				},
 			],
 			provenance: { recorderVersion: "0.1.0", protocolVersion: 1, sdkPackages: [] },
 		},

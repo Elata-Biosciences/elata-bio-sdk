@@ -55,7 +55,11 @@ export interface RecorderHarness {
 	start(spec?: Partial<SessionCreateSpec>): Promise<void>;
 	/** A `SourceSink` bridged onto the engine (for `BiosignalSource`s). */
 	sink: SourceSink;
-	/** Run a source against the sink. */
+	/**
+	 * Run a source against the sink. The source must have been declared in the
+	 * `start()` spec — hosts assign source ids at `session/create` and refuse
+	 * streams naming anything else.
+	 */
 	startSource(source: BiosignalSource): Promise<void>;
 	/** Advance the fake clock, tick the engine, settle deliveries. */
 	advance(ms: number): Promise<void>;
@@ -105,6 +109,8 @@ export function createRecorderHarness(
 	let currentSessionClock = sessionClock();
 
 	let streamCounter = 0;
+	/** Source names the current session declared (see `startSource`). */
+	let declaredSourceNames = new Set<string>();
 
 	const sink: SourceSink = {
 		clock: { nowUs: () => currentSessionClock.nowUs() },
@@ -184,24 +190,34 @@ export function createRecorderHarness(
 			await settle();
 			anchorMonotonicMs = clock.monotonicNow();
 			currentSessionClock = sessionClock();
-			core.handle({
-				t: "session/start",
-				spec: {
-					startedAtUtcMs: clock.utcNow(),
-					startedAtMonotonicMs: anchorMonotonicMs,
-					sources: [HARNESS_SOURCE],
-					provenance: {
-						recorderVersion: "0.1.0",
-						protocolVersion: 1,
-						sdkPackages: [],
-					},
-					...spec,
+			const fullSpec: SessionCreateSpec = {
+				startedAtUtcMs: clock.utcNow(),
+				startedAtMonotonicMs: anchorMonotonicMs,
+				sources: [HARNESS_SOURCE],
+				provenance: {
+					recorderVersion: "0.1.0",
+					protocolVersion: 1,
+					sdkPackages: [],
 				},
-			});
+				...spec,
+			};
+			declaredSourceNames = new Set(
+				fullSpec.sources.map((source) => source.name),
+			);
+			core.handle({ t: "session/start", spec: fullSpec });
 			await settle();
 		},
 		sink,
 		async startSource(source) {
+			// Catch here what a production host would catch on the wire: a
+			// source that was never declared has no assigned id to translate to.
+			const declaredName = source.descriptor().name;
+			if (!declaredSourceNames.has(declaredName)) {
+				throw new Error(
+					`source "${declaredName}" was not declared in the session spec; ` +
+						`pass it to start({ sources: [...] }) (declared: ${[...declaredSourceNames].join(", ") || "none"})`,
+				);
+			}
 			await source.start(sink);
 			await settle();
 		},
