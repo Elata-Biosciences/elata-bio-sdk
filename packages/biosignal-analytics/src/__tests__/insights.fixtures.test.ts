@@ -18,7 +18,11 @@ import * as path from "node:path";
 import {
 	robustZFromBaseline,
 	scoreActivation,
+	scoreFocus,
 	scoreMeasurementQuality,
+	scoreReadiness,
+	scoreRecovery,
+	scoreResilience,
 } from "../insights/index.js";
 
 const fixturePath = path.resolve(
@@ -53,6 +57,20 @@ function actualFor(testCase: FixtureCase): unknown {
 			return scoreActivation(
 				testCase.input as Parameters<typeof scoreActivation>[0],
 			);
+		case "score_recovery@2":
+			return scoreRecovery(
+				testCase.input as Parameters<typeof scoreRecovery>[0],
+			);
+		case "score_focus@1":
+			return scoreFocus(testCase.input as Parameters<typeof scoreFocus>[0]);
+		case "score_readiness@1":
+			return scoreReadiness(
+				testCase.input as Parameters<typeof scoreReadiness>[0],
+			);
+		case "score_resilience@1":
+			return scoreResilience(
+				testCase.input as Parameters<typeof scoreResilience>[0],
+			);
 		case "robust_z@1": {
 			const input = testCase.input as { value: number; baseline: unknown };
 			return robustZFromBaseline(
@@ -80,6 +98,57 @@ describe("shared score fixture", () => {
 		for (const testCase of withheld) {
 			expect((testCase.expected as { withheldReason?: unknown }).withheldReason)
 				.toBeDefined();
+		}
+	});
+
+	it("gives every score algorithm at least one withheld case", () => {
+		// Per-algorithm, not just in aggregate: a new score could otherwise
+		// land here with six happy paths and no proof it can decline.
+		const scoreAlgorithms = fixture.algorithms.filter((id) =>
+			id.startsWith("score_"),
+		);
+		expect(scoreAlgorithms.length).toBeGreaterThanOrEqual(6);
+		for (const algorithm of scoreAlgorithms) {
+			const cases = fixture.cases.filter(
+				(testCase) => testCase.algorithm === algorithm,
+			);
+			const withheld = cases.filter(
+				(testCase) => (testCase.expected as { value?: unknown }).value === null,
+			);
+			expect([algorithm, withheld.length > 0]).toEqual([algorithm, true]);
+			expect([algorithm, cases.length > withheld.length]).toEqual([
+				algorithm,
+				true,
+			]);
+		}
+	});
+
+	it("never publishes a neutral 50 in place of a withheld score", () => {
+		for (const testCase of fixture.cases) {
+			const expected = testCase.expected as {
+				value?: unknown;
+				withheldReason?: unknown;
+			};
+			if (expected.withheldReason === undefined) continue;
+			expect([testCase.id, expected.value]).toEqual([testCase.id, null]);
+		}
+	});
+
+	it("every score case carries its contributors and its measurement quality", () => {
+		for (const testCase of fixture.cases) {
+			if (!testCase.algorithm.startsWith("score_")) continue;
+			const expected = testCase.expected as {
+				contributors?: unknown[];
+				measurementQuality?: unknown;
+			};
+			expect([testCase.id, (expected.contributors ?? []).length > 0]).toEqual([
+				testCase.id,
+				true,
+			]);
+			expect([testCase.id, typeof expected.measurementQuality]).toEqual([
+				testCase.id,
+				"number",
+			]);
 		}
 	});
 
