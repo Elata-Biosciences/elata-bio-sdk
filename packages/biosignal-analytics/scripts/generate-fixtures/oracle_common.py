@@ -259,6 +259,393 @@ def hrv_time_domain(ibis_ms) -> dict:
     }
 
 
+PNN_SHORT_THRESHOLD_MS = 20.0
+PNN_LONG_THRESHOLD_MS = 50.0
+
+
+def prv_time_domain(ibis_ms) -> dict:
+    """prv_time_domain@1 — time-domain PULSE-rate variability over the cleaned
+    NN/PP sequence.
+
+    Superset of hrv_time_domain@1: meanNN/SDNN/RMSSD are the identical
+    arithmetic (so fixtures/pulse/hrv_time_domain.json stays authoritative for
+    those three), extended with SDSD, pNN20, pNN50 and the Poincare
+    descriptors. Named PRV because the Elata pipeline derives these intervals
+    from a camera (rPPG); the intervals are peak-to-peak, not R-to-R, so the
+    values are pulse-rate variability even though the formulas are the ones
+    NeuroKit2 uses for HRV.
+
+    Canonical formulas (NeuroKit2 `hrv_time` / `hrv_nonlinear`):
+      meanNN  = mean(nn)                                  [>= 1 interval]
+      SDNN    = std(nn, ddof=1)                           [>= 2 intervals]
+      RMSSD   = sqrt(mean(diff(nn)^2))                    [>= 2 intervals]
+      SDSD    = std(diff(nn), ddof=1)                     [>= 3 intervals]
+      pNN20   = 100 * count(|diff| > 20 ms) / n_diffs     [>= 2 intervals]
+      pNN50   = 100 * count(|diff| > 50 ms) / n_diffs     [>= 2 intervals]
+      SD1     = sqrt(0.5 * SDSD^2)                        [>= 3 intervals]
+      SD2     = sqrt(max(2*SDNN^2 - 0.5*SDSD^2, 0))       [>= 3 intervals]
+
+    SDSD/SD1/SD2 need ddof=1 over the successive differences, hence the
+    3-interval floor (2 intervals yield a single difference and an undefined
+    sample standard deviation). The SD2 radicand is clamped at 0: it is
+    non-negative analytically but can go slightly negative in floating point
+    when SDNN and SDSD are both dominated by the same successive differences.
+    """
+    original = np.asarray(ibis_ms, dtype=np.float64)
+    cleaned = np.asarray(clean_nn_intervals_ms(ibis_ms), dtype=np.float64)
+    count = int(cleaned.size)
+    usable_fraction = float(count / original.size) if original.size else 0.0
+
+    mean_nn = float(np.mean(cleaned)) if count >= 1 else None
+    sdnn = float(np.std(cleaned, ddof=1)) if count >= 2 else None
+    rmssd = None
+    sdsd = None
+    pnn20 = None
+    pnn50 = None
+    sd1 = None
+    sd2 = None
+    if count >= 2:
+        diffs = np.diff(cleaned)
+        rmssd = float(np.sqrt(np.mean(diffs * diffs)))
+        n_diffs = int(diffs.size)
+        pnn20 = float(
+            100.0 * np.sum(np.abs(diffs) > PNN_SHORT_THRESHOLD_MS) / n_diffs
+        )
+        pnn50 = float(
+            100.0 * np.sum(np.abs(diffs) > PNN_LONG_THRESHOLD_MS) / n_diffs
+        )
+    if count >= 3:
+        diffs = np.diff(cleaned)
+        sdsd = float(np.std(diffs, ddof=1))
+        sd1 = float(np.sqrt(0.5 * sdsd * sdsd))
+        sd2 = float(np.sqrt(max(2.0 * sdnn * sdnn - 0.5 * sdsd * sdsd, 0.0)))
+
+    mean_rate = (
+        float(60000.0 / mean_nn) if (mean_nn is not None and mean_nn > 0.0) else None
+    )
+    return {
+        "cleanedNnMs": [float(v) for v in cleaned],
+        "ppIntervalCount": count,
+        "usableIntervalFraction": usable_fraction,
+        "meanNnMs": mean_nn,
+        "meanPulseRateBpm": mean_rate,
+        "sdnnMs": sdnn,
+        "rmssdMs": rmssd,
+        "sdsdMs": sdsd,
+        "pnn20Percent": pnn20,
+        "pnn50Percent": pnn50,
+        "sd1Ms": sd1,
+        "sd2Ms": sd2,
+    }
+
+
+PRV_RESAMPLE_HZ = 4.0
+PRV_LF_BAND_HZ = (0.04, 0.15)
+PRV_HF_BAND_HZ = (0.15, 0.40)
+PRV_SEGMENT_SECONDS = 120.0
+PRV_OVERLAP_RATIO = 0.5
+PRV_MIN_INTERVALS = 20
+PRV_MIN_LF_DURATION_S = 120.0
+PRV_MIN_HF_DURATION_S = 60.0
+PRV_MIN_CYCLES_IN_SEGMENT = 2.0
+
+
+def prv_tachogram(cleaned_ms, resample_hz=PRV_RESAMPLE_HZ):
+    """Uniformly-resampled NN tachogram used by prv_frequency_domain@1.
+
+    Interval i is timestamped at the beat that TERMINATES it, i.e. at
+    `cumsum(nn)[i] / 1000` seconds; the series therefore spans
+    `t[-1] - t[0] = sum(nn[1:]) / 1000` seconds. Resampling is LINEAR
+    (`np.interp`) rather than cubic-spline so the Rust implementation can be
+    reproduced exactly; the grid is `t[0] + k / resample_hz` for
+    `k = 0 .. floor(duration * resample_hz)`.
+    """
+    nn = np.asarray(cleaned_ms, dtype=np.float64)
+    beat_times_s = np.cumsum(nn) / 1000.0
+    duration_s = float(beat_times_s[-1] - beat_times_s[0])
+    n = int(np.floor(duration_s * resample_hz)) + 1
+    grid = beat_times_s[0] + np.arange(n, dtype=np.float64) / resample_hz
+    values = np.interp(grid, beat_times_s, nn)
+    return grid, values, duration_s
+
+
+def prv_frequency_domain(
+    ibis_ms,
+    resample_hz=PRV_RESAMPLE_HZ,
+    lf_band_hz=PRV_LF_BAND_HZ,
+    hf_band_hz=PRV_HF_BAND_HZ,
+    segment_seconds=PRV_SEGMENT_SECONDS,
+    overlap_ratio=PRV_OVERLAP_RATIO,
+    min_intervals=PRV_MIN_INTERVALS,
+    min_lf_duration_s=PRV_MIN_LF_DURATION_S,
+    min_hf_duration_s=PRV_MIN_HF_DURATION_S,
+    min_cycles_in_segment=PRV_MIN_CYCLES_IN_SEGMENT,
+) -> dict:
+    """prv_frequency_domain@1 — LF / HF / LF:HF over the NN tachogram, with
+    explicit window-length gating.
+
+    A band is WITHHELD (null, with a reason) rather than reported when the
+    record cannot resolve it:
+      - fewer than `min_intervals` cleaned intervals        -> tooFewIntervals
+      - tachogram shorter than the band's minimum duration  -> recordingTooShort
+      - the Welch segment actually used spans fewer than
+        `min_cycles_in_segment` cycles of the band's low
+        edge                                                -> segmentTooShort
+    LF:HF is withheld whenever either band is withheld, or when HF power is 0.
+
+    Spectrum: welch_psd@1 parameters on the resampled tachogram (periodic
+    hann, constant detrend, one-sided density, nfft = next_pow2(nperseg),
+    nperseg = clamp(round(segment_seconds * resample_hz), 2, n)). Band power
+    is rectangular integration with right-exclusive edges (the eeg_band_power@2
+    convention), so LF and HF never share a bin. Units are ms^2.
+    """
+    cleaned = np.asarray(clean_nn_intervals_ms(ibis_ms), dtype=np.float64)
+    count = int(cleaned.size)
+    base = {
+        "ppIntervalCount": count,
+        "durationSeconds": 0.0,
+        "resampleHz": float(resample_hz),
+        "segmentSeconds": None,
+        "lfMs2": None,
+        "hfMs2": None,
+        "lfHfRatio": None,
+        "lfWithheldReason": None,
+        "hfWithheldReason": None,
+        "ratioWithheldReason": None,
+    }
+    if count < min_intervals:
+        base["lfWithheldReason"] = "tooFewIntervals"
+        base["hfWithheldReason"] = "tooFewIntervals"
+        base["ratioWithheldReason"] = "tooFewIntervals"
+        return base
+
+    grid, values, duration_s = prv_tachogram(cleaned, resample_hz)
+    values = np.asarray(f32(values), dtype=np.float64)
+    nperseg = int(round(segment_seconds * resample_hz))
+    nperseg = max(2, min(nperseg, int(values.size)))
+    noverlap = int(np.floor(nperseg * overlap_ratio))
+    nfft = next_pow2(nperseg)
+    freqs, psd = scipy.signal.welch(
+        values,
+        fs=resample_hz,
+        window="hann",
+        nperseg=nperseg,
+        noverlap=noverlap,
+        nfft=nfft,
+        detrend="constant",
+        return_onesided=True,
+        scaling="density",
+        average="mean",
+    )
+    df = float(freqs[1] - freqs[0])
+    segment_s = nperseg / float(resample_hz)
+    base["durationSeconds"] = duration_s
+    base["segmentSeconds"] = segment_s
+
+    def band(low_high, min_duration_s):
+        low, high = low_high
+        if duration_s < min_duration_s:
+            return None, "recordingTooShort"
+        if segment_s * low < min_cycles_in_segment:
+            return None, "segmentTooShort"
+        mask = (freqs >= low) & (freqs < high)
+        return float(np.sum(psd[mask]) * df), None
+
+    lf, lf_reason = band(lf_band_hz, min_lf_duration_s)
+    hf, hf_reason = band(hf_band_hz, min_hf_duration_s)
+    base["lfMs2"] = lf
+    base["lfWithheldReason"] = lf_reason
+    base["hfMs2"] = hf
+    base["hfWithheldReason"] = hf_reason
+    if lf is None:
+        base["ratioWithheldReason"] = lf_reason
+    elif hf is None:
+        base["ratioWithheldReason"] = hf_reason
+    elif not hf > 0.0:
+        base["ratioWithheldReason"] = "hfPowerZero"
+    else:
+        base["lfHfRatio"] = float(lf / hf)
+    return base
+
+
+ACTIVATION_BASELINE_WINDOW_SECONDS = 60.0
+ACTIVATION_MIN_BASELINE_SECONDS = 20.0
+ACTIVATION_K = 2.0
+ACTIVATION_MIN_ABSOLUTE_RISE = 0.0
+ACTIVATION_MIN_SUSTAINED_SECONDS = 10.0
+ACTIVATION_MIN_RECOVERY_SECONDS = 10.0
+ACTIVATION_RECOVERY_FRACTION = 0.10
+
+
+def activation_epoch(
+    values,
+    sample_rate_hz,
+    baseline_window_seconds=ACTIVATION_BASELINE_WINDOW_SECONDS,
+    min_baseline_seconds=ACTIVATION_MIN_BASELINE_SECONDS,
+    activation_k=ACTIVATION_K,
+    min_absolute_rise=ACTIVATION_MIN_ABSOLUTE_RISE,
+    min_sustained_seconds=ACTIVATION_MIN_SUSTAINED_SECONDS,
+    min_recovery_seconds=ACTIVATION_MIN_RECOVERY_SECONDS,
+    recovery_fraction=ACTIVATION_RECOVERY_FRACTION,
+) -> dict:
+    """activation_epoch@1 — the single sustained activation in a session, with
+    its pre-epoch baseline and post-epoch recovery.
+
+    Sample k is at time `k / sample_rate_hz` seconds.
+
+    1. BASELINE. The leading `baseline_window_seconds` of the recording
+       (samples with `t < baseline_window_seconds`) is the baseline window. It
+       must span at least `min_baseline_seconds` and hold at least 2 samples,
+       else the whole result is withheld (`baselineTooShort`).
+       `level = median(baseline)`, `scale = 1.4826 * MAD(baseline)` — the
+       robust_stats@1 pair, chosen so a single artefact in the baseline cannot
+       move the threshold.
+    2. THRESHOLD. `threshold = level + max(activation_k * scale,
+       min_absolute_rise)`.
+    3. ONSET. Scanning from the first sample after the baseline window, find
+       the first contiguous run of samples with `value > threshold` that lasts
+       at least `min_sustained_seconds` (run duration measured as
+       `(lastIdx - firstIdx) / fs`). That run is the epoch. If no run
+       qualifies the result is withheld (`noQualifyingActivation`). Only the
+       FIRST qualifying run is reported — this is a session-level "did the
+       stimulus land" epoch, not a general event detector.
+    4. EPOCH METRICS. Peak = max value in the run (first index on ties);
+       `timeToPeak = tPeak - tStart`; `areaAboveBaseline` = trapezoidal
+       integral of `(value - level)` over the run (value-units x seconds);
+       `riseRate = (peak - level) / (tPeak - tPreOnset)` where `tPreOnset` is
+       the last sample before onset (always one sample period before onset, so
+       the denominator is never 0 and the rate is strictly positive).
+    5. RECOVERY. Measured from the PEAK. Requires at least
+       `min_recovery_seconds` of recording after the peak, else the recovery
+       block alone is withheld (`postEpochWindowTooShort`) while the epoch
+       metrics stand. `halfTarget = level + 0.5 * (peak - level)`;
+       `baselineTarget = level + recovery_fraction * (peak - level)`.
+       `timeToHalfRecovery` / `timeToBaseline` are the delays from the peak to
+       the first sample at or below each target, or null when never reached.
+       `recoveryCompleted` is true iff `timeToBaseline` is non-null.
+       `recoverySlope = (value[endIdx] - peak) / (t[endIdx] - tPeak)` where
+       `endIdx` is the baseline-return sample when recovery completed and the
+       last sample of the recording otherwise; it is <= 0 for any signal that
+       decays from its peak.
+    """
+    x = np.asarray(values, dtype=np.float64)
+    n = int(x.size)
+    dt = 1.0 / float(sample_rate_hz)
+    out = {
+        "sampleRateHz": float(sample_rate_hz),
+        "sampleCount": n,
+        "durationSeconds": float(n * dt) if n else 0.0,
+        "baseline": None,
+        "epoch": None,
+        "withheldReason": None,
+    }
+    if n < 2 or not np.all(np.isfinite(x)):
+        out["withheldReason"] = "insufficientSamples"
+        return out
+
+    baseline_count = int(np.floor(baseline_window_seconds * sample_rate_hz))
+    baseline_count = min(baseline_count, n)
+    baseline_span = (baseline_count - 1) * dt if baseline_count >= 1 else 0.0
+    if baseline_count < 2 or baseline_span < min_baseline_seconds:
+        out["withheldReason"] = "baselineTooShort"
+        return out
+
+    baseline_values = x[:baseline_count]
+    level = float(np.median(baseline_values))
+    mad = float(np.median(np.abs(baseline_values - level)))
+    scale = MAD_SCALE * mad
+    threshold = level + max(activation_k * scale, min_absolute_rise)
+    out["baseline"] = {
+        "startSeconds": 0.0,
+        "endSeconds": float(baseline_span),
+        "sampleCount": baseline_count,
+        "level": level,
+        "scale": scale,
+        "activationThreshold": threshold,
+    }
+
+    above = x > threshold
+    start_idx = None
+    idx = baseline_count
+    epoch = None
+    while idx < n:
+        if not above[idx]:
+            idx += 1
+            continue
+        start_idx = idx
+        end_idx = idx
+        while end_idx + 1 < n and above[end_idx + 1]:
+            end_idx += 1
+        if (end_idx - start_idx) * dt >= min_sustained_seconds:
+            epoch = (start_idx, end_idx)
+            break
+        idx = end_idx + 1
+    if epoch is None:
+        out["withheldReason"] = "noQualifyingActivation"
+        return out
+
+    start_idx, end_idx = epoch
+    run = x[start_idx : end_idx + 1]
+    peak_offset = int(np.argmax(run))
+    peak_idx = start_idx + peak_offset
+    peak_value = float(x[peak_idx])
+    t_start = start_idx * dt
+    t_end = end_idx * dt
+    t_peak = peak_idx * dt
+    area = float(np.trapezoid(run - level, dx=dt))
+    rise_span = t_peak - (start_idx - 1) * dt
+    rise_rate = float((peak_value - level) / rise_span)
+
+    recovery = None
+    recovery_withheld = None
+    observed = (n - 1 - peak_idx) * dt
+    if observed < min_recovery_seconds:
+        recovery_withheld = "postEpochWindowTooShort"
+    else:
+        amplitude = peak_value - level
+        half_target = level + 0.5 * amplitude
+        baseline_target = level + recovery_fraction * amplitude
+        tail = x[peak_idx + 1 :]
+        half_hits = np.nonzero(tail <= half_target)[0]
+        base_hits = np.nonzero(tail <= baseline_target)[0]
+        t_half = float((int(half_hits[0]) + 1) * dt) if half_hits.size else None
+        t_base = float((int(base_hits[0]) + 1) * dt) if base_hits.size else None
+        if base_hits.size:
+            end_recovery_idx = peak_idx + 1 + int(base_hits[0])
+        else:
+            end_recovery_idx = n - 1
+        span = (end_recovery_idx - peak_idx) * dt
+        slope = float((x[end_recovery_idx] - peak_value) / span) if span > 0.0 else 0.0
+        residual = (
+            float((x[n - 1] - level) / amplitude) if amplitude > 0.0 else 0.0
+        )
+        recovery = {
+            "observedSeconds": float(observed),
+            "halfRecoveryTarget": half_target,
+            "baselineReturnTarget": baseline_target,
+            "timeToHalfRecoverySeconds": t_half,
+            "timeToBaselineSeconds": t_base,
+            "recoveryCompleted": bool(base_hits.size > 0),
+            "recoverySlopePerSecond": slope,
+            "residualFraction": residual,
+        }
+
+    out["epoch"] = {
+        "startSeconds": float(t_start),
+        "endSeconds": float(t_end),
+        "durationSeconds": float(t_end - t_start),
+        "sampleCount": int(end_idx - start_idx + 1),
+        "peakValue": peak_value,
+        "peakSeconds": float(t_peak),
+        "timeToPeakSeconds": float(t_peak - t_start),
+        "riseRatePerSecond": rise_rate,
+        "areaAboveBaseline": area,
+        "recovery": recovery,
+        "recoveryWithheldReason": recovery_withheld,
+    }
+    return out
+
+
 def summary_stats(values) -> dict:
     """summary_stats@1: numpy-linear percentiles, sample std/variance (ddof=1,
     null for <2 values), cv = std/|mean| (null when undefined)."""
