@@ -76,3 +76,22 @@ export type {
 	ActivationRecoveryV1,
 	RecoveryWithheldReason,
 } from "./activationEpoch.js";
+export { FOCUS_MIN_MQ, FOCUS_MIN_ON_TASK_S, scoreFocus } from "./focus.js";
+export type { FocusInput, FocusMetricInput, TaskContext } from "./focus.js";
+export {
+	READINESS_MIN_HISTORY_DAYS,
+	READINESS_MIN_HISTORY_SPAN_DAYS,
+	READINESS_MIN_MQ,
+	readinessHistoryShortfall,
+	scoreReadiness,
+} from "./readiness.js";
+export type { ReadinessInput, ReadinessMetricInput } from "./readiness.js";
+export {
+	RESILIENCE_MIN_EPISODES,
+	RESILIENCE_MIN_HISTORY_DAYS,
+	RESILIENCE_MIN_HISTORY_SPAN_DAYS,
+	RESILIENCE_MIN_MQ,
+	resilienceHistoryShortfall,
+	scoreResilience,
+} from "./resilience.js";
+export type { ResilienceInput, ResilienceMetricInput } from "./resilience.js";

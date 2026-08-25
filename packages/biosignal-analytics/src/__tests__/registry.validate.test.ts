@@ -74,16 +74,75 @@ describe("REGISTRY_V1", () => {
 			"elata.readiness",
 			"elata.focus",
 			"elata.resilience",
+			"session.recovery.time_to_baseline",
+			"session.activation.area_above_baseline",
+			"session.task.rt_stability",
+			"session.task.lapse_rate",
 		]) {
 			expect(getMetricDefinition(id)).toBeDefined();
 		}
 	});
 
-	test("headline reserved scores are experimental registered-only", () => {
-		for (const id of ["elata.readiness", "elata.focus", "elata.resilience"]) {
-			const definition = getMetricDefinition(id);
-			expect(definition?.evidenceTier).toBe("experimental");
-			expect(definition?.implementedIn).toBe("registered-only");
+	test("every headline score is implemented, gated on MQ, and never a raw headline", () => {
+		// The three reserved slots (readiness/focus/resilience) are implemented
+		// now, so the old "reserved" assertion is replaced by the properties
+		// that must hold whether or not a score is implemented.
+		const headlines = listMetrics({ domain: "headline" });
+		expect(headlines.length).toBe(6);
+		for (const definition of headlines) {
+			expect(definition.measurementClass).toBe("product-composite");
+			expect(definition.implementedIn).toBe("ts");
+			if (definition.id === "elata.measurement_quality") {
+				// MQ is the one score that cannot gate on itself.
+				expect(definition.qualityGates).toEqual([]);
+				continue;
+			}
+			expect(definition.qualityGates).toEqual([
+				{ metricId: "elata.measurement_quality", min: expect.any(Number) },
+			]);
+		}
+	});
+
+	test("only Measurement Quality is a product headline", () => {
+		// Anything unvalidated stays behind the advanced panel; an experimental
+		// score reaching displayEligibility "product" is the failure this pins.
+		for (const definition of listMetrics({ domain: "headline" })) {
+			if (definition.evidenceTier === "beta-default") continue;
+			expect(definition.displayEligibility).not.toBe("product");
+		}
+		expect(getMetricDefinition("elata.measurement_quality")?.displayEligibility).toBe(
+			"product",
+		);
+	});
+
+	test("model-inferred metrics are experimental and never product-displayed", () => {
+		for (const definition of REGISTRY_V1) {
+			if (definition.measurementClass !== "model-inferred") continue;
+			expect(definition.evidenceTier).toBe("experimental");
+			expect(definition.displayEligibility).not.toBe("product");
+		}
+	});
+
+	test("Focus names no theta, beta or band-ratio input", () => {
+		const focus = getMetricDefinition("elata.focus");
+		expect(focus).toBeDefined();
+		for (const requirement of focus?.inputs ?? []) {
+			const metricId = requirement.metricId ?? "";
+			expect(metricId).not.toContain("theta");
+			expect(metricId).not.toContain("beta");
+			expect(metricId).not.toContain("ratio.");
+		}
+	});
+
+	test("every metric a headline score names is itself registered", () => {
+		for (const definition of listMetrics({ domain: "headline" })) {
+			for (const requirement of definition.inputs) {
+				if (requirement.metricId === undefined) continue;
+				expect([definition.id, requirement.metricId]).toEqual([
+					definition.id,
+					getMetricDefinition(requirement.metricId)?.id,
+				]);
+			}
 		}
 	});
 

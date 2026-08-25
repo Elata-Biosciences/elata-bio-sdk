@@ -26,6 +26,20 @@ const SESSION_WINDOW: WindowPolicy = {
 	alignment: "session",
 };
 
+const DAY_US = 86_400 * SECOND_US;
+
+/**
+ * Longitudinal scores are cut from a trailing 30-day window and recomputed at
+ * most once a day; `minWindowUs` is the 14-day floor Readiness enforces, and
+ * Resilience raises its own to 21 days in the algorithm.
+ */
+const ROLLING_30_DAY_WINDOW: WindowPolicy = {
+	minWindowUs: 14 * DAY_US,
+	preferredWindowUs: 30 * DAY_US,
+	stepUs: DAY_US,
+	alignment: "sliding",
+};
+
 const EEG_STREAM_INPUT = {
 	kind: "stream",
 	modality: "eeg",
@@ -533,6 +547,44 @@ export const REGISTRY_V1: readonly MetricDefinitionV1[] = [
 		"trajectory_features@1",
 	),
 
+	// --- in-task behavioural performance (supplied by the host app) ---
+	// Measured by the app, never recomputed here; registered so Focus can
+	// name its inputs rather than referring to ids that do not exist.
+	registeredOnly(
+		"session.task.rt_stability",
+		"Response-time stability",
+		"App-reported steadiness of in-task response times (higher is steadier).",
+		"ratio",
+		"session",
+		"registered_only@0",
+		{
+			measurementClass: "measured",
+			inputs: [{ kind: "events", modality: "events" }],
+			baseline: {
+				eligible: true,
+				minSessions: 5,
+				contextBucketing: "app",
+			},
+		},
+	),
+	registeredOnly(
+		"session.task.lapse_rate",
+		"Lapse rate",
+		"App-reported fraction of in-task trials missed or timed out.",
+		"ratio",
+		"session",
+		"registered_only@0",
+		{
+			measurementClass: "measured",
+			inputs: [{ kind: "events", modality: "events" }],
+			baseline: {
+				eligible: true,
+				minSessions: 5,
+				contextBucketing: "app",
+			},
+		},
+	),
+
 	// --- headline scores ---
 	define("elata.measurement_quality", {
 		version: "1.0.0",
@@ -623,37 +675,116 @@ export const REGISTRY_V1: readonly MetricDefinitionV1[] = [
 		qualityGates: [{ metricId: "elata.measurement_quality", min: 40 }],
 		algorithm: "score_recovery@2",
 		aggregation: { session: "last", daily: "mean" },
+		// Readiness reads a rolling baseline of the person's own Recovery
+		// scores, so this score is itself baseline-eligible.
+		baseline: { eligible: true, minSessions: 5, contextBucketing: "none" },
+		displayEligibility: "advanced-panel",
+		computeProfile: "post-session",
+		costClass: "trivial",
+		implementedIn: "ts",
+	}),
+	define("elata.focus", {
+		version: "1.0.0",
+		displayName: "Focus",
+		description:
+			"EEG stability plus alpha desynchronization against the personal baseline, combined " +
+			"with in-task performance. Deliberately NOT a theta/beta ratio: neither band is an " +
+			"input. Withheld without task context — 'focus' with nothing being attended to is " +
+			"a number about nothing.",
+		unit: "score",
+		domain: "headline",
+		measurementClass: "product-composite",
+		// Experimental: alpha desynchronization is the best-replicated spectral
+		// correlate available, but channel-mean relative alpha on a 1-2 channel
+		// headband is not posterior alpha. Never a product headline.
+		evidenceTier: "experimental",
+		inputs: [
+			{ kind: "events", modality: "events" },
+			{ kind: "metric", metricId: "session.focus.stability", optional: true },
+			{
+				kind: "metric",
+				metricId: "eeg.band_power.alpha.relative",
+				optional: true,
+			},
+			{ kind: "metric", metricId: "session.task.rt_stability", optional: true },
+			{ kind: "metric", metricId: "session.task.lapse_rate", optional: true },
+		],
+		window: SESSION_WINDOW,
+		channelPolicy: "single",
+		qualityGates: [{ metricId: "elata.measurement_quality", min: 50 }],
+		algorithm: "score_focus@1",
+		aggregation: { session: "last", daily: "mean" },
 		baseline: { eligible: false },
 		displayEligibility: "advanced-panel",
 		computeProfile: "post-session",
 		costClass: "trivial",
 		implementedIn: "ts",
 	}),
-	registeredOnly(
-		"elata.readiness",
-		"Readiness",
-		"Reserved: blocked on a standardized check-in policy.",
-		"score",
-		"headline",
-		"registered_only@0",
-		{ measurementClass: "product-composite" },
-	),
-	registeredOnly(
-		"elata.focus",
-		"Focus",
-		"Reserved: deliberately not theta/beta; no validated formula.",
-		"score",
-		"headline",
-		"registered_only@0",
-		{ measurementClass: "product-composite" },
-	),
-	registeredOnly(
-		"elata.resilience",
-		"Resilience",
-		"Reserved: requires longitudinal recovery evidence.",
-		"score",
-		"headline",
-		"registered_only@0",
-		{ measurementClass: "product-composite" },
-	),
+	define("elata.readiness", {
+		version: "1.0.0",
+		displayName: "Readiness",
+		description:
+			"Daily/pre-task composite of resting HR, PRV, respiration, recent activation burden " +
+			"and recent Recovery against rolling 30-day personal baselines. Requires 14 qualified " +
+			"days spanning 14 calendar days; withheld with a counted shortfall below that. Time " +
+			"of day selects the baseline bucket and never adjusts the value.",
+		unit: "score",
+		domain: "headline",
+		measurementClass: "product-composite",
+		evidenceTier: "advanced",
+		inputs: [
+			{ kind: "metric", metricId: "pulse.heart_rate" },
+			{ kind: "metric", metricId: "pulse.rmssd", optional: true },
+			{ kind: "metric", metricId: "pulse.respiration_rate", optional: true },
+			{
+				kind: "metric",
+				metricId: "session.activation.area_above_baseline",
+				optional: true,
+			},
+			{ kind: "metric", metricId: "elata.recovery", optional: true },
+		],
+		window: ROLLING_30_DAY_WINDOW,
+		channelPolicy: "single",
+		qualityGates: [{ metricId: "elata.measurement_quality", min: 40 }],
+		algorithm: "score_readiness@1",
+		aggregation: { session: "none", daily: "none" },
+		baseline: { eligible: false },
+		displayEligibility: "advanced-panel",
+		computeProfile: "on-demand",
+		costClass: "light",
+		implementedIn: "ts",
+	}),
+	define("elata.resilience", {
+		version: "1.0.0",
+		displayName: "Resilience",
+		description:
+			"Regulation capacity over weeks: recovery-speed trend, prolonged-activation rate, " +
+			"baseline stability and autonomic flexibility. Requires 21 qualified days spanning " +
+			"21 calendar days AND 6 recovered activation episodes; withheld with a counted " +
+			"shortfall below any of the three.",
+		unit: "score",
+		domain: "headline",
+		measurementClass: "product-composite",
+		evidenceTier: "experimental",
+		inputs: [
+			{ kind: "metric", metricId: "session.recovery.time_to_half" },
+			{
+				kind: "metric",
+				metricId: "session.activation.area_above_baseline",
+				optional: true,
+			},
+			{ kind: "metric", metricId: "pulse.heart_rate", optional: true },
+			{ kind: "metric", metricId: "pulse.rmssd", optional: true },
+		],
+		window: ROLLING_30_DAY_WINDOW,
+		channelPolicy: "single",
+		qualityGates: [{ metricId: "elata.measurement_quality", min: 40 }],
+		algorithm: "score_resilience@1",
+		aggregation: { session: "none", daily: "none" },
+		baseline: { eligible: false },
+		displayEligibility: "advanced-panel",
+		computeProfile: "idle",
+		costClass: "light",
+		implementedIn: "ts",
+	}),
 ];
