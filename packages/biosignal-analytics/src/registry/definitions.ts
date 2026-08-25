@@ -590,10 +590,11 @@ export const REGISTRY_V1: readonly MetricDefinitionV1[] = [
 		implementedIn: "ts",
 	}),
 	define("elata.recovery", {
-		version: "1.0.0",
+		version: "2.0.0",
 		displayName: "Recovery",
 		description:
-			"Post-activation recovery composite; withheld when no activation epoch is detected.",
+			"Post-activation recovery composite over the activation_epoch@1 analysis; withheld " +
+			"when no activation qualified, or when the recording ended before recovery.",
 		unit: "score",
 		domain: "headline",
 		measurementClass: "product-composite",
@@ -605,12 +606,22 @@ export const REGISTRY_V1: readonly MetricDefinitionV1[] = [
 				optional: true,
 			},
 			{ kind: "metric", metricId: "session.recovery.slope", optional: true },
+			{
+				kind: "metric",
+				metricId: "session.recovery.time_to_baseline",
+				optional: true,
+			},
 			{ kind: "metric", metricId: "pulse.rmssd", optional: true },
+			{
+				kind: "metric",
+				metricId: "eeg.band_power.alpha.relative",
+				optional: true,
+			},
 		],
 		window: SESSION_WINDOW,
 		channelPolicy: "single",
 		qualityGates: [{ metricId: "elata.measurement_quality", min: 40 }],
-		algorithm: "score_recovery@1",
+		algorithm: "score_recovery@2",
 		aggregation: { session: "last", daily: "mean" },
 		baseline: { eligible: false },
 		displayEligibility: "advanced-panel",

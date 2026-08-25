@@ -156,12 +156,62 @@ export const ALGORITHM_VERSIONS = {
 			"unit-tested in insights.scores.test.ts",
 	},
 	score_recovery: {
-		id: "score_recovery@1",
+		id: "score_recovery@2",
 		engine: "ts",
 		fixture: null,
 		fixtureRationale:
 			"deterministic composite over robust_z contributors (robust_z carries the fixture); " +
-			"unit-tested in insights.scores.test.ts",
+			"unit-tested in insights.recovery.test.ts, including against the activation_epoch@1 " +
+			"golden fixture; shared cross-repo cases in insights/score-fixtures.json",
+	},
+	/**
+	 * Superseded by score_recovery@2, which composes over the activation_epoch@1
+	 * analysis instead of four loose caller-supplied numbers. Retained so an
+	 * observation already stored under @1 keeps its original meaning; nothing
+	 * computes it any more.
+	 */
+	score_recovery_v1: {
+		id: "score_recovery@1",
+		engine: "registered-only",
+		fixture: null,
+		fixtureRationale:
+			"retired formula version, retained for stored-observation provenance only",
+	},
+	score_focus: {
+		id: "score_focus@1",
+		engine: "ts",
+		fixture: null,
+		fixtureRationale:
+			"deterministic composite over robust_z contributors (robust_z carries the fixture); " +
+			"unit-tested in insights.focus.test.ts; shared cross-repo cases in " +
+			"insights/score-fixtures.json",
+	},
+	score_readiness: {
+		id: "score_readiness@1",
+		engine: "ts",
+		fixture: null,
+		fixtureRationale:
+			"deterministic composite over robust_z contributors against rolling_baseline@1 " +
+			"baselines; unit-tested in insights.readiness.test.ts; shared cross-repo cases in " +
+			"insights/score-fixtures.json",
+	},
+	score_resilience: {
+		id: "score_resilience@1",
+		engine: "ts",
+		fixture: null,
+		fixtureRationale:
+			"deterministic composite over robust_z contributors against rolling_baseline@1 " +
+			"baselines; unit-tested in insights.resilience.test.ts; shared cross-repo cases in " +
+			"insights/score-fixtures.json",
+	},
+	rolling_baseline: {
+		id: "rolling_baseline@1",
+		engine: "ts",
+		fixture: null,
+		fixtureRationale:
+			"median/MAD/percentiles over a trailing window — robust_stats@1 and summary_stats@1 " +
+			"carry the numeric oracle; the window, day-count and Hampel gating are unit-tested " +
+			"in insights.longitudinal.test.ts",
 	},
 } as const satisfies Record<string, AlgorithmVersionEntry>;
 

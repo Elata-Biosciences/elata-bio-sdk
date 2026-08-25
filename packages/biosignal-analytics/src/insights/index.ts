@@ -64,6 +64,15 @@ export {
 } from "./recovery.js";
 export type {
 	ActivationEpoch,
+	RecoveryBaselines,
 	RecoveryInput,
 	RecoveryMetricInput,
 } from "./recovery.js";
+export type {
+	ActivationBaselineV1,
+	ActivationEpochAnalysisV1,
+	ActivationEpochV1,
+	ActivationEpochWithheldReason,
+	ActivationRecoveryV1,
+	RecoveryWithheldReason,
+} from "./activationEpoch.js";

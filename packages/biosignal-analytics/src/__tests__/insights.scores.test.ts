@@ -11,7 +11,6 @@ import {
 	MQ_MIN_VALID_DURATION_S,
 	scoreMeasurementQuality,
 } from "../insights/measurementQuality.js";
-import { detectActivationEpoch, scoreRecovery } from "../insights/recovery.js";
 
 function baseline(median: number, mad: number, sessionCount = 10): PersonalBaseline {
 	return { metricId: "m", contextBucket: "any", median, mad, sessionCount, updatedAtMs: 0 };
@@ -166,65 +165,6 @@ describe("score_activation@1", () => {
 		});
 		const hr = score.contributors.find((c) => c.id === "hr");
 		expect(hr?.excludedReason).toBe("insufficient_quality");
-	});
-});
-
-describe("score_recovery@1", () => {
-	const recoveryInputs = {
-		timeToHalfS: goodMetric(45, 60, 10),
-		recoverySlope: goodMetric(1.4, 1.0, 0.2),
-		rmssdReboundRatio: goodMetric(1.15, 1.0, 0.08),
-		alphaRebound: goodMetric(1.1, 1.0, 0.1),
-		measurementQuality: 80,
-	};
-
-	test("withholds no_activation_detected without an epoch", () => {
-		const score = scoreRecovery({ ...recoveryInputs, activationEpoch: null });
-		expect(score.value).toBeNull();
-		expect(score.withheldReason).toBe("no_activation_detected");
-		expect(score.contributors.length).toBe(4);
-	});
-
-	test("scores when an activation epoch exists", () => {
-		const score = scoreRecovery({
-			...recoveryInputs,
-			activationEpoch: { startUs: 0, endUs: 60_000_000, peakBpm: 95 },
-		});
-		expect(score.value).not.toBeNull();
-		expect(score.value).toBeGreaterThan(50); // all contributors point to good recovery
-	});
-
-	test("withholds when MQ < 40 even with an epoch", () => {
-		const score = scoreRecovery({
-			...recoveryInputs,
-			activationEpoch: { startUs: 0, endUs: 60_000_000, peakBpm: 95 },
-			measurementQuality: 20,
-		});
-		expect(score.value).toBeNull();
-		expect(score.withheldReason).toBe("insufficient_quality");
-	});
-});
-
-describe("detectActivationEpoch", () => {
-	const hrBaseline = baseline(60, 3);
-	const trace = [
-		{ tUs: 0, bpm: 61 },
-		{ tUs: 1_000_000, bpm: 72 },
-		{ tUs: 2_000_000, bpm: 88 },
-		{ tUs: 3_000_000, bpm: 75 },
-		{ tUs: 4_000_000, bpm: 59 },
-	];
-
-	test("finds the contiguous above-median span around the peak", () => {
-		const epoch = detectActivationEpoch(trace, hrBaseline);
-		expect(epoch).toEqual({ startUs: 0, endUs: 3_000_000, peakBpm: 88 });
-	});
-
-	test("returns null when the peak misses median + 5 bpm", () => {
-		const flat = trace.map((point) => ({ ...point, bpm: 62 }));
-		expect(detectActivationEpoch(flat, hrBaseline)).toBeNull();
-		expect(detectActivationEpoch(trace, null)).toBeNull();
-		expect(detectActivationEpoch([], hrBaseline)).toBeNull();
 	});
 });
 
