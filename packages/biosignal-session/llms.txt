@@ -19,7 +19,9 @@ Entries:
 - "./browser": BiosignalSource/SourceSink/StreamHandle adapter contracts,
   Arrow schema builders (regular-wide-f32@1, battery@1, rppg-trace@1,
   rppg-metrics@1, ppg-metrics@1), encodeWideF32Chunk/encodeRowsChunk,
-  decodeChunk/readFloat32Column/readTimeUsColumn.
+  decodeChunk/readFloat32Column/readTimeUsColumn,
+  readOptionalColumn/diffChunkColumns/readRowsAgainstSchema (schema drift:
+  columns a chunk predates read null, columns it gained are left in place).
 - "./testing": mulberry32, gaussian, createFakeClock.
 
 Key invariants: host assigns identities (never the app); ACK = durable local
