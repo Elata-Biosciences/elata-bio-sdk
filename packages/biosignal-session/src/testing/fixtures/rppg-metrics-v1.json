@@ -1,0 +1,125 @@
+{
+	"fixtureVersion": 1,
+	"generator": "@elata-biosciences/biosignal-session@0.1.0",
+	"sourcePackage": "@elata-biosciences/rppg-web",
+	"sourceType": "Metrics",
+	"capture": {
+		"note": "Three emissions: warm-up, locked steady state (full field surface), motion-limited.",
+		"fullSurfaceIndex": 1
+	},
+	"metrics": [
+		{
+			"confidence": 0.14,
+			"signal_quality": 0.38,
+			"reason_codes": [
+				"insufficient_window",
+				"no_bpm_yet"
+			],
+			"skin_ratio_mean": 0.52,
+			"motion_mean": 0.09,
+			"clip_mean": 0.004,
+			"bpm": null,
+			"spectral_bpm": null,
+			"acf_bpm": null,
+			"peaks_bpm": null,
+			"resolved_bpm": null,
+			"bayes_bpm": null,
+			"calibrated_bpm": null,
+			"fused_bpm": null,
+			"fused_source": "none",
+			"calibration_trained": false,
+			"capture_confidence": 0.71,
+			"capture_motion": 0.83,
+			"capture_lighting": 0.64,
+			"capture_limiting": "lighting",
+			"capture_reasons": [
+				"low_light"
+			]
+		},
+		{
+			"bpm": 68.4,
+			"confidence": 0.88,
+			"signal_quality": 0.81,
+			"agreement": 0.93,
+			"reason_codes": [],
+			"snr": 6.42,
+			"skin_ratio_mean": 0.74,
+			"motion_mean": 0.031,
+			"clip_mean": 0.0019,
+			"spectral_bpm": 68.9,
+			"acf_bpm": 67.8,
+			"peaks_bpm": 69.2,
+			"resolved_bpm": 68.5,
+			"resolved_confidence": 0.86,
+			"winning_sources": [
+				"spectral",
+				"acf"
+			],
+			"alias_flag": false,
+			"bayes_bpm": 68.3,
+			"bayes_confidence": 0.9,
+			"bayes_ambiguity": 0.11,
+			"bayes_tracker_config_id": "bpm-tracker-v1",
+			"bayes_quality_provider_id": "capture-confidence-v1",
+			"calibrated_bpm": 68.4,
+			"fused_bpm": 68.4,
+			"fused_source": "camera",
+			"calibration_trained": true,
+			"baseline_bpm": 63.1,
+			"baseline_delta": 5.3,
+			"hrv_rmssd": 41.7,
+			"respiration_rate": 14.2,
+			"respiration_confidence": 0.62,
+			"capture_confidence": 0.91,
+			"capture_motion": 0.94,
+			"capture_lighting": 0.88,
+			"capture_limiting": null,
+			"capture_reasons": []
+		},
+		{
+			"bpm": 71.2,
+			"confidence": 0.41,
+			"signal_quality": 0.44,
+			"agreement": 0.37,
+			"reason_codes": [
+				"high_motion",
+				"estimators_disagree"
+			],
+			"snr": 2.13,
+			"skin_ratio_mean": 0.61,
+			"motion_mean": 0.28,
+			"clip_mean": 0.0071,
+			"spectral_bpm": 71.9,
+			"acf_bpm": 143.1,
+			"peaks_bpm": null,
+			"resolved_bpm": 71.6,
+			"resolved_confidence": 0.39,
+			"winning_sources": [
+				"spectral"
+			],
+			"alias_flag": true,
+			"bayes_bpm": 70.8,
+			"bayes_confidence": 0.55,
+			"bayes_ambiguity": 0.47,
+			"bayes_tracker_config_id": "bpm-tracker-v1",
+			"bayes_quality_provider_id": null,
+			"calibrated_bpm": 71.1,
+			"fused_bpm": 71.2,
+			"fused_source": "blend",
+			"calibration_trained": true,
+			"baseline_bpm": 63.4,
+			"baseline_delta": 7.8,
+			"hrv_rmssd": null,
+			"respiration_rate": null,
+			"respiration_confidence": null,
+			"capture_confidence": 0.36,
+			"capture_motion": 0.29,
+			"capture_lighting": 0.85,
+			"capture_limiting": "motion",
+			"capture_reasons": [
+				"high_ti",
+				"motion_blur"
+			]
+		}
+	]
+}
