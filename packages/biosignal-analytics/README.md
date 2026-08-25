@@ -58,11 +58,36 @@ const result = await analyzeEeg({
 
 Scores are product interpretations, never measurements, and they say so.
 `scoreMeasurementQuality` describes the *recording* rather than the person and
-is always available alongside any other score. Activation and Recovery expose
-every contributor with its weight, robust z-score, and quality — and **withhold
-themselves** (a `null` value plus a reason) when the personal baseline or the
-data quality is insufficient. A missing contributor never silently becomes a
-neutral middle value.
+is always available alongside any other score. Every other score — Activation,
+Recovery, Focus, Readiness, Resilience — exposes every contributor with its
+weight, robust z-score, and quality, and **withholds itself** (a `null` value
+plus a machine-readable reason) when the personal baseline, the data quality,
+or the history behind it is insufficient. A missing contributor never silently
+becomes a neutral middle value: weights are renormalized over the contributors
+that were actually included.
+
+The withhold reasons are part of the contract, not diagnostics:
+
+| reason | meaning |
+| --- | --- |
+| `inputs_missing` | the measurement was not made |
+| `insufficient_quality` | it was made too poorly to read |
+| `insufficient_baseline` | there is no usable personal baseline to compare it to |
+| `no_activation_detected` | Recovery: nothing qualified as an activation |
+| `recovery_incomplete` | Recovery: the recording ended before the activation came back down |
+| `no_task_context` | Focus: nothing was being attended to |
+| `insufficient_history` | Readiness / Resilience: below the minimum-history policy |
+
+`insufficient_history` carries a counted `withheldDetail` — `{requirement,
+have, need}` per unmet floor — so a caller can say "eleven more days" rather
+than "not enough data". Readiness requires 14 qualified days spanning 14
+calendar days; Resilience requires 21 of each plus 6 recovered activation
+episodes. Rolling personal baselines (`computeRollingBaseline`) supply the
+30-day median, MAD and 10/25/75/90 personal ranges those policies are measured
+against, with Hampel outlier rejection and the same day-count gating.
+
+Focus is deliberately **not** a theta/beta ratio — that ratio is not a valid
+attention measure, so neither band is an input, and tests assert it.
 
 ## Workers
 

@@ -19,10 +19,16 @@ Core API:
 - registry: REGISTRY_V1, getMetricDefinition(id), listMetrics(filter),
   ALGORITHM_VERSIONS/ALGORITHM_IDS; MetricDefinitionV1, MetricObservationV1,
   ProvenanceV1, EvidenceTier, MeasurementClass.
-- insights: robustZ, BaselineProvider/PersonalBaseline,
-  scoreMeasurementQuality, scoreActivation, scoreRecovery — all return
-  HeadlineScoreV1 with contributors[] and value:null + withheldReason when
-  inputs/baseline/quality are insufficient (never a neutral 50).
+- insights: robustZ, BaselineProvider/PersonalBaseline, computeRollingBaseline
+  (30-day median/MAD + 10/25/75/90 personal ranges, Hampel outlier rejection,
+  day-count + span gating), contextBucketForHour;
+  scoreMeasurementQuality, scoreActivation, scoreRecovery, scoreFocus,
+  scoreReadiness, scoreResilience — all return HeadlineScoreV1 with
+  contributors[] and value:null + withheldReason when inputs/baseline/quality/
+  history are insufficient (never a neutral 50); insufficient_history also
+  carries withheldDetail[{requirement,have,need}]. scoreRecovery consumes an
+  activation_epoch@1 analysis (ActivationEpochAnalysisV1). Focus withholds
+  no_task_context without a task and never reads theta or beta.
 - worker: createAnalyticsWorkerClient({port | createWorker}),
   launchAnalyticsWorker (separate module — import.meta, not jest-parseable),
   ANALYTICS_WORKER_PROTOCOL_VERSION, request/response guards.
