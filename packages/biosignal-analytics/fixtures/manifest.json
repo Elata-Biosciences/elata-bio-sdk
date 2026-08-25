@@ -58,6 +58,10 @@
 		"eeg/hjorth.json",
 		"eeg/quality_flags.json",
 		"pulse/hrv_time_domain.json",
-		"stats/robust_summary.json"
-	]
+		"stats/robust_summary.json",
+		"insights/score-fixtures.json"
+	],
+	"notes": {
+		"insights/score-fixtures.json": "Headline-score cases generated from this package's own compiled dist/insights (scripts/generate-score-fixtures.mjs), not from a Python oracle \u2014 the formulas are product composites, not numerical algorithms with an external reference. Shared verbatim with the App Store's mirrored implementation; regenerate and land in BOTH repos when a formula changes."
+	}
 }
