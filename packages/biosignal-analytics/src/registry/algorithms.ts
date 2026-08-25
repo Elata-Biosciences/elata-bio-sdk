@@ -71,15 +71,37 @@ export const ALGORITHM_VERSIONS = {
 			"a division of two eeg_band_power@2 outputs, which carry their own oracle " +
 			"fixture; the ratio itself is unit-tested in eegWindowFeatures.test.ts",
 	},
+	// nn_clean@1 now has TWO implementations: the Rust one behind
+	// WasmPrvAnalyzer (canonical) and the original ibi.ts. Kept as "ts" until
+	// the TypeScript copy is removed, because claiming "wasm" while that file
+	// still computes the same id would be false.
 	nn_clean: {
 		id: "nn_clean@1",
 		engine: "ts",
 		fixture: "pulse/hrv_time_domain.json",
 	},
+	// Superseded by prv_time_domain@1 (identical arithmetic for the three
+	// metrics they share; renamed because camera intervals are pulse-rate,
+	// not heart-rate, variability). Still listed while hrv.ts exists.
 	hrv_time_domain: {
 		id: "hrv_time_domain@1",
 		engine: "ts",
 		fixture: "pulse/hrv_time_domain.json",
+	},
+	prv_time_domain: {
+		id: "prv_time_domain@1",
+		engine: "wasm",
+		fixture: "pulse/prv_time_domain.json",
+	},
+	prv_frequency_domain: {
+		id: "prv_frequency_domain@1",
+		engine: "wasm",
+		fixture: "pulse/prv_frequency_domain.json",
+	},
+	activation_epoch: {
+		id: "activation_epoch@1",
+		engine: "wasm",
+		fixture: "activation/activation_epoch.json",
 	},
 	summary_stats: {
 		id: "summary_stats@1",
