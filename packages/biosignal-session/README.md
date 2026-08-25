@@ -123,8 +123,18 @@ time-column contract (regular streams carry no time column; irregular streams
 carry an `int64` microsecond column, never an Arrow timestamp type, which
 would imply an epoch these values do not have).
 
+It also round-trips an **export-shaped** table — the denormalized row layout
+an export adapter has to produce — through pandas and back, asserting the
+`int64` microsecond columns come back as `int64` with their exact values. That
+is the step where microsecond time usually dies: a nullable integer column
+becomes `float64` on the way into a DataFrame, and anything past 2^53 returns
+as a different number. One row carries such a value on purpose, so a
+downgrade fails here rather than in someone's analysis later.
+
 ```bash
-pnpm build && pnpm run verify:cross-language   # needs python3 with pyarrow
+# needs python3 with pyarrow (pandas optional; the export round trip is
+# skipped with a note when it is missing)
+pnpm build && pnpm run verify:cross-language
 ```
 
 If the JS and Python readers ever disagree, the chunk format is the problem.

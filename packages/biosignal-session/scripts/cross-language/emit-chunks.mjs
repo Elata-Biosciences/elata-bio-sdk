@@ -10,6 +10,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import * as arrow from "apache-arrow";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(__dirname, "..", "..");
@@ -182,6 +183,98 @@ const cases = [];
 		checksum: checksumOf(bytes).value,
 		expect: { battery_pct: [100, 97.5] },
 		hasTimeColumn: true,
+	});
+}
+
+// 6. Export-shaped table: the denormalized, analysis-ready row layout an
+//    export adapter (Parquet/BIDS/WFDB) has to produce. No such adapter
+//    exists yet; this pins the representation contract before one does —
+//    above all that microsecond time stays int64 end to end. Round-tripping
+//    it through pandas is where that usually breaks: a nullable integer
+//    column silently becomes float64, and every microsecond past 2^53 is
+//    then a different number than the one that was recorded.
+{
+	const anchorEpochUs = 1_705_312_800_000_000n; // 2024-01-15T10:00:00Z
+	const schema = new arrow.Schema(
+		[
+			new arrow.Field("session_id", new arrow.Utf8(), false),
+			new arrow.Field("stream_id", new arrow.Utf8(), false),
+			new arrow.Field(
+				"channel",
+				new arrow.Dictionary(new arrow.Utf8(), new arrow.Int8()),
+				true,
+			),
+			new arrow.Field("session_us", new arrow.Int64(), false),
+			new arrow.Field("epoch_us", new arrow.Int64(), false),
+			// Nullable on purpose: this is the column that goes float64 in a
+			// naive pandas conversion.
+			new arrow.Field("sample_index", new arrow.Int64(), true),
+			new arrow.Field("value_uv", new arrow.Float64(), true),
+			new arrow.Field("usable", new arrow.Bool(), true),
+			new arrow.Field("label", new arrow.Utf8(), true),
+		],
+		new Map([
+			["elata:sessionId", sessionId],
+			["elata:streamId", streamId],
+			["elata:arrowSchemaId", "export-observations@draft"],
+		]),
+	);
+
+	const channels = ["TP9", "AF7"];
+	const rows = [];
+	for (let i = 0; i < 5; i++) {
+		const sessionUs = BigInt(i) * 250_000n;
+		rows.push({
+			session_id: sessionId,
+			stream_id: streamId,
+			channel: channels[i % channels.length],
+			session_us: sessionUs,
+			epoch_us: anchorEpochUs + sessionUs,
+			sample_index: i === 3 ? null : BigInt(i * 64),
+			value_uv: i === 1 ? null : Math.fround(12.5 + i * 0.25),
+			usable: i % 3 !== 0,
+			label: i === 2 ? null : "eyes-closed",
+		});
+	}
+	// One row past 2^53 µs. Float64 cannot represent it: any step of the
+	// export path that downgrades the column turns it into 9007199254740992.
+	const beyondFloat64 = 9_007_199_254_740_993n;
+	rows.push({
+		session_id: sessionId,
+		stream_id: streamId,
+		channel: "TP9",
+		session_us: 1_250_000n,
+		epoch_us: beyondFloat64,
+		sample_index: 9_007_199_254_740_993n,
+		value_uv: 0.1,
+		usable: true,
+		label: "precision-guard",
+	});
+
+	const bytes = encodeRowsChunk(schema, rows);
+	fs.writeFileSync(path.join(outDir, "export-observations.arrow"), bytes);
+	cases.push({
+		file: "export-observations.arrow",
+		arrowSchemaId: "export-observations@draft",
+		kind: "export",
+		rows: rows.length,
+		checksum: checksumOf(bytes).value,
+		hasTimeColumn: false,
+		// int64 values travel as strings: JSON has no integer type that can
+		// hold them without becoming the very float64 this case guards against.
+		int64Columns: {
+			session_us: rows.map((row) => String(row.session_us)),
+			epoch_us: rows.map((row) => String(row.epoch_us)),
+			sample_index: rows.map((row) =>
+				row.sample_index === null ? null : String(row.sample_index),
+			),
+		},
+		expect: {
+			channel: rows.map((row) => row.channel),
+			usable: rows.map((row) => row.usable),
+			label: rows.map((row) => row.label),
+		},
+		dictionaryColumns: ["channel"],
 	});
 }
 

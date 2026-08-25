@@ -20,9 +20,14 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - environment guidance
     sys.exit(
         "pyarrow is required for cross-language verification.\n"
-        "  python3 -m venv .venv && .venv/bin/pip install pyarrow\n"
+        "  python3 -m venv .venv && .venv/bin/pip install pyarrow pandas\n"
         "  ELATA_PYTHON=.venv/bin/python pnpm run verify:cross-language"
     )
+
+try:
+    import pandas as pd
+except ModuleNotFoundError:  # pragma: no cover - optional half of the export case
+    pd = None
 
 CRC32C_POLY = 0x82F63B78
 
@@ -53,6 +58,86 @@ def check(condition: bool, message: str) -> None:
 def read_table(path: pathlib.Path) -> pa.Table:
     with pa.memory_map(str(path), "rb") as source:
         return ipc.open_file(source).read_all()
+
+
+def verify_int64_columns(case: dict, table: pa.Table, where: str) -> None:
+    """Every declared int64 column is still int64 and still exact.
+
+    Values come from the manifest as strings because JSON numbers are
+    float64 — writing them as numbers would silently lose the very
+    precision this check exists to defend.
+    """
+    for column, wanted in case["int64Columns"].items():
+        field = table.schema.field(column)
+        check(
+            pa.types.is_int64(field.type),
+            f"{case['file']} ({where}): {column} must stay int64, got {field.type}",
+        )
+        got = table.column(column).to_pylist()
+        expected = [None if v is None else int(v) for v in wanted]
+        check(
+            got == expected,
+            f"{case['file']} ({where}): {column} changed — expected {expected}, got {got}",
+        )
+
+
+def verify_export_case(case: dict, table: pa.Table) -> list[str]:
+    """An export-shaped table must survive a pandas round trip unchanged.
+
+    This is where microsecond time usually dies: a nullable integer column
+    becomes float64 on the way into a DataFrame, and every value past 2^53
+    comes back as a different number. The manifest deliberately includes one
+    such value, so a downgrade anywhere in the path fails here rather than
+    in someone's analysis a year later.
+    """
+    notes = []
+    verify_int64_columns(case, table, "arrow")
+    notes.append(f"{len(case['int64Columns'])} int64 columns exact in arrow")
+
+    for column in case.get("dictionaryColumns", []):
+        check(
+            pa.types.is_dictionary(table.schema.field(column).type),
+            f"{case['file']}: {column} should be dictionary-encoded, got "
+            f"{table.schema.field(column).type}",
+        )
+
+    if pd is None:
+        notes.append("pandas MISSING — round trip skipped (pip install pandas)")
+        return notes
+
+    # Arrow-backed dtypes keep integers as integers even with nulls present;
+    # the default numpy conversion is the one that reaches for float64.
+    try:
+        frame = table.to_pandas(types_mapper=pd.ArrowDtype)
+    except TypeError:  # pragma: no cover - pandas < 2.0
+        frame = table.to_pandas()
+
+    check(
+        len(frame) == case["rows"],
+        f"{case['file']}: pandas frame has {len(frame)} rows, expected {case['rows']}",
+    )
+    for column in case["int64Columns"]:
+        dtype = str(frame[column].dtype)
+        check(
+            "float" not in dtype,
+            f"{case['file']}: {column} became {dtype} in pandas — int64 microseconds "
+            "must not be downgraded to floating point",
+        )
+
+    back = pa.Table.from_pandas(frame, preserve_index=False)
+    verify_int64_columns(case, back, "pandas round trip")
+    notes.append(f"pandas {pd.__version__} round trip lossless")
+
+    # Non-integer columns must come back unchanged too, nulls included.
+    for column, wanted in case.get("expect", {}).items():
+        got = back.column(column).to_pylist()
+        check(
+            got == wanted,
+            f"{case['file']}: {column} changed in the round trip — "
+            f"expected {wanted}, got {got}",
+        )
+    notes.append("dictionary/bool/null columns preserved")
+    return notes
 
 
 def verify_case(root: pathlib.Path, manifest: dict, case: dict) -> list[str]:
@@ -104,7 +189,11 @@ def verify_case(root: pathlib.Path, manifest: dict, case: dict) -> list[str]:
             f"{case['file']}: regular stream must not carry a time column",
         )
 
-    # 5. Per-case value checks.
+    # 5. Export-shaped tables have their own contract (see above).
+    if case.get("kind") == "export":
+        return notes + verify_export_case(case, table)
+
+    # 6. Per-case value checks.
     if "valueFormula" in case:
         for ch, name in enumerate(case["columns"]):
             values = table.column(name).to_pylist()
