@@ -54,6 +54,7 @@ Agents and humans using automation should start with **[guides/ai-assisted-devel
 
 ## Architecture
 
+- [architecture-biosignal-session-v1.md](architecture-biosignal-session-v1.md): proposed canonical mixed-modality session container, Arrow IPC chunk encoding, browser persistence, and iframe transport boundary
 - [architecture-rppg.md](architecture-rppg.md)
 - [architecture-sentiment.md](architecture-sentiment.md)
 
