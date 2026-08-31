@@ -14,7 +14,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        crate: [rppg, rppg-wasm, rppg-ffi, eeg-wasm, eeg-ffi, facial-affect]
+        crate:
+          - elata-rppg
+          - elata-rppg-wasm
+          - elata-rppg-ffi
+          - elata-eeg-wasm
+          - elata-eeg-ffi
+          - elata-facial-affect
+          - elata-biosignal-features
+          - elata-biosignal-features-wasm
     steps:
       - uses: actions/checkout@v4
 
@@ -89,10 +97,13 @@ jobs:
           key: ${{ runner.os }}-cargo-wasm-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build eeg-wasm for wasm32
-        run: cargo build -p eeg-wasm --target wasm32-unknown-unknown --release
+        run: cargo build -p elata-eeg-wasm --target wasm32-unknown-unknown --release
 
       - name: Build rppg-wasm for wasm32
-        run: cargo build -p rppg-wasm --target wasm32-unknown-unknown --release
+        run: cargo build -p elata-rppg-wasm --target wasm32-unknown-unknown --release
+
+      - name: Build biosignal-features-wasm for wasm32
+        run: cargo build -p elata-biosignal-features-wasm --target wasm32-unknown-unknown --release
 
       - name: Install wasm-bindgen CLI
         run: cargo install wasm-bindgen-cli --locked

@@ -1,0 +1,3786 @@
+{
+  "schema": "elata.score-fixtures/v1",
+  "algorithms": [
+    "score_measurement_quality@1",
+    "score_activation@1",
+    "score_recovery@2",
+    "score_focus@1",
+    "score_readiness@1",
+    "score_resilience@1",
+    "robust_z@1"
+  ],
+  "generatedBy": "elata-bio-sdk packages/biosignal-analytics/dist/insights (canonical implementation)",
+  "note": "Golden fixtures for the headline-score formulas, shared between the SDK (@elata-biosciences/biosignal-analytics) and the appstore mirror (src/lib/local-biosignals/insights-scores.ts). Expected values were produced by running the SDK implementation itself, so a drift in either copy fails a test. ADDITIVE ONLY: a mirror that implements a subset of these algorithms must skip cases whose `algorithm` it does not implement rather than failing on them, so new scores can land here before the mirror catches up. score_recovery@1 is retired and has no cases; score_recovery@2 replaces it.",
+  "cases": [
+    {
+      "id": "mq_full_data",
+      "description": "Full data: high coverage, two signal components, one discontinuity, 10 min of valid signal.",
+      "input": {
+        "coverage": 0.97,
+        "signals": [
+          {
+            "id": "eeg",
+            "metricId": "eeg.artifact_coverage",
+            "value": 0.92,
+            "quality": 1
+          },
+          {
+            "id": "rppg",
+            "metricId": "pulse.capture_confidence",
+            "value": 0.81,
+            "quality": 0.9
+          }
+        ],
+        "discontinuities": 1,
+        "reconnects": 0,
+        "validDurationS": 612
+      },
+      "algorithm": "score_measurement_quality@1",
+      "expected": {
+        "scoreId": "elata.measurement_quality",
+        "formulaVersion": "score_measurement_quality@1",
+        "value": 90,
+        "contributors": [
+          {
+            "id": "coverage",
+            "metricId": "session.coverage",
+            "z": null,
+            "weight": 0.4,
+            "quality": 1,
+            "included": true
+          },
+          {
+            "id": "signal:eeg",
+            "metricId": "eeg.artifact_coverage",
+            "z": null,
+            "weight": 0.35,
+            "quality": 1,
+            "included": true
+          },
+          {
+            "id": "signal:rppg",
+            "metricId": "pulse.capture_confidence",
+            "z": null,
+            "weight": 0.35,
+            "quality": 0.9,
+            "included": true
+          },
+          {
+            "id": "stability",
+            "metricId": "stream.discontinuities",
+            "z": null,
+            "weight": 0.25,
+            "quality": 1,
+            "included": true
+          }
+        ],
+        "measurementQuality": 90
+      }
+    },
+    {
+      "id": "mq_withhold_thin_data",
+      "description": "Withhold on thin data: identical inputs but only 45 s of valid signal.",
+      "input": {
+        "coverage": 0.97,
+        "signals": [
+          {
+            "id": "eeg",
+            "metricId": "eeg.artifact_coverage",
+            "value": 0.92,
+            "quality": 1
+          },
+          {
+            "id": "rppg",
+            "metricId": "pulse.capture_confidence",
+            "value": 0.81,
+            "quality": 0.9
+          }
+        ],
+        "discontinuities": 1,
+        "reconnects": 0,
+        "validDurationS": 45
+      },
+      "algorithm": "score_measurement_quality@1",
+      "expected": {
+        "scoreId": "elata.measurement_quality",
+        "formulaVersion": "score_measurement_quality@1",
+        "value": null,
+        "withheldReason": "insufficient_quality",
+        "contributors": [
+          {
+            "id": "coverage",
+            "metricId": "session.coverage",
+            "z": null,
+            "weight": 0.4,
+            "quality": 1,
+            "included": true
+          },
+          {
+            "id": "signal:eeg",
+            "metricId": "eeg.artifact_coverage",
+            "z": null,
+            "weight": 0.35,
+            "quality": 1,
+            "included": true
+          },
+          {
+            "id": "signal:rppg",
+            "metricId": "pulse.capture_confidence",
+            "z": null,
+            "weight": 0.35,
+            "quality": 0.9,
+            "included": true
+          },
+          {
+            "id": "stability",
+            "metricId": "stream.discontinuities",
+            "z": null,
+            "weight": 0.25,
+            "quality": 1,
+            "included": true
+          }
+        ],
+        "measurementQuality": 90
+      }
+    },
+    {
+      "id": "mq_withhold_inputs_missing",
+      "description": "Withhold when no signal component exists at all — never a neutral 50.",
+      "input": {
+        "coverage": 0.99,
+        "signals": [],
+        "discontinuities": 0,
+        "reconnects": 0,
+        "validDurationS": 600
+      },
+      "algorithm": "score_measurement_quality@1",
+      "expected": {
+        "scoreId": "elata.measurement_quality",
+        "formulaVersion": "score_measurement_quality@1",
+        "value": null,
+        "withheldReason": "inputs_missing",
+        "contributors": [
+          {
+            "id": "coverage",
+            "metricId": "session.coverage",
+            "z": null,
+            "weight": 0.4,
+            "quality": 1,
+            "included": true
+          },
+          {
+            "id": "stability",
+            "metricId": "stream.discontinuities",
+            "z": null,
+            "weight": 0.25,
+            "quality": 1,
+            "included": true
+          }
+        ],
+        "measurementQuality": 0
+      }
+    },
+    {
+      "id": "mq_partial_contributors",
+      "description": "Only the PPG signal component exists, at reduced weight; instability from 3 gaps and 2 reconnects.",
+      "input": {
+        "coverage": 0.88,
+        "signals": [
+          {
+            "id": "ppg",
+            "metricId": "pulse.signal_quality",
+            "value": 0.55,
+            "quality": 0.6
+          }
+        ],
+        "discontinuities": 3,
+        "reconnects": 2,
+        "validDurationS": 300
+      },
+      "algorithm": "score_measurement_quality@1",
+      "expected": {
+        "scoreId": "elata.measurement_quality",
+        "formulaVersion": "score_measurement_quality@1",
+        "value": 61,
+        "contributors": [
+          {
+            "id": "coverage",
+            "metricId": "session.coverage",
+            "z": null,
+            "weight": 0.4,
+            "quality": 1,
+            "included": true
+          },
+          {
+            "id": "signal:ppg",
+            "metricId": "pulse.signal_quality",
+            "z": null,
+            "weight": 0.35,
+            "quality": 0.6,
+            "included": true
+          },
+          {
+            "id": "stability",
+            "metricId": "stream.discontinuities",
+            "z": null,
+            "weight": 0.25,
+            "quality": 1,
+            "included": true
+          }
+        ],
+        "measurementQuality": 61
+      }
+    },
+    {
+      "id": "mq_low_quality_not_withheld",
+      "description": "Poor but honest measurement: low coverage, dirty signal, many gaps — reported low, not withheld.",
+      "input": {
+        "coverage": 0.4,
+        "signals": [
+          {
+            "id": "eeg",
+            "metricId": "eeg.artifact_coverage",
+            "value": 0.3,
+            "quality": 1
+          }
+        ],
+        "discontinuities": 6,
+        "reconnects": 4,
+        "validDurationS": 900
+      },
+      "algorithm": "score_measurement_quality@1",
+      "expected": {
+        "scoreId": "elata.measurement_quality",
+        "formulaVersion": "score_measurement_quality@1",
+        "value": 28,
+        "contributors": [
+          {
+            "id": "coverage",
+            "metricId": "session.coverage",
+            "z": null,
+            "weight": 0.4,
+            "quality": 1,
+            "included": true
+          },
+          {
+            "id": "signal:eeg",
+            "metricId": "eeg.artifact_coverage",
+            "z": null,
+            "weight": 0.35,
+            "quality": 1,
+            "included": true
+          },
+          {
+            "id": "stability",
+            "metricId": "stream.discontinuities",
+            "z": null,
+            "weight": 0.25,
+            "quality": 1,
+            "included": true
+          }
+        ],
+        "measurementQuality": 28
+      }
+    },
+    {
+      "id": "mq_clamps_out_of_range_inputs",
+      "description": "Out-of-range coverage and signal values are clamped to 0..1 before weighting.",
+      "input": {
+        "coverage": 1.4,
+        "signals": [
+          {
+            "id": "eeg",
+            "metricId": "eeg.artifact_coverage",
+            "value": -0.2,
+            "quality": 1.5
+          }
+        ],
+        "discontinuities": -2,
+        "reconnects": -1,
+        "validDurationS": 120
+      },
+      "algorithm": "score_measurement_quality@1",
+      "expected": {
+        "scoreId": "elata.measurement_quality",
+        "formulaVersion": "score_measurement_quality@1",
+        "value": 65,
+        "contributors": [
+          {
+            "id": "coverage",
+            "metricId": "session.coverage",
+            "z": null,
+            "weight": 0.4,
+            "quality": 1,
+            "included": true
+          },
+          {
+            "id": "signal:eeg",
+            "metricId": "eeg.artifact_coverage",
+            "z": null,
+            "weight": 0.35,
+            "quality": 1,
+            "included": true
+          },
+          {
+            "id": "stability",
+            "metricId": "stream.discontinuities",
+            "z": null,
+            "weight": 0.25,
+            "quality": 1,
+            "included": true
+          }
+        ],
+        "measurementQuality": 65
+      }
+    },
+    {
+      "id": "activation_full_data",
+      "description": "All three contributors present with usable baselines.",
+      "input": {
+        "heartRate": {
+          "value": 78,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "default",
+            "median": 68,
+            "mad": 4,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "rmssd": {
+          "value": 28,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 42,
+            "mad": 6,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.85
+        },
+        "eegBetaRatio": {
+          "value": 1.35,
+          "baseline": {
+            "metricId": "eeg.ratio.alpha_beta",
+            "contextBucket": "default",
+            "median": 1.1,
+            "mad": 0.15,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.8
+        },
+        "measurementQuality": 82
+      },
+      "algorithm": "score_activation@1",
+      "expected": {
+        "scoreId": "elata.activation",
+        "formulaVersion": "score_activation@1",
+        "contributors": [
+          {
+            "id": "hr",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.4,
+            "quality": 0.9,
+            "z": 1.6862268986914881,
+            "included": true
+          },
+          {
+            "id": "prv",
+            "metricId": "pulse.rmssd",
+            "weight": 0.3,
+            "quality": 0.85,
+            "z": 1.5738117721120555,
+            "included": true
+          },
+          {
+            "id": "eeg-beta",
+            "metricId": "eeg.ratio.alpha_beta",
+            "weight": 0.3,
+            "quality": 0.8,
+            "z": 1.1241512657943253,
+            "included": true
+          }
+        ],
+        "measurementQuality": 82,
+        "value": 77
+      }
+    },
+    {
+      "id": "activation_partial_contributor_renormalization",
+      "description": "EEG contributor is missing (no spectral features on device): weights renormalize over HR + RMSSD.",
+      "input": {
+        "heartRate": {
+          "value": 78,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "default",
+            "median": 68,
+            "mad": 4,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "rmssd": {
+          "value": 28,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 42,
+            "mad": 6,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.85
+        },
+        "eegBetaRatio": {
+          "value": null,
+          "baseline": null,
+          "quality": 0
+        },
+        "measurementQuality": 82
+      },
+      "algorithm": "score_activation@1",
+      "expected": {
+        "scoreId": "elata.activation",
+        "formulaVersion": "score_activation@1",
+        "contributors": [
+          {
+            "id": "hr",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.4,
+            "quality": 0.9,
+            "z": 1.6862268986914881,
+            "included": true
+          },
+          {
+            "id": "prv",
+            "metricId": "pulse.rmssd",
+            "weight": 0.3,
+            "quality": 0.85,
+            "z": 1.5738117721120555,
+            "included": true
+          },
+          {
+            "id": "eeg-beta",
+            "metricId": "eeg.ratio.alpha_beta",
+            "weight": 0.3,
+            "quality": 0,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          }
+        ],
+        "measurementQuality": 82,
+        "value": 79
+      }
+    },
+    {
+      "id": "activation_withhold_insufficient_baseline",
+      "description": "Only the EEG contributor is usable (weight 0.3 < the 0.5 included-weight floor) — withheld.",
+      "input": {
+        "heartRate": {
+          "value": 78,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "default",
+            "median": 68,
+            "mad": 4,
+            "sessionCount": 3,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "rmssd": {
+          "value": null,
+          "baseline": null,
+          "quality": 0
+        },
+        "eegBetaRatio": {
+          "value": 1.35,
+          "baseline": {
+            "metricId": "eeg.ratio.alpha_beta",
+            "contextBucket": "default",
+            "median": 1.1,
+            "mad": 0.15,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.8
+        },
+        "measurementQuality": 82
+      },
+      "algorithm": "score_activation@1",
+      "expected": {
+        "scoreId": "elata.activation",
+        "formulaVersion": "score_activation@1",
+        "contributors": [
+          {
+            "id": "hr",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.4,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "insufficient_baseline"
+          },
+          {
+            "id": "prv",
+            "metricId": "pulse.rmssd",
+            "weight": 0.3,
+            "quality": 0,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "eeg-beta",
+            "metricId": "eeg.ratio.alpha_beta",
+            "weight": 0.3,
+            "quality": 0.8,
+            "z": 1.1241512657943253,
+            "included": true
+          }
+        ],
+        "measurementQuality": 82,
+        "value": null,
+        "withheldReason": "insufficient_baseline"
+      }
+    },
+    {
+      "id": "activation_withhold_low_measurement_quality",
+      "description": "Measurement quality below 40 withholds the score even with perfect inputs.",
+      "input": {
+        "heartRate": {
+          "value": 78,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "default",
+            "median": 68,
+            "mad": 4,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "rmssd": {
+          "value": 28,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 42,
+            "mad": 6,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.85
+        },
+        "eegBetaRatio": {
+          "value": 1.35,
+          "baseline": {
+            "metricId": "eeg.ratio.alpha_beta",
+            "contextBucket": "default",
+            "median": 1.1,
+            "mad": 0.15,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.8
+        },
+        "measurementQuality": 30
+      },
+      "algorithm": "score_activation@1",
+      "expected": {
+        "scoreId": "elata.activation",
+        "formulaVersion": "score_activation@1",
+        "contributors": [
+          {
+            "id": "hr",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.4,
+            "quality": 0.9,
+            "z": 1.6862268986914881,
+            "included": true
+          },
+          {
+            "id": "prv",
+            "metricId": "pulse.rmssd",
+            "weight": 0.3,
+            "quality": 0.85,
+            "z": 1.5738117721120555,
+            "included": true
+          },
+          {
+            "id": "eeg-beta",
+            "metricId": "eeg.ratio.alpha_beta",
+            "weight": 0.3,
+            "quality": 0.8,
+            "z": 1.1241512657943253,
+            "included": true
+          }
+        ],
+        "measurementQuality": 30,
+        "value": null,
+        "withheldReason": "insufficient_quality"
+      }
+    },
+    {
+      "id": "activation_degenerate_and_low_quality_contributors",
+      "description": "A flat baseline (MAD 0) and a contributor below the 0.4 quality floor are both excluded with reasons.",
+      "input": {
+        "heartRate": {
+          "value": 78,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "default",
+            "median": 68,
+            "mad": 0,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "rmssd": {
+          "value": 28,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 42,
+            "mad": 6,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.2
+        },
+        "eegBetaRatio": {
+          "value": 1.35,
+          "baseline": {
+            "metricId": "eeg.ratio.alpha_beta",
+            "contextBucket": "default",
+            "median": 1.1,
+            "mad": 0.15,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.8
+        },
+        "measurementQuality": 82
+      },
+      "algorithm": "score_activation@1",
+      "expected": {
+        "scoreId": "elata.activation",
+        "formulaVersion": "score_activation@1",
+        "contributors": [
+          {
+            "id": "hr",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.4,
+            "quality": 0.9,
+            "z": 0,
+            "included": false,
+            "excludedReason": "degenerate_baseline"
+          },
+          {
+            "id": "prv",
+            "metricId": "pulse.rmssd",
+            "weight": 0.3,
+            "quality": 0.2,
+            "z": null,
+            "included": false,
+            "excludedReason": "insufficient_quality"
+          },
+          {
+            "id": "eeg-beta",
+            "metricId": "eeg.ratio.alpha_beta",
+            "weight": 0.3,
+            "quality": 0.8,
+            "z": 1.1241512657943253,
+            "included": true
+          }
+        ],
+        "measurementQuality": 82,
+        "value": null,
+        "withheldReason": "insufficient_baseline"
+      }
+    },
+    {
+      "id": "activation_z_clamped_extremes",
+      "description": "Extreme session values clamp to the ±3 robust-z bound before compositing.",
+      "input": {
+        "heartRate": {
+          "value": 200,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "default",
+            "median": 68,
+            "mad": 4,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 1
+        },
+        "rmssd": {
+          "value": 200,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 42,
+            "mad": 6,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 1
+        },
+        "eegBetaRatio": {
+          "value": 9,
+          "baseline": {
+            "metricId": "eeg.ratio.alpha_beta",
+            "contextBucket": "default",
+            "median": 1.1,
+            "mad": 0.15,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 1
+        },
+        "measurementQuality": 95
+      },
+      "algorithm": "score_activation@1",
+      "expected": {
+        "scoreId": "elata.activation",
+        "formulaVersion": "score_activation@1",
+        "contributors": [
+          {
+            "id": "hr",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.4,
+            "quality": 1,
+            "z": 3,
+            "included": true
+          },
+          {
+            "id": "prv",
+            "metricId": "pulse.rmssd",
+            "weight": 0.3,
+            "quality": 1,
+            "z": -3,
+            "included": true
+          },
+          {
+            "id": "eeg-beta",
+            "metricId": "eeg.ratio.alpha_beta",
+            "weight": 0.3,
+            "quality": 1,
+            "z": 3,
+            "included": true
+          }
+        ],
+        "measurementQuality": 95,
+        "value": 72
+      }
+    },
+    {
+      "id": "recovery_full_data",
+      "description": "A complete, fast recovery: every epoch-derived and rebound contributor present.",
+      "input": {
+        "analysis": {
+          "sampleRateHz": 1,
+          "sampleCount": 400,
+          "durationSeconds": 400,
+          "baseline": {
+            "startSeconds": 0,
+            "endSeconds": 59,
+            "sampleCount": 60,
+            "level": 10,
+            "scale": 1,
+            "activationThreshold": 12
+          },
+          "epoch": {
+            "startSeconds": 101,
+            "endSeconds": 339,
+            "durationSeconds": 238,
+            "sampleCount": 239,
+            "peakValue": 50,
+            "peakSeconds": 140,
+            "timeToPeakSeconds": 39,
+            "riseRatePerSecond": 1,
+            "areaAboveBaseline": 5599.375,
+            "recovery": {
+              "observedSeconds": 259,
+              "halfRecoveryTarget": 30,
+              "baselineReturnTarget": 14,
+              "timeToHalfRecoverySeconds": 120,
+              "timeToBaselineSeconds": 184,
+              "recoveryCompleted": true,
+              "recoverySlopePerSecond": -0.1956521739130435,
+              "residualFraction": 0
+            },
+            "recoveryWithheldReason": null
+          },
+          "withheldReason": null
+        },
+        "baselines": {
+          "timeToHalfRecoveryS": {
+            "metricId": "session.recovery.time_to_half",
+            "contextBucket": "default",
+            "median": 150,
+            "mad": 30,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "recoverySlopePerSecond": {
+            "metricId": "session.recovery.slope",
+            "contextBucket": "default",
+            "median": -0.12,
+            "mad": 0.04,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "timeToBaselineS": {
+            "metricId": "session.recovery.time_to_baseline",
+            "contextBucket": "default",
+            "median": 240,
+            "mad": 50,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          }
+        },
+        "epochQuality": 0.9,
+        "rmssdRebound": {
+          "value": 1.15,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 1,
+            "mad": 0.08,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "alphaRebound": {
+          "value": 1.1,
+          "baseline": {
+            "metricId": "eeg.band_power.alpha.relative",
+            "contextBucket": "default",
+            "median": 1,
+            "mad": 0.1,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.8
+        },
+        "measurementQuality": 80
+      },
+      "algorithm": "score_recovery@2",
+      "expected": {
+        "scoreId": "elata.recovery",
+        "formulaVersion": "score_recovery@2",
+        "contributors": [
+          {
+            "id": "time-to-half",
+            "metricId": "session.recovery.time_to_half",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": 0.6744907594765952,
+            "included": true
+          },
+          {
+            "id": "recovery-slope",
+            "metricId": "session.recovery.slope",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.2756673059666042,
+            "included": true
+          },
+          {
+            "id": "time-to-baseline",
+            "metricId": "session.recovery.time_to_baseline",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 0.7554296506137866,
+            "included": true
+          },
+          {
+            "id": "rmssd-rebound",
+            "metricId": "pulse.rmssd",
+            "weight": 0.2,
+            "quality": 0.9,
+            "z": 1.2646701740186153,
+            "included": true
+          },
+          {
+            "id": "alpha-rebound",
+            "metricId": "eeg.band_power.alpha.relative",
+            "weight": 0.1,
+            "quality": 0.8,
+            "z": 0.6744907594765958,
+            "included": true
+          }
+        ],
+        "measurementQuality": 80,
+        "value": 68
+      }
+    },
+    {
+      "id": "recovery_partial_renormalization",
+      "description": "Half recovery reached, baseline never regained: the time-to-baseline term drops and the remaining 0.85 renormalizes.",
+      "input": {
+        "analysis": {
+          "sampleRateHz": 1,
+          "sampleCount": 400,
+          "durationSeconds": 400,
+          "baseline": {
+            "startSeconds": 0,
+            "endSeconds": 59,
+            "sampleCount": 60,
+            "level": 10,
+            "scale": 1,
+            "activationThreshold": 12
+          },
+          "epoch": {
+            "startSeconds": 101,
+            "endSeconds": 339,
+            "durationSeconds": 238,
+            "sampleCount": 239,
+            "peakValue": 50,
+            "peakSeconds": 140,
+            "timeToPeakSeconds": 39,
+            "riseRatePerSecond": 1,
+            "areaAboveBaseline": 5599.375,
+            "recovery": {
+              "observedSeconds": 259,
+              "halfRecoveryTarget": 30,
+              "baselineReturnTarget": 14,
+              "timeToHalfRecoverySeconds": 120,
+              "timeToBaselineSeconds": null,
+              "recoveryCompleted": false,
+              "recoverySlopePerSecond": -0.1956521739130435,
+              "residualFraction": 0.3
+            },
+            "recoveryWithheldReason": null
+          },
+          "withheldReason": null
+        },
+        "baselines": {
+          "timeToHalfRecoveryS": {
+            "metricId": "session.recovery.time_to_half",
+            "contextBucket": "default",
+            "median": 150,
+            "mad": 30,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "recoverySlopePerSecond": {
+            "metricId": "session.recovery.slope",
+            "contextBucket": "default",
+            "median": -0.12,
+            "mad": 0.04,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "timeToBaselineS": {
+            "metricId": "session.recovery.time_to_baseline",
+            "contextBucket": "default",
+            "median": 240,
+            "mad": 50,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          }
+        },
+        "epochQuality": 0.9,
+        "rmssdRebound": {
+          "value": 1.15,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 1,
+            "mad": 0.08,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "alphaRebound": {
+          "value": 1.1,
+          "baseline": {
+            "metricId": "eeg.band_power.alpha.relative",
+            "contextBucket": "default",
+            "median": 1,
+            "mad": 0.1,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.8
+        },
+        "measurementQuality": 80
+      },
+      "algorithm": "score_recovery@2",
+      "expected": {
+        "scoreId": "elata.recovery",
+        "formulaVersion": "score_recovery@2",
+        "contributors": [
+          {
+            "id": "time-to-half",
+            "metricId": "session.recovery.time_to_half",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": 0.6744907594765952,
+            "included": true
+          },
+          {
+            "id": "recovery-slope",
+            "metricId": "session.recovery.slope",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.2756673059666042,
+            "included": true
+          },
+          {
+            "id": "time-to-baseline",
+            "metricId": "session.recovery.time_to_baseline",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "rmssd-rebound",
+            "metricId": "pulse.rmssd",
+            "weight": 0.2,
+            "quality": 0.9,
+            "z": 1.2646701740186153,
+            "included": true
+          },
+          {
+            "id": "alpha-rebound",
+            "metricId": "eeg.band_power.alpha.relative",
+            "weight": 0.1,
+            "quality": 0.8,
+            "z": 0.6744907594765958,
+            "included": true
+          }
+        ],
+        "measurementQuality": 80,
+        "value": 69
+      }
+    },
+    {
+      "id": "recovery_withhold_no_activation",
+      "description": "A baseline was established and nothing cleared the activation threshold.",
+      "input": {
+        "analysis": {
+          "sampleRateHz": 1,
+          "sampleCount": 400,
+          "durationSeconds": 400,
+          "baseline": {
+            "startSeconds": 0,
+            "endSeconds": 59,
+            "sampleCount": 60,
+            "level": 10,
+            "scale": 1,
+            "activationThreshold": 12
+          },
+          "epoch": null,
+          "withheldReason": "noQualifyingActivation"
+        },
+        "baselines": {
+          "timeToHalfRecoveryS": {
+            "metricId": "session.recovery.time_to_half",
+            "contextBucket": "default",
+            "median": 150,
+            "mad": 30,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "recoverySlopePerSecond": {
+            "metricId": "session.recovery.slope",
+            "contextBucket": "default",
+            "median": -0.12,
+            "mad": 0.04,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "timeToBaselineS": {
+            "metricId": "session.recovery.time_to_baseline",
+            "contextBucket": "default",
+            "median": 240,
+            "mad": 50,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          }
+        },
+        "epochQuality": 0.9,
+        "rmssdRebound": {
+          "value": 1.15,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 1,
+            "mad": 0.08,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "alphaRebound": {
+          "value": 1.1,
+          "baseline": {
+            "metricId": "eeg.band_power.alpha.relative",
+            "contextBucket": "default",
+            "median": 1,
+            "mad": 0.1,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.8
+        },
+        "measurementQuality": 80
+      },
+      "algorithm": "score_recovery@2",
+      "expected": {
+        "scoreId": "elata.recovery",
+        "formulaVersion": "score_recovery@2",
+        "contributors": [
+          {
+            "id": "time-to-half",
+            "metricId": "session.recovery.time_to_half",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "recovery-slope",
+            "metricId": "session.recovery.slope",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "time-to-baseline",
+            "metricId": "session.recovery.time_to_baseline",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "rmssd-rebound",
+            "metricId": "pulse.rmssd",
+            "weight": 0.2,
+            "quality": 0.9,
+            "z": 1.2646701740186153,
+            "included": true
+          },
+          {
+            "id": "alpha-rebound",
+            "metricId": "eeg.band_power.alpha.relative",
+            "weight": 0.1,
+            "quality": 0.8,
+            "z": 0.6744907594765958,
+            "included": true
+          }
+        ],
+        "measurementQuality": 80,
+        "value": null,
+        "withheldReason": "no_activation_detected"
+      }
+    },
+    {
+      "id": "recovery_withhold_recording_ended",
+      "description": "An epoch with no recovery block: the recording ended before recovery could be observed.",
+      "input": {
+        "analysis": {
+          "sampleRateHz": 1,
+          "sampleCount": 400,
+          "durationSeconds": 400,
+          "baseline": {
+            "startSeconds": 0,
+            "endSeconds": 59,
+            "sampleCount": 60,
+            "level": 10,
+            "scale": 1,
+            "activationThreshold": 12
+          },
+          "epoch": {
+            "startSeconds": 101,
+            "endSeconds": 339,
+            "durationSeconds": 238,
+            "sampleCount": 239,
+            "peakValue": 50,
+            "peakSeconds": 140,
+            "timeToPeakSeconds": 39,
+            "riseRatePerSecond": 1,
+            "areaAboveBaseline": 5599.375,
+            "recovery": null,
+            "recoveryWithheldReason": "postEpochWindowTooShort"
+          },
+          "withheldReason": null
+        },
+        "baselines": {
+          "timeToHalfRecoveryS": {
+            "metricId": "session.recovery.time_to_half",
+            "contextBucket": "default",
+            "median": 150,
+            "mad": 30,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "recoverySlopePerSecond": {
+            "metricId": "session.recovery.slope",
+            "contextBucket": "default",
+            "median": -0.12,
+            "mad": 0.04,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "timeToBaselineS": {
+            "metricId": "session.recovery.time_to_baseline",
+            "contextBucket": "default",
+            "median": 240,
+            "mad": 50,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          }
+        },
+        "epochQuality": 0.9,
+        "rmssdRebound": {
+          "value": 1.15,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 1,
+            "mad": 0.08,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "alphaRebound": {
+          "value": 1.1,
+          "baseline": {
+            "metricId": "eeg.band_power.alpha.relative",
+            "contextBucket": "default",
+            "median": 1,
+            "mad": 0.1,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.8
+        },
+        "measurementQuality": 80
+      },
+      "algorithm": "score_recovery@2",
+      "expected": {
+        "scoreId": "elata.recovery",
+        "formulaVersion": "score_recovery@2",
+        "contributors": [
+          {
+            "id": "time-to-half",
+            "metricId": "session.recovery.time_to_half",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "recovery-slope",
+            "metricId": "session.recovery.slope",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "time-to-baseline",
+            "metricId": "session.recovery.time_to_baseline",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "rmssd-rebound",
+            "metricId": "pulse.rmssd",
+            "weight": 0.2,
+            "quality": 0.9,
+            "z": 1.2646701740186153,
+            "included": true
+          },
+          {
+            "id": "alpha-rebound",
+            "metricId": "eeg.band_power.alpha.relative",
+            "weight": 0.1,
+            "quality": 0.8,
+            "z": 0.6744907594765958,
+            "included": true
+          }
+        ],
+        "measurementQuality": 80,
+        "value": null,
+        "withheldReason": "recovery_incomplete"
+      }
+    },
+    {
+      "id": "recovery_withhold_never_recovered",
+      "description": "A plateau that never reached half recovery — a recovery block exists, but there is no recovery to rate.",
+      "input": {
+        "analysis": {
+          "sampleRateHz": 1,
+          "sampleCount": 400,
+          "durationSeconds": 400,
+          "baseline": {
+            "startSeconds": 0,
+            "endSeconds": 59,
+            "sampleCount": 60,
+            "level": 10,
+            "scale": 1,
+            "activationThreshold": 12
+          },
+          "epoch": {
+            "startSeconds": 101,
+            "endSeconds": 339,
+            "durationSeconds": 238,
+            "sampleCount": 239,
+            "peakValue": 50,
+            "peakSeconds": 140,
+            "timeToPeakSeconds": 39,
+            "riseRatePerSecond": 1,
+            "areaAboveBaseline": 5599.375,
+            "recovery": {
+              "observedSeconds": 259,
+              "halfRecoveryTarget": 30,
+              "baselineReturnTarget": 14,
+              "timeToHalfRecoverySeconds": null,
+              "timeToBaselineSeconds": null,
+              "recoveryCompleted": false,
+              "recoverySlopePerSecond": 0,
+              "residualFraction": 1
+            },
+            "recoveryWithheldReason": null
+          },
+          "withheldReason": null
+        },
+        "baselines": {
+          "timeToHalfRecoveryS": {
+            "metricId": "session.recovery.time_to_half",
+            "contextBucket": "default",
+            "median": 150,
+            "mad": 30,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "recoverySlopePerSecond": {
+            "metricId": "session.recovery.slope",
+            "contextBucket": "default",
+            "median": -0.12,
+            "mad": 0.04,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "timeToBaselineS": {
+            "metricId": "session.recovery.time_to_baseline",
+            "contextBucket": "default",
+            "median": 240,
+            "mad": 50,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          }
+        },
+        "epochQuality": 0.9,
+        "rmssdRebound": {
+          "value": 1.15,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 1,
+            "mad": 0.08,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "alphaRebound": {
+          "value": 1.1,
+          "baseline": {
+            "metricId": "eeg.band_power.alpha.relative",
+            "contextBucket": "default",
+            "median": 1,
+            "mad": 0.1,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.8
+        },
+        "measurementQuality": 80
+      },
+      "algorithm": "score_recovery@2",
+      "expected": {
+        "scoreId": "elata.recovery",
+        "formulaVersion": "score_recovery@2",
+        "contributors": [
+          {
+            "id": "time-to-half",
+            "metricId": "session.recovery.time_to_half",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "recovery-slope",
+            "metricId": "session.recovery.slope",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": -2.0234722784297854,
+            "included": true
+          },
+          {
+            "id": "time-to-baseline",
+            "metricId": "session.recovery.time_to_baseline",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "rmssd-rebound",
+            "metricId": "pulse.rmssd",
+            "weight": 0.2,
+            "quality": 0.9,
+            "z": 1.2646701740186153,
+            "included": true
+          },
+          {
+            "id": "alpha-rebound",
+            "metricId": "eeg.band_power.alpha.relative",
+            "weight": 0.1,
+            "quality": 0.8,
+            "z": 0.6744907594765958,
+            "included": true
+          }
+        ],
+        "measurementQuality": 80,
+        "value": null,
+        "withheldReason": "recovery_incomplete"
+      }
+    },
+    {
+      "id": "recovery_withhold_inputs_missing",
+      "description": "No activation-epoch analysis at all.",
+      "input": {
+        "analysis": null,
+        "baselines": {
+          "timeToHalfRecoveryS": {
+            "metricId": "session.recovery.time_to_half",
+            "contextBucket": "default",
+            "median": 150,
+            "mad": 30,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "recoverySlopePerSecond": {
+            "metricId": "session.recovery.slope",
+            "contextBucket": "default",
+            "median": -0.12,
+            "mad": 0.04,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "timeToBaselineS": {
+            "metricId": "session.recovery.time_to_baseline",
+            "contextBucket": "default",
+            "median": 240,
+            "mad": 50,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          }
+        },
+        "epochQuality": 0.9,
+        "rmssdRebound": {
+          "value": 1.15,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 1,
+            "mad": 0.08,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "alphaRebound": {
+          "value": 1.1,
+          "baseline": {
+            "metricId": "eeg.band_power.alpha.relative",
+            "contextBucket": "default",
+            "median": 1,
+            "mad": 0.1,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.8
+        },
+        "measurementQuality": 80
+      },
+      "algorithm": "score_recovery@2",
+      "expected": {
+        "scoreId": "elata.recovery",
+        "formulaVersion": "score_recovery@2",
+        "contributors": [
+          {
+            "id": "time-to-half",
+            "metricId": "session.recovery.time_to_half",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "recovery-slope",
+            "metricId": "session.recovery.slope",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "time-to-baseline",
+            "metricId": "session.recovery.time_to_baseline",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "rmssd-rebound",
+            "metricId": "pulse.rmssd",
+            "weight": 0.2,
+            "quality": 0.9,
+            "z": 1.2646701740186153,
+            "included": true
+          },
+          {
+            "id": "alpha-rebound",
+            "metricId": "eeg.band_power.alpha.relative",
+            "weight": 0.1,
+            "quality": 0.8,
+            "z": 0.6744907594765958,
+            "included": true
+          }
+        ],
+        "measurementQuality": 80,
+        "value": null,
+        "withheldReason": "inputs_missing"
+      }
+    },
+    {
+      "id": "recovery_withhold_low_measurement_quality",
+      "description": "MQ below 40 withholds even a textbook recovery.",
+      "input": {
+        "analysis": {
+          "sampleRateHz": 1,
+          "sampleCount": 400,
+          "durationSeconds": 400,
+          "baseline": {
+            "startSeconds": 0,
+            "endSeconds": 59,
+            "sampleCount": 60,
+            "level": 10,
+            "scale": 1,
+            "activationThreshold": 12
+          },
+          "epoch": {
+            "startSeconds": 101,
+            "endSeconds": 339,
+            "durationSeconds": 238,
+            "sampleCount": 239,
+            "peakValue": 50,
+            "peakSeconds": 140,
+            "timeToPeakSeconds": 39,
+            "riseRatePerSecond": 1,
+            "areaAboveBaseline": 5599.375,
+            "recovery": {
+              "observedSeconds": 259,
+              "halfRecoveryTarget": 30,
+              "baselineReturnTarget": 14,
+              "timeToHalfRecoverySeconds": 120,
+              "timeToBaselineSeconds": 184,
+              "recoveryCompleted": true,
+              "recoverySlopePerSecond": -0.1956521739130435,
+              "residualFraction": 0
+            },
+            "recoveryWithheldReason": null
+          },
+          "withheldReason": null
+        },
+        "baselines": {
+          "timeToHalfRecoveryS": {
+            "metricId": "session.recovery.time_to_half",
+            "contextBucket": "default",
+            "median": 150,
+            "mad": 30,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "recoverySlopePerSecond": {
+            "metricId": "session.recovery.slope",
+            "contextBucket": "default",
+            "median": -0.12,
+            "mad": 0.04,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "timeToBaselineS": {
+            "metricId": "session.recovery.time_to_baseline",
+            "contextBucket": "default",
+            "median": 240,
+            "mad": 50,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          }
+        },
+        "epochQuality": 0.9,
+        "rmssdRebound": {
+          "value": 1.15,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 1,
+            "mad": 0.08,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "alphaRebound": {
+          "value": 1.1,
+          "baseline": {
+            "metricId": "eeg.band_power.alpha.relative",
+            "contextBucket": "default",
+            "median": 1,
+            "mad": 0.1,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.8
+        },
+        "measurementQuality": 30
+      },
+      "algorithm": "score_recovery@2",
+      "expected": {
+        "scoreId": "elata.recovery",
+        "formulaVersion": "score_recovery@2",
+        "contributors": [
+          {
+            "id": "time-to-half",
+            "metricId": "session.recovery.time_to_half",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": 0.6744907594765952,
+            "included": true
+          },
+          {
+            "id": "recovery-slope",
+            "metricId": "session.recovery.slope",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.2756673059666042,
+            "included": true
+          },
+          {
+            "id": "time-to-baseline",
+            "metricId": "session.recovery.time_to_baseline",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 0.7554296506137866,
+            "included": true
+          },
+          {
+            "id": "rmssd-rebound",
+            "metricId": "pulse.rmssd",
+            "weight": 0.2,
+            "quality": 0.9,
+            "z": 1.2646701740186153,
+            "included": true
+          },
+          {
+            "id": "alpha-rebound",
+            "metricId": "eeg.band_power.alpha.relative",
+            "weight": 0.1,
+            "quality": 0.8,
+            "z": 0.6744907594765958,
+            "included": true
+          }
+        ],
+        "measurementQuality": 30,
+        "value": null,
+        "withheldReason": "insufficient_quality"
+      }
+    },
+    {
+      "id": "focus_full_data",
+      "description": "A real task with behavioural performance, plus both EEG contributors.",
+      "input": {
+        "task": {
+          "taskId": "app.nback",
+          "onTaskDurationS": 420,
+          "responseTimeStability": {
+            "value": 0.82,
+            "baseline": {
+              "metricId": "session.task.rt_stability",
+              "contextBucket": "default",
+              "median": 0.7,
+              "mad": 0.06,
+              "sessionCount": 12,
+              "updatedAtMs": 1760000000000
+            },
+            "quality": 0.9
+          },
+          "lapseRate": {
+            "value": 0.03,
+            "baseline": {
+              "metricId": "session.task.lapse_rate",
+              "contextBucket": "default",
+              "median": 0.06,
+              "mad": 0.02,
+              "sessionCount": 12,
+              "updatedAtMs": 1760000000000
+            },
+            "quality": 0.9
+          }
+        },
+        "eegStability": {
+          "value": 0.88,
+          "baseline": {
+            "metricId": "session.focus.stability",
+            "contextBucket": "default",
+            "median": 0.75,
+            "mad": 0.07,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "alphaRelative": {
+          "value": 0.22,
+          "baseline": {
+            "metricId": "eeg.band_power.alpha.relative",
+            "contextBucket": "default",
+            "median": 0.3,
+            "mad": 0.04,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 78
+      },
+      "algorithm": "score_focus@1",
+      "expected": {
+        "scoreId": "elata.focus",
+        "formulaVersion": "score_focus@1",
+        "contributors": [
+          {
+            "id": "eeg-stability",
+            "metricId": "session.focus.stability",
+            "weight": 0.35,
+            "quality": 0.9,
+            "z": 1.2526256961708198,
+            "included": true
+          },
+          {
+            "id": "eeg-alpha-desync",
+            "metricId": "eeg.band_power.alpha.relative",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531902,
+            "included": true
+          },
+          {
+            "id": "task-rt-stability",
+            "metricId": "session.task.rt_stability",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          },
+          {
+            "id": "task-lapse-rate",
+            "metricId": "session.task.lapse_rate",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 1.0117361392148927,
+            "included": true
+          }
+        ],
+        "measurementQuality": 78,
+        "value": 73
+      }
+    },
+    {
+      "id": "focus_eeg_only_renormalization",
+      "description": "A task ran but the app reported no performance data: the EEG side scores alone at 0.60 renormalized.",
+      "input": {
+        "task": {
+          "taskId": "app.nback",
+          "onTaskDurationS": 420,
+          "responseTimeStability": {
+            "value": null,
+            "baseline": null,
+            "quality": 0
+          },
+          "lapseRate": {
+            "value": null,
+            "baseline": null,
+            "quality": 0
+          }
+        },
+        "eegStability": {
+          "value": 0.88,
+          "baseline": {
+            "metricId": "session.focus.stability",
+            "contextBucket": "default",
+            "median": 0.75,
+            "mad": 0.07,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "alphaRelative": {
+          "value": 0.22,
+          "baseline": {
+            "metricId": "eeg.band_power.alpha.relative",
+            "contextBucket": "default",
+            "median": 0.3,
+            "mad": 0.04,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 78
+      },
+      "algorithm": "score_focus@1",
+      "expected": {
+        "scoreId": "elata.focus",
+        "formulaVersion": "score_focus@1",
+        "contributors": [
+          {
+            "id": "eeg-stability",
+            "metricId": "session.focus.stability",
+            "weight": 0.35,
+            "quality": 0.9,
+            "z": 1.2526256961708198,
+            "included": true
+          },
+          {
+            "id": "eeg-alpha-desync",
+            "metricId": "eeg.band_power.alpha.relative",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531902,
+            "included": true
+          },
+          {
+            "id": "task-rt-stability",
+            "metricId": "session.task.rt_stability",
+            "weight": 0.25,
+            "quality": 0,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "task-lapse-rate",
+            "metricId": "session.task.lapse_rate",
+            "weight": 0.15,
+            "quality": 0,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          }
+        ],
+        "measurementQuality": 78,
+        "value": 74
+      }
+    },
+    {
+      "id": "focus_withhold_no_task_context",
+      "description": "No task at all — focus on nothing is not a number, however clean the EEG.",
+      "input": {
+        "task": null,
+        "eegStability": {
+          "value": 0.88,
+          "baseline": {
+            "metricId": "session.focus.stability",
+            "contextBucket": "default",
+            "median": 0.75,
+            "mad": 0.07,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "alphaRelative": {
+          "value": 0.22,
+          "baseline": {
+            "metricId": "eeg.band_power.alpha.relative",
+            "contextBucket": "default",
+            "median": 0.3,
+            "mad": 0.04,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 90
+      },
+      "algorithm": "score_focus@1",
+      "expected": {
+        "scoreId": "elata.focus",
+        "formulaVersion": "score_focus@1",
+        "contributors": [
+          {
+            "id": "eeg-stability",
+            "metricId": "session.focus.stability",
+            "weight": 0.35,
+            "quality": 0.9,
+            "z": 1.2526256961708198,
+            "included": true
+          },
+          {
+            "id": "eeg-alpha-desync",
+            "metricId": "eeg.band_power.alpha.relative",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531902,
+            "included": true
+          },
+          {
+            "id": "task-rt-stability",
+            "metricId": "session.task.rt_stability",
+            "weight": 0.25,
+            "quality": 0,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "task-lapse-rate",
+            "metricId": "session.task.lapse_rate",
+            "weight": 0.15,
+            "quality": 0,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          }
+        ],
+        "measurementQuality": 90,
+        "value": null,
+        "withheldReason": "no_task_context"
+      }
+    },
+    {
+      "id": "focus_withhold_task_too_short",
+      "description": "Twenty seconds in a task is not task context; the shortfall is counted.",
+      "input": {
+        "task": {
+          "taskId": "app.nback",
+          "onTaskDurationS": 20,
+          "responseTimeStability": {
+            "value": 0.82,
+            "baseline": {
+              "metricId": "session.task.rt_stability",
+              "contextBucket": "default",
+              "median": 0.7,
+              "mad": 0.06,
+              "sessionCount": 12,
+              "updatedAtMs": 1760000000000
+            },
+            "quality": 0.9
+          },
+          "lapseRate": {
+            "value": 0.03,
+            "baseline": {
+              "metricId": "session.task.lapse_rate",
+              "contextBucket": "default",
+              "median": 0.06,
+              "mad": 0.02,
+              "sessionCount": 12,
+              "updatedAtMs": 1760000000000
+            },
+            "quality": 0.9
+          }
+        },
+        "eegStability": {
+          "value": 0.88,
+          "baseline": {
+            "metricId": "session.focus.stability",
+            "contextBucket": "default",
+            "median": 0.75,
+            "mad": 0.07,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "alphaRelative": {
+          "value": 0.22,
+          "baseline": {
+            "metricId": "eeg.band_power.alpha.relative",
+            "contextBucket": "default",
+            "median": 0.3,
+            "mad": 0.04,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 78
+      },
+      "algorithm": "score_focus@1",
+      "expected": {
+        "scoreId": "elata.focus",
+        "formulaVersion": "score_focus@1",
+        "contributors": [
+          {
+            "id": "eeg-stability",
+            "metricId": "session.focus.stability",
+            "weight": 0.35,
+            "quality": 0.9,
+            "z": 1.2526256961708198,
+            "included": true
+          },
+          {
+            "id": "eeg-alpha-desync",
+            "metricId": "eeg.band_power.alpha.relative",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531902,
+            "included": true
+          },
+          {
+            "id": "task-rt-stability",
+            "metricId": "session.task.rt_stability",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          },
+          {
+            "id": "task-lapse-rate",
+            "metricId": "session.task.lapse_rate",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 1.0117361392148927,
+            "included": true
+          }
+        ],
+        "measurementQuality": 78,
+        "value": null,
+        "withheldReason": "no_task_context",
+        "withheldDetail": [
+          {
+            "requirement": "on_task_seconds",
+            "have": 20,
+            "need": 60
+          }
+        ]
+      }
+    },
+    {
+      "id": "focus_withhold_low_measurement_quality",
+      "description": "Focus needs cleaner EEG than Activation does: MQ floor is 50.",
+      "input": {
+        "task": {
+          "taskId": "app.nback",
+          "onTaskDurationS": 420,
+          "responseTimeStability": {
+            "value": 0.82,
+            "baseline": {
+              "metricId": "session.task.rt_stability",
+              "contextBucket": "default",
+              "median": 0.7,
+              "mad": 0.06,
+              "sessionCount": 12,
+              "updatedAtMs": 1760000000000
+            },
+            "quality": 0.9
+          },
+          "lapseRate": {
+            "value": 0.03,
+            "baseline": {
+              "metricId": "session.task.lapse_rate",
+              "contextBucket": "default",
+              "median": 0.06,
+              "mad": 0.02,
+              "sessionCount": 12,
+              "updatedAtMs": 1760000000000
+            },
+            "quality": 0.9
+          }
+        },
+        "eegStability": {
+          "value": 0.88,
+          "baseline": {
+            "metricId": "session.focus.stability",
+            "contextBucket": "default",
+            "median": 0.75,
+            "mad": 0.07,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "alphaRelative": {
+          "value": 0.22,
+          "baseline": {
+            "metricId": "eeg.band_power.alpha.relative",
+            "contextBucket": "default",
+            "median": 0.3,
+            "mad": 0.04,
+            "sessionCount": 12,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 45
+      },
+      "algorithm": "score_focus@1",
+      "expected": {
+        "scoreId": "elata.focus",
+        "formulaVersion": "score_focus@1",
+        "contributors": [
+          {
+            "id": "eeg-stability",
+            "metricId": "session.focus.stability",
+            "weight": 0.35,
+            "quality": 0.9,
+            "z": 1.2526256961708198,
+            "included": true
+          },
+          {
+            "id": "eeg-alpha-desync",
+            "metricId": "eeg.band_power.alpha.relative",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531902,
+            "included": true
+          },
+          {
+            "id": "task-rt-stability",
+            "metricId": "session.task.rt_stability",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          },
+          {
+            "id": "task-lapse-rate",
+            "metricId": "session.task.lapse_rate",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 1.0117361392148927,
+            "included": true
+          }
+        ],
+        "measurementQuality": 45,
+        "value": null,
+        "withheldReason": "insufficient_quality"
+      }
+    },
+    {
+      "id": "focus_withhold_no_eeg",
+      "description": "Task performance alone is not a biosignal score, and the task side cannot reach the 0.5 weight floor anyway.",
+      "input": {
+        "task": {
+          "taskId": "app.nback",
+          "onTaskDurationS": 420,
+          "responseTimeStability": {
+            "value": 0.82,
+            "baseline": {
+              "metricId": "session.task.rt_stability",
+              "contextBucket": "default",
+              "median": 0.7,
+              "mad": 0.06,
+              "sessionCount": 12,
+              "updatedAtMs": 1760000000000
+            },
+            "quality": 0.9
+          },
+          "lapseRate": {
+            "value": 0.03,
+            "baseline": {
+              "metricId": "session.task.lapse_rate",
+              "contextBucket": "default",
+              "median": 0.06,
+              "mad": 0.02,
+              "sessionCount": 12,
+              "updatedAtMs": 1760000000000
+            },
+            "quality": 0.9
+          }
+        },
+        "eegStability": {
+          "value": null,
+          "baseline": null,
+          "quality": 0
+        },
+        "alphaRelative": {
+          "value": null,
+          "baseline": null,
+          "quality": 0
+        },
+        "measurementQuality": 78
+      },
+      "algorithm": "score_focus@1",
+      "expected": {
+        "scoreId": "elata.focus",
+        "formulaVersion": "score_focus@1",
+        "contributors": [
+          {
+            "id": "eeg-stability",
+            "metricId": "session.focus.stability",
+            "weight": 0.35,
+            "quality": 0,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "eeg-alpha-desync",
+            "metricId": "eeg.band_power.alpha.relative",
+            "weight": 0.25,
+            "quality": 0,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "task-rt-stability",
+            "metricId": "session.task.rt_stability",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          },
+          {
+            "id": "task-lapse-rate",
+            "metricId": "session.task.lapse_rate",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 1.0117361392148927,
+            "included": true
+          }
+        ],
+        "measurementQuality": 78,
+        "value": null,
+        "withheldReason": "inputs_missing"
+      }
+    },
+    {
+      "id": "readiness_full_data",
+      "description": "A morning reading with 22 days of history and all five contributors present.",
+      "input": {
+        "history": {
+          "windowDays": 30,
+          "qualifiedSamples": 22,
+          "qualifiedDays": 22,
+          "spanDays": 28,
+          "rejectedForQuality": 0,
+          "rejectedAsOutlier": 0
+        },
+        "localHour": 8,
+        "restingHeartRate": {
+          "value": 58,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "morning",
+            "median": 62,
+            "mad": 3,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "pulseRateVariability": {
+          "value": 52,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "morning",
+            "median": 44,
+            "mad": 6,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "respirationRate": {
+          "value": 13.5,
+          "baseline": {
+            "metricId": "pulse.respiration_rate",
+            "contextBucket": "morning",
+            "median": 14.5,
+            "mad": 1.2,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "activationBurden": {
+          "value": 180,
+          "baseline": {
+            "metricId": "session.activation.area_above_baseline",
+            "contextBucket": "default",
+            "median": 260,
+            "mad": 60,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "recentRecovery": {
+          "value": 88,
+          "baseline": {
+            "metricId": "elata.recovery",
+            "contextBucket": "default",
+            "median": 64,
+            "mad": 8,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 82
+      },
+      "algorithm": "score_readiness@1",
+      "expected": {
+        "scoreId": "elata.readiness",
+        "formulaVersion": "score_readiness@1",
+        "contributors": [
+          {
+            "id": "resting-hr",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 0.8993210126354603,
+            "included": true
+          },
+          {
+            "id": "prv",
+            "metricId": "pulse.rmssd",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": 0.8993210126354603,
+            "included": true
+          },
+          {
+            "id": "respiration",
+            "metricId": "pulse.respiration_rate",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 0.5620756328971627,
+            "included": true
+          },
+          {
+            "id": "activation-burden",
+            "metricId": "session.activation.area_above_baseline",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 0.8993210126354604,
+            "included": true
+          },
+          {
+            "id": "recent-recovery",
+            "metricId": "elata.recovery",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 2.023472278429786,
+            "included": true
+          }
+        ],
+        "measurementQuality": 82,
+        "value": 69
+      }
+    },
+    {
+      "id": "readiness_partial_renormalization",
+      "description": "Recovery was withheld yesterday, so its 0.15 drops and the rest renormalize — never read as a mid-range recovery.",
+      "input": {
+        "history": {
+          "windowDays": 30,
+          "qualifiedSamples": 22,
+          "qualifiedDays": 22,
+          "spanDays": 28,
+          "rejectedForQuality": 0,
+          "rejectedAsOutlier": 0
+        },
+        "localHour": 8,
+        "restingHeartRate": {
+          "value": 58,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "morning",
+            "median": 62,
+            "mad": 3,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "pulseRateVariability": {
+          "value": 52,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "morning",
+            "median": 44,
+            "mad": 6,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "respirationRate": {
+          "value": 13.5,
+          "baseline": {
+            "metricId": "pulse.respiration_rate",
+            "contextBucket": "morning",
+            "median": 14.5,
+            "mad": 1.2,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "activationBurden": {
+          "value": 180,
+          "baseline": {
+            "metricId": "session.activation.area_above_baseline",
+            "contextBucket": "default",
+            "median": 260,
+            "mad": 60,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "recentRecovery": {
+          "value": null,
+          "baseline": null,
+          "quality": 0
+        },
+        "measurementQuality": 82
+      },
+      "algorithm": "score_readiness@1",
+      "expected": {
+        "scoreId": "elata.readiness",
+        "formulaVersion": "score_readiness@1",
+        "contributors": [
+          {
+            "id": "resting-hr",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 0.8993210126354603,
+            "included": true
+          },
+          {
+            "id": "prv",
+            "metricId": "pulse.rmssd",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": 0.8993210126354603,
+            "included": true
+          },
+          {
+            "id": "respiration",
+            "metricId": "pulse.respiration_rate",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 0.5620756328971627,
+            "included": true
+          },
+          {
+            "id": "activation-burden",
+            "metricId": "session.activation.area_above_baseline",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 0.8993210126354604,
+            "included": true
+          },
+          {
+            "id": "recent-recovery",
+            "metricId": "elata.recovery",
+            "weight": 0.15,
+            "quality": 0,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          }
+        ],
+        "measurementQuality": 82,
+        "value": 66
+      }
+    },
+    {
+      "id": "readiness_withhold_three_days_of_history",
+      "description": "The case the minimum-history policy exists for: three days in, withheld with the shortfall counted.",
+      "input": {
+        "history": {
+          "windowDays": 30,
+          "qualifiedSamples": 3,
+          "qualifiedDays": 3,
+          "spanDays": 3,
+          "rejectedForQuality": 0,
+          "rejectedAsOutlier": 0
+        },
+        "localHour": 8,
+        "restingHeartRate": {
+          "value": 58,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "morning",
+            "median": 62,
+            "mad": 3,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "pulseRateVariability": {
+          "value": 52,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "morning",
+            "median": 44,
+            "mad": 6,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "respirationRate": {
+          "value": 13.5,
+          "baseline": {
+            "metricId": "pulse.respiration_rate",
+            "contextBucket": "morning",
+            "median": 14.5,
+            "mad": 1.2,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "activationBurden": {
+          "value": 180,
+          "baseline": {
+            "metricId": "session.activation.area_above_baseline",
+            "contextBucket": "default",
+            "median": 260,
+            "mad": 60,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "recentRecovery": {
+          "value": 88,
+          "baseline": {
+            "metricId": "elata.recovery",
+            "contextBucket": "default",
+            "median": 64,
+            "mad": 8,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 82
+      },
+      "algorithm": "score_readiness@1",
+      "expected": {
+        "scoreId": "elata.readiness",
+        "formulaVersion": "score_readiness@1",
+        "contributors": [
+          {
+            "id": "resting-hr",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 0.8993210126354603,
+            "included": true
+          },
+          {
+            "id": "prv",
+            "metricId": "pulse.rmssd",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": 0.8993210126354603,
+            "included": true
+          },
+          {
+            "id": "respiration",
+            "metricId": "pulse.respiration_rate",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 0.5620756328971627,
+            "included": true
+          },
+          {
+            "id": "activation-burden",
+            "metricId": "session.activation.area_above_baseline",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 0.8993210126354604,
+            "included": true
+          },
+          {
+            "id": "recent-recovery",
+            "metricId": "elata.recovery",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 2.023472278429786,
+            "included": true
+          }
+        ],
+        "measurementQuality": 82,
+        "value": null,
+        "withheldReason": "insufficient_history",
+        "withheldDetail": [
+          {
+            "requirement": "qualified_days",
+            "have": 3,
+            "need": 14
+          },
+          {
+            "requirement": "span_days",
+            "have": 3,
+            "need": 14
+          }
+        ]
+      }
+    },
+    {
+      "id": "readiness_withhold_crammed_history",
+      "description": "Twenty qualified days crammed into six calendar days describes a week, not a person.",
+      "input": {
+        "history": {
+          "windowDays": 30,
+          "qualifiedSamples": 20,
+          "qualifiedDays": 20,
+          "spanDays": 6,
+          "rejectedForQuality": 0,
+          "rejectedAsOutlier": 0
+        },
+        "localHour": 8,
+        "restingHeartRate": {
+          "value": 58,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "morning",
+            "median": 62,
+            "mad": 3,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "pulseRateVariability": {
+          "value": 52,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "morning",
+            "median": 44,
+            "mad": 6,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "respirationRate": {
+          "value": 13.5,
+          "baseline": {
+            "metricId": "pulse.respiration_rate",
+            "contextBucket": "morning",
+            "median": 14.5,
+            "mad": 1.2,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "activationBurden": {
+          "value": 180,
+          "baseline": {
+            "metricId": "session.activation.area_above_baseline",
+            "contextBucket": "default",
+            "median": 260,
+            "mad": 60,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "recentRecovery": {
+          "value": 88,
+          "baseline": {
+            "metricId": "elata.recovery",
+            "contextBucket": "default",
+            "median": 64,
+            "mad": 8,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 82
+      },
+      "algorithm": "score_readiness@1",
+      "expected": {
+        "scoreId": "elata.readiness",
+        "formulaVersion": "score_readiness@1",
+        "contributors": [
+          {
+            "id": "resting-hr",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 0.8993210126354603,
+            "included": true
+          },
+          {
+            "id": "prv",
+            "metricId": "pulse.rmssd",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": 0.8993210126354603,
+            "included": true
+          },
+          {
+            "id": "respiration",
+            "metricId": "pulse.respiration_rate",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 0.5620756328971627,
+            "included": true
+          },
+          {
+            "id": "activation-burden",
+            "metricId": "session.activation.area_above_baseline",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 0.8993210126354604,
+            "included": true
+          },
+          {
+            "id": "recent-recovery",
+            "metricId": "elata.recovery",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 2.023472278429786,
+            "included": true
+          }
+        ],
+        "measurementQuality": 82,
+        "value": null,
+        "withheldReason": "insufficient_history",
+        "withheldDetail": [
+          {
+            "requirement": "span_days",
+            "have": 6,
+            "need": 14
+          }
+        ]
+      }
+    },
+    {
+      "id": "readiness_withhold_baseline_context_mismatch",
+      "description": "A morning reading compared against all-day baselines: every physiological term is excluded and the remaining 0.30 is under the floor.",
+      "input": {
+        "history": {
+          "windowDays": 30,
+          "qualifiedSamples": 22,
+          "qualifiedDays": 22,
+          "spanDays": 28,
+          "rejectedForQuality": 0,
+          "rejectedAsOutlier": 0
+        },
+        "localHour": 8,
+        "restingHeartRate": {
+          "value": 58,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "any",
+            "median": 62,
+            "mad": 3,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "pulseRateVariability": {
+          "value": 52,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "any",
+            "median": 44,
+            "mad": 6,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "respirationRate": {
+          "value": 13.5,
+          "baseline": {
+            "metricId": "pulse.respiration_rate",
+            "contextBucket": "any",
+            "median": 14.5,
+            "mad": 1.2,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "activationBurden": {
+          "value": 180,
+          "baseline": {
+            "metricId": "session.activation.area_above_baseline",
+            "contextBucket": "default",
+            "median": 260,
+            "mad": 60,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "recentRecovery": {
+          "value": 88,
+          "baseline": {
+            "metricId": "elata.recovery",
+            "contextBucket": "default",
+            "median": 64,
+            "mad": 8,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 82
+      },
+      "algorithm": "score_readiness@1",
+      "expected": {
+        "scoreId": "elata.readiness",
+        "formulaVersion": "score_readiness@1",
+        "contributors": [
+          {
+            "id": "resting-hr",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "baseline_context_mismatch"
+          },
+          {
+            "id": "prv",
+            "metricId": "pulse.rmssd",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "baseline_context_mismatch"
+          },
+          {
+            "id": "respiration",
+            "metricId": "pulse.respiration_rate",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "baseline_context_mismatch"
+          },
+          {
+            "id": "activation-burden",
+            "metricId": "session.activation.area_above_baseline",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 0.8993210126354604,
+            "included": true
+          },
+          {
+            "id": "recent-recovery",
+            "metricId": "elata.recovery",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 2.023472278429786,
+            "included": true
+          }
+        ],
+        "measurementQuality": 82,
+        "value": null,
+        "withheldReason": "insufficient_baseline"
+      }
+    },
+    {
+      "id": "readiness_withhold_low_measurement_quality",
+      "description": "MQ below 40 withholds regardless of history.",
+      "input": {
+        "history": {
+          "windowDays": 30,
+          "qualifiedSamples": 22,
+          "qualifiedDays": 22,
+          "spanDays": 28,
+          "rejectedForQuality": 0,
+          "rejectedAsOutlier": 0
+        },
+        "localHour": 8,
+        "restingHeartRate": {
+          "value": 58,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "morning",
+            "median": 62,
+            "mad": 3,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "pulseRateVariability": {
+          "value": 52,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "morning",
+            "median": 44,
+            "mad": 6,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "respirationRate": {
+          "value": 13.5,
+          "baseline": {
+            "metricId": "pulse.respiration_rate",
+            "contextBucket": "morning",
+            "median": 14.5,
+            "mad": 1.2,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "activationBurden": {
+          "value": 180,
+          "baseline": {
+            "metricId": "session.activation.area_above_baseline",
+            "contextBucket": "default",
+            "median": 260,
+            "mad": 60,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "recentRecovery": {
+          "value": 88,
+          "baseline": {
+            "metricId": "elata.recovery",
+            "contextBucket": "default",
+            "median": 64,
+            "mad": 8,
+            "sessionCount": 20,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 25
+      },
+      "algorithm": "score_readiness@1",
+      "expected": {
+        "scoreId": "elata.readiness",
+        "formulaVersion": "score_readiness@1",
+        "contributors": [
+          {
+            "id": "resting-hr",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 0.8993210126354603,
+            "included": true
+          },
+          {
+            "id": "prv",
+            "metricId": "pulse.rmssd",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": 0.8993210126354603,
+            "included": true
+          },
+          {
+            "id": "respiration",
+            "metricId": "pulse.respiration_rate",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 0.5620756328971627,
+            "included": true
+          },
+          {
+            "id": "activation-burden",
+            "metricId": "session.activation.area_above_baseline",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 0.8993210126354604,
+            "included": true
+          },
+          {
+            "id": "recent-recovery",
+            "metricId": "elata.recovery",
+            "weight": 0.15,
+            "quality": 0.9,
+            "z": 2.023472278429786,
+            "included": true
+          }
+        ],
+        "measurementQuality": 25,
+        "value": null,
+        "withheldReason": "insufficient_quality"
+      }
+    },
+    {
+      "id": "resilience_full_data",
+      "description": "Four weeks of history, eleven recovered activations, all four longitudinal terms present.",
+      "input": {
+        "history": {
+          "windowDays": 30,
+          "qualifiedSamples": 26,
+          "qualifiedDays": 26,
+          "spanDays": 29,
+          "rejectedForQuality": 0,
+          "rejectedAsOutlier": 0
+        },
+        "recoveredActivationEpisodes": 11,
+        "recoverySpeedTrend": {
+          "value": -1.8,
+          "baseline": {
+            "metricId": "session.recovery.time_to_half",
+            "contextBucket": "default",
+            "median": -0.2,
+            "mad": 0.8,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "prolongedActivationRate": {
+          "value": 0.1,
+          "baseline": {
+            "metricId": "session.activation.area_above_baseline",
+            "contextBucket": "default",
+            "median": 0.22,
+            "mad": 0.06,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "baselineStability": {
+          "value": 0.88,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "default",
+            "median": 0.8,
+            "mad": 0.05,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "autonomicFlexibility": {
+          "value": 0.62,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 0.5,
+            "mad": 0.06,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 76
+      },
+      "algorithm": "score_resilience@1",
+      "expected": {
+        "scoreId": "elata.resilience",
+        "formulaVersion": "score_resilience@1",
+        "contributors": [
+          {
+            "id": "recovery-speed-trend",
+            "metricId": "session.recovery.time_to_half",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          },
+          {
+            "id": "prolonged-activation",
+            "metricId": "session.activation.area_above_baseline",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          },
+          {
+            "id": "baseline-stability",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.2,
+            "quality": 0.9,
+            "z": 1.0791852151625516,
+            "included": true
+          },
+          {
+            "id": "autonomic-flexibility",
+            "metricId": "pulse.rmssd",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          }
+        ],
+        "measurementQuality": 76,
+        "value": 74
+      }
+    },
+    {
+      "id": "resilience_partial_renormalization",
+      "description": "Baseline stability could not be computed: its 0.20 drops and the remaining 0.80 renormalizes.",
+      "input": {
+        "history": {
+          "windowDays": 30,
+          "qualifiedSamples": 26,
+          "qualifiedDays": 26,
+          "spanDays": 29,
+          "rejectedForQuality": 0,
+          "rejectedAsOutlier": 0
+        },
+        "recoveredActivationEpisodes": 11,
+        "recoverySpeedTrend": {
+          "value": -1.8,
+          "baseline": {
+            "metricId": "session.recovery.time_to_half",
+            "contextBucket": "default",
+            "median": -0.2,
+            "mad": 0.8,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "prolongedActivationRate": {
+          "value": 0.1,
+          "baseline": {
+            "metricId": "session.activation.area_above_baseline",
+            "contextBucket": "default",
+            "median": 0.22,
+            "mad": 0.06,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "baselineStability": {
+          "value": null,
+          "baseline": null,
+          "quality": 0
+        },
+        "autonomicFlexibility": {
+          "value": 0.62,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 0.5,
+            "mad": 0.06,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 76
+      },
+      "algorithm": "score_resilience@1",
+      "expected": {
+        "scoreId": "elata.resilience",
+        "formulaVersion": "score_resilience@1",
+        "contributors": [
+          {
+            "id": "recovery-speed-trend",
+            "metricId": "session.recovery.time_to_half",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          },
+          {
+            "id": "prolonged-activation",
+            "metricId": "session.activation.area_above_baseline",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          },
+          {
+            "id": "baseline-stability",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.2,
+            "quality": 0,
+            "z": null,
+            "included": false,
+            "excludedReason": "inputs_missing"
+          },
+          {
+            "id": "autonomic-flexibility",
+            "metricId": "pulse.rmssd",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          }
+        ],
+        "measurementQuality": 76,
+        "value": 75
+      }
+    },
+    {
+      "id": "resilience_withhold_two_weeks",
+      "description": "Two weeks in, with four recovered activations: all three floors are unmet and all three are reported.",
+      "input": {
+        "history": {
+          "windowDays": 30,
+          "qualifiedSamples": 14,
+          "qualifiedDays": 14,
+          "spanDays": 14,
+          "rejectedForQuality": 0,
+          "rejectedAsOutlier": 0
+        },
+        "recoveredActivationEpisodes": 4,
+        "recoverySpeedTrend": {
+          "value": -1.8,
+          "baseline": {
+            "metricId": "session.recovery.time_to_half",
+            "contextBucket": "default",
+            "median": -0.2,
+            "mad": 0.8,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "prolongedActivationRate": {
+          "value": 0.1,
+          "baseline": {
+            "metricId": "session.activation.area_above_baseline",
+            "contextBucket": "default",
+            "median": 0.22,
+            "mad": 0.06,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "baselineStability": {
+          "value": 0.88,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "default",
+            "median": 0.8,
+            "mad": 0.05,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "autonomicFlexibility": {
+          "value": 0.62,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 0.5,
+            "mad": 0.06,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 76
+      },
+      "algorithm": "score_resilience@1",
+      "expected": {
+        "scoreId": "elata.resilience",
+        "formulaVersion": "score_resilience@1",
+        "contributors": [
+          {
+            "id": "recovery-speed-trend",
+            "metricId": "session.recovery.time_to_half",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          },
+          {
+            "id": "prolonged-activation",
+            "metricId": "session.activation.area_above_baseline",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          },
+          {
+            "id": "baseline-stability",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.2,
+            "quality": 0.9,
+            "z": 1.0791852151625516,
+            "included": true
+          },
+          {
+            "id": "autonomic-flexibility",
+            "metricId": "pulse.rmssd",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          }
+        ],
+        "measurementQuality": 76,
+        "value": null,
+        "withheldReason": "insufficient_history",
+        "withheldDetail": [
+          {
+            "requirement": "qualified_days",
+            "have": 14,
+            "need": 21
+          },
+          {
+            "requirement": "span_days",
+            "have": 14,
+            "need": 21
+          },
+          {
+            "requirement": "recovered_activation_episodes",
+            "have": 4,
+            "need": 6
+          }
+        ]
+      }
+    },
+    {
+      "id": "resilience_withhold_no_activations",
+      "description": "Four calm weeks. Regulation capacity is measured by coming back down; with nothing to come back down from there is no evidence.",
+      "input": {
+        "history": {
+          "windowDays": 30,
+          "qualifiedSamples": 26,
+          "qualifiedDays": 26,
+          "spanDays": 29,
+          "rejectedForQuality": 0,
+          "rejectedAsOutlier": 0
+        },
+        "recoveredActivationEpisodes": 1,
+        "recoverySpeedTrend": {
+          "value": -1.8,
+          "baseline": {
+            "metricId": "session.recovery.time_to_half",
+            "contextBucket": "default",
+            "median": -0.2,
+            "mad": 0.8,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "prolongedActivationRate": {
+          "value": 0.1,
+          "baseline": {
+            "metricId": "session.activation.area_above_baseline",
+            "contextBucket": "default",
+            "median": 0.22,
+            "mad": 0.06,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "baselineStability": {
+          "value": 0.88,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "default",
+            "median": 0.8,
+            "mad": 0.05,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "autonomicFlexibility": {
+          "value": 0.62,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 0.5,
+            "mad": 0.06,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 76
+      },
+      "algorithm": "score_resilience@1",
+      "expected": {
+        "scoreId": "elata.resilience",
+        "formulaVersion": "score_resilience@1",
+        "contributors": [
+          {
+            "id": "recovery-speed-trend",
+            "metricId": "session.recovery.time_to_half",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          },
+          {
+            "id": "prolonged-activation",
+            "metricId": "session.activation.area_above_baseline",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          },
+          {
+            "id": "baseline-stability",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.2,
+            "quality": 0.9,
+            "z": 1.0791852151625516,
+            "included": true
+          },
+          {
+            "id": "autonomic-flexibility",
+            "metricId": "pulse.rmssd",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          }
+        ],
+        "measurementQuality": 76,
+        "value": null,
+        "withheldReason": "insufficient_history",
+        "withheldDetail": [
+          {
+            "requirement": "recovered_activation_episodes",
+            "have": 1,
+            "need": 6
+          }
+        ]
+      }
+    },
+    {
+      "id": "resilience_withhold_no_longitudinal_baselines",
+      "description": "Enough history to compute this window's terms, none yet to compare them against — a different message from 'come back in N days'.",
+      "input": {
+        "history": {
+          "windowDays": 30,
+          "qualifiedSamples": 26,
+          "qualifiedDays": 26,
+          "spanDays": 29,
+          "rejectedForQuality": 0,
+          "rejectedAsOutlier": 0
+        },
+        "recoveredActivationEpisodes": 11,
+        "recoverySpeedTrend": {
+          "value": -1.8,
+          "baseline": null,
+          "quality": 0.9
+        },
+        "prolongedActivationRate": {
+          "value": 0.1,
+          "baseline": null,
+          "quality": 0.9
+        },
+        "baselineStability": {
+          "value": 0.88,
+          "baseline": null,
+          "quality": 0.9
+        },
+        "autonomicFlexibility": {
+          "value": 0.62,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 0.5,
+            "mad": 0.06,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 76
+      },
+      "algorithm": "score_resilience@1",
+      "expected": {
+        "scoreId": "elata.resilience",
+        "formulaVersion": "score_resilience@1",
+        "contributors": [
+          {
+            "id": "recovery-speed-trend",
+            "metricId": "session.recovery.time_to_half",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "insufficient_baseline"
+          },
+          {
+            "id": "prolonged-activation",
+            "metricId": "session.activation.area_above_baseline",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "insufficient_baseline"
+          },
+          {
+            "id": "baseline-stability",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.2,
+            "quality": 0.9,
+            "z": null,
+            "included": false,
+            "excludedReason": "insufficient_baseline"
+          },
+          {
+            "id": "autonomic-flexibility",
+            "metricId": "pulse.rmssd",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          }
+        ],
+        "measurementQuality": 76,
+        "value": null,
+        "withheldReason": "insufficient_baseline"
+      }
+    },
+    {
+      "id": "resilience_withhold_low_measurement_quality",
+      "description": "Window-median MQ below 40 withholds.",
+      "input": {
+        "history": {
+          "windowDays": 30,
+          "qualifiedSamples": 26,
+          "qualifiedDays": 26,
+          "spanDays": 29,
+          "rejectedForQuality": 0,
+          "rejectedAsOutlier": 0
+        },
+        "recoveredActivationEpisodes": 11,
+        "recoverySpeedTrend": {
+          "value": -1.8,
+          "baseline": {
+            "metricId": "session.recovery.time_to_half",
+            "contextBucket": "default",
+            "median": -0.2,
+            "mad": 0.8,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "prolongedActivationRate": {
+          "value": 0.1,
+          "baseline": {
+            "metricId": "session.activation.area_above_baseline",
+            "contextBucket": "default",
+            "median": 0.22,
+            "mad": 0.06,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "baselineStability": {
+          "value": 0.88,
+          "baseline": {
+            "metricId": "pulse.heart_rate",
+            "contextBucket": "default",
+            "median": 0.8,
+            "mad": 0.05,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "autonomicFlexibility": {
+          "value": 0.62,
+          "baseline": {
+            "metricId": "pulse.rmssd",
+            "contextBucket": "default",
+            "median": 0.5,
+            "mad": 0.06,
+            "sessionCount": 30,
+            "updatedAtMs": 1760000000000
+          },
+          "quality": 0.9
+        },
+        "measurementQuality": 20
+      },
+      "algorithm": "score_resilience@1",
+      "expected": {
+        "scoreId": "elata.resilience",
+        "formulaVersion": "score_resilience@1",
+        "contributors": [
+          {
+            "id": "recovery-speed-trend",
+            "metricId": "session.recovery.time_to_half",
+            "weight": 0.3,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          },
+          {
+            "id": "prolonged-activation",
+            "metricId": "session.activation.area_above_baseline",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          },
+          {
+            "id": "baseline-stability",
+            "metricId": "pulse.heart_rate",
+            "weight": 0.2,
+            "quality": 0.9,
+            "z": 1.0791852151625516,
+            "included": true
+          },
+          {
+            "id": "autonomic-flexibility",
+            "metricId": "pulse.rmssd",
+            "weight": 0.25,
+            "quality": 0.9,
+            "z": 1.3489815189531904,
+            "included": true
+          }
+        ],
+        "measurementQuality": 20,
+        "value": null,
+        "withheldReason": "insufficient_quality"
+      }
+    },
+    {
+      "id": "robust_z_basic",
+      "description": "(value - median) / (1.4826 * mad).",
+      "input": {
+        "value": 78,
+        "baseline": {
+          "metricId": "pulse.heart_rate",
+          "contextBucket": "default",
+          "median": 68,
+          "mad": 4,
+          "sessionCount": 12,
+          "updatedAtMs": 1760000000000
+        }
+      },
+      "algorithm": "robust_z@1",
+      "expected": {
+        "z": 1.6862268986914881,
+        "degenerate": false
+      }
+    },
+    {
+      "id": "robust_z_clamped_high",
+      "description": "Clamped at +3.",
+      "input": {
+        "value": 400,
+        "baseline": {
+          "metricId": "pulse.heart_rate",
+          "contextBucket": "default",
+          "median": 68,
+          "mad": 4,
+          "sessionCount": 12,
+          "updatedAtMs": 1760000000000
+        }
+      },
+      "algorithm": "robust_z@1",
+      "expected": {
+        "z": 3,
+        "degenerate": false
+      }
+    },
+    {
+      "id": "robust_z_clamped_low",
+      "description": "Clamped at -3.",
+      "input": {
+        "value": 0,
+        "baseline": {
+          "metricId": "pulse.heart_rate",
+          "contextBucket": "default",
+          "median": 68,
+          "mad": 4,
+          "sessionCount": 12,
+          "updatedAtMs": 1760000000000
+        }
+      },
+      "algorithm": "robust_z@1",
+      "expected": {
+        "z": -3,
+        "degenerate": false
+      }
+    },
+    {
+      "id": "robust_z_degenerate_baseline",
+      "description": "A non-positive scaled MAD yields z = 0 with an explicit degenerate flag.",
+      "input": {
+        "value": 78,
+        "baseline": {
+          "metricId": "pulse.heart_rate",
+          "contextBucket": "default",
+          "median": 68,
+          "mad": 0,
+          "sessionCount": 12,
+          "updatedAtMs": 1760000000000
+        }
+      },
+      "algorithm": "robust_z@1",
+      "expected": {
+        "z": 0,
+        "degenerate": true
+      }
+    }
+  ]
+}

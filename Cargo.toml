@@ -12,10 +12,13 @@ members = [
     "crates/elata-eeg-ffi",
     "crates/elata-facial-affect",
     "crates/elata-dev-synthetic-ble-bridge",
+    "crates/elata-biosignal-features",
+    "crates/elata-biosignal-features-wasm",
 ]
 resolver = "2"
 
 [workspace.dependencies]
+elata-biosignal-features = { version = "0.1.0", path = "crates/elata-biosignal-features" }
 elata-dev-eeg-synthetic = { version = "0.1.0", path = "crates/elata-dev-eeg-synthetic" }
 elata-eeg-hal = { version = "0.1.0", path = "crates/elata-eeg-hal" }
 elata-eeg-models = { version = "0.1.0", path = "crates/elata-eeg-models" }

@@ -1,0 +1,45 @@
+# @elata-biosciences/biosignal-analytics
+
+Browser-native biosignal analytics: versioned metric registry, WASM EEG window
+features, HRV/statistics, headline scores. Works standalone (no server, no
+App Store). Records come from @elata-biosciences/biosignal-session.
+
+Entries: "." (all), "./registry", "./insights", "./worker", "./testing",
+"./wasm/*".
+
+Core API:
+- initAnalyticsWasm(input?) / initAnalyticsWasmSync — one-time WASM init.
+- analyzeEeg({samples, sampleRateHz, channels, windows?, config?}) ->
+  { perWindow, observations, summary, provenance }. samples are interleaved
+  samples[sampleIdx][channelIdx]; windows default 30s/5s step.
+- EegWindowFeatureExtractor — per-window extractor; bandRatio helper.
+- hrvTimeDomain(ibisMs) — meanNn/sdnn/rmssd over cleaned NN intervals
+  (nn_clean@1 + hrv_time_domain@1).
+- statistics: summary stats + robust (median/MAD/percentiles).
+- registry: REGISTRY_V1, getMetricDefinition(id), listMetrics(filter),
+  ALGORITHM_VERSIONS/ALGORITHM_IDS; MetricDefinitionV1, MetricObservationV1,
+  ProvenanceV1, EvidenceTier, MeasurementClass.
+- insights: robustZ, BaselineProvider/PersonalBaseline, computeRollingBaseline
+  (30-day median/MAD + 10/25/75/90 personal ranges, Hampel outlier rejection,
+  day-count + span gating), contextBucketForHour;
+  scoreMeasurementQuality, scoreActivation, scoreRecovery, scoreFocus,
+  scoreReadiness, scoreResilience — all return HeadlineScoreV1 with
+  contributors[] and value:null + withheldReason when inputs/baseline/quality/
+  history are insufficient (never a neutral 50); insufficient_history also
+  carries withheldDetail[{requirement,have,need}]. scoreRecovery consumes an
+  activation_epoch@1 analysis (ActivationEpochAnalysisV1). Focus withholds
+  no_task_context without a task and never reads theta or beta.
+- worker: createAnalyticsWorkerClient({port | createWorker}),
+  launchAnalyticsWorker (separate module — import.meta, not jest-parseable),
+  ANALYTICS_WORKER_PROTOCOL_VERSION, request/response guards.
+
+Discipline: every displayed metric maps to a registry definition with unit,
+evidence tier, algorithm@version, quality gates, aggregation policy;
+observations carry provenance and are recomputable. Deterministic features are
+parity-tested against committed Python (NumPy/SciPy) oracle fixtures in
+fixtures/ with declared tolerances, across Rust + WASM + TS.
+
+Rust: crates/elata-biosignal-features (+ -wasm) implement welch_psd@1,
+eeg_band_power@2, spectral_entropy@1, dominant_frequency@1, alpha_peak@2,
+hjorth@1, window_stats@1, eeg_quality_flags@1, reusing elata-eeg-signal FFT.
+Build WASM: pnpm run build:wasm (needs rust >= 1.94 + wasm-bindgen).

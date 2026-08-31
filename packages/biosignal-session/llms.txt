@@ -1,19 +1,31 @@
 # @elata-biosciences/biosignal-session
 
-Canonical package for Elata Biosignal Session v1.
+Local-first biosignal session recording: contracts + MessagePort wire
+protocol + Arrow IPC chunk encoding. Raw data is local-only by default.
 
-- Root export: contracts, validation, Arrow codec, storage, recorder, transport,
-  archive import/export, and adapters.
-- `/arrow`: independently decodable Arrow IPC stream chunk codec.
-- `/host`: MessagePort/window host bridge plus IndexedDB and OPFS storage.
-- `/adapters`: structural HeadbandFrameV1 and rPPG ReplayDebugSession adapters.
-- IndexedDB is the authoritative commit catalog. OPFS holds immutable payloads;
-  IndexedDB binary storage is the compatibility fallback.
-- ACK only after validation, checksum verification, payload persistence, and
-  catalog commit. Duplicate hashes are idempotent; conflicts fail.
-- Recovery marks open sessions interrupted; resume is explicit and scope-bound.
-- Session offsets are safe integer microseconds from the session origin.
-- `.elata` is a checksummed ZIP container; Arrow IPC is its dense stream
-  encoding, not the entire session standard.
-- Do not put host scope or direct user/wallet identity in portable manifests.
-- Do not route raw recordings through `app-metrics`.
+Model: Session -> Source -> Stream -> Chunk -> Event.
+Time: session-relative integer microseconds; anchor = (Date.now(),
+performance.now()) captured on the client UI thread at session create.
+Regular streams carry no per-sample time column — time derives from
+sampleIndexStart + sampleRateHz; gaps are explicit DiscontinuityV1 records.
+
+Entries:
+- "." (DOM-free): contracts (BiosignalSessionV1, SourceDescriptorV1,
+  StreamDescriptorV1, ChunkDescriptorV1, SessionEventV1,
+  ClockAlignmentObservationV1), protocol (BIOSIGNAL_PROTOCOL_VERSION=1,
+  init kind "__elata_biosignal_init", ClientToHost/HostToClient unions,
+  BiosignalErrorCode, BIOSIGNAL_LIMITS), crc32c/crc32cHex/checksumOf,
+  createSessionClock/captureClockAnchor/sampleTimeUs.
+- "./browser": BiosignalSource/SourceSink/StreamHandle adapter contracts,
+  Arrow schema builders (regular-wide-f32@1, battery@1, rppg-trace@1,
+  rppg-metrics@1, ppg-metrics@1), encodeWideF32Chunk/encodeRowsChunk,
+  decodeChunk/readFloat32Column/readTimeUsColumn,
+  readOptionalColumn/diffChunkColumns/readRowsAgainstSchema (schema drift:
+  columns a chunk predates read null, columns it gained are left in place).
+- "./testing": mulberry32, gaussian, createFakeClock.
+
+Key invariants: host assigns identities (never the app); ACK = durable local
+commit; idempotency key (sessionId, streamId, sequence) + crc32c; duplicate
+with equal checksum replays ok, different checksum = sequence_conflict;
+chunk payloads are complete Arrow IPC files, independently decodable, with
+schema metadata keys elata:sessionId / elata:streamId / elata:arrowSchemaId.

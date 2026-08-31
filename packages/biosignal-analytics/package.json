@@ -1,0 +1,96 @@
+{
+	"name": "@elata-biosciences/biosignal-analytics",
+	"version": "0.1.0",
+	"description": "Local biosignal analytics: versioned metric registry, WASM EEG window features, HRV/statistics, and headline-score formulas",
+	"license": "MIT",
+	"author": "Elata",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Elata-Biosciences/elata-bio-sdk.git",
+		"directory": "packages/biosignal-analytics"
+	},
+	"homepage": "https://github.com/Elata-Biosciences/elata-bio-sdk#readme",
+	"bugs": "https://github.com/Elata-Biosciences/elata-bio-sdk/issues",
+	"keywords": [
+		"elata",
+		"biosignal",
+		"eeg",
+		"hrv",
+		"analytics",
+		"wasm",
+		"metrics"
+	],
+	"engines": {
+		"node": ">=20"
+	},
+	"type": "module",
+	"sideEffects": ["./dist/worker/analyticsWorker.js"],
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		},
+		"./worker": {
+			"types": "./dist/worker/analyticsWorker.d.ts",
+			"import": "./dist/worker/analyticsWorker.js"
+		},
+		"./registry": {
+			"types": "./dist/registry/index.d.ts",
+			"import": "./dist/registry/index.js"
+		},
+		"./insights": {
+			"types": "./dist/insights/index.d.ts",
+			"import": "./dist/insights/index.js"
+		},
+		"./testing": {
+			"types": "./dist/testing/index.d.ts",
+			"import": "./dist/testing/index.js"
+		},
+		"./wasm/*": "./wasm/*"
+	},
+	"files": [
+		"dist",
+		"wasm/*.js",
+		"wasm/*.ts",
+		"wasm/*.wasm",
+		"wasm/node",
+		"README.md",
+		"llms.txt"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"lint": "pnpm exec biome lint src jest.config.cjs scripts/*.mjs",
+		"test": "jest --config ./jest.config.cjs --passWithNoTests",
+		"test:coverage": "jest --config ./jest.config.cjs --coverage --passWithNoTests",
+		"clean": "node ./scripts/clean.mjs",
+		"build": "tsc -p tsconfig.json && node ./scripts/fix-dist-import-specifiers.mjs && node ./scripts/verify-dist-esm.mjs",
+		"build:wasm": "node ./scripts/build-wasm.mjs",
+		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts && node ../../scripts/verify-package-build.mjs dist/worker/analyticsWorker.js dist/registry/index.js dist/insights/index.js dist/testing/index.js && node ./scripts/verify-wasm-artifacts.mjs && node ./scripts/verify-consumer-node-smoke.mjs",
+		"verify:publish": "pnpm run verify:build",
+		"prepare:publish": "pnpm run build:wasm && pnpm run build",
+		"prepack": "pnpm run prepare:publish && pnpm run verify:publish"
+	},
+	"dependencies": {
+		"zod": "^3.25.0"
+	},
+	"peerDependencies": {
+		"@elata-biosciences/rppg-web": "^0.14.0"
+	},
+	"peerDependenciesMeta": {
+		"@elata-biosciences/rppg-web": {
+			"optional": true
+		}
+	},
+	"devDependencies": {
+		"@elata-biosciences/rppg-web": "workspace:*",
+		"@types/jest": "29.5.14",
+		"jest": "29.7.0",
+		"jest-environment-jsdom": "29.7.0",
+		"ts-jest": "29.4.4",
+		"typescript": "5.9.3"
+	}
+}

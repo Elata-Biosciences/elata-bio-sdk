@@ -42,6 +42,13 @@ docs.
 - `packages/eeg-web`: TS wrapper around generated EEG WASM bindings
 - `packages/eeg-web-ble`: Web Bluetooth transport for EEG headbands — `src/transport/` (`BleTransport`) vs `src/devices/muse/` (Muse protocol); open to additional `src/devices/` modules
 - `packages/rppg-web`: TS wrapper and demo tooling for the rPPG pipeline
+- `packages/rppg-models-web`: optional ONNX waveform-reconstruction adapter for `rppg-web`
+- `packages/ppg-web`: Muse PPG heart-rate/HRV estimation over `HeadbandFrameV1`
+- `packages/app-metrics`: per-user metrics storage for sandboxed appstore apps
+- `packages/app-payments`: in-app purchases for sandboxed appstore apps
+- `packages/app-state`: per-user, per-app key-value storage for sandboxed appstore apps
+- `packages/biosignal-session`: local-first biosignal session recording — contracts, MessagePort wire protocol, Arrow IPC chunk encoding
+- `packages/biosignal-analytics`: local analytics over recorded biosignals — metric registry, WASM EEG window features, HRV/statistics, headline scores
 - `packages/create-elata-demo`: published scaffolder for demo apps
 - `eeg-demo/`: in-repo EEG browser demo
 - `ios-demo/`, `android-demo/`: native demos
@@ -170,7 +177,20 @@ Published packages currently include:
 - `@elata-biosciences/eeg-web`
 - `@elata-biosciences/eeg-web-ble`
 - `@elata-biosciences/rppg-web`
+- `@elata-biosciences/rppg-models-web`
+- `@elata-biosciences/ppg-web`
+- `@elata-biosciences/app-metrics`
+- `@elata-biosciences/app-payments`
+- `@elata-biosciences/app-state`
+- `@elata-biosciences/biosignal-session`
+- `@elata-biosciences/biosignal-analytics`
 - `@elata-biosciences/create-elata-demo`
+
+Not every publishable package is in the `all` release set. `release_targets_for`
+in `scripts/run-lib.sh` is the source of truth: `app-payments` and
+`biosignal-analytics` are individually releasable but deliberately excluded from
+`./run.sh release all` while their APIs settle, and `app-state` is not wired
+into the release targets at all yet.
 
 Before making release-related claims, inspect current `package.json` files and
 [docs/releasing.md](docs/releasing.md).

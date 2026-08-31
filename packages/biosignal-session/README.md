@@ -1,98 +1,140 @@
 # @elata-biosciences/biosignal-session
 
-Local-first recording, recovery, and interchange for mixed biosignal sessions.
-Session v1 keeps EEG, PPG/rPPG, IMU, quality, and derived metrics as independently
-typed streams under one clock and lifecycle boundary.
+Local-first biosignal session recording for Elata apps: shared contracts, a
+fault-tolerant MessagePort wire protocol, and Arrow IPC chunk encoding.
 
-## What is implemented
+A session is one recording episode following the model
+**Session → Source → Stream → Chunk → Event**:
 
-- validated Session v1 manifest, source, stream, chunk, event, summary, consent,
-  and provenance contracts;
-- independently decodable Arrow IPC stream chunks with SHA-256 descriptors;
-- IndexedDB as the authoritative catalog and OPFS as the preferred immutable
-  payload store (with an IndexedDB binary fallback);
-- transferable `MessagePort` transport with a 1 MiB default ceiling, two
-  in-flight chunks per stream, idempotent retries, and ACK after durable commit;
-- crash recovery that marks unfinished recordings `interrupted`, plus an
-  explicit scoped resume operation that continues at the next sequence;
-- checksummed ZIP-compatible `.elata` export/import;
-- structural adapters for `HeadbandFrameV1` and rPPG `ReplayDebugSession` data.
+- **Session** — lifecycle + identity + the time anchor. Canonical time is
+  session-relative integer microseconds from a `(Date.now(), performance.now())`
+  pair captured at creation.
+- **Source** — one runtime producer (Muse/Athena headset, webcam rPPG,
+  synthetic).
+- **Stream** — one independently sampled, typed sequence (`eeg`, `ppg`,
+  `optics`, `imu`, `battery`, `rppg-trace`, `rppg-metrics`, `ppg-metrics`, …).
+- **Chunk** — an immutable, independently decodable Arrow IPC *file* payload
+  with a `(sessionId, streamId, sequence)` idempotency identity and a CRC32C
+  checksum.
+- **Event** — sparse annotations/markers, kept out of the Arrow plane.
 
-## Record directly in the trusted host
+Raw biosignal data recorded through this protocol is **local-only by
+default**: the trusted host commits chunks to browser storage (OPFS payloads +
+an IndexedDB catalog) and ACKs only after a durable local commit. There is no
+remote mirror in this package.
 
-```ts
-import {
-  BiosignalSessionRecorder,
-  IndexedDbSessionStore,
-  OpfsChunkPayloadStore,
-  encodeArrowChunk,
-} from "@elata-biosciences/biosignal-session";
+## Entry points
 
-const store = new IndexedDbSessionStore({
-  payloadStore: new OpfsChunkPayloadStore(),
-});
-const recorder = await BiosignalSessionRecorder.begin({
-  store,
-  scopeId: "app:example", // host-local; not placed in portable exports
-  appId: "example-app",
-  input: {
-    sources: [{ sourceId: "synthetic", name: "Synthetic EEG", kind: "synthetic" }],
-  },
-});
+| Entry | Contents |
+| --- | --- |
+| `.` | DOM-free contracts, protocol types, error codes, time helpers, CRC32C |
+| `./browser` | Source adapters + Arrow chunk encode/decode (browser recording) |
+| `./testing` | Deterministic PRNG, fake clock, synthetic sources for tests |
 
-const stream = {
-  streamId: "eeg.raw",
-  sourceId: "synthetic",
-  name: "Raw EEG",
-  modality: "eeg",
-  kind: "raw",
-  schemaVersion: "example.eeg/v1",
-  timing: { kind: "regular", sampleRateHz: 256, clockSource: "local" },
-  fields: [{ name: "fp1", valueType: "float32", unit: "uV" }],
-} as const;
+## Protocol at a glance
 
-await recorder.addStream(stream);
-await recorder.writeChunk(await encodeArrowChunk(
-  stream,
-  { columns: { fp1: new Float32Array([1, 2, 3]) } },
-  { sessionId: recorder.sessionId, sequence: 0, startOffsetUs: 0 },
-));
-await recorder.finalize();
+The host creates a `MessageChannel`, posts
+`{ kind: "__elata_biosignal_init", v: 1 }` to the app iframe with `port2`
+transferred, and the client captures the port one-shot. Chunk payloads are
+transferred `ArrayBuffer`s; the reply to `chunk/commit` arrives only after the
+payload and its catalog row are durably committed. Retries with the same
+`(sessionId, streamId, sequence)` and checksum are idempotent; a differing
+checksum is a fatal `sequence_conflict`.
+
+See `llms.txt` and the type declarations in `dist/` for the full contract.
+
+## Benchmark results (2026-08-20)
+
+`bench/protocolBenchmark.mjs` (`pnpm bench`, after `pnpm build`) drives the real
+`RecorderCore` against `createMemoryHost` over a loopback `MessagePort` pair,
+fed by `createSyntheticSource`, across chunk target {64 KiB, 256 KiB, 1 MiB} ×
+in-flight window {2, 4, 8} on the wide layout. It reports encode ms/chunk, ACK
+round-trip latency, sustained MiB/s, peak in-flight bytes and chunk counts, and
+runs a host-stall probe per cell. Raw output is not committed — re-run it to
+reproduce.
+
+Measured on node 24 / darwin-arm64. **Structural numbers (rows per chunk, chunk
+duration, payload size, chunk counts, retained bytes) are exact and
+deterministic; timings vary ±40 % run to run**, so they are quoted to one
+significant figure.
+
+**Chunk geometry under the shipped 30 s duration cap**
+
+| profile | target | rows/chunk | chunk duration | payload/chunk | closed by |
+| --- | --- | --- | --- | --- | --- |
+| 4 ch @ 256 Hz | 64 KiB | 4096 | 16.0 s | 64 KiB | byte target |
+| 4 ch @ 256 Hz | 256 KiB | 7680 | 30.0 s | 121 KiB | 30 s cap |
+| 4 ch @ 256 Hz | 1 MiB | 7680 | 30.0 s | 121 KiB | 30 s cap |
+| 16 ch @ 1000 Hz | 64 KiB | 1024 | 1.0 s | 66 KiB | byte target |
+| 16 ch @ 1000 Hz | 256 KiB | 4096 | 4.1 s | 255 KiB | byte target |
+| 16 ch @ 1000 Hz | 1 MiB | 16384 | 16.4 s | 989 KiB | byte target |
+
+**Headline timings** (16 ch @ 1000 Hz, the profile where the byte target binds)
+
+| target | encode ms/chunk | encode MiB/s | ACK p50 ms | ACK p95 ms | CPU % of realtime |
+| --- | --- | --- | --- | --- | --- |
+| 64 KiB | ~0.6 | ~100 | ~0.8 | ~1.5 | ~0.3 % |
+| 256 KiB | ~2.6 | ~100 | ~3 | ~6 | ~0.2 % |
+| 1 MiB | ~7.4 | ~130 | ~11 | ~14 | ~0.2 % |
+
+At 4 ch @ 256 Hz every cell costs 0.01–0.07 % of one core; encode is
+0.3–0.8 ms/chunk. ACK latency is against the in-memory host (checksum
+re-verification plus catalog bookkeeping) — a real OPFS + IndexedDB host adds
+its own durability cost on top of these numbers.
+
+**In-flight window.** In steady state the window is inert: the host ACKs before
+the next chunk closes, so peak retention is exactly one chunk at every window
+setting and throughput does not vary with it. The window is only observable
+under a stalled host, where it does exactly what it specifies — max unACKed
+chunks equals the window (2/4/8 measured at 64 KiB, where a full window fits
+inside the 15 s ACK timeout). Retained bytes during a stall scale with stall
+duration × byte rate, not with the window; worst case measured was 5.04 MiB
+(15.7 % of the 32 MiB soft limit) at 1 MiB × window 8.
+
+### Chosen defaults
+
+**The shipped defaults — `chunkTargetBytes` 256 KiB, `inFlightWindow` 4 — are
+supported by this data and are not changing.**
+
+- **256 KiB target.** For the consumer headset profile the 30 s duration cap
+  binds first, so 256 KiB and 1 MiB produce *identical* 121 KiB / 30 s chunks —
+  raising the target buys nothing there. For high-rate streams 256 KiB keeps a
+  chunk at ~4 s of data (bounded crash loss, bounded recovery) and each commit
+  blocks for single-digit milliseconds. 1 MiB triples per-commit blocking
+  (~11 ms p50) and stretches a chunk to 16.4 s of unACKed data for no
+  throughput gain; 64 KiB shortens the loss window further but quadruples chunk
+  count and per-chunk protocol overhead at equal encode throughput.
+- **Window 4.** No throughput evidence discriminates the window with a
+  same-thread host, so the choice rests on what it bounds: unACKed retention
+  (4 × 256 KiB = 1 MiB, 3 % of the soft buffer limit) and resend cost after a
+  host failure. Window 8 doubles both for no measured benefit; window 2
+  under-pipelines the moment a host commit acquires real latency.
+- The 30 s `chunkMaxDurationUs` cap, not the byte target, is what governs
+  ordinary consumer sessions. It is the constant to revisit first if chunk
+  granularity ever needs tuning.
+
+## Cross-language verification
+
+A chunk is only useful if something other than this library can read it.
+`scripts/cross-language/` emits one chunk per Arrow schema and verifies them
+with **pyarrow** — independently re-reading the files, recomputing the CRC32C
+in Python, checking the Elata identity metadata survived, and asserting the
+time-column contract (regular streams carry no time column; irregular streams
+carry an `int64` microsecond column, never an Arrow timestamp type, which
+would imply an epoch these values do not have).
+
+It also round-trips an **export-shaped** table — the denormalized row layout
+an export adapter has to produce — through pandas and back, asserting the
+`int64` microsecond columns come back as `int64` with their exact values. That
+is the step where microsecond time usually dies: a nullable integer column
+becomes `float64` on the way into a DataFrame, and anything past 2^53 returns
+as a different number. One row carries such a value on purpose, so a
+downgrade fails here rather than in someone's analysis later.
+
+```bash
+# needs python3 with pyarrow (pandas optional; the export round trip is
+# skipped with a note when it is missing)
+pnpm build && pnpm run verify:cross-language
 ```
 
-## Sandboxed apps
-
-The trusted host calls `installSessionWindowHost` (or `bindSessionHost` when it
-already owns a `MessagePort`) and derives `scopeId`/`appId` from its own app
-registry. The embedded app calls `connectSessionClient`. Never trust a scope or
-identity supplied by the iframe itself.
-
-The host serializes operations per port. A chunk ACK means its descriptor is in
-the IndexedDB commit catalog and its bytes are durable in the configured payload
-store. Retrying identical `(sessionId, streamId, sequence)` content is harmless;
-different content at that key fails with `sequence_conflict`.
-
-## Portable archive
-
-`exportSessionArchive` returns ZIP bytes conventionally saved with an `.elata`
-suffix. The archive contains:
-
-```text
-manifest.json
-chunks/<encoded-stream-id>/<sequence>.arrow
-events.ndjson
-summary.json                 # when present
-checksums.sha256
-```
-
-`importSessionArchive` verifies every indexed file before committing anything.
-Identity used to scope local storage remains outside the portable manifest.
-The current archive helper returns one `Uint8Array`, so large-session streaming
-export to a file sink is still a deliberate follow-up rather than a hidden
-memory guarantee.
-
-## Deliberately deferred
-
-Dashboard indexes, server synchronization, federated-learning job/update
-envelopes, compression guarantees, at-rest encryption/key recovery, and
-NWB/EDF/Parquet adapters are not Session v1 storage responsibilities yet.
+If the JS and Python readers ever disagree, the chunk format is the problem.

@@ -15,12 +15,21 @@ Then branch by task using the tables below.
 
 ## Package truth (npm consumers)
 
-Each published package ships **`README.md`** and **`llms.txt`** in the npm tarball. In a clone, they live at:
+Every published package ships a **`README.md`** in the npm tarball, and most also ship an **`llms.txt`**. In a clone:
 
-- `packages/eeg-web/README.md`, `packages/eeg-web/llms.txt`
-- `packages/eeg-web-ble/README.md`, `packages/eeg-web-ble/llms.txt`
-- `packages/rppg-web/README.md`, `packages/rppg-web/llms.txt`
-- `packages/create-elata-demo/README.md`, `packages/create-elata-demo/llms.txt`
+| Package | Job | `llms.txt` |
+| ------- | --- | ---------- |
+| `packages/eeg-web` | EEG WASM wrapper and frame/transport contracts | yes |
+| `packages/eeg-web-ble` | Web Bluetooth headband transport (Muse built-in) | yes |
+| `packages/rppg-web` | Camera rPPG pipeline | yes |
+| `packages/rppg-models-web` | Optional ONNX waveform-reconstruction adapter for `rppg-web` | yes |
+| `packages/ppg-web` | Muse PPG heart-rate / HRV over `HeadbandFrameV1` | no |
+| `packages/app-metrics` | Per-user metrics storage for sandboxed appstore apps | yes |
+| `packages/app-payments` | In-app purchases for sandboxed appstore apps | no |
+| `packages/app-state` | Per-user, per-app key-value storage for sandboxed appstore apps | no |
+| `packages/biosignal-session` | Local-first biosignal recording: contracts, wire protocol, Arrow chunks | yes |
+| `packages/biosignal-analytics` | Local analytics: metric registry, WASM EEG features, HRV, headline scores | yes |
+| `packages/create-elata-demo` | App scaffolder and templates | yes |
 
 Treat **package README + `llms.txt` + `package.json` (`exports`, `peerDependencies`)** as the integration contract. Deep API detail is also in **`dist/*.d.ts`** after a build.
 
@@ -42,6 +51,7 @@ Treat **package README + `llms.txt` + `package.json` (`exports`, `peerDependenci
 | Web Bluetooth + Muse | [using-web-bluetooth-with-supported-devices.md](using-web-bluetooth-with-supported-devices.md) | `sdk/eeg-web-ble/getting-started.mdx`, `sdk/guides/eeg-ble-integration.mdx`, `sdk/tutorials/eeg-ble-live-stream.mdx` |
 | rPPG / camera | [using-rppg-in-a-browser-app.md](using-rppg-in-a-browser-app.md) | `sdk/rppg-web/getting-started.mdx`, `sdk/guides/rppg-browser.mdx`, `sdk/guides/rppg-camera.mdx`, `sdk/tutorials/rppg-existing-app.mdx` |
 | Headband contract / transport | [contributing-eeg-transports.md](../contributing-eeg-transports.md) (contributor-focused) | `sdk/eeg-web/headband-transport.mdx` |
+| Local biosignal recording (sessions, chunks, local storage) | [using-biosignal-sessions.md](using-biosignal-sessions.md) | — |
 
 For browser rPPG integrations, default to `createRppgSession()` from
 `@elata-biosciences/rppg-web` unless you are intentionally debugging lower-level

@@ -1,0 +1,86 @@
+{
+	"fixtureVersion": 1,
+	"generator": "@elata-biosciences/biosignal-session@0.1.0",
+	"sourcePackage": "@elata-biosciences/ppg-web",
+	"sourceType": "PpgMetrics",
+	"capture": {
+		"note": "Three emissions: warm-up, locked contact PPG, degraded optics fallback.",
+		"fullSurfaceIndex": 1
+	},
+	"metrics": [
+		{
+			"bpm": null,
+			"rmssdMs": null,
+			"sdnnMs": null,
+			"meanNnMs": null,
+			"confidence": 0.09,
+			"signalQuality": 0.22,
+			"source": "ppgRaw",
+			"channel": "PPG_IR",
+			"sampleRateHz": 64,
+			"windowSampleCount": 192,
+			"windowDurationMs": 3000,
+			"lastSampleTimestampMs": 48216.75,
+			"emittedAtMs": 1705312803012,
+			"spectralBpm": null,
+			"acfBpm": null,
+			"peaksBpm": null,
+			"respirationBpm": null,
+			"snrDb": null,
+			"waveformConfidence": null,
+			"ibiCount": 0,
+			"reasonCodes": [
+				"insufficient_window"
+			]
+		},
+		{
+			"bpm": 66.8,
+			"rmssdMs": 38.4,
+			"sdnnMs": 47.9,
+			"meanNnMs": 898.2,
+			"confidence": 0.84,
+			"signalQuality": 0.79,
+			"source": "ppgRaw",
+			"channel": "PPG_IR",
+			"sampleRateHz": 64,
+			"windowSampleCount": 1024,
+			"windowDurationMs": 16000,
+			"lastSampleTimestampMs": 64229.5,
+			"emittedAtMs": 1705312819026,
+			"spectralBpm": 67.1,
+			"acfBpm": 66.4,
+			"peaksBpm": 66.9,
+			"respirationBpm": 13.8,
+			"snrDb": 8.62,
+			"waveformConfidence": 0.77,
+			"ibiCount": 17,
+			"reasonCodes": []
+		},
+		{
+			"bpm": 69.5,
+			"rmssdMs": null,
+			"sdnnMs": null,
+			"meanNnMs": 863.1,
+			"confidence": 0.48,
+			"signalQuality": 0.51,
+			"source": "optics",
+			"channel": "OPT_940",
+			"sampleRateHz": 64,
+			"windowSampleCount": 1024,
+			"windowDurationMs": 16000,
+			"lastSampleTimestampMs": 80231.25,
+			"emittedAtMs": 1705312835038,
+			"spectralBpm": 69.9,
+			"acfBpm": 68.7,
+			"peaksBpm": null,
+			"respirationBpm": null,
+			"snrDb": 3.41,
+			"waveformConfidence": 0.44,
+			"ibiCount": 4,
+			"reasonCodes": [
+				"low_signal_quality",
+				"insufficient_ibi"
+			]
+		}
+	]
+}

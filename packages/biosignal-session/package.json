@@ -1,7 +1,7 @@
 {
 	"name": "@elata-biosciences/biosignal-session",
 	"version": "0.1.0",
-	"description": "Local-first, modality-neutral biosignal session recording and interchange",
+	"description": "Local-first biosignal session recording: contracts, MessagePort transport, and a fault-tolerant chunked storage protocol",
 	"license": "MIT",
 	"author": "Elata",
 	"repository": {
@@ -11,7 +11,16 @@
 	},
 	"homepage": "https://github.com/Elata-Biosciences/elata-bio-sdk#readme",
 	"bugs": "https://github.com/Elata-Biosciences/elata-bio-sdk/issues",
-	"keywords": ["biosignal", "eeg", "rppg", "arrow", "indexeddb", "opfs"],
+	"keywords": [
+		"elata",
+		"biosignal",
+		"eeg",
+		"rppg",
+		"session",
+		"recording",
+		"opfs",
+		"arrow"
+	],
 	"engines": {
 		"node": ">=20"
 	},
@@ -24,38 +33,60 @@
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js"
 		},
-		"./arrow": {
-			"types": "./dist/arrow.d.ts",
-			"import": "./dist/arrow.js"
+		"./browser": {
+			"types": "./dist/browser.d.ts",
+			"import": "./dist/browser.js"
 		},
-		"./host": {
-			"types": "./dist/host.d.ts",
-			"import": "./dist/host.js"
-		},
-		"./adapters": {
-			"types": "./dist/adapters.d.ts",
-			"import": "./dist/adapters.js"
+		"./testing": {
+			"types": "./dist/testing.d.ts",
+			"import": "./dist/testing.js"
 		}
 	},
-	"files": ["dist", "README.md", "CHANGELOG.md", "llms.txt"],
+	"files": ["dist", "README.md", "llms.txt"],
 	"publishConfig": {
 		"access": "public"
 	},
 	"scripts": {
-		"lint": "pnpm exec biome lint src jest.config.cjs",
+		"lint": "pnpm exec biome lint src bench jest.config.cjs",
 		"test": "jest --config ./jest.config.cjs --passWithNoTests",
+		"test:coverage": "jest --config ./jest.config.cjs --coverage --passWithNoTests",
 		"clean": "node ./scripts/clean.mjs",
+		"bench": "node ./bench/protocolBenchmark.mjs",
 		"build": "tsc -p tsconfig.json && node ./scripts/fix-dist-import-specifiers.mjs && node ./scripts/verify-dist-esm.mjs",
-		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts && node ../../scripts/verify-package-build.mjs dist/arrow.js dist/arrow.d.ts && node ../../scripts/verify-package-build.mjs dist/host.js dist/host.d.ts && node ../../scripts/verify-package-build.mjs dist/adapters.js dist/adapters.d.ts",
+		"verify:build": "node ../../scripts/verify-package-build.mjs dist/index.js dist/index.d.ts && node ../../scripts/verify-package-build.mjs dist/browser.js dist/browser.d.ts && node ../../scripts/verify-package-build.mjs dist/testing.js dist/testing.d.ts",
 		"verify:publish": "pnpm run verify:build",
 		"prepare:publish": "pnpm run build",
-		"prepack": "pnpm run prepare:publish && pnpm run verify:publish"
+		"prepack": "pnpm run prepare:publish && pnpm run verify:publish",
+		"verify:cross-language": "node ./scripts/cross-language/emit-chunks.mjs .cross-language && \"${ELATA_PYTHON:-python3}\" ./scripts/cross-language/verify_chunks.py .cross-language"
 	},
 	"dependencies": {
-		"apache-arrow": "21.2.0",
-		"fflate": "0.8.3"
+		"apache-arrow": "21.2.0"
+	},
+	"peerDependencies": {
+		"@elata-biosciences/eeg-web": "^0.12.0",
+		"@elata-biosciences/eeg-web-ble": "^0.12.0",
+		"@elata-biosciences/ppg-web": "^0.12.0",
+		"@elata-biosciences/rppg-web": "^0.14.0"
+	},
+	"peerDependenciesMeta": {
+		"@elata-biosciences/eeg-web": {
+			"optional": true
+		},
+		"@elata-biosciences/eeg-web-ble": {
+			"optional": true
+		},
+		"@elata-biosciences/ppg-web": {
+			"optional": true
+		},
+		"@elata-biosciences/rppg-web": {
+			"optional": true
+		}
 	},
 	"devDependencies": {
+		"@elata-biosciences/eeg-web": "workspace:*",
+		"@elata-biosciences/eeg-web-ble": "workspace:*",
+		"@elata-biosciences/ppg-web": "workspace:*",
+		"@elata-biosciences/rppg-web": "workspace:*",
 		"@types/jest": "29.5.14",
 		"fake-indexeddb": "6.0.0",
 		"jest": "29.7.0",
