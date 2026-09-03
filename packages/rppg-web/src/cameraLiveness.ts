@@ -100,6 +100,22 @@ export function initialLiveness(nowMs: number): Liveness {
 }
 
 /**
+ * Has enough time passed since the first sample to trust a stillness verdict?
+ *
+ * Pulled out of `observeFrame` so a caller that has NOT received a single
+ * frame yet can apply the same grace period. `observeFrame` can only judge
+ * "same picture as before", which needs a frame to exist in the first place —
+ * a track that delivers literally zero frames (getUserMedia resolves,
+ * getSettings() reports a plausible negotiation, but no decodable frame ever
+ * arrives — measured on real hardware in peak-app via its cameraSweep.ts) is
+ * invisible to it. That case needs this same threshold applied to
+ * elapsed-time-with-no-frame instead of elapsed-time-with-no-CHANGE.
+ */
+export function pastStartupGrace(startedAtMs: number, nowMs: number): boolean {
+  return nowMs - startedAtMs >= STARTUP_GRACE_MS;
+}
+
+/**
  * Reduce a sampled RGBA buffer to the values we compare.
  *
  * Alpha is dropped: it is 255 for every pixel of every camera frame, so keeping
@@ -134,11 +150,11 @@ export function observeFrame(
   if (prev.signature === null || !sameSignature(prev.signature, signature)) {
     return { signature, changedAt: nowMs, startedAt: prev.startedAt, frozen: false };
   }
-  const pastStartupGrace = nowMs - prev.startedAt >= STARTUP_GRACE_MS;
+  const past = pastStartupGrace(prev.startedAt, nowMs);
   return {
     signature: prev.signature,
     changedAt: prev.changedAt,
     startedAt: prev.startedAt,
-    frozen: pastStartupGrace && nowMs - prev.changedAt >= FROZEN_MS,
+    frozen: past && nowMs - prev.changedAt >= FROZEN_MS,
   };
 }

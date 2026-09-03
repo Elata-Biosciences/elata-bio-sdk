@@ -3,6 +3,7 @@ import {
 	STARTUP_GRACE_MS,
 	initialLiveness,
 	observeFrame,
+	pastStartupGrace,
 	sameSignature,
 	signatureOf,
 } from "../cameraLiveness";
@@ -122,6 +123,23 @@ describe("a driver warming up is not accused", () => {
 		expect(state.frozen).toBe(false);
 		state = observeFrame(state, covered.slice(), STARTUP_GRACE_MS);
 		expect(state.frozen).toBe(true);
+	});
+});
+
+describe("pastStartupGrace", () => {
+	test("is false before STARTUP_GRACE_MS has elapsed, true at and past it", () => {
+		// Shared by observeFrame's own frozen check and by the zero-frames-ever
+		// case a consumer (e.g. peak-app's CameraPreview.tsx) has no signature
+		// to compare and so cannot call observeFrame at all — one threshold,
+		// two callers.
+		expect(pastStartupGrace(1000, 1000 + STARTUP_GRACE_MS - 1)).toBe(false);
+		expect(pastStartupGrace(1000, 1000 + STARTUP_GRACE_MS)).toBe(true);
+		expect(pastStartupGrace(1000, 1000 + STARTUP_GRACE_MS + 5000)).toBe(true);
+	});
+
+	test("measures from the given start, not from zero", () => {
+		expect(pastStartupGrace(50_000, 50_000 + STARTUP_GRACE_MS)).toBe(true);
+		expect(pastStartupGrace(50_000, 50_000 + STARTUP_GRACE_MS - 1)).toBe(false);
 	});
 });
 

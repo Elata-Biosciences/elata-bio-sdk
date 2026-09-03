@@ -350,6 +350,7 @@ export {
 	SIGNATURE_EDGE,
 	initialLiveness,
 	observeFrame,
+	pastStartupGrace,
 	sameSignature,
 	signatureOf,
 } from "./cameraLiveness";
