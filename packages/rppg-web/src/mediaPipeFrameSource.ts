@@ -69,7 +69,7 @@ export class MediaPipeFrameSource implements FrameSource {
 		return this.lastError;
 	}
 
-	private captureFrame(now?: number, metadata?: any) {
+	private captureFrame(now?: number, _metadata?: any) {
 		try {
 			this.ctx.drawImage(
 				this.video as CanvasImageSource,
@@ -84,13 +84,11 @@ export class MediaPipeFrameSource implements FrameSource {
 				this.canvas.width,
 				this.canvas.height,
 			);
-			// Live MediaStream sources always report mediaTime: 0; prefer now for accurate windowing.
-			const ts =
-				typeof metadata?.mediaTime === "number" && metadata.mediaTime > 0
-					? metadata.mediaTime * 1000
-					: typeof now === "number"
-						? now
-						: Date.now();
+			// Stay in one clock domain for the lifetime of the capture loop. Some
+			// browsers report mediaTime=0 for the first live frame and a positive
+			// value afterward; switching from `now` to mediaTime makes timestamps
+			// jump backward and invalidates the rPPG window until the clocks catch up.
+			const ts = typeof now === "number" ? now : Date.now();
 			const frame: Frame = {
 				data: img.data,
 				width: this.canvas.width,
