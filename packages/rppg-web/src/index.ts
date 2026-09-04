@@ -319,6 +319,45 @@ export type {
 	RppgGatingState,
 	RppgGuidanceCode,
 } from "./rppgGating";
+// --- Reliability-gating surface (elata-bio-sdk#405): every rule that decides
+// whether an rPPG number is trustworthy enough to show, gather, or average.
+// Extracted so three independent consumer apps stop hand-copying it — see
+// resolveDisplayMetrics above and elata-bio-sdk#24 for the failure history.
+export { HRV_TRUST_QUALITY_MIN, trustedHrvSample } from "./hrvSampleTrust";
+export {
+	COMMIT_SHARE,
+	LOCK_HOLD_MS,
+	MEASURE_HOLD_MS,
+	MEASURE_SHARE,
+	MIN_LOCK_SAMPLES,
+	READINESS_SHARE,
+	TRUST_EASE_END_MS,
+	TRUST_EASE_MID_MS,
+	TRUST_FLOOR,
+	TRUST_FLOOR_MID,
+	TRUST_FLOOR_MIN,
+	TYPICAL_CALIBRATION_MS,
+	captureProgress,
+	restartDetected,
+	trustFloorAt,
+} from "./captureProgress";
+export type { CaptureProgressInput } from "./captureProgress";
+export { calibrationStage } from "./calibration";
+export type { CalibrationStage } from "./calibration";
+export {
+	FROZEN_MS,
+	STARTUP_GRACE_MS,
+	SIGNATURE_EDGE,
+	initialLiveness,
+	observeFrame,
+	pastStartupGrace,
+	sameSignature,
+	signatureOf,
+} from "./cameraLiveness";
+export type { Liveness } from "./cameraLiveness";
+export { landmarkMotion } from "./motionIndex";
+export { fitExposureResponse } from "./exposureFit";
+export type { ExposureSample } from "./exposureFit";
 export { replayBayesSession } from "./rppgReplay";
 export type {
 	ReplayEstimatorSample,
