@@ -1,4 +1,5 @@
 import { resolveDisplayMetrics } from "../displayMetrics";
+import { HRV_TRUST_QUALITY_MIN } from "../hrvSampleTrust";
 import type { Metrics } from "../rppgProcessor";
 import type { RppgAppSnapshot } from "../rppgAppAdapter";
 
@@ -18,29 +19,44 @@ function fixture(overrides: Partial<Fixture> = {}): Fixture {
 }
 
 describe("resolveDisplayMetrics", () => {
-	test("publishable snapshot with high confidence surfaces bpm", () => {
-		const result = resolveDisplayMetrics(fixture({ metrics: metrics({ confidence: 0.6 }) }));
+	test("publishable snapshot with high confidence and trustworthy HRV surfaces both", () => {
+		const result = resolveDisplayMetrics(
+			fixture({ metrics: metrics({ confidence: 0.6, hrv_rmssd: 42, signal_quality: 0.6 }) }),
+		);
 		expect(result).toEqual({
 			bpm: 72,
-			hrvRmssd: null,
+			hrvRmssd: 42,
 			confidence: "high",
 			publishable: true,
 		});
 	});
 
-	test("hrvRmssd is always null: canPublish alone is a BPM-oriented gate, not an HRV one", () => {
+	test("hrvRmssd nulls on low HRV-specific quality even though canPublish (BPM-oriented) is true", () => {
 		// The gap a reviewer caught: HRV's beat-to-beat timing is far more
 		// fragile than BPM's average rate, so a sample can clear canPublish and
-		// still carry a garbage HRV figure. There is no HRV-specific quality
-		// gate here yet (see elata-bio-sdk#28's trustedHrvSample), so this stays
-		// null rather than silently reintroducing the class of bug this whole
-		// function exists to prevent, just for a different field.
+		// still carry a garbage HRV figure. trustedHrvSample owns this second,
+		// stricter gate — composed here, not re-derived.
 		const result = resolveDisplayMetrics(
-			fixture({ canPublish: true, publishBpm: 72, metrics: metrics({ hrv_rmssd: 42 }) }),
+			fixture({
+				canPublish: true,
+				publishBpm: 72,
+				metrics: metrics({ hrv_rmssd: 42, signal_quality: HRV_TRUST_QUALITY_MIN - 0.01 }),
+			}),
 		);
 		expect(result.publishable).toBe(true);
 		expect(result.bpm).toBe(72);
 		expect(result.hrvRmssd).toBeNull();
+	});
+
+	test("hrvRmssd surfaces right at the HRV-specific quality floor (positive boundary)", () => {
+		const result = resolveDisplayMetrics(
+			fixture({
+				canPublish: true,
+				publishBpm: 72,
+				metrics: metrics({ hrv_rmssd: 42, signal_quality: HRV_TRUST_QUALITY_MIN }),
+			}),
+		);
+		expect(result.hrvRmssd).toBe(42);
 	});
 
 	test("canPublish false nulls bpm/hrv even when publishBpm is a number", () => {
