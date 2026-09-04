@@ -5,7 +5,12 @@ export type DisplayConfidence = "low" | "high";
 export interface DisplayMetrics {
 	/** BPM to render, or `null` when the reading isn't trustworthy enough to show. */
 	bpm: number | null;
-	/** HRV (RMSSD) to render, or `null` when the reading isn't trustworthy enough to show. */
+	/**
+	 * Always `null` for now — see the doc comment on {@link resolveDisplayMetrics}.
+	 * This field stays in the shape (rather than being removed) so a consumer
+	 * migrating to it today doesn't need a second breaking change once HRV is
+	 * wired up.
+	 */
 	hrvRmssd: number | null;
 	/** Coarse confidence bucket, for a caption/badge — not a gate by itself (see below). */
 	confidence: DisplayConfidence;
@@ -52,6 +57,17 @@ const DEFAULT_CONFIDENCE_THRESHOLD = 0.35;
  * quality — see `rppgGating.ts`); re-deriving that from `confidence` alone in
  * each app is exactly the kind of independent re-implementation that caused
  * this bug in the first place.
+ *
+ * `hrvRmssd` is intentionally always `null` here, not gated on `canPublish`.
+ * `canPublish` is BPM-oriented; HRV needs a strictly tighter bar, because
+ * beat-to-beat timing is far more fragile than an average rate (a sample can
+ * clear the BPM quality floor and still carry a garbage HRV figure — see
+ * elata-bio-sdk#28's `trustedHrvSample`, which owns exactly that gate but has
+ * not landed yet). Surfacing HRV off the BPM gate alone would silently
+ * reintroduce the class of bug this function exists to prevent, just for a
+ * different field. This stays BPM-only until `trustedHrvSample` lands and can
+ * be composed in, at which point this comment (and the field's doc) update
+ * together.
  */
 export function resolveDisplayMetrics(
 	snapshot: Pick<RppgAppSnapshot, "canPublish" | "publishBpm" | "metrics">,
@@ -64,7 +80,9 @@ export function resolveDisplayMetrics(
 
 	return {
 		bpm: publishable ? snapshot.publishBpm : null,
-		hrvRmssd: publishable ? (snapshot.metrics.hrv_rmssd ?? null) : null,
+		// See the doc comment above: not gated by `publishable` because there is
+		// no HRV-specific quality gate to compose it with yet.
+		hrvRmssd: null,
 		confidence,
 		publishable,
 	};

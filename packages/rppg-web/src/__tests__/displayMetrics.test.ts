@@ -18,16 +18,29 @@ function fixture(overrides: Partial<Fixture> = {}): Fixture {
 }
 
 describe("resolveDisplayMetrics", () => {
-	test("publishable snapshot with high confidence surfaces bpm/hrv", () => {
-		const result = resolveDisplayMetrics(
-			fixture({ metrics: metrics({ confidence: 0.6, hrv_rmssd: 42 }) }),
-		);
+	test("publishable snapshot with high confidence surfaces bpm", () => {
+		const result = resolveDisplayMetrics(fixture({ metrics: metrics({ confidence: 0.6 }) }));
 		expect(result).toEqual({
 			bpm: 72,
-			hrvRmssd: 42,
+			hrvRmssd: null,
 			confidence: "high",
 			publishable: true,
 		});
+	});
+
+	test("hrvRmssd is always null: canPublish alone is a BPM-oriented gate, not an HRV one", () => {
+		// The gap a reviewer caught: HRV's beat-to-beat timing is far more
+		// fragile than BPM's average rate, so a sample can clear canPublish and
+		// still carry a garbage HRV figure. There is no HRV-specific quality
+		// gate here yet (see elata-bio-sdk#28's trustedHrvSample), so this stays
+		// null rather than silently reintroducing the class of bug this whole
+		// function exists to prevent, just for a different field.
+		const result = resolveDisplayMetrics(
+			fixture({ canPublish: true, publishBpm: 72, metrics: metrics({ hrv_rmssd: 42 }) }),
+		);
+		expect(result.publishable).toBe(true);
+		expect(result.bpm).toBe(72);
+		expect(result.hrvRmssd).toBeNull();
 	});
 
 	test("canPublish false nulls bpm/hrv even when publishBpm is a number", () => {
@@ -74,8 +87,4 @@ describe("resolveDisplayMetrics", () => {
 		expect(droppedOut.bpm).toBeNull();
 	});
 
-	test("missing hrv_rmssd on a publishable snapshot surfaces null, not undefined", () => {
-		const result = resolveDisplayMetrics(fixture({ metrics: metrics({ hrv_rmssd: undefined }) }));
-		expect(result.hrvRmssd).toBeNull();
-	});
 });
