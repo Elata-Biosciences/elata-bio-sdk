@@ -309,6 +309,12 @@ export type {
 	RppgAppSnapshotListener,
 	RppgAppStatus,
 } from "./rppgAppAdapter";
+export { resolveDisplayMetrics } from "./displayMetrics";
+export type {
+	DisplayConfidence,
+	DisplayMetrics,
+	ResolveDisplayMetricsOptions,
+} from "./displayMetrics";
 export { ensureVideoPlaying } from "./videoPlayback";
 export type { EnsureVideoPlayingOptions } from "./videoPlayback";
 export { RppgGatingController } from "./rppgGating";
