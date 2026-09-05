@@ -3,6 +3,19 @@ import { shouldAllowDisplayJumpReset } from "./displayGuard";
 /**
  * Always-live BPM readout smoothing.
  *
+ * @deprecated `hold()` (see its own doc comment) keeps a display value alive
+ * past the point a reading has stopped being trustworthy, which is the exact
+ * holdover pattern {@link resolveDisplayMetrics} (`displayMetrics.ts`) exists
+ * to make structurally impossible, diagnosed as the root cause of
+ * neural-chat-app#10 and elata-bio-sdk#24. This class has zero known
+ * consumers (checked across peak-app, vitality-app, neural-chat-app as of
+ * elata-bio-sdk#27). For a production display-trust decision, use
+ * `resolveDisplayMetrics` instead, which is stateless and never holds a value
+ * the SDK's own gating has already rejected. The rest of this class (median
+ * window, EMA, jump protection) is fine cosmetic smoothing for an
+ * *already-trusted* value; only `hold()`'s specific behavior, inventing a
+ * number for a cycle with no trusted value at all, is the deprecated part.
+ *
  * The trusted/gated BPM that feeds baseline and state should change slowly and
  * only when confidence is high — but a UI readout that goes blank or freezes
  * whenever the gate suppresses a frame looks broken. {@link DisplayBpmTracker}
@@ -203,6 +216,12 @@ export class DisplayBpmTracker {
 	 * Keep the readout live on a cycle the caller suppressed (no trusted BPM):
 	 * prefer the tracker estimate when plausible, otherwise hold the last shown
 	 * value. Does not touch the smoothed state.
+	 *
+	 * @deprecated Holding a value the caller has already deemed untrustworthy
+	 * (that is what "suppressed" means) is exactly the failure `resolveDisplayMetrics`
+	 * exists to prevent. See the deprecation note on {@link DisplayBpmTracker}.
+	 * Use `resolveDisplayMetrics` for a production display-trust decision; do
+	 * not reach for this to keep a readout "always moving."
 	 */
 	hold(ctx: { trackerBpm?: number | null } = {}): number | null {
 		const t = ctx.trackerBpm;
