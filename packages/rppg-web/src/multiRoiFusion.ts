@@ -3,15 +3,45 @@ import { Bandpass, ChromPulseModel, spectralSnr } from "./rppgSignalModel";
 /**
  * Multi-ROI rPPG fusion.
  *
- * Instead of reading the pulse from a single forehead patch, this runs CHROM +
- * bandpass independently on several face regions (forehead + both cheeks) and
- * blends them with weights proportional to each region's in-band spectral SNR.
- * The cleanest region dominates moment-to-moment, so local glare, hair, glasses
- * glint, or partial occlusion on any one ROI no longer poisons the estimate.
+ * Instead of reading the pulse from a single forehead patch, this reads
+ * several face regions (forehead + both cheeks) and blends them with weights
+ * proportional to each region's in-band spectral SNR. The cleanest region
+ * dominates moment-to-moment, so local glare, hair, glasses glint, or partial
+ * occlusion on any one ROI no longer poisons the estimate.
  *
- * Per-ROI CHROM is self-normalizing (it divides by each channel's temporal
- * mean), so the raw skin-masked ROI averages can be fed directly — no shared
- * AGC across regions, which would be incorrect.
+ * ## Where the weights get applied, and why it's not the obvious place
+ *
+ * The weights are applied to the raw RGB averages, before CHROM — not to the
+ * per-ROI CHROM outputs after the fact. Chari et al. ("Diverse R-PPG: Camera-
+ * Based Heart Rate Estimation for Diverse Subject Skin-Tones and Scenes")
+ * benchmarked exactly the alternative — weighting already-extracted per-ROI
+ * pulse signals by their own SNR — against a diverse-skin-tone dataset and
+ * found it *increases* skin-tone bias relative to plain unweighted spatial
+ * averaging. The mechanism: darker skin reflects less light, so the raw pixel
+ * intensity is lower, so the photon/read-noise floor of the SENSOR (not the
+ * physiology) already lowers that region's post-processing SNR — the paper's
+ * own noise analysis shows this bias is a camera-noise effect, not a
+ * biophysical one (SIR is melanin-independent once light transport is
+ * modelled). Weighting by that SNR after independently filtering each region
+ * then systematically down-weights darker-skin regions for a reason that has
+ * nothing to do with signal quality, and the weight can collapse toward zero
+ * before the region gets a fair chance to contribute.
+ *
+ * So: raw per-ROI RGB averages are combined into ONE weighted spatial average
+ * first (the SNR-driven weights below still decide the mix — same weighting
+ * logic as before, only where it's applied moved), and a single shared CHROM +
+ * bandpass pipeline runs on that blended stream. This is the RGB-space
+ * weighting Chari et al. show closes most of the gap; per-ROI CHROM/bandpass
+ * still runs independently per region (see `chrom`/`band` below) purely as
+ * the SNR probe that drives the weights — it no longer feeds the fused output
+ * directly.
+ *
+ * Honest limit: this ports the paper's RGB-space-weighting recommendation,
+ * not its second, larger recommendation (an explicit skin-diffuse-component
+ * weight derived from per-pixel specular-highlight detection) — this module
+ * only ever receives an already-averaged `RoiRgbSample` per region per frame,
+ * not the raw per-pixel data specular detection would need. That's a bigger
+ * change, tracked separately, not silently implied to already be done here.
  */
 
 export type FusionRoiName = "forehead" | "leftCheek" | "rightCheek";
@@ -52,6 +82,9 @@ export class MultiRoiRppgFuser {
 	private readonly chrom: Record<FusionRoiName, ChromPulseModel>;
 	private readonly band: Record<FusionRoiName, Bandpass>;
 	private buf: Record<FusionRoiName, number[]>;
+	/** Single shared pipeline the RGB-blended (pre-CHROM-weighted) stream runs through. */
+	private fusedChrom: ChromPulseModel;
+	private fusedBand: Bandpass;
 	private fusedBuf: number[] = [];
 	private weights: Record<FusionRoiName, number>;
 	private snr: Record<FusionRoiName, number>;
@@ -70,6 +103,8 @@ export class MultiRoiRppgFuser {
 		this.chrom = this.makeRecord(() => new ChromPulseModel());
 		this.band = this.makeRecord(() => new Bandpass(fs, 0.7, 4.0));
 		this.buf = this.makeRecord(() => [] as number[]);
+		this.fusedChrom = new ChromPulseModel();
+		this.fusedBand = new Bandpass(fs, 0.7, 4.0);
 		this.weights = this.makeRecord(() => 1 / FUSION_ROIS.length);
 		this.snr = this.makeRecord(() => 0);
 	}
@@ -90,6 +125,8 @@ export class MultiRoiRppgFuser {
 			this.weights[roi] = 1 / FUSION_ROIS.length;
 			this.snr[roi] = 0;
 		}
+		this.fusedChrom.reset();
+		this.fusedBand.reset();
 		this.fusedBuf = [];
 		this.fusedSnr = 0;
 		this.frame = 0;
@@ -99,12 +136,10 @@ export class MultiRoiRppgFuser {
 		samples: Partial<Record<FusionRoiName, RoiRgbSample>>,
 	): MultiRoiFusionResult {
 		this.frame++;
-		const filtered: Record<FusionRoiName, number | null> = {
-			forehead: null,
-			leftCheek: null,
-			rightCheek: null,
-		};
 
+		// Per-ROI CHROM + bandpass still runs on every present region, but only as
+		// the SNR probe `updateWeights` reads below — it no longer feeds `fused`
+		// directly (see the module doc comment for why).
 		for (const roi of FUSION_ROIS) {
 			const s = samples[roi];
 			if (
@@ -115,7 +150,6 @@ export class MultiRoiRppgFuser {
 			}
 			const chromVal = this.chrom[roi].process(s.r, s.g, s.b);
 			const f = this.band[roi].process(chromVal);
-			filtered[roi] = f;
 			const buf = this.buf[roi];
 			buf.push(f);
 			if (buf.length > this.bufLimit) buf.shift();
@@ -125,18 +159,34 @@ export class MultiRoiRppgFuser {
 			this.updateWeights();
 		}
 
-		// Weighted sum over the ROIs present this frame, renormalized so a missing
-		// region doesn't dim the fused amplitude.
-		let acc = 0;
+		// Weighted RGB blend over the ROIs present this frame, renormalized so a
+		// missing region doesn't dim the blend. A single shared CHROM + bandpass
+		// pipeline then runs on the blended stream, so the weighting happens in
+		// RGB-space, before CHROM.
+		let rAcc = 0;
+		let gAcc = 0;
+		let bAcc = 0;
 		let wsum = 0;
 		for (const roi of FUSION_ROIS) {
-			const f = filtered[roi];
-			if (f == null) continue;
-			acc += this.weights[roi] * f;
-			wsum += this.weights[roi];
+			const s = samples[roi];
+			if (
+				!s ||
+				(s.skinFraction != null && s.skinFraction < MIN_SKIN_FRACTION)
+			) {
+				continue;
+			}
+			const w = this.weights[roi];
+			rAcc += w * s.r;
+			gAcc += w * s.g;
+			bAcc += w * s.b;
+			wsum += w;
 		}
 		const valid = wsum > 0;
-		const fused = valid ? acc / wsum : 0;
+		const fused = valid
+			? this.fusedBand.process(
+					this.fusedChrom.process(rAcc / wsum, gAcc / wsum, bAcc / wsum),
+				)
+			: 0;
 		if (valid) {
 			this.fusedBuf.push(fused);
 			if (this.fusedBuf.length > this.bufLimit) this.fusedBuf.shift();
