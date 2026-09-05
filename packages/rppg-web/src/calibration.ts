@@ -1,5 +1,5 @@
 /**
- * The stage machine a reading moves through during capture — pure state
+ * The stage machine a reading moves through during capture: pure state
  * logic, no copy or presentation. Consuming apps map each stage to their own
  * label/tone (work-framing vs. recovery-framing genuinely differ per app;
  * see elata-bio-sdk#405/#24), but the ORDER these stages resolve in is the
@@ -24,7 +24,7 @@ export type CalibrationStage =
  * `adapting-light` comes FIRST and wins over everything except pause/lock: for
  * a brief window after arming, the app is still ramping its own fill-light and
  * the camera's exposure toward a stable reading of the room, and samples taken
- * during that ramp are the ones that come back "too high" — the light itself
+ * during that ramp are the ones that come back "too high"; the light itself
  * was still changing under them. During this window nothing is gathered and
  * no advice is given, because there is nothing for the READER to fix; the app
  * is still adjusting itself.

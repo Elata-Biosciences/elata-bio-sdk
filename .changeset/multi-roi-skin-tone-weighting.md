@@ -3,7 +3,7 @@
 ---
 
 Fix `MultiRoiRppgFuser` weighting each ROI's already-CHROM-filtered pulse
-signal by that signal's own spectral SNR — Chari et al. ("Diverse R-PPG")
+signal by that signal's own spectral SNR. Chari et al. ("Diverse R-PPG")
 benchmarked this exact construction and found it increases skin-tone bias
 relative to plain unweighted spatial averaging, because darker skin's lower
 reflected light lowers post-processing SNR for a camera-noise reason

@@ -4,7 +4,7 @@
  * solve directly for a target luma instead of guessing a proportional nudge.
  *
  * This is the measurement the "solve directly for the target" correction in
- * an app's own exposure-tuning decision is built on — the same principle the
+ * an app's own exposure-tuning decision is built on, the same principle the
  * rPPG exposure-control literature uses (fit the camera's actual response,
  * then invert it), scaled down from a dedicated multi-frame-per-second
  * scheme to a once-a-second luma poll: no new frames are sampled, this just
@@ -15,7 +15,7 @@
  * autoexposure, so the sensor's own AE algorithm can partly re-compensate
  * between samples, and ambient light can genuinely change for reasons
  * unrelated to the requested compensation. The fit is a best-effort local
- * estimate, not a controlled measurement — callers should guard against a
+ * estimate, not a controlled measurement, so callers should guard against a
  * nonsensical (near-zero or inverted-sign) result rather than trusting every
  * fit blindly.
  */

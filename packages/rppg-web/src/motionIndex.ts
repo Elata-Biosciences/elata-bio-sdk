@@ -1,7 +1,7 @@
 /**
  * How much the face actually moved between two frames, from face-mesh landmarks.
  *
- * A head-box framing gate only knows whether the SDK's head BOX is centred —
+ * A head-box framing gate only knows whether the SDK's head BOX is centred;
  * it says nothing about motion that keeps the box roughly in place (a nod, a
  * tilt, talking), which is exactly the motion the rPPG literature identifies
  * as most disruptive to signal quality (speaking and head-shake degrade HR
@@ -9,7 +9,7 @@
  * different question than the box does: not "is the face positioned
  * correctly" but "did the face just move."
  *
- * Deliberately NOT face-box-based and NOT limited to the frame centre — every
+ * Deliberately NOT face-box-based and NOT limited to the frame centre: every
  * one of the 468 mesh points contributes, so motion at the jaw or brow (which
  * can leave the box's own centroid nearly unchanged) still registers.
  */
@@ -28,7 +28,7 @@ import type { LandmarkLike } from "./roiProfile";
  * from yaw/pitch/x-y landmark deltas, not raw 3D displacement).
  *
  * Null on either frame (no face detected, or the first frame with nothing to
- * compare against) returns 0 — "no evidence of motion," not "maximum motion."
+ * compare against) returns 0: "no evidence of motion," not "maximum motion."
  * A dropped detection is not itself motion, and treating it as such would
  * falsely gate a capture the instant the face model has one bad frame.
  */
@@ -49,7 +49,7 @@ export function landmarkMotion(
 	// interval; a deliberate head turn or nod is well over 0.01. 0.02 as the
 	// point where the score saturates to 1 leaves headroom above "clearly
 	// moving" for genuinely large motion, rather than clipping real variation
-	// into one bucket. Not derived from a measured dataset — a placeholder
+	// into one bucket. Not derived from a measured dataset; a placeholder
 	// scale chosen to be well-separated from observed stillness, tightened
 	// later against real signal-quality correlation if `motion_mean` from the
 	// WASM backend and this score are ever compared side by side.

@@ -94,7 +94,7 @@ describe("MultiRoiRppgFuser", () => {
 		// several samples before it outputs anything non-zero either way).
 		const fs = 30;
 		// updateEverySeconds huge so weights never leave their equal starting
-		// point mid-run — isolates the RGB-vs-post-CHROM blending question from
+		// point mid-run, isolating the RGB-vs-post-CHROM blending question from
 		// the (separately tested) weight-adaptation behaviour.
 		const fuser = new MultiRoiRppgFuser(fs, 8, 1000);
 		const rng = makeRng(99);

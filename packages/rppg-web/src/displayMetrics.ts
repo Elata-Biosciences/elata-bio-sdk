@@ -8,11 +8,11 @@ export interface DisplayMetrics {
 	bpm: number | null;
 	/**
 	 * HRV (RMSSD) to render, or `null` when either the BPM-oriented publish
-	 * gate or the HRV-specific quality gate rejects this sample — see the doc
+	 * gate or the HRV-specific quality gate rejects this sample. See the doc
 	 * comment on {@link resolveDisplayMetrics}.
 	 */
 	hrvRmssd: number | null;
-	/** Coarse confidence bucket, for a caption/badge — not a gate by itself (see below). */
+	/** Coarse confidence bucket, for a caption/badge, not a gate by itself (see below). */
 	confidence: DisplayConfidence;
 	/** Whether this snapshot's vitals are fit to display at all. */
 	publishable: boolean;
@@ -36,10 +36,10 @@ const DEFAULT_CONFIDENCE_THRESHOLD = 0.35;
  *
  * The sharper failure, found while fixing neural-chat-app#10: `RppgGatingController`
  * (`rppgGating.ts`) already nulls `publishBpm` the moment a reading stops being
- * trustworthy — that part of the SDK was already correct. The bug was that each
+ * trustworthy; that part of the SDK was already correct. The bug was that each
  * app then layered its OWN smoothing (a median/EMA accumulator) on top of the
  * already-gated `publishBpm`, and that accumulator only updated "when there's a
- * fresh sample" — so the moment the SDK correctly went to `null`, the app's own
+ * fresh sample," so the moment the SDK correctly went to `null`, the app's own
  * smoothing silently kept showing its last-known value, forever, with no expiry.
  * The SDK's gating was right; the app-side re-smoothing defeated it.
  *
@@ -51,16 +51,16 @@ const DEFAULT_CONFIDENCE_THRESHOLD = 0.35;
  *
  * `confidence` is exposed for a caption ("signal unreliable") or for an app's
  * own internal math that wants to discount rather than hide (e.g. Peak's
- * confidence-weighted averaging) — it is deliberately NOT what gates `bpm`/
+ * confidence-weighted averaging); it is deliberately NOT what gates `bpm`/
  * `hrvRmssd` to null. `canPublish`/`publishBpm` already encode the SDK's own,
  * more complete trust decision (face presence, framing, motion, signal
- * quality — see `rppgGating.ts`); re-deriving that from `confidence` alone in
+ * quality, see `rppgGating.ts`); re-deriving that from `confidence` alone in
  * each app is exactly the kind of independent re-implementation that caused
  * this bug in the first place.
  *
  * `hrvRmssd` is gated by TWO decisions composed together, not `canPublish`
  * alone. `canPublish` is BPM-oriented; HRV needs a strictly tighter bar,
- * because beat-to-beat timing is far more fragile than an average rate — a
+ * because beat-to-beat timing is far more fragile than an average rate: a
  * sample can clear the BPM quality floor and still carry a garbage HRV
  * figure. `trustedHrvSample` (`hrvSampleTrust.ts`) owns exactly that second,
  * HRV-specific gate. Surfacing HRV off the BPM gate alone would silently

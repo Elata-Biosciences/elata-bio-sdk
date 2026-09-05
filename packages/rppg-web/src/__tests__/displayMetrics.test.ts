@@ -35,7 +35,7 @@ describe("resolveDisplayMetrics", () => {
 		// The gap a reviewer caught: HRV's beat-to-beat timing is far more
 		// fragile than BPM's average rate, so a sample can clear canPublish and
 		// still carry a garbage HRV figure. trustedHrvSample owns this second,
-		// stricter gate — composed here, not re-derived.
+		// stricter gate, composed here, not re-derived.
 		const result = resolveDisplayMetrics(
 			fixture({
 				canPublish: true,
@@ -93,7 +93,7 @@ describe("resolveDisplayMetrics", () => {
 		expect(result.confidence).toBe("low");
 	});
 
-	test("has no state to hold a value past the snapshot that nulled it — two calls in a row reflect each snapshot independently", () => {
+	test("has no state to hold a value past the snapshot that nulled it: two calls in a row reflect each snapshot independently", () => {
 		// This is the property that makes the neural-chat-app bug structurally
 		// impossible here: there is no accumulator to carry a prior good value
 		// forward once canPublish goes false.

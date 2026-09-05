@@ -9,7 +9,7 @@ describe("calibrationStage", () => {
 		progressPct: 0,
 	};
 
-	test('is "positioning" when conditions are not good — no progress on bad data', () => {
+	test('is "positioning" when conditions are not good: no progress on bad data', () => {
 		expect(calibrationStage({ ...base, conditionsGood: false })).toBe("positioning");
 		// Bad conditions win even after progress accrues or the read looks trusted
 		// (e.g. drifting out of frame mid-scan).
@@ -88,7 +88,7 @@ describe("calibrationStage", () => {
 		/**
 		 * Reported 2026-08-02: numbers come back too high when calibrating in the
 		 * dark, and the reading starts before the light has adapted. This stage
-		 * exists so nothing is gathered — and nothing is BLAMED ON THE READER —
+		 * exists so nothing is gathered, and nothing is BLAMED ON THE READER,
 		 * while the app's own fill-light and the camera's exposure are still
 		 * moving.
 		 */
@@ -98,7 +98,7 @@ describe("calibrationStage", () => {
 			);
 		});
 
-		test("wins over acquiring and calibrating too — any accrual during this window is what broke", () => {
+		test("wins over acquiring and calibrating too: any accrual during this window is what broke", () => {
 			expect(calibrationStage({ ...base, progressPct: 0, adaptingLight: true })).toBe(
 				"adapting-light",
 			);
@@ -110,7 +110,7 @@ describe("calibrationStage", () => {
 			).toBe("adapting-light");
 		});
 
-		test("never displaces pause or lock — those are more true than \"still adjusting\"", () => {
+		test("never displaces pause or lock: those are more true than \"still adjusting\"", () => {
 			expect(calibrationStage({ ...base, paused: true, adaptingLight: true })).toBe("paused");
 			expect(calibrationStage({ ...base, locked: true, adaptingLight: true })).toBe("locked");
 			expect(calibrationStage({ ...base, armed: false, adaptingLight: true })).toBe("ready");
