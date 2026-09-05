@@ -357,6 +357,7 @@ export {
 	initialLiveness,
 	observeFrame,
 	pastStartupGrace,
+	shouldDeclareNoFrame,
 	sameSignature,
 	signatureOf,
 } from "./cameraLiveness";

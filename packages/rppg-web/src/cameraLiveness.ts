@@ -83,36 +83,66 @@ export const FROZEN_MS = 2000;
 export const STARTUP_GRACE_MS = FROZEN_MS * 2;
 
 export type Liveness = {
-  /** The last picture we saw, or null before the first sample. */
-  readonly signature: readonly number[] | null;
-  /** When the picture last differed from the one before it. */
-  readonly changedAt: number;
-  /** When the first sample was taken. Fixed for the life of one session, so
-   *  the startup grace is measured from arming, not from the last change. */
-  readonly startedAt: number;
-  /** Nothing has changed for {@link FROZEN_MS}, and we are past
-   *  {@link STARTUP_GRACE_MS}. */
-  readonly frozen: boolean;
+	/** The last picture we saw, or null before the first sample. */
+	readonly signature: readonly number[] | null;
+	/** When the picture last differed from the one before it. */
+	readonly changedAt: number;
+	/** When the first sample was taken. Fixed for the life of one session, so
+	 *  the startup grace is measured from arming, not from the last change. */
+	readonly startedAt: number;
+	/** Nothing has changed for {@link FROZEN_MS}, and we are past
+	 *  {@link STARTUP_GRACE_MS}. */
+	readonly frozen: boolean;
 };
 
 export function initialLiveness(nowMs: number): Liveness {
-  return { signature: null, changedAt: nowMs, startedAt: nowMs, frozen: false };
+	return { signature: null, changedAt: nowMs, startedAt: nowMs, frozen: false };
 }
 
 /**
  * Has enough time passed since the first sample to trust a stillness verdict?
  *
- * Pulled out of `observeFrame` so a caller that has NOT received a single
- * frame yet can apply the same grace period. `observeFrame` can only judge
- * "same picture as before", which needs a frame to exist in the first place.
- * A track that delivers literally zero frames (getUserMedia resolves,
- * getSettings() reports a plausible negotiation, but no decodable frame ever
- * arrives, measured on real hardware in peak-app via its cameraSweep.ts) is
- * invisible to it. That case needs this same threshold applied to
- * elapsed-time-with-no-frame instead of elapsed-time-with-no-CHANGE.
+ * Pulled out of `observeFrame` so `shouldDeclareNoFrame` (below) can apply
+ * the same grace period to a caller that has NOT received a single frame
+ * yet. `observeFrame` can only judge "same picture as before", which needs a
+ * frame to exist in the first place, a track that delivers literally zero
+ * frames (getUserMedia resolves, getSettings() reports a plausible
+ * negotiation, but no decodable frame ever arrives; measured on real
+ * hardware in peak-app via its cameraSweep.ts) is invisible to it.
+ *
+ * A zero-frame caller should use `shouldDeclareNoFrame`, not this function
+ * directly: this alone only measures elapsed time, and elapsed time alone
+ * cannot tell "never started" apart from "started fine a while ago, missed
+ * one tick" once the grace period has cleared. Exported because
+ * `observeFrame`'s own frozen check also needs it.
  */
 export function pastStartupGrace(startedAtMs: number, nowMs: number): boolean {
-  return nowMs - startedAtMs >= STARTUP_GRACE_MS;
+	return nowMs - startedAtMs >= STARTUP_GRACE_MS;
+}
+
+/**
+ * Should a video element with no decodable frame right now be declared "never
+ * started" and torn down for a reacquire?
+ *
+ * Only when NO frame has EVER been sampled this session ({@link
+ * Liveness.signature} still `null`): `startedAt` is fixed at arming and never
+ * moves once a real frame lands, so `pastStartupGrace` alone stays true for
+ * the rest of the session. Without the signature check, a single missed tick
+ * long after a healthy session was already producing real frames (a busy
+ * main thread during heavy rPPG/WASM work, e.g.) reads identically to a
+ * track that never delivered anything, and forces a destructive reacquire in
+ * the middle of an otherwise-fine reading. Found independently in both
+ * consumer forks of this module (peak-app and vitality-app) before either
+ * had migrated onto this package, which is the reason this fix lives here
+ * now instead of a third time in a third fork.
+ */
+export function shouldDeclareNoFrame(
+	liveness: Liveness,
+	nowMs: number,
+): boolean {
+	return (
+		liveness.signature === null && pastStartupGrace(liveness.startedAt, nowMs)
+	);
 }
 
 /**
@@ -122,18 +152,21 @@ export function pastStartupGrace(startedAtMs: number, nowMs: number): boolean {
  * it would be a quarter of the comparison spent on a constant.
  */
 export function signatureOf(pixels: ArrayLike<number>): number[] {
-  const out: number[] = [];
-  for (let i = 0; i + 2 < pixels.length; i += 4) {
-    out.push(pixels[i], pixels[i + 1], pixels[i + 2]);
-  }
-  return out;
+	const out: number[] = [];
+	for (let i = 0; i + 2 < pixels.length; i += 4) {
+		out.push(pixels[i], pixels[i + 1], pixels[i + 2]);
+	}
+	return out;
 }
 
 /** Exact equality. One count of difference in one sample is a living camera. */
-export function sameSignature(a: readonly number[], b: readonly number[]): boolean {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
-  return true;
+export function sameSignature(
+	a: readonly number[],
+	b: readonly number[],
+): boolean {
+	if (a.length !== b.length) return false;
+	for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+	return true;
 }
 
 /**
@@ -143,18 +176,23 @@ export function sameSignature(a: readonly number[], b: readonly number[]): boole
  * a camera, a dark room, or a timer.
  */
 export function observeFrame(
-  prev: Liveness,
-  signature: readonly number[],
-  nowMs: number,
+	prev: Liveness,
+	signature: readonly number[],
+	nowMs: number,
 ): Liveness {
-  if (prev.signature === null || !sameSignature(prev.signature, signature)) {
-    return { signature, changedAt: nowMs, startedAt: prev.startedAt, frozen: false };
-  }
-  const past = pastStartupGrace(prev.startedAt, nowMs);
-  return {
-    signature: prev.signature,
-    changedAt: prev.changedAt,
-    startedAt: prev.startedAt,
-    frozen: past && nowMs - prev.changedAt >= FROZEN_MS,
-  };
+	if (prev.signature === null || !sameSignature(prev.signature, signature)) {
+		return {
+			signature,
+			changedAt: nowMs,
+			startedAt: prev.startedAt,
+			frozen: false,
+		};
+	}
+	const past = pastStartupGrace(prev.startedAt, nowMs);
+	return {
+		signature: prev.signature,
+		changedAt: prev.changedAt,
+		startedAt: prev.startedAt,
+		frozen: past && nowMs - prev.changedAt >= FROZEN_MS,
+	};
 }
