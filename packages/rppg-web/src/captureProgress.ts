@@ -1,7 +1,7 @@
 /**
  * How full the calibration ring is, and how strict the reading is being.
  *
- * This is the arithmetic behind a number the reader watches for ten seconds —
+ * This is the arithmetic behind a number the reader watches for ten seconds;
  * every symptom addressed below was reported by a real user and none of it
  * was visible from reading a component alone.
  */

@@ -104,10 +104,10 @@ export function initialLiveness(nowMs: number): Liveness {
  *
  * Pulled out of `observeFrame` so a caller that has NOT received a single
  * frame yet can apply the same grace period. `observeFrame` can only judge
- * "same picture as before", which needs a frame to exist in the first place —
- * a track that delivers literally zero frames (getUserMedia resolves,
+ * "same picture as before", which needs a frame to exist in the first place.
+ * A track that delivers literally zero frames (getUserMedia resolves,
  * getSettings() reports a plausible negotiation, but no decodable frame ever
- * arrives — measured on real hardware in peak-app via its cameraSweep.ts) is
+ * arrives, measured on real hardware in peak-app via its cameraSweep.ts) is
  * invisible to it. That case needs this same threshold applied to
  * elapsed-time-with-no-frame instead of elapsed-time-with-no-CHANGE.
  */

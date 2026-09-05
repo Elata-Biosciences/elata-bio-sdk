@@ -63,7 +63,7 @@ describe("a substituted still image is caught", () => {
 		// threshold, because the glyph on it is bright. It is caught by being STILL.
 		// Armed at t=14000 (an arbitrary time well after page load), so the
 		// startup grace measured from THIS session's first frame has already
-		// cleared by the time the freeze is asserted below — a mid-session
+		// cleared by the time the freeze is asserted below: a mid-session
 		// freeze, not a driver warming up.
 		// Since the very first frame of THIS session never changes, `changedAt`
 		// stays pinned to `armedAt` too, so STARTUP_GRACE_MS (the larger of the
@@ -113,7 +113,7 @@ describe("a driver warming up is not accused", () => {
 		// The anti-vacuity partner: the startup grace must not become a licence to
 		// never accuse a camera that is covered from t=0. Since the very first
 		// frame never changes, `changedAt` stays at 0 too, so STARTUP_GRACE_MS
-		// (4000ms) is the binding constraint here, not FROZEN_MS (2000ms) — by the
+		// (4000ms) is the binding constraint here, not FROZEN_MS (2000ms); by the
 		// time the grace window clears, the identical streak has already run
 		// longer than FROZEN_MS regardless.
 		const covered = flat(0);
@@ -130,7 +130,7 @@ describe("pastStartupGrace", () => {
 	test("is false before STARTUP_GRACE_MS has elapsed, true at and past it", () => {
 		// Shared by observeFrame's own frozen check and by the zero-frames-ever
 		// case a consumer (e.g. peak-app's CameraPreview.tsx) has no signature
-		// to compare and so cannot call observeFrame at all — one threshold,
+		// to compare and so cannot call observeFrame at all, one threshold,
 		// two callers.
 		expect(pastStartupGrace(1000, 1000 + STARTUP_GRACE_MS - 1)).toBe(false);
 		expect(pastStartupGrace(1000, 1000 + STARTUP_GRACE_MS)).toBe(true);

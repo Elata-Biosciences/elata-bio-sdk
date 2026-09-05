@@ -11,15 +11,15 @@ import { Bandpass, ChromPulseModel, spectralSnr } from "./rppgSignalModel";
  *
  * ## Where the weights get applied, and why it's not the obvious place
  *
- * The weights are applied to the raw RGB averages, before CHROM — not to the
+ * The weights are applied to the raw RGB averages, before CHROM, not to the
  * per-ROI CHROM outputs after the fact. Chari et al. ("Diverse R-PPG: Camera-
  * Based Heart Rate Estimation for Diverse Subject Skin-Tones and Scenes")
- * benchmarked exactly the alternative — weighting already-extracted per-ROI
- * pulse signals by their own SNR — against a diverse-skin-tone dataset and
+ * benchmarked exactly the alternative (weighting already-extracted per-ROI
+ * pulse signals by their own SNR) against a diverse-skin-tone dataset and
  * found it *increases* skin-tone bias relative to plain unweighted spatial
  * averaging. The mechanism: darker skin reflects less light, so the raw pixel
  * intensity is lower, so the photon/read-noise floor of the SENSOR (not the
- * physiology) already lowers that region's post-processing SNR — the paper's
+ * physiology) already lowers that region's post-processing SNR. The paper's
  * own noise analysis shows this bias is a camera-noise effect, not a
  * biophysical one (SIR is melanin-independent once light transport is
  * modelled). Weighting by that SNR after independently filtering each region
@@ -28,17 +28,17 @@ import { Bandpass, ChromPulseModel, spectralSnr } from "./rppgSignalModel";
  * before the region gets a fair chance to contribute.
  *
  * So: raw per-ROI RGB averages are combined into ONE weighted spatial average
- * first (the SNR-driven weights below still decide the mix — same weighting
+ * first (the SNR-driven weights below still decide the mix, same weighting
  * logic as before, only where it's applied moved), and a single shared CHROM +
  * bandpass pipeline runs on that blended stream. This is the RGB-space
  * weighting Chari et al. show closes most of the gap; per-ROI CHROM/bandpass
  * still runs independently per region (see `chrom`/`band` below) purely as
- * the SNR probe that drives the weights — it no longer feeds the fused output
+ * the SNR probe that drives the weights. It no longer feeds the fused output
  * directly.
  *
  * Honest limit: this ports the paper's RGB-space-weighting recommendation,
  * not its second, larger recommendation (an explicit skin-diffuse-component
- * weight derived from per-pixel specular-highlight detection) — this module
+ * weight derived from per-pixel specular-highlight detection). This module
  * only ever receives an already-averaged `RoiRgbSample` per region per frame,
  * not the raw per-pixel data specular detection would need. That's a bigger
  * change, tracked separately, not silently implied to already be done here.
@@ -69,7 +69,7 @@ export interface MultiRoiFusionResult {
 	/** Per-ROI in-band spectral SNR (linear) from the last weight update. */
 	snr: Record<FusionRoiName, number>;
 	/**
-	 * In-band spectral SNR (linear) of the *fused* signal — the quality scalar
+	 * In-band spectral SNR (linear) of the *fused* signal: the quality scalar
 	 * that should gate HR/HRV display. ~1 means no usable pulse.
 	 */
 	fusedSnr: number;
@@ -138,7 +138,7 @@ export class MultiRoiRppgFuser {
 		this.frame++;
 
 		// Per-ROI CHROM + bandpass still runs on every present region, but only as
-		// the SNR probe `updateWeights` reads below — it no longer feeds `fused`
+		// the SNR probe `updateWeights` reads below; it no longer feeds `fused`
 		// directly (see the module doc comment for why).
 		for (const roi of FUSION_ROIS) {
 			const s = samples[roi];
@@ -225,7 +225,7 @@ export class MultiRoiRppgFuser {
 		if (total > 0) {
 			for (const roi of FUSION_ROIS) target[roi] = raw[roi] / total;
 		} else {
-			// No region has a usable peak yet — fall back to equal weighting.
+			// No region has a usable peak yet, so fall back to equal weighting.
 			for (const roi of FUSION_ROIS) target[roi] = 1 / FUSION_ROIS.length;
 		}
 

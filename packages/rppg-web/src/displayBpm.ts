@@ -17,7 +17,7 @@ import { shouldAllowDisplayJumpReset } from "./displayGuard";
  * number for a cycle with no trusted value at all, is the deprecated part.
  *
  * The trusted/gated BPM that feeds baseline and state should change slowly and
- * only when confidence is high — but a UI readout that goes blank or freezes
+ * only when confidence is high, but a UI readout that goes blank or freezes
  * whenever the gate suppresses a frame looks broken. {@link DisplayBpmTracker}
  * maintains a number that keeps moving every cycle:
  *
@@ -26,7 +26,7 @@ import { shouldAllowDisplayJumpReset } from "./displayGuard";
  *  - **jump protection** ignores a >30 bpm jump from the smoothed value unless a
  *    sustained, self-consistent distant rate is seen for several cycles
  *    (persistent-disagreement catch-up) or a high-confidence tracker / reference
- *    allows it — this frees the display from a wrong initial seed without
+ *    allows it. This frees the display from a wrong initial seed without
  *    chasing transient artifacts, and
  *  - {@link hold} keeps the readout live (preferring the tracker estimate, else
  *    the last shown value) on cycles the caller suppresses entirely.

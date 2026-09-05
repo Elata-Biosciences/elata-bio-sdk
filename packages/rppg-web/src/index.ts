@@ -327,7 +327,7 @@ export type {
 } from "./rppgGating";
 // --- Reliability-gating surface (elata-bio-sdk#405): every rule that decides
 // whether an rPPG number is trustworthy enough to show, gather, or average.
-// Extracted so three independent consumer apps stop hand-copying it — see
+// Extracted so three independent consumer apps stop hand-copying it. See
 // resolveDisplayMetrics above and elata-bio-sdk#24 for the failure history.
 export { HRV_TRUST_QUALITY_MIN, trustedHrvSample } from "./hrvSampleTrust";
 export {

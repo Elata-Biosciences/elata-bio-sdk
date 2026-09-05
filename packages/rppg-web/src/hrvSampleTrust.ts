@@ -5,11 +5,11 @@
  * low." Traced as far as this codebase can trace it: `hrv_rmssd` comes
  * straight from `@elata-biosciences/rppg-web` (the SDK's own doc calls it
  * "Experimental"), range-clamped in `rppg.ts` and otherwise passed through
- * unmodified — no bug in the number itself, and nothing here can improve the
+ * unmodified: no bug in the number itself, and nothing here can improve the
  * vendored SDK's estimate.
  *
  * What IS this codebase's to fix: the SDK's `BaselineCalibrator` rejects
- * outlier SAMPLES by BPM distance only (`outlierBpm`) — a frame can pass that
+ * outlier SAMPLES by BPM distance only (`outlierBpm`), so a frame can pass that
  * gate on a perfectly good beat-rate estimate while its HRV figure, which
  * needs precise beat-to-BEAT timing rather than just an average rate, is
  * garbage. rMSSD is far more sensitive to a single misdetected beat than BPM
@@ -29,8 +29,8 @@
  */
 
 /**
- * Higher than the 0.24 floor BPM gathers at. Not derived from a measurement —
- * there is no way to derive it from one without reference HRV data — chosen
+ * Higher than the 0.24 floor BPM gathers at. Not derived from a measurement:
+ * there is no way to derive it from one without reference HRV data. Chosen
  * as a meaningfully stricter bar (avoids the noisiest third of the accepted-
  * for-BPM range) rather than an arbitrary-looking number close to the BPM
  * floor that would barely change anything.
