@@ -142,10 +142,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # No `version:` here on purpose. package.json carries
+      # "packageManager": "pnpm@10.33.2", and pnpm/action-setup refuses to run
+      # when both are set ("Multiple versions of pnpm specified: ... Remove one
+      # of these versions"). The pin here had drifted to 10.31.0 while
+      # packageManager moved to 10.33.2, which failed every web job in this
+      # workflow before a single test could run. packageManager is the single
+      # source of truth; bumping it is now enough.
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10.31.0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -181,10 +186,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # No `version:` here on purpose. package.json carries
+      # "packageManager": "pnpm@10.33.2", and pnpm/action-setup refuses to run
+      # when both are set ("Multiple versions of pnpm specified: ... Remove one
+      # of these versions"). The pin here had drifted to 10.31.0 while
+      # packageManager moved to 10.33.2, which failed every web job in this
+      # workflow before a single test could run. packageManager is the single
+      # source of truth; bumping it is now enough.
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10.31.0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -234,10 +244,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # No `version:` here on purpose. package.json carries
+      # "packageManager": "pnpm@10.33.2", and pnpm/action-setup refuses to run
+      # when both are set ("Multiple versions of pnpm specified: ... Remove one
+      # of these versions"). The pin here had drifted to 10.31.0 while
+      # packageManager moved to 10.33.2, which failed every web job in this
+      # workflow before a single test could run. packageManager is the single
+      # source of truth; bumping it is now enough.
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10.31.0
 
       - name: Setup Node
         uses: actions/setup-node@v4
