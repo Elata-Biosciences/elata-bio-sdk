@@ -156,6 +156,47 @@ Pick the smallest verification that matches the change:
 If a change touches generated WASM, publish packaging, or repo task orchestration,
 verify more broadly than the edited file suggests.
 
+## Cost Discipline
+
+This repo is PUBLIC, so GitHub Actions minutes here are free. That is a real
+difference from the consumer apps (`peak-app`, `vitality-app` and
+`neural-chat-app` are private and their minutes bill), and it means CI cost
+here is paid in wall-clock and reviewer patience rather than dollars. Still
+worth not wasting.
+
+- **Match the command to the change.** `./run.sh test` runs the Rust suites AND
+  the web suites. `pnpm verify:all` runs `verify:publish` across nine packages.
+  Neither is the right response to editing one TypeScript file. Run the
+  narrowest thing that can fail: `pnpm test` inside the one package, or
+  `cargo test -p <crate>` for one crate.
+- **Pin the tool version when node_modules is not installed.** The root
+  `node_modules` is often absent in a fresh clone, and then `npx biome`
+  resolves an unrelated package that is also called `biome`, while
+  `npx @biomejs/biome` resolves latest and rejects this repo's 1.x config. Use
+  `npx --yes @biomejs/biome@1.9.4` to match the pinned devDependency, or run
+  `pnpm install` first.
+- **`cargo install wasm-bindgen-cli --locked` is not cached and runs in three
+  separate jobs** (`build-wasm`, `package-pack-check`, `consumer-smoke`),
+  measured at roughly 100 seconds each. That is about five minutes per CI run
+  spent rebuilding the same tool. Caching it, or building it once and passing
+  it as an artifact the way the WASM output already is, is the obvious win for
+  anyone touching this workflow.
+- **The Rust test matrix is 8 crates times 2 operating systems, so 16 jobs,**
+  half on `macos-latest`. Free here. It is also the shape NOT to copy into a
+  private repo, where macOS runners bill at a large multiple of Linux.
+- **Confirm a red check is yours before chasing it.** `Format check` (rustfmt)
+  and `Clippy` have been failing on `main` for unrelated pre-existing reasons.
+  Check whether a failure reproduces on `main` first.
+- **Publishing is the expensive, irreversible step.** A release bundles every
+  pending changeset in `.changeset/`, not only yours. Never run the version or
+  publish flow just to get your own change out; that decision belongs to
+  whoever owns the release.
+
+Full reasoning behind this posture is in `peak-app`'s CLAUDE.md under "Effort
+and cost policy". There is NO account-level `~/.claude/CLAUDE.md` in a remote
+container, so nothing is inherited automatically. Per-repo files like this one
+are the only guidance that travels.
+
 ## When To Edit Which Doc
 
 - Edit [README.md](README.md) for repo entry points, package inventory, and high-level workflows.
