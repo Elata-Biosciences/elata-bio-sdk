@@ -85,7 +85,8 @@ export function normalizeRppgError(
 		return {
 			code: "canvas_unavailable",
 			phase,
-			message: "This browser could not create the canvas context needed for rPPG sampling.",
+			message:
+				"This browser could not create the canvas context needed for rPPG sampling.",
 			detail,
 			guidance:
 				"Confirm the browser supports 2D canvas capture for the current video surface, then retry.",
@@ -128,7 +129,8 @@ export function normalizeRppgError(
 			return {
 				code: "camera_not_playing",
 				phase: "runtime",
-				message: "The camera stream opened, but the video element never started playing.",
+				message:
+					"The camera stream opened, but the video element never started playing.",
 				detail,
 				guidance:
 					"Confirm the video element is attached to the stream, autoplay is allowed, and playback has started before creating the session.",

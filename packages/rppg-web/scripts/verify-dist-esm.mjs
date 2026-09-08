@@ -8,7 +8,10 @@ import assert from "node:assert/strict";
 const packageRoot = process.cwd();
 const distIndex = path.join(packageRoot, "dist", "index.js");
 
-assert.ok(fs.existsSync(distIndex), "dist/index.js must exist before ESM verification");
+assert.ok(
+	fs.existsSync(distIndex),
+	"dist/index.js must exist before ESM verification",
+);
 
 const source = fs.readFileSync(distIndex, "utf8");
 assert.match(

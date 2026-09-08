@@ -11,13 +11,7 @@
 	},
 	"homepage": "https://github.com/Elata-Biosciences/elata-bio-sdk#readme",
 	"bugs": "https://github.com/Elata-Biosciences/elata-bio-sdk/issues",
-	"keywords": [
-		"elata",
-		"appstore",
-		"metrics",
-		"sandbox",
-		"indexeddb"
-	],
+	"keywords": ["elata", "appstore", "metrics", "sandbox", "indexeddb"],
 	"engines": {
 		"node": ">=20"
 	},
@@ -35,11 +29,7 @@
 			"import": "./dist/host.js"
 		}
 	},
-	"files": [
-		"dist",
-		"README.md",
-		"llms.txt"
-	],
+	"files": ["dist", "README.md", "llms.txt"],
 	"publishConfig": {
 		"access": "public"
 	},

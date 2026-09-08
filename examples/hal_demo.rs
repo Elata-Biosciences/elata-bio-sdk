@@ -8,8 +8,8 @@
 //!
 //! Run with: cargo run --example hal_demo
 
-use elata_eeg_hal::{EegDevice, SampleBuffer};
 use elata_dev_eeg_synthetic::{NoiseLevel, SignalProfile, SyntheticDevice};
+use elata_eeg_hal::{EegDevice, SampleBuffer};
 use elata_eeg_models::{AlphaBumpDetector, CalmnessModel, Model, ModelOutput};
 
 fn main() {

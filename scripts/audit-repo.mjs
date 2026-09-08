@@ -185,9 +185,15 @@ const workspacePackagesDir = path.join(repoRoot, "packages");
 const workspacePackages = new Map();
 
 if (fs.existsSync(workspacePackagesDir)) {
-	for (const entry of fs.readdirSync(workspacePackagesDir, { withFileTypes: true })) {
+	for (const entry of fs.readdirSync(workspacePackagesDir, {
+		withFileTypes: true,
+	})) {
 		if (!entry.isDirectory()) continue;
-		const packageJsonRel = path.posix.join("packages", entry.name, "package.json");
+		const packageJsonRel = path.posix.join(
+			"packages",
+			entry.name,
+			"package.json",
+		);
 		if (!exists(packageJsonRel)) continue;
 		const manifest = JSON.parse(readText(packageJsonRel));
 		if (typeof manifest.name === "string" && manifest.name.length > 0) {

@@ -51,4 +51,3 @@ export function asElataError(
 		details: { ...(fallback.details || {}), original: value },
 	});
 }
-

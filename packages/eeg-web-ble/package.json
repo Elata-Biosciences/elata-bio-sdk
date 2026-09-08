@@ -34,11 +34,7 @@
 			"import": "./dist/index.js"
 		}
 	},
-	"files": [
-		"dist",
-		"README.md",
-		"llms.txt"
-	],
+	"files": ["dist", "README.md", "llms.txt"],
 	"publishConfig": {
 		"access": "public"
 	},

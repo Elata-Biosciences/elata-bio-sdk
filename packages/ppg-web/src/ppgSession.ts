@@ -74,7 +74,9 @@ export class PpgSession {
 			transportStatus: this.lastStatus,
 			lastFrameAtMs: debug.lastFrameAtMs,
 			lastFrameAgeMs:
-				debug.lastFrameAtMs != null ? Math.max(0, nowMs - debug.lastFrameAtMs) : null,
+				debug.lastFrameAtMs != null
+					? Math.max(0, nowMs - debug.lastFrameAtMs)
+					: null,
 			lastSampleTimestampMs: metrics.lastSampleTimestampMs,
 			lastSampleAgeMs:
 				metrics.lastSampleTimestampMs != null

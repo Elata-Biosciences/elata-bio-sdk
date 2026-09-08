@@ -81,7 +81,10 @@ for (const file of files) {
 	}
 	const s = summarizeReplaySession(session);
 	summaries.push(s);
-	const name = basename(file).replace(/\.json$/, "").slice(0, 38).padEnd(38);
+	const name = basename(file)
+		.replace(/\.json$/, "")
+		.slice(0, 38)
+		.padEnd(38);
 	console.log(
 		`${name} ${String(s.syncSampleCount).padStart(5)} ${String(s.cleanPointCount).padStart(5)} | ` +
 			`${fmt(maeOf(s.cleanAgreementFinal))}      ${fmt(maeOf(s.agreementBayes))} | ` +

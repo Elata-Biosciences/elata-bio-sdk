@@ -72,7 +72,8 @@ export function faceFramingFromBox(
 	box: FaceBox | null,
 	t: FramingThresholds = DEFAULT_FRAMING_THRESHOLDS,
 ): FramingGuidance {
-	if (box == null) return { code: "no_face", message: FRAMING_MESSAGES.no_face };
+	if (box == null)
+		return { code: "no_face", message: FRAMING_MESSAGES.no_face };
 
 	if (box.width > t.maxWidth)
 		return { code: "move_back", message: FRAMING_MESSAGES.move_back };

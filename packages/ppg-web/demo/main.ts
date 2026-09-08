@@ -22,9 +22,8 @@ const windowEl = getEl<HTMLSpanElement>("window");
 const framesEl = getEl<HTMLSpanElement>("frames");
 const waveform = getEl<HTMLCanvasElement>("waveform");
 
-let activeSession:
-	| Awaited<ReturnType<typeof initPpgDemo>>["session"]
-	| null = null;
+let activeSession: Awaited<ReturnType<typeof initPpgDemo>>["session"] | null =
+	null;
 type DemoWindow = Window & { __ppgAthenaInitError?: string };
 
 function fmt(value: number | null, digits = 0, suffix = ""): string {
@@ -37,12 +36,10 @@ function clamp(value: number, min: number, max: number): number {
 	return Math.min(max, Math.max(min, value));
 }
 
-function smoothDisplayValues(
-	values: number[],
-	windowSize: number,
-): number[] {
+function smoothDisplayValues(values: number[], windowSize: number): number[] {
 	if (values.length <= 2) return values.slice();
-	const normalizedWindowSize = windowSize % 2 === 0 ? windowSize + 1 : windowSize;
+	const normalizedWindowSize =
+		windowSize % 2 === 0 ? windowSize + 1 : windowSize;
 	const radius = Math.floor(normalizedWindowSize / 2);
 	const smoothed: number[] = [];
 
@@ -89,7 +86,9 @@ function prepareDisplayValues(
 	);
 
 	const baseline = smoothDisplayValues(rawValues, baselineWindow);
-	const detrended = rawValues.map((value, index) => value - (baseline[index] ?? 0));
+	const detrended = rawValues.map(
+		(value, index) => value - (baseline[index] ?? 0),
+	);
 	const smoothed = smoothDisplayValues(detrended, visibleSmoothingWindow);
 
 	const magnitudes = smoothed
@@ -110,7 +109,8 @@ function drawWaveform() {
 	}
 
 	const trace = session.getTraceSnapshot(320);
-	const sampleRate = trace.sampleRateHz && trace.sampleRateHz > 0 ? trace.sampleRateHz : 64;
+	const sampleRate =
+		trace.sampleRateHz && trace.sampleRateHz > 0 ? trace.sampleRateHz : 64;
 	const visiblePointCount = Math.max(
 		48,
 		Math.min(trace.points.length, Math.round(sampleRate * 6)),
@@ -136,7 +136,11 @@ function drawWaveform() {
 		ctx.beginPath();
 		visiblePoints.forEach((point, index) => {
 			const x = (index / (visiblePoints.length - 1)) * waveform.width;
-			const normalizedValue = clamp(displayValues[index] ?? 0, visualMin, visualMax);
+			const normalizedValue = clamp(
+				displayValues[index] ?? 0,
+				visualMin,
+				visualMax,
+			);
 			const y =
 				waveform.height * 0.1 +
 				((visualMax - normalizedValue) / visualRange) * waveform.height * 0.8;

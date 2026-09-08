@@ -55,4 +55,3 @@ if (!fs.existsSync(distDir)) {
 
 walk(distDir);
 console.log("[eeg-web] Rewrote dist relative import specifiers for Node ESM.");
-

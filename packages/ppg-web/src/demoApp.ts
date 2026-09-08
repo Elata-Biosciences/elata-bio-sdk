@@ -9,9 +9,7 @@ type DemoWindow = Window & {
 	__ppgAthenaInitError?: string;
 };
 
-export async function initPpgDemo(
-	options: CreateMusePpgSessionOptions = {},
-) {
+export async function initPpgDemo(options: CreateMusePpgSessionOptions = {}) {
 	const demoWindow = window as DemoWindow;
 	const athenaDecoderFactory =
 		options.deviceOptions?.athenaDecoderFactory ??
@@ -32,15 +30,21 @@ export async function initPpgDemo(
 		...sessionOptions,
 	});
 
-	(window as Window & {
-		__ppg_demo?: Record<string, unknown>;
-		__ppgAthenaInitError?: string;
-	}).__ppg_demo = {
+	(
+		window as Window & {
+			__ppg_demo?: Record<string, unknown>;
+			__ppgAthenaInitError?: string;
+		}
+	).__ppg_demo = {
 		session,
 		transport: session.transport,
 		processor: session.processor,
 		athenaInitError: demoWindow.__ppgAthenaInitError,
 	};
 
-	return { session, transport: session.transport, processor: session.processor };
+	return {
+		session,
+		transport: session.transport,
+		processor: session.processor,
+	};
 }

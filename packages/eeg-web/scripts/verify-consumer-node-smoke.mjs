@@ -39,18 +39,12 @@ function packPackage() {
 	// (which can run heavy WASM/demo verification).
 	// When invoked from `pnpm pack --dry-run`, pnpm propagates `npm_config_dry_run=true`
 	// into nested npm commands; force real packing here.
-	const output = run(
-		"npm",
-		["pack", "--ignore-scripts"],
-		packageRoot,
-		true,
-		{
-			npm_config_dry_run: "false",
-			NPM_CONFIG_DRY_RUN: "false",
-			npm_config_cache: npmCacheDir,
-			NPM_CONFIG_CACHE: npmCacheDir,
-		},
-	);
+	const output = run("npm", ["pack", "--ignore-scripts"], packageRoot, true, {
+		npm_config_dry_run: "false",
+		NPM_CONFIG_DRY_RUN: "false",
+		npm_config_cache: npmCacheDir,
+		NPM_CONFIG_CACHE: npmCacheDir,
+	});
 	// `npm pack` output can become JSON-ified under some pnpm pack contexts.
 	// Extract the bare tarball filename robustly (no surrounding quotes).
 	const matches = output.match(/([A-Za-z0-9][A-Za-z0-9@._-]*\.tgz)/g);
@@ -69,7 +63,14 @@ function extractTarball(tarballPath, destinationDir) {
 	fs.mkdirSync(destinationDir, { recursive: true });
 	run(
 		"tar",
-		["-xzf", tarballPath, "-C", destinationDir, "--strip-components=1", "package"],
+		[
+			"-xzf",
+			tarballPath,
+			"-C",
+			destinationDir,
+			"--strip-components=1",
+			"package",
+		],
 		packageRoot,
 	);
 }
@@ -78,8 +79,11 @@ function writeConsumerApp(appDir) {
 	fs.mkdirSync(appDir, { recursive: true });
 	fs.writeFileSync(
 		path.join(appDir, "package.json"),
-		JSON.stringify({ name: "eeg-web-consumer-node-smoke", private: true, type: "module" }) +
-			"\n",
+		JSON.stringify({
+			name: "eeg-web-consumer-node-smoke",
+			private: true,
+			type: "module",
+		}) + "\n",
 	);
 	fs.writeFileSync(
 		path.join(appDir, "app.mjs"),

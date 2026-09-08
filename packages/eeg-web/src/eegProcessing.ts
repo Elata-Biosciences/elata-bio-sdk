@@ -68,7 +68,7 @@ function normalizeReference(
 	channelNames: string[],
 ): WasmEegProcessingConfig["reference"] {
 	const referenceOptions =
-		typeof reference === "string" ? { mode: reference } : reference ?? {};
+		typeof reference === "string" ? { mode: reference } : (reference ?? {});
 	const mode = referenceOptions.mode ?? "common-average";
 	const channels = (referenceOptions.channels ?? [])
 		.map((channel) =>
@@ -84,7 +84,7 @@ function normalizeDetrend(
 	detrend: EegProcessingOptions["detrend"],
 ): WasmEegProcessingConfig["detrend"] {
 	const detrendOptions =
-		typeof detrend === "string" ? { mode: detrend } : detrend ?? {};
+		typeof detrend === "string" ? { mode: detrend } : (detrend ?? {});
 	return {
 		mode: detrendOptions.mode ?? "highpass",
 		cutoff_hz: detrendOptions.cutoffHz ?? 0.5,
@@ -110,8 +110,7 @@ function toInterleaved(block: HeadbandSignalBlock): Float32Array {
 	for (let sampleIdx = 0; sampleIdx < block.samples.length; sampleIdx++) {
 		const row = block.samples[sampleIdx] ?? [];
 		for (let channelIdx = 0; channelIdx < block.channelCount; channelIdx++) {
-			out[sampleIdx * block.channelCount + channelIdx] =
-				row[channelIdx] ?? 0;
+			out[sampleIdx * block.channelCount + channelIdx] = row[channelIdx] ?? 0;
 		}
 	}
 	return out;
@@ -226,14 +225,18 @@ export class EegPreprocessor {
 					inner.detrend_mode(),
 					"highpass",
 				) as HeadbandEegDetrendMode,
-				notchFrequenciesHz: Array.from(inner.notch_frequencies_hz()).map(Number),
+				notchFrequenciesHz: Array.from(inner.notch_frequencies_hz()).map(
+					Number,
+				),
 				stageOrder,
 			},
 		};
 	}
 
 	processFrame(frame: HeadbandFrameV1): HeadbandFrameV1 {
-		const { eeg, eegRaw, eegProcessing } = this.processSignalBlock(frame.eegRaw ?? frame.eeg);
+		const { eeg, eegRaw, eegProcessing } = this.processSignalBlock(
+			frame.eegRaw ?? frame.eeg,
+		);
 		return {
 			...frame,
 			eeg,
@@ -258,7 +261,10 @@ export class EegPreprocessor {
 			const config: WasmEegProcessingConfig = {
 				enabled: this.options.enabled ?? true,
 				preserve_raw: this.options.preserveRaw ?? true,
-				reference: normalizeReference(this.options.reference, block.channelNames),
+				reference: normalizeReference(
+					this.options.reference,
+					block.channelNames,
+				),
 				detrend: normalizeDetrend(this.options.detrend),
 				notch: normalizeNotch(this.options.notch),
 			};

@@ -35,8 +35,7 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 		private video: HTMLVideoElement,
 		private faceLandmarker: FaceLandmarkerLike,
 		private fps = 30,
-		private roiGeometryProfile: RoiGeometryProfile =
-			ELATA_FACE_YCBCR_V1_PROFILE,
+		private roiGeometryProfile: RoiGeometryProfile = ELATA_FACE_YCBCR_V1_PROFILE,
 	) {
 		this.canvas = document.createElement("canvas") as HTMLCanvasElement;
 		this.canvas.width = video.videoWidth || (video as any).width || 320;

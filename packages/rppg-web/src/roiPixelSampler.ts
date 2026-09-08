@@ -156,11 +156,7 @@ export function isYcbcrSkinPixel(r: number, g: number, b: number): boolean {
 	return cb >= 77 && cb <= 127 && cr >= 133 && cr <= 173;
 }
 
-export function isTradeLockSkinPixel(
-	r: number,
-	g: number,
-	b: number,
-): boolean {
+export function isTradeLockSkinPixel(r: number, g: number, b: number): boolean {
 	if (r < 40 || g < 20 || b < 20) return false;
 	const sum = r + g + b + 1;
 	const normalizedR = r / sum;

@@ -111,8 +111,12 @@ fn metrics_of(pairs: &[(f32, f32)]) -> Metrics {
 
 fn main() {
     let mut args = std::env::args().skip(1);
-    let fixtures_path = args.next().unwrap_or_else(|| "bench/rppg-fixtures.json".to_string());
-    let out_path = args.next().unwrap_or_else(|| "bench/elata-sdk-metrics.json".to_string());
+    let fixtures_path = args
+        .next()
+        .unwrap_or_else(|| "bench/rppg-fixtures.json".to_string());
+    let out_path = args
+        .next()
+        .unwrap_or_else(|| "bench/elata-sdk-metrics.json".to_string());
 
     let raw = std::fs::read_to_string(&fixtures_path)
         .unwrap_or_else(|e| panic!("failed to read {fixtures_path}: {e}"));
@@ -124,17 +128,30 @@ fn main() {
     let mut timed = 0usize;
 
     for c in &fixtures.cases {
-        let est = estimate_bpm(&c.signal, c.sample_rate, EstimationMethod::HarmonicWithPrior, None);
+        let est = estimate_bpm(
+            &c.signal,
+            c.sample_rate,
+            EstimationMethod::HarmonicWithPrior,
+            None,
+        );
         // Match the TS runner: a null estimate is scored as a worst-plausible
         // band edge so abstaining can't game the metrics.
         let est_bpm = est.unwrap_or(if c.true_bpm < 90.0 { 180.0 } else { 40.0 });
         all.push((c.true_bpm, est_bpm));
-        by_scenario.entry(c.scenario.clone()).or_default().push((c.true_bpm, est_bpm));
+        by_scenario
+            .entry(c.scenario.clone())
+            .or_default()
+            .push((c.true_bpm, est_bpm));
 
         let start = Instant::now();
         let repeats = 3;
         for _ in 0..repeats {
-            let _ = estimate_bpm(&c.signal, c.sample_rate, EstimationMethod::HarmonicWithPrior, None);
+            let _ = estimate_bpm(
+                &c.signal,
+                c.sample_rate,
+                EstimationMethod::HarmonicWithPrior,
+                None,
+            );
         }
         total_ms += start.elapsed().as_secs_f64() * 1000.0 / repeats as f64;
         timed += 1;
@@ -144,9 +161,20 @@ fn main() {
         pipeline: "elata-sdk".to_string(),
         schema: "rppg-benchmark-metrics.v1".to_string(),
         overall: metrics_of(&all),
-        by_scenario: by_scenario.iter().map(|(k, v)| (k.clone(), metrics_of(v))).collect(),
-        hrv: Hrv { methods: BTreeMap::new() },
-        perf: Perf { mean_ms_per_window: if timed > 0 { total_ms / timed as f64 } else { 0.0 } },
+        by_scenario: by_scenario
+            .iter()
+            .map(|(k, v)| (k.clone(), metrics_of(v)))
+            .collect(),
+        hrv: Hrv {
+            methods: BTreeMap::new(),
+        },
+        perf: Perf {
+            mean_ms_per_window: if timed > 0 {
+                total_ms / timed as f64
+            } else {
+                0.0
+            },
+        },
     };
 
     let json = serde_json::to_string_pretty(&report).expect("serialize report");
@@ -157,6 +185,9 @@ fn main() {
 
     println!(
         "elata-sdk: MAE {:.2} bpm | within-5 {:.0}% | octave-err {:.0}% -> {}",
-        report.overall.mae, report.overall.within5_bpm_pct, report.overall.octave_error_pct, out_path
+        report.overall.mae,
+        report.overall.within5_bpm_pct,
+        report.overall.octave_error_pct,
+        out_path
     );
 }

@@ -40,7 +40,10 @@ export const HRV_TRUST_QUALITY_MIN = 0.4;
 /** The HRV value to actually push into the calibrator for this sample: the
  *  reading itself if the signal is strong enough to trust it for HRV
  *  specifically, otherwise null (BPM still gathers from this sample). */
-export function trustedHrvSample(hrvRmssd: number | null, quality: number): number | null {
-  if (hrvRmssd == null) return null;
-  return quality >= HRV_TRUST_QUALITY_MIN ? hrvRmssd : null;
+export function trustedHrvSample(
+	hrvRmssd: number | null,
+	quality: number,
+): number | null {
+	if (hrvRmssd == null) return null;
+	return quality >= HRV_TRUST_QUALITY_MIN ? hrvRmssd : null;
 }

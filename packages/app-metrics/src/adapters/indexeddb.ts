@@ -106,7 +106,8 @@ export function createIndexedDbAdapter(
 					}
 					const row = cursor.value as StoredRecord | StoredScore;
 					if (!isStoredScore(row)) {
-						const typeOk = filter.type === undefined || row.type === filter.type;
+						const typeOk =
+							filter.type === undefined || row.type === filter.type;
 						const tsOk = row.timestamp >= since && row.timestamp <= until;
 						if (typeOk && tsOk) results.push(row);
 					}

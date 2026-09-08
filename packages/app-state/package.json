@@ -11,13 +11,7 @@
 	},
 	"homepage": "https://github.com/Elata-Biosciences/elata-bio-sdk#readme",
 	"bugs": "https://github.com/Elata-Biosciences/elata-bio-sdk/issues",
-	"keywords": [
-		"elata",
-		"appstore",
-		"state",
-		"storage",
-		"sandbox"
-	],
+	"keywords": ["elata", "appstore", "state", "storage", "sandbox"],
 	"engines": {
 		"node": ">=20"
 	},
@@ -31,10 +25,7 @@
 			"import": "./dist/index.js"
 		}
 	},
-	"files": [
-		"dist",
-		"README.md"
-	],
+	"files": ["dist", "README.md"],
 	"publishConfig": {
 		"access": "public"
 	},

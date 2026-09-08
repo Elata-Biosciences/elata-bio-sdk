@@ -42,8 +42,10 @@ export function blendshapeValenceArousal(
 	if (!categories.length) return null;
 	const scores = new Map<string, number>();
 	for (const c of categories) scores.set(c.categoryName, c.score);
-	const pick = (...names: string[]) => Math.max(...names.map((n) => scores.get(n) ?? 0));
-	const avg = (...names: string[]) => average(names.map((n) => scores.get(n) ?? 0));
+	const pick = (...names: string[]) =>
+		Math.max(...names.map((n) => scores.get(n) ?? 0));
+	const avg = (...names: string[]) =>
+		average(names.map((n) => scores.get(n) ?? 0));
 
 	const smile = avg("mouthSmileLeft", "mouthSmileRight");
 	const cheekSquint = avg("cheekSquintLeft", "cheekSquintRight"); // Duchenne (genuine) marker
@@ -63,7 +65,12 @@ export function blendshapeValenceArousal(
 	const jawOpen = pick("jawOpen");
 	const mouthStretch = avg("mouthStretchLeft", "mouthStretchRight");
 	const arousal = clamp01(
-		0.5 * eyeWide + 0.4 * browInnerUp + 0.4 * jawOpen + 0.3 * browDown + 0.25 * smile + 0.2 * mouthStretch,
+		0.5 * eyeWide +
+			0.4 * browInnerUp +
+			0.4 * jawOpen +
+			0.3 * browDown +
+			0.25 * smile +
+			0.2 * mouthStretch,
 	);
 
 	return { valence, arousal };
@@ -113,7 +120,9 @@ export function fuseAffect(
 	let arousal = 0;
 	let arousalSource: AffectState["arousalSource"] = "none";
 	if (wP + wF > 0) {
-		arousal = clamp01(((physioArousal ?? 0) * wP + (faceArousal ?? 0) * wF) / (wP + wF));
+		arousal = clamp01(
+			((physioArousal ?? 0) * wP + (faceArousal ?? 0) * wF) / (wP + wF),
+		);
 		arousalSource = wP > 0 && wF > 0 ? "fused" : wP > 0 ? "physiology" : "face";
 	}
 	return { valence, arousal, arousalSource };
@@ -146,7 +155,10 @@ export type AffectLabel =
  * hides. `Calm` is low arousal at neutral valence; `Neutral` is the mid-arousal
  * resting center.
  */
-export function classifyAffectLabel(valence: number, arousal: number): AffectLabel {
+export function classifyAffectLabel(
+	valence: number,
+	arousal: number,
+): AffectLabel {
 	const v = clampSigned(valence);
 	const a = clamp01(arousal);
 	const pos = v > 0.15;

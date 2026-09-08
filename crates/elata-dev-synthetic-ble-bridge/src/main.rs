@@ -8,8 +8,8 @@ mod proto;
 use std::io::{self, Write};
 use std::time::Duration;
 
-use elata_eeg_hal::{EegDevice, SampleBuffer};
 use elata_dev_eeg_synthetic::{NoiseLevel, SignalProfile, SyntheticDevice};
+use elata_eeg_hal::{EegDevice, SampleBuffer};
 use elata_eeg_models::{AlphaBumpDetector, CalmnessModel, Model, ModelOutput};
 use proto::{encode_info_json, encode_packet, EegPacket, InfoPayload, PACKET_VERSION};
 
@@ -134,11 +134,13 @@ impl Config {
         if cfg.ble && cfg.muse_compat {
             if cfg.athena {
                 cfg.channel_count = elata_muse_proto::athena::spec::EEG_CHANNEL_COUNT;
-                cfg.samples_per_channel = elata_muse_proto::athena::spec::EEG_SAMPLES_PER_CHANNEL as u16;
+                cfg.samples_per_channel =
+                    elata_muse_proto::athena::spec::EEG_SAMPLES_PER_CHANNEL as u16;
                 cfg.sample_rate_hz = elata_muse_proto::athena::spec::EEG_SAMPLE_RATE;
             } else {
                 cfg.channel_count = 4;
-                cfg.samples_per_channel = elata_muse_proto::classic::spec::SAMPLES_PER_PACKET as u16;
+                cfg.samples_per_channel =
+                    elata_muse_proto::classic::spec::SAMPLES_PER_PACKET as u16;
                 cfg.sample_rate_hz = elata_muse_proto::classic::spec::SAMPLE_RATE;
             }
         }
@@ -1019,8 +1021,14 @@ mod tests {
         ])
         .expect("config");
 
-        assert_eq!(cfg.sample_rate_hz, elata_muse_proto::classic::spec::SAMPLE_RATE);
-        assert_eq!(cfg.channel_count, elata_muse_proto::classic::spec::CHANNEL_COUNT);
+        assert_eq!(
+            cfg.sample_rate_hz,
+            elata_muse_proto::classic::spec::SAMPLE_RATE
+        );
+        assert_eq!(
+            cfg.channel_count,
+            elata_muse_proto::classic::spec::CHANNEL_COUNT
+        );
         assert_eq!(
             cfg.samples_per_channel,
             elata_muse_proto::classic::spec::SAMPLES_PER_PACKET as u16

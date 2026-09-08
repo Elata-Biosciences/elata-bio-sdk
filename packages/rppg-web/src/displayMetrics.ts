@@ -81,7 +81,10 @@ export function resolveDisplayMetrics(
 		// Both gates: publishable (BPM-oriented) AND the HRV-specific quality
 		// floor. Either one rejecting the sample nulls the value.
 		hrvRmssd: publishable
-			? trustedHrvSample(snapshot.metrics.hrv_rmssd ?? null, snapshot.metrics.signal_quality)
+			? trustedHrvSample(
+					snapshot.metrics.hrv_rmssd ?? null,
+					snapshot.metrics.signal_quality,
+				)
 			: null,
 		confidence,
 		publishable,

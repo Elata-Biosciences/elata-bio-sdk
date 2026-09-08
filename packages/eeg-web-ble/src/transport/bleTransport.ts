@@ -13,7 +13,10 @@ import type {
 	HeadbandTransport,
 	HeadbandTransportStatus,
 } from "@elata-biosciences/eeg-web";
-import type { AthenaAuxPacket, MuseDeviceOptions } from "../devices/muse/museDevice";
+import type {
+	AthenaAuxPacket,
+	MuseDeviceOptions,
+} from "../devices/muse/museDevice";
 import { MuseBleDevice } from "../devices/muse/museDevice";
 
 interface PpgPacket {
@@ -72,7 +75,11 @@ export class BleTransport implements HeadbandTransport {
 	private _connected = false;
 	private eegProcessor: EegPreprocessor | null = null;
 	private pendingPpgRows: number[][] = [];
-	private pendingPpgChannelNames: Array<"PPG1" | "PPG2" | "PPG3"> = ["PPG1", "PPG2", "PPG3"];
+	private pendingPpgChannelNames: Array<"PPG1" | "PPG2" | "PPG3"> = [
+		"PPG1",
+		"PPG2",
+		"PPG3",
+	];
 	private pendingOptics: HeadbandSignalBlock | null = null;
 	private pendingAccgyro: HeadbandSignalBlock | null = null;
 	private pendingBattery: HeadbandBatteryBlock | null = null;
@@ -93,8 +100,8 @@ export class BleTransport implements HeadbandTransport {
 		if (!options.device && !options.deviceOptions?.athenaDecoderFactory) {
 			console.warn(
 				"[BleTransport] No athenaDecoderFactory provided. " +
-				"Muse S Athena devices will fail to decode — pass " +
-				"athenaDecoderFactory: () => new AthenaWasmDecoder() in deviceOptions.",
+					"Muse S Athena devices will fail to decode — pass " +
+					"athenaDecoderFactory: () => new AthenaWasmDecoder() in deviceOptions.",
 			);
 		}
 		this.device =
@@ -166,7 +173,9 @@ export class BleTransport implements HeadbandTransport {
 		const channelNames = this.getClassicPpgChannelNames();
 		if (!channelNames.length) return;
 		const minLen = Math.min(
-			...channelNames.map((channelName) => this.ppgPerChannel[channelName].length),
+			...channelNames.map(
+				(channelName) => this.ppgPerChannel[channelName].length,
+			),
 		);
 		if (minLen <= 0) return;
 		this.pendingPpgChannelNames = channelNames;
@@ -330,51 +339,56 @@ export class BleTransport implements HeadbandTransport {
 		this.emitStatus(HeadbandTransportState.Streaming);
 		try {
 			if (!this.eegProcessor) {
-				this.eegProcessor = await createEegPreprocessor(this.eegProcessingOptions);
+				this.eegProcessor = await createEegPreprocessor(
+					this.eegProcessingOptions,
+				);
 			}
 			this.eegProcessor.reset();
 
 			await this.device.startStream(
 				(samples) => {
-				this.sequenceId += 1;
-				let frame: HeadbandFrameV1 = {
-					schemaVersion: HEADBAND_FRAME_SCHEMA_VERSION,
-					source: this.sourceName,
-					sequenceId: this.sequenceId,
-					emittedAtMs: performance.now(),
-					eeg: {
-						sampleRateHz: this.device.samplingRate,
-						channelNames: this.device.eegNames.slice(),
-						channelCount: this.device.numEegChannels,
-						samples: samples.map((row) => row.slice()),
-						clockSource: this.device.isAthena ? "device" : "local",
-					},
-				};
-				frame = this.eegProcessor?.processFrame(frame) ?? frame;
-
-				if (this.pendingPpgRows.length > 0) {
-					frame.ppgRaw = {
-						sampleRateHz: 64,
-						channelNames: this.pendingPpgChannelNames.slice(),
-						channelCount: this.pendingPpgChannelNames.length,
-						samples: this.pendingPpgRows.splice(0, this.pendingPpgRows.length),
-						clockSource: "local",
+					this.sequenceId += 1;
+					let frame: HeadbandFrameV1 = {
+						schemaVersion: HEADBAND_FRAME_SCHEMA_VERSION,
+						source: this.sourceName,
+						sequenceId: this.sequenceId,
+						emittedAtMs: performance.now(),
+						eeg: {
+							sampleRateHz: this.device.samplingRate,
+							channelNames: this.device.eegNames.slice(),
+							channelCount: this.device.numEegChannels,
+							samples: samples.map((row) => row.slice()),
+							clockSource: this.device.isAthena ? "device" : "local",
+						},
 					};
-				}
-				if (this.pendingOptics) {
-					frame.optics = this.pendingOptics;
-					this.pendingOptics = null;
-				}
-				if (this.pendingAccgyro) {
-					frame.accgyro = this.pendingAccgyro;
-					this.pendingAccgyro = null;
-				}
-				if (this.pendingBattery) {
-					frame.battery = this.pendingBattery;
-					this.pendingBattery = null;
-				}
+					frame = this.eegProcessor?.processFrame(frame) ?? frame;
 
-				if (this.onFrame && frame.eeg.samples.length > 0) this.onFrame(frame);
+					if (this.pendingPpgRows.length > 0) {
+						frame.ppgRaw = {
+							sampleRateHz: 64,
+							channelNames: this.pendingPpgChannelNames.slice(),
+							channelCount: this.pendingPpgChannelNames.length,
+							samples: this.pendingPpgRows.splice(
+								0,
+								this.pendingPpgRows.length,
+							),
+							clockSource: "local",
+						};
+					}
+					if (this.pendingOptics) {
+						frame.optics = this.pendingOptics;
+						this.pendingOptics = null;
+					}
+					if (this.pendingAccgyro) {
+						frame.accgyro = this.pendingAccgyro;
+						this.pendingAccgyro = null;
+					}
+					if (this.pendingBattery) {
+						frame.battery = this.pendingBattery;
+						this.pendingBattery = null;
+					}
+
+					if (this.onFrame && frame.eeg.samples.length > 0) this.onFrame(frame);
 				},
 				(channelName, packet) => {
 					this.handlePpg(channelName, packet as PpgInput);

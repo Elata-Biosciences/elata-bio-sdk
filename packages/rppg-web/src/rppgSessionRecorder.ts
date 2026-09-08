@@ -88,9 +88,7 @@ export class RppgSessionRecorder {
 			},
 			outputs: {
 				signalQuality:
-					metrics.signal_quality != null
-						? metrics.signal_quality * 100
-						: null,
+					metrics.signal_quality != null ? metrics.signal_quality * 100 : null,
 			},
 		};
 

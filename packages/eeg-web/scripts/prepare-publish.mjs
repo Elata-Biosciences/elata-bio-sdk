@@ -44,6 +44,8 @@ try {
 	run("bash", ["./scripts/sync-wasm.sh"], pkgDir);
 	run("pnpm", ["run", "build"], pkgDir);
 } catch (err) {
-	console.error(`[eeg-web] ${err instanceof Error ? err.message : String(err)}`);
+	console.error(
+		`[eeg-web] ${err instanceof Error ? err.message : String(err)}`,
+	);
 	process.exitCode = 1;
 }

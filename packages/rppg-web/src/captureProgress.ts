@@ -16,7 +16,8 @@ import { DEFAULT_BASELINE_CALIBRATOR_CONFIG } from "./baselineCalibrator";
 export const TRUST_FLOOR = 0.4;
 
 /** Minimum accepted samples before a lock, ~5.4s at the 300ms poll. */
-export const MIN_LOCK_SAMPLES = DEFAULT_BASELINE_CALIBRATOR_CONFIG.minForStability;
+export const MIN_LOCK_SAMPLES =
+	DEFAULT_BASELINE_CALIBRATOR_CONFIG.minForStability;
 
 /** Sustained good window required before the reading is taken. */
 export const MEASURE_HOLD_MS = 1200;
@@ -53,9 +54,13 @@ export function trustFloorAt(elapsedMs: number): number {
 	if (!Number.isFinite(elapsedMs) || elapsedMs <= 0) return TRUST_FLOOR;
 	if (elapsedMs >= TRUST_EASE_END_MS) return TRUST_FLOOR_MIN;
 	if (elapsedMs <= TRUST_EASE_MID_MS) {
-		return TRUST_FLOOR + (TRUST_FLOOR_MID - TRUST_FLOOR) * (elapsedMs / TRUST_EASE_MID_MS);
+		return (
+			TRUST_FLOOR +
+			(TRUST_FLOOR_MID - TRUST_FLOOR) * (elapsedMs / TRUST_EASE_MID_MS)
+		);
 	}
-	const p = (elapsedMs - TRUST_EASE_MID_MS) / (TRUST_EASE_END_MS - TRUST_EASE_MID_MS);
+	const p =
+		(elapsedMs - TRUST_EASE_MID_MS) / (TRUST_EASE_END_MS - TRUST_EASE_MID_MS);
 	return TRUST_FLOOR_MID + (TRUST_FLOOR_MIN - TRUST_FLOOR_MID) * p;
 }
 
@@ -74,7 +79,8 @@ export const READINESS_SHARE = TYPICAL_CALIBRATION_MS / TOTAL_MS;
 export const MEASURE_SHARE = MEASURE_HOLD_MS / TOTAL_MS;
 export const COMMIT_SHARE = LOCK_HOLD_MS / TOTAL_MS;
 
-const clamp01 = (v: number) => (Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0);
+const clamp01 = (v: number) =>
+	Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0;
 
 export interface CaptureProgressInput {
 	/** The calibrator's confidence, already high-watered by the caller. */
@@ -118,7 +124,9 @@ export function captureProgress(i: CaptureProgressInput): number {
 	const readiness = Math.sqrt(conf * enough);
 	const hold = clamp01(i.heldMs / MEASURE_HOLD_MS);
 	const commit = i.locked ? clamp01(i.sinceLockMs / LOCK_HOLD_MS) : 0;
-	return clamp01(READINESS_SHARE * readiness + MEASURE_SHARE * hold + COMMIT_SHARE * commit);
+	return clamp01(
+		READINESS_SHARE * readiness + MEASURE_SHARE * hold + COMMIT_SHARE * commit,
+	);
 }
 
 /**
@@ -135,6 +143,9 @@ export function captureProgress(i: CaptureProgressInput): number {
  * is the "laggy, stuck" half of the report. The ring is right not to retreat; it
  * was wrong to say nothing.
  */
-export function restartDetected(samples: number, previousSamples: number): boolean {
+export function restartDetected(
+	samples: number,
+	previousSamples: number,
+): boolean {
 	return samples < previousSamples;
 }

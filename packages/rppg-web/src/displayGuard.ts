@@ -155,7 +155,11 @@ export const applyNoReferenceDisplayGuard = (options: {
 		stableSupport >= 2 &&
 		candidateSupport <= 2
 	) {
-		return { bpm: stableFallback, applied: true, reason: "high_harmonic_spike" };
+		return {
+			bpm: stableFallback,
+			applied: true,
+			reason: "high_harmonic_spike",
+		};
 	}
 
 	if (

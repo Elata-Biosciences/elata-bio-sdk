@@ -20,8 +20,7 @@ export async function ensureVideoPlaying(
 		return;
 	}
 
-	const timeoutMs =
-		options.timeoutMs ?? DEFAULT_VIDEO_PLAYBACK_TIMEOUT_MS;
+	const timeoutMs = options.timeoutMs ?? DEFAULT_VIDEO_PLAYBACK_TIMEOUT_MS;
 
 	await new Promise<void>((resolve, reject) => {
 		let settled = false;
@@ -61,13 +60,15 @@ export async function ensureVideoPlaying(
 			try {
 				const playResult = video.play();
 				if (playResult && typeof playResult.then === "function") {
-					void playResult.then(() => {
-						if (hasCurrentVideoData(video)) {
-							finish();
-						}
-					}).catch(() => {
-						// Keep waiting for playback-related events until timeout.
-					});
+					void playResult
+						.then(() => {
+							if (hasCurrentVideoData(video)) {
+								finish();
+							}
+						})
+						.catch(() => {
+							// Keep waiting for playback-related events until timeout.
+						});
 				}
 			} catch {
 				// Keep waiting for playback-related events until timeout.

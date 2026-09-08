@@ -1,7 +1,4 @@
-import {
-	replayBayesSession,
-	type ReplayDebugSession,
-} from "./rppgReplay";
+import { replayBayesSession, type ReplayDebugSession } from "./rppgReplay";
 
 /**
  * Comparison harness for recorded debug sessions (TradeLock's
@@ -68,8 +65,13 @@ function emptyAcc(): AbsErrorAccumulator {
 	return { sumAbs: 0, count: 0 };
 }
 
-function addAbs(acc: AbsErrorAccumulator, a: number | null, b: number | null): void {
-	if (a == null || b == null || !Number.isFinite(a) || !Number.isFinite(b)) return;
+function addAbs(
+	acc: AbsErrorAccumulator,
+	a: number | null,
+	b: number | null,
+): void {
+	if (a == null || b == null || !Number.isFinite(a) || !Number.isFinite(b))
+		return;
 	acc.sumAbs += Math.abs(a - b);
 	acc.count += 1;
 }
@@ -120,8 +122,16 @@ export function summarizeReplaySession(
 	const referenceRecordedFinal = emptyAcc();
 	for (const summary of result.pairSummaries) {
 		addPooledMae(referenceReplayBayes, summary.replayBayesMae, summary.points);
-		addPooledMae(referenceRecordedBayes, summary.recordedBayesMae, summary.points);
-		addPooledMae(referenceRecordedFinal, summary.recordedFinalMae, summary.points);
+		addPooledMae(
+			referenceRecordedBayes,
+			summary.recordedBayesMae,
+			summary.points,
+		);
+		addPooledMae(
+			referenceRecordedFinal,
+			summary.recordedFinalMae,
+			summary.points,
+		);
 	}
 
 	return {

@@ -1,8 +1,4 @@
-import {
-	FrameSource,
-	Frame,
-	type FrameSourceError,
-} from "./frameSource";
+import { FrameSource, Frame, type FrameSourceError } from "./frameSource";
 
 type Options = { fps?: number };
 

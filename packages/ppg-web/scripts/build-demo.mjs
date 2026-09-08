@@ -4,7 +4,10 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const esbuild = await import("esbuild");
-const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const packageRoot = path.resolve(
+	path.dirname(fileURLToPath(import.meta.url)),
+	"..",
+);
 const eegWasmSourceDir = path.resolve(packageRoot, "..", "eeg-web", "wasm");
 const eegWasmDemoDir = path.join(packageRoot, "demo", "eeg-wasm");
 
@@ -15,7 +18,11 @@ function copyEegWasmIfPresent() {
 		"eeg_wasm_bg.wasm",
 		"eeg_wasm_bg.wasm.d.ts",
 	];
-	if (!requiredFiles.every((file) => fs.existsSync(path.join(eegWasmSourceDir, file)))) {
+	if (
+		!requiredFiles.every((file) =>
+			fs.existsSync(path.join(eegWasmSourceDir, file)),
+		)
+	) {
 		console.warn(
 			"[ppg-web] EEG WASM artifacts not found in packages/eeg-web/wasm; " +
 				"Athena decoding will be unavailable in the demo until EEG artifacts are built.",
@@ -42,7 +49,10 @@ await esbuild.build({
 	outdir: "demo",
 	entryNames: "[name]",
 	alias: {
-		"@elata-biosciences/eeg-web": path.join(packageRoot, "demo/shims/eeg-web.ts"),
+		"@elata-biosciences/eeg-web": path.join(
+			packageRoot,
+			"demo/shims/eeg-web.ts",
+		),
 		"@elata-biosciences/eeg-web-ble": path.join(
 			packageRoot,
 			"demo/shims/eeg-web-ble.ts",

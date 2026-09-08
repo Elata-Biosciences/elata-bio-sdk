@@ -29,9 +29,7 @@
 			"snrDb": null,
 			"waveformConfidence": null,
 			"ibiCount": 0,
-			"reasonCodes": [
-				"insufficient_window"
-			]
+			"reasonCodes": ["insufficient_window"]
 		},
 		{
 			"bpm": 66.8,
@@ -77,10 +75,7 @@
 			"snrDb": 3.41,
 			"waveformConfidence": 0.44,
 			"ibiCount": 4,
-			"reasonCodes": [
-				"low_signal_quality",
-				"insufficient_ibi"
-			]
+			"reasonCodes": ["low_signal_quality", "insufficient_ibi"]
 		}
 	]
 }

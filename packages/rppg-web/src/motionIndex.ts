@@ -36,7 +36,8 @@ export function landmarkMotion(
 	prev: readonly LandmarkLike[] | null,
 	curr: readonly LandmarkLike[] | null,
 ): number {
-	if (!prev || !curr || prev.length === 0 || curr.length !== prev.length) return 0;
+	if (!prev || !curr || prev.length === 0 || curr.length !== prev.length)
+		return 0;
 	let sum = 0;
 	for (let i = 0; i < curr.length; i++) {
 		const dx = curr[i].x - prev[i].x;

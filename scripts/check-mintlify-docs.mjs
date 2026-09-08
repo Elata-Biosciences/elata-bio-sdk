@@ -106,7 +106,10 @@ function assert(condition, message) {
 	}
 }
 
-assert(exists(`${docsSubmodulePath}/docs.json`), `${docsSubmodulePath}/docs.json must exist`);
+assert(
+	exists(`${docsSubmodulePath}/docs.json`),
+	`${docsSubmodulePath}/docs.json must exist`,
+);
 
 if (errors.length === 0) {
 	const docsConfig = JSON.parse(readText(`${docsSubmodulePath}/docs.json`));
@@ -128,7 +131,9 @@ if (errors.length === 0) {
 	const routeToFile = new Map(
 		allPageFiles.map((relPath) => [pageRouteFromRelPath(relPath), relPath]),
 	);
-	const navigatedPages = flattenNavigationPages(sdkNavigationGroups(docsConfig));
+	const navigatedPages = flattenNavigationPages(
+		sdkNavigationGroups(docsConfig),
+	);
 	const pageFiles = navigatedPages
 		.map((page) => (page === "index" ? "index.mdx" : `${page}.mdx`))
 		.filter((relPath) => allPageFiles.includes(relPath));
@@ -145,7 +150,10 @@ if (errors.length === 0) {
 			text.startsWith("---\n"),
 			`${relPath} must start with YAML frontmatter`,
 		);
-		assert(/^title:\s+.+$/mu.test(text), `${relPath} must declare title in frontmatter`);
+		assert(
+			/^title:\s+.+$/mu.test(text),
+			`${relPath} must declare title in frontmatter`,
+		);
 		assert(
 			/^description:\s+.+$/mu.test(text),
 			`${relPath} must declare description in frontmatter`,
@@ -175,12 +183,16 @@ if (errors.length === 0) {
 			}
 
 			const relativeTarget = stripAnchorAndQuery(target);
-			const resolvedRelativePath = resolveRelativeDocTarget(relPath, relativeTarget);
+			const resolvedRelativePath = resolveRelativeDocTarget(
+				relPath,
+				relativeTarget,
+			);
 			if (resolvedRelativePath) {
 				if (isAssetLikeTarget(resolvedRelativePath)) {
 					continue;
 				}
-				const canonicalRelativePath = canonicalPageRelPath(resolvedRelativePath);
+				const canonicalRelativePath =
+					canonicalPageRelPath(resolvedRelativePath);
 				assert(
 					allPageFiles.includes(canonicalRelativePath),
 					`${relPath} links to missing relative docs page: ${target}`,
@@ -197,7 +209,10 @@ if (errors.length === 0) {
 	}
 
 	for (const page of navigatedPages) {
-		assert(!seenNavigationPages.has(page), `docs.json navigation duplicates page: ${page}`);
+		assert(
+			!seenNavigationPages.has(page),
+			`docs.json navigation duplicates page: ${page}`,
+		);
 		seenNavigationPages.add(page);
 
 		const route = page === "index" ? "/" : `/${page}`;

@@ -44,8 +44,10 @@ export function fitExposureResponse(
 	curr: ExposureSample,
 ): number | null {
 	if (!prev) return null;
-	if (!Number.isFinite(prev.compensation) || !Number.isFinite(prev.luma)) return null;
-	if (!Number.isFinite(curr.compensation) || !Number.isFinite(curr.luma)) return null;
+	if (!Number.isFinite(prev.compensation) || !Number.isFinite(prev.luma))
+		return null;
+	if (!Number.isFinite(curr.compensation) || !Number.isFinite(curr.luma))
+		return null;
 	const dComp = curr.compensation - prev.compensation;
 	if (Math.abs(dComp) < MIN_FIT_DELTA) return null;
 	return (curr.luma - prev.luma) / dComp;

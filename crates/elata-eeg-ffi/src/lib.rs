@@ -313,7 +313,10 @@ impl RppgPipelineFFI {
     #[uniffi::constructor]
     pub fn new(sample_rate: u16, window_sec: f32) -> Self {
         Self {
-            inner: Mutex::new(elata_rppg::RppgPipeline::new(sample_rate as f32, window_sec)),
+            inner: Mutex::new(elata_rppg::RppgPipeline::new(
+                sample_rate as f32,
+                window_sec,
+            )),
         }
     }
 

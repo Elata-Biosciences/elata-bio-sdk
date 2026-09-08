@@ -115,8 +115,7 @@ export function getEegInterleavedSamples(
 	for (let sampleIdx = 0; sampleIdx < signal.samples.length; sampleIdx++) {
 		const row = signal.samples[sampleIdx] ?? [];
 		for (let channelIdx = 0; channelIdx < signal.channelCount; channelIdx++) {
-			out[sampleIdx * signal.channelCount + channelIdx] =
-				row[channelIdx] ?? 0;
+			out[sampleIdx * signal.channelCount + channelIdx] = row[channelIdx] ?? 0;
 		}
 	}
 	return out;

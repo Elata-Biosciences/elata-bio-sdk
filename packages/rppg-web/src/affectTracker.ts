@@ -89,7 +89,9 @@ export class AffectTracker {
 		if (this.calibBpm.length >= this.baselineSamples) {
 			this.baseline = {
 				bpm: median(this.calibBpm),
-				rmssd: this.calibRmssd.length ? median(this.calibRmssd) : this.defaultRmssd,
+				rmssd: this.calibRmssd.length
+					? median(this.calibRmssd)
+					: this.defaultRmssd,
 			};
 		}
 	}

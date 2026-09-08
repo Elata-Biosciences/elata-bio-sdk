@@ -11,10 +11,7 @@
 		{
 			"confidence": 0.14,
 			"signal_quality": 0.38,
-			"reason_codes": [
-				"insufficient_window",
-				"no_bpm_yet"
-			],
+			"reason_codes": ["insufficient_window", "no_bpm_yet"],
 			"skin_ratio_mean": 0.52,
 			"motion_mean": 0.09,
 			"clip_mean": 0.004,
@@ -32,9 +29,7 @@
 			"capture_motion": 0.83,
 			"capture_lighting": 0.64,
 			"capture_limiting": "lighting",
-			"capture_reasons": [
-				"low_light"
-			]
+			"capture_reasons": ["low_light"]
 		},
 		{
 			"bpm": 68.4,
@@ -51,10 +46,7 @@
 			"peaks_bpm": 69.2,
 			"resolved_bpm": 68.5,
 			"resolved_confidence": 0.86,
-			"winning_sources": [
-				"spectral",
-				"acf"
-			],
+			"winning_sources": ["spectral", "acf"],
 			"alias_flag": false,
 			"bayes_bpm": 68.3,
 			"bayes_confidence": 0.9,
@@ -81,10 +73,7 @@
 			"confidence": 0.41,
 			"signal_quality": 0.44,
 			"agreement": 0.37,
-			"reason_codes": [
-				"high_motion",
-				"estimators_disagree"
-			],
+			"reason_codes": ["high_motion", "estimators_disagree"],
 			"snr": 2.13,
 			"skin_ratio_mean": 0.61,
 			"motion_mean": 0.28,
@@ -94,9 +83,7 @@
 			"peaks_bpm": null,
 			"resolved_bpm": 71.6,
 			"resolved_confidence": 0.39,
-			"winning_sources": [
-				"spectral"
-			],
+			"winning_sources": ["spectral"],
 			"alias_flag": true,
 			"bayes_bpm": 70.8,
 			"bayes_confidence": 0.55,
@@ -116,10 +103,7 @@
 			"capture_motion": 0.29,
 			"capture_lighting": 0.85,
 			"capture_limiting": "motion",
-			"capture_reasons": [
-				"high_ti",
-				"motion_blur"
-			]
+			"capture_reasons": ["high_ti", "motion_blur"]
 		}
 	]
 }

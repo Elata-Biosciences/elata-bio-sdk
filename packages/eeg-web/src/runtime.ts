@@ -1,10 +1,6 @@
 import initWasm, { initSync as initSyncWasm } from "../wasm/eeg_wasm.js";
 import * as wasm from "../wasm/eeg_wasm.js";
-import type {
-	InitInput,
-	InitOutput,
-	SyncInitInput,
-} from "../wasm/eeg_wasm.js";
+import type { InitInput, InitOutput, SyncInitInput } from "../wasm/eeg_wasm.js";
 
 let initPromise: Promise<InitOutput> | null = null;
 

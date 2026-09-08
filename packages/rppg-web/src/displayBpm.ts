@@ -125,7 +125,10 @@ export class DisplayBpmTracker {
 	 * A rejected jump leaves the display unchanged; an adopted jump or a normal
 	 * cycle advances the median + EMA.
 	 */
-	update(candidateBpm: number, ctx: DisplayBpmUpdateContext = {}): DisplayBpmUpdate {
+	update(
+		candidateBpm: number,
+		ctx: DisplayBpmUpdateContext = {},
+	): DisplayBpmUpdate {
 		if (
 			!Number.isFinite(candidateBpm) ||
 			candidateBpm <= this.minBpm ||
@@ -225,7 +228,12 @@ export class DisplayBpmTracker {
 	 */
 	hold(ctx: { trackerBpm?: number | null } = {}): number | null {
 		const t = ctx.trackerBpm;
-		if (t != null && Number.isFinite(t) && t > this.minBpm && t < this.holdMaxBpm) {
+		if (
+			t != null &&
+			Number.isFinite(t) &&
+			t > this.minBpm &&
+			t < this.holdMaxBpm
+		) {
 			this.lastDisplay = Math.round(t);
 		}
 		return this.lastDisplay;

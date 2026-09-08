@@ -1,6 +1,6 @@
 export type BluetoothSupportResult =
-  | { supported: true }
-  | { supported: false; isIOS: boolean; message: string };
+	| { supported: true }
+	| { supported: false; isIOS: boolean; message: string };
 
 /**
  * Checks whether Web Bluetooth is available in the current browser.
@@ -11,35 +11,39 @@ export type BluetoothSupportResult =
  * browser.
  */
 export function checkWebBluetooth(): BluetoothSupportResult {
-  if (typeof navigator === "undefined") {
-    return { supported: false, isIOS: false, message: "Web Bluetooth requires a browser environment." };
-  }
+	if (typeof navigator === "undefined") {
+		return {
+			supported: false,
+			isIOS: false,
+			message: "Web Bluetooth requires a browser environment.",
+		};
+	}
 
-  if (!!navigator.bluetooth) {
-    return { supported: true };
-  }
+	if (!!navigator.bluetooth) {
+		return { supported: true };
+	}
 
-  // Detect iOS: covers iPhone/iPad/iPod plus iPadOS 13+ desktop mode
-  const ua = navigator.userAgent;
-  const isIOS =
-    /iPhone|iPad|iPod/i.test(ua) ||
-    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+	// Detect iOS: covers iPhone/iPad/iPod plus iPadOS 13+ desktop mode
+	const ua = navigator.userAgent;
+	const isIOS =
+		/iPhone|iPad|iPod/i.test(ua) ||
+		(navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-  if (isIOS) {
-    return {
-      supported: false,
-      isIOS: true,
-      message:
-        "Web Bluetooth is not supported by Safari or Chrome on iOS. " +
-        "Please use Bluefy — a free browser app that enables Web Bluetooth on iPhone and iPad.",
-    };
-  }
+	if (isIOS) {
+		return {
+			supported: false,
+			isIOS: true,
+			message:
+				"Web Bluetooth is not supported by Safari or Chrome on iOS. " +
+				"Please use Bluefy — a free browser app that enables Web Bluetooth on iPhone and iPad.",
+		};
+	}
 
-  return {
-    supported: false,
-    isIOS: false,
-    message:
-      "Web Bluetooth is not supported in this browser. " +
-      "Please use Chrome to connect your headband.",
-  };
+	return {
+		supported: false,
+		isIOS: false,
+		message:
+			"Web Bluetooth is not supported in this browser. " +
+			"Please use Chrome to connect your headband.",
+	};
 }

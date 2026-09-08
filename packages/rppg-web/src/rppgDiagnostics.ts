@@ -64,11 +64,17 @@ export function computeTraceWaveformDebug(
 			sampleCount: points.length,
 			durationSec: trace.durationSec ?? 0,
 			threshold: null,
-			min: points.length ? Math.min(...points.map((point) => point.value)) : null,
-			max: points.length ? Math.max(...points.map((point) => point.value)) : null,
+			min: points.length
+				? Math.min(...points.map((point) => point.value))
+				: null,
+			max: points.length
+				? Math.max(...points.map((point) => point.value))
+				: null,
 			minPeakDistanceSamples: Math.max(
 				2,
-				Math.round((trace.sampleRate || 1) * (options.minPeakDistanceSec ?? 0.35)),
+				Math.round(
+					(trace.sampleRate || 1) * (options.minPeakDistanceSec ?? 0.35),
+				),
 			),
 		};
 	}
@@ -179,7 +185,9 @@ export function computeWaveformPeriodicityProfile(
 		number,
 		{ lag: number; bpms: number[]; rawScore: number; rawWeight: number }
 	>();
-	const logits = rawScores.map((score) => clamp((score - medianRaw) / 0.06, -10, 10));
+	const logits = rawScores.map((score) =>
+		clamp((score - medianRaw) / 0.06, -10, 10),
+	);
 	for (let i = 0; i < bpmGrid.length; i++) {
 		const lag = lags[i];
 		const bpm = bpmGrid[i];
@@ -203,7 +211,8 @@ export function computeWaveformPeriodicityProfile(
 	const candidates = Array.from(groupedByLag.values())
 		.map((group) => ({
 			lag: group.lag,
-			bpm: group.bpms.reduce((sum, value) => sum + value, 0) / group.bpms.length,
+			bpm:
+				group.bpms.reduce((sum, value) => sum + value, 0) / group.bpms.length,
 			rawScore: group.rawScore,
 			rawWeight: group.rawWeight,
 		}))

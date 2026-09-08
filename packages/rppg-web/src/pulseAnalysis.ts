@@ -71,7 +71,10 @@ export function analyzePulseWindow(
 		value: norm[idx],
 		time: sample.timestampMs,
 	}));
-	const peaksDetected = detectPeaks(signalPoints, spectral?.bpm ?? acf?.bpm ?? null);
+	const peaksDetected = detectPeaks(
+		signalPoints,
+		spectral?.bpm ?? acf?.bpm ?? null,
+	);
 	const peakBpm =
 		peaksDetected.length >= 2 ? bpmFromPeaks(peaksDetected) : null;
 
@@ -87,8 +90,9 @@ export function analyzePulseWindow(
 		centerBpm: spectral?.bpm ?? acf?.bpm ?? null,
 	});
 	const hrvRmssd =
-		rmssdFromPeaks(hilbertBeats.beatTimesMs.map((time) => ({ value: 1, time }))) ??
-		rmssdFromPeaks(peaksDetected);
+		rmssdFromPeaks(
+			hilbertBeats.beatTimesMs.map((time) => ({ value: 1, time })),
+		) ?? rmssdFromPeaks(peaksDetected);
 
 	// Respiration: fuse three independent camera cues (baseline RIIV, amplitude
 	// RIAV, beat-timing RSA). Multi-cue agreement survives a motion artifact that
@@ -237,7 +241,9 @@ export function calculateBpmViaAutocorrelation(
 	}
 	if (bestLag <= 0) return null;
 
-	const build = (lag: number): PulseEstimatorResult & { lag: number } | null => {
+	const build = (
+		lag: number,
+	): (PulseEstimatorResult & { lag: number }) | null => {
 		if (lag < minLag || lag > maxLag || lag >= n) return null;
 		const score = lagScorer(lag);
 		const bpm = (60 * fps) / lag;
@@ -309,7 +315,11 @@ export function detectPeaks(
 			// interpolation. Without this, every peak time is quantized to the
 			// sample grid (10-33 ms at typical PPG/camera rates), which swamps
 			// the beat-to-beat differences HRV is built from.
-			const refined = refinePeakByInterpolation(data[i - 1], data[i], data[i + 1]);
+			const refined = refinePeakByInterpolation(
+				data[i - 1],
+				data[i],
+				data[i + 1],
+			);
 			const last = peaks[peaks.length - 1];
 			if (!last || refined.time - last.time > minPeakDistance) {
 				peaks.push(refined);
@@ -365,9 +375,7 @@ export function refinePeakByInterpolation(
 	};
 }
 
-export function bpmFromPeaks(
-	peaks: PulsePeak[],
-): PulseEstimatorResult | null {
+export function bpmFromPeaks(peaks: PulsePeak[]): PulseEstimatorResult | null {
 	if (peaks.length < 2) return null;
 	const ibis: number[] = [];
 	for (let i = 0; i < peaks.length - 1; i++) {
@@ -413,7 +421,10 @@ function buildTaggedIntervals(
 	);
 	if (median != null) {
 		for (const iv of intervals) {
-			if (iv.valid && Math.abs(iv.ms - median) > median * IBI_OUTLIER_FRACTION) {
+			if (
+				iv.valid &&
+				Math.abs(iv.ms - median) > median * IBI_OUTLIER_FRACTION
+			) {
 				iv.valid = false;
 			}
 		}

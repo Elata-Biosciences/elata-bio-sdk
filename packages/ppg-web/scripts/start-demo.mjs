@@ -4,7 +4,10 @@ import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const packageRoot = path.resolve(
+	path.dirname(fileURLToPath(import.meta.url)),
+	"..",
+);
 const demoDir = path.join(packageRoot, "demo");
 const buildScript = path.join(packageRoot, "scripts", "build-demo.mjs");
 const eegWasmEntry = path.join(demoDir, "eeg-wasm", "eeg_wasm.js");
@@ -40,15 +43,11 @@ if (!existsSync(eegWasmEntry)) {
 	);
 }
 
-const server = spawn(
-	serverCommand.command,
-	serverCommand.args,
-	{
-		cwd: packageRoot,
-		stdio: "inherit",
-		shell: serverCommand.shell,
-	},
-);
+const server = spawn(serverCommand.command, serverCommand.args, {
+	cwd: packageRoot,
+	stdio: "inherit",
+	shell: serverCommand.shell,
+});
 
 server.on("error", (error) => {
 	console.error(

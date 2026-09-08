@@ -25,15 +25,15 @@ function hasPipelineMethods(value: unknown): boolean {
 	if (!value || typeof value !== "object") return false;
 	const pipeline = value as Record<string, unknown>;
 	return (
-		typeof pipeline.push_sample === "function" ||
-		typeof pipeline.pushSample === "function" ||
-		typeof pipeline.push_sample_rgb === "function" ||
-		typeof pipeline.pushSampleRgb === "function" ||
-		typeof pipeline.push_sample_rgb_meta === "function" ||
-		typeof pipeline.pushSampleRgbMeta === "function"
-	) &&
+		(typeof pipeline.push_sample === "function" ||
+			typeof pipeline.pushSample === "function" ||
+			typeof pipeline.push_sample_rgb === "function" ||
+			typeof pipeline.pushSampleRgb === "function" ||
+			typeof pipeline.push_sample_rgb_meta === "function" ||
+			typeof pipeline.pushSampleRgbMeta === "function") &&
 		(typeof pipeline.get_metrics === "function" ||
-			typeof pipeline.getMetrics === "function");
+			typeof pipeline.getMetrics === "function")
+	);
 }
 
 function normalizePipelineInstance(
@@ -95,10 +95,7 @@ export async function loadWasmBackend(
 		? [options.jsUrl]
 		: options.candidateUrls && options.candidateUrls.length > 0
 			? options.candidateUrls
-			: [
-					"/pkg/rppg_wasm.js",
-					"/rppg_wasm.js",
-				];
+			: ["/pkg/rppg_wasm.js", "/rppg_wasm.js"];
 	let lastError: unknown = undefined;
 	for (const url of candidates) {
 		try {

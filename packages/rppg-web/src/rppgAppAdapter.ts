@@ -59,7 +59,10 @@ export type RppgAppAdapterSource = {
 	getDiagnostics(): RppgSessionDiagnostics | null;
 	getTraceSnapshot(maxPoints?: number): RppgTraceSnapshot;
 	/** Latest face blendshapes (for affect). Optional — sources without face tracking omit it. */
-	getLastBlendshapes?(): { blendshapes: FaceBlendshapeCategory[]; atMs: number } | null;
+	getLastBlendshapes?(): {
+		blendshapes: FaceBlendshapeCategory[];
+		atMs: number;
+	} | null;
 	/** Latest normalized head box (for framing). Optional — omitted by sources without face tracking. */
 	getLastFaceBox?(): { box: FaceBox; atMs: number } | null;
 };
@@ -193,7 +196,10 @@ function deriveStatus(
 	return "running";
 }
 
-function buildRetryMessage(nextRetryAtMs: number | null, nowMs: number): string {
+function buildRetryMessage(
+	nextRetryAtMs: number | null,
+	nowMs: number,
+): string {
 	if (nextRetryAtMs == null) return "Retrying after a processor failure";
 	const remainingMs = Math.max(0, nextRetryAtMs - nowMs);
 	const remainingSec = Math.max(1, Math.ceil(remainingMs / 1000));
@@ -284,7 +290,8 @@ export class RppgAppAdapter {
 		if (sessionState == null && !isManagedState(source.state)) {
 			sessionState = source.state;
 		}
-		const activeCapture = managedState == null || managedState.status === "running";
+		const activeCapture =
+			managedState == null || managedState.status === "running";
 		// Resolve the tracked head box: `undefined` when the source can't report
 		// one (no face tracking), `null` when it can but the face is gone/stale,
 		// else the fresh box. Drives both gating's face presence and positioning.
@@ -307,9 +314,13 @@ export class RppgAppAdapter {
 			this.gating.reset();
 			gating = idleGating("Monitoring paused");
 		}
-		const framing =
-			faceBox === undefined ? null : faceFramingFromBox(faceBox);
-		const status = deriveStatus(managedState, sessionState, normalizedError, gating);
+		const framing = faceBox === undefined ? null : faceFramingFromBox(faceBox);
+		const status = deriveStatus(
+			managedState,
+			sessionState,
+			normalizedError,
+			gating,
+		);
 		const guidance = deriveGuidance(
 			status,
 			gating,

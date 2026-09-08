@@ -2,7 +2,10 @@ import type { WaveformPeriodicityProfile } from "./rppgDiagnostics";
 
 export type TrackerSource = "peaks" | "acf" | "spectral";
 export type HarmonicMode = "half" | "fundamental" | "double";
-export type TrackerReferenceOrigin = "none" | "session_pair" | "snapshot_restore";
+export type TrackerReferenceOrigin =
+	| "none"
+	| "session_pair"
+	| "snapshot_restore";
 
 export interface EstimatorMeasurement {
 	source: TrackerSource;
@@ -301,10 +304,7 @@ export class BpmBayesTracker {
 			context.referenceBpm,
 		);
 
-		if (
-			context.referenceBpm != null &&
-			Number.isFinite(context.referenceBpm)
-		) {
+		if (context.referenceBpm != null && Number.isFinite(context.referenceBpm)) {
 			this.observeReference(
 				context.referenceBpm,
 				context.referenceStrength ?? 1,
@@ -350,7 +350,10 @@ export class BpmBayesTracker {
 		const s = clamp(strength, 0, 1);
 		this.updateReliability(referenceBpm, measurements);
 
-		const modeWeights = this.inferReferenceModeWeights(referenceBpm, measurements);
+		const modeWeights = this.inferReferenceModeWeights(
+			referenceBpm,
+			measurements,
+		);
 		for (const mode of MODES) {
 			this.harmonicPrior[mode] = clamp(
 				this.harmonicPrior[mode] * (1 - s * 0.45) +
@@ -360,7 +363,10 @@ export class BpmBayesTracker {
 			);
 		}
 
-		if (this.referencePriorBpm == null || !Number.isFinite(this.referencePriorBpm)) {
+		if (
+			this.referencePriorBpm == null ||
+			!Number.isFinite(this.referencePriorBpm)
+		) {
 			this.referencePriorBpm = referenceBpm;
 		} else {
 			const blend = clamp(0.2 + s * 0.35, 0.2, 0.55);
@@ -396,7 +402,10 @@ export class BpmBayesTracker {
 		const s = clamp(strength, 0, 1);
 		this.updateReliability(referenceBpm, measurements);
 
-		const modeWeights = this.inferReferenceModeWeights(referenceBpm, measurements);
+		const modeWeights = this.inferReferenceModeWeights(
+			referenceBpm,
+			measurements,
+		);
 		for (const mode of MODES) {
 			this.harmonicPrior[mode] = clamp(
 				this.harmonicPrior[mode] * (1 - s * 0.55) +
@@ -438,8 +447,7 @@ export class BpmBayesTracker {
 				1.2,
 			);
 			this.sourceHarmonicConfusion[measurement.source] = clamp(
-				this.sourceHarmonicConfusion[measurement.source] *
-					(1 - learningRate) +
+				this.sourceHarmonicConfusion[measurement.source] * (1 - learningRate) +
 					confusionTarget * learningRate,
 				0.05,
 				0.9,
@@ -663,9 +671,7 @@ export class BpmBayesTracker {
 		const maxEntropy = Math.log(this.posterior.length);
 		const normalizedEntropy = maxEntropy > 0 ? entropy / maxEntropy : 1;
 		const confidence = clamp(
-			localMass *
-				(1 - normalizedEntropy * 0.35) *
-				(1 - this.evidenceAmbiguity),
+			localMass * (1 - normalizedEntropy * 0.35) * (1 - this.evidenceAmbiguity),
 			0,
 			1,
 		);
@@ -691,7 +697,9 @@ export class BpmBayesTracker {
 		if (!this.qualityProvider) return neutral;
 		try {
 			const result = this.qualityProvider.evaluate({ measurements, context });
-			for (const source of Object.keys(neutral.sourceMultiplier) as TrackerSource[]) {
+			for (const source of Object.keys(
+				neutral.sourceMultiplier,
+			) as TrackerSource[]) {
 				const value = Number(result?.sourceMultiplier?.[source]);
 				if (Number.isFinite(value)) {
 					neutral.sourceMultiplier[source] = clamp(value, 0.25, 1.75);
@@ -718,11 +726,8 @@ export class BpmBayesTracker {
 		if (bpms.length < 2) return 0;
 		const spread = Math.max(...bpms) - Math.min(...bpms);
 		return (
-			clamp(
-				(spread - options.spreadStartBpm) / options.spreadRangeBpm,
-				0,
-				1,
-			) * options.maxPenalty
+			clamp((spread - options.spreadStartBpm) / options.spreadRangeBpm, 0, 1) *
+			options.maxPenalty
 		);
 	}
 
@@ -738,7 +743,8 @@ export class BpmBayesTracker {
 		}
 		for (let i = 0; i < this.posterior.length; i++) {
 			const value = this.posterior[i];
-			this.posterior[i] = Number.isFinite(value) && value > 0 ? value / sum : 1e-12;
+			this.posterior[i] =
+				Number.isFinite(value) && value > 0 ? value / sum : 1e-12;
 		}
 	}
 
@@ -878,7 +884,9 @@ export class BpmBayesTracker {
 		const candidates = [
 			waveformProfile?.dominantBpm ?? null,
 			waveformProfile?.secondaryBpm ?? null,
-		].filter((value): value is number => value != null && Number.isFinite(value));
+		].filter(
+			(value): value is number => value != null && Number.isFinite(value),
+		);
 		if (!candidates.length) return 0.2;
 
 		const targets: number[] = [];
@@ -929,7 +937,11 @@ export class BpmBayesTracker {
 		}
 
 		const refDecay = Math.exp(-dtSec / 180);
-		this.referencePriorWeight = clamp(this.referencePriorWeight * refDecay, 0, 1);
+		this.referencePriorWeight = clamp(
+			this.referencePriorWeight * refDecay,
+			0,
+			1,
+		);
 		const modeDecay = Math.exp(-dtSec / 300);
 		for (const mode of MODES) {
 			this.harmonicPrior[mode] = 1 + (this.harmonicPrior[mode] - 1) * modeDecay;

@@ -1,4 +1,7 @@
-import type { HeadbandClockSource, HeadbandFrameV1 } from "@elata-biosciences/eeg-web";
+import type {
+	HeadbandClockSource,
+	HeadbandFrameV1,
+} from "@elata-biosciences/eeg-web";
 import {
 	analyzePulseWindow,
 	cleanNnIntervalsMs,
@@ -173,8 +176,12 @@ export class PpgProcessor {
 	getDebugSnapshot(): PpgDebugSnapshot {
 		return {
 			framesSeen: this.framesSeen,
-			sourcesSeen: uniqueSorted(Array.from(this.streams.values()).map((stream) => stream.source)),
-			channelsSeen: uniqueSorted(Array.from(this.streams.values()).map((stream) => stream.channel)),
+			sourcesSeen: uniqueSorted(
+				Array.from(this.streams.values()).map((stream) => stream.source),
+			),
+			channelsSeen: uniqueSorted(
+				Array.from(this.streams.values()).map((stream) => stream.channel),
+			),
 			selectedSource: this.metrics.source,
 			selectedChannel: this.metrics.channel,
 			lastFrameAtMs: this.lastFrameAtMs,
@@ -213,9 +220,14 @@ export class PpgProcessor {
 			frame.emittedAtMs,
 		);
 
-		for (let channelIndex = 0; channelIndex < block.channelCount; channelIndex++) {
+		for (
+			let channelIndex = 0;
+			channelIndex < block.channelCount;
+			channelIndex++
+		) {
 			const channelName =
-				block.channelNames[channelIndex] ?? `${source.toUpperCase()}${channelIndex + 1}`;
+				block.channelNames[channelIndex] ??
+				`${source.toUpperCase()}${channelIndex + 1}`;
 			if (!this.channelMatches(channelName, channelIndex)) continue;
 			const stream = this.getOrCreateStream(
 				source,
@@ -231,7 +243,8 @@ export class PpgProcessor {
 				const row = block.samples[rowIndex];
 				const intensity = Number(row?.[channelIndex]);
 				const timestampMs = timestamps[rowIndex];
-				if (!Number.isFinite(intensity) || !Number.isFinite(timestampMs)) continue;
+				if (!Number.isFinite(intensity) || !Number.isFinite(timestampMs))
+					continue;
 
 				const prev = stream.samples[stream.samples.length - 1];
 				const delta = prev ? Math.abs(intensity - prev.intensity) : 0;
@@ -254,8 +267,12 @@ export class PpgProcessor {
 			}
 
 			const cutoff =
-				(stream.lastTimestampMs ?? frame.emittedAtMs) - this.options.windowSec * 1000;
-			while (stream.samples.length > 1 && stream.samples[0].timestampMs < cutoff) {
+				(stream.lastTimestampMs ?? frame.emittedAtMs) -
+				this.options.windowSec * 1000;
+			while (
+				stream.samples.length > 1 &&
+				stream.samples[0].timestampMs < cutoff
+			) {
 				stream.samples.shift();
 			}
 		}
@@ -380,7 +397,8 @@ export class PpgProcessor {
 
 	private channelMatches(channelName: string, channelIndex: number): boolean {
 		if (this.options.channel === "auto") return true;
-		if (typeof this.options.channel === "number") return this.options.channel === channelIndex;
+		if (typeof this.options.channel === "number")
+			return this.options.channel === channelIndex;
 		return this.options.channel === channelName;
 	}
 }
@@ -423,14 +441,19 @@ function buildCandidate(stream: InternalStream): CandidateComputation | null {
 		};
 	}
 
-	const normalized = temporalNormalize(stream.samples.map((sample) => sample.intensity));
+	const normalized = temporalNormalize(
+		stream.samples.map((sample) => sample.intensity),
+	);
 	const points = stream.samples.map((sample, index) => ({
 		timestampMs: sample.timestampMs,
 		value: sample.intensity,
 		normalized: normalized[index] ?? 0,
 	}));
 	const peaks = detectPeaks(
-		points.map((point) => ({ time: point.timestampMs, value: point.normalized })),
+		points.map((point) => ({
+			time: point.timestampMs,
+			value: point.normalized,
+		})),
 		analysis.peaks?.bpm ?? analysis.spectral?.bpm ?? analysis.acf?.bpm ?? null,
 	);
 	// Use artifact-rejected NN intervals (peak times are already sub-sample
@@ -496,7 +519,8 @@ function buildCandidate(stream: InternalStream): CandidateComputation | null {
 		lastSampleTimestampMs:
 			stream.samples[stream.samples.length - 1]?.timestampMs ?? null,
 		reasonCodes: reasons,
-		spectralBpm: analysis.spectral?.bpm != null ? round(analysis.spectral.bpm) : null,
+		spectralBpm:
+			analysis.spectral?.bpm != null ? round(analysis.spectral.bpm) : null,
 		acfBpm: analysis.acf?.bpm != null ? round(analysis.acf.bpm) : null,
 		peaksBpm: analysis.peaks?.bpm != null ? round(analysis.peaks.bpm) : null,
 		respirationBpm:
@@ -517,13 +541,18 @@ function resolveBpm(
 ): number | null {
 	if (!analysis) return null;
 	const candidates = [
-		analysis.peaks ? { bpm: analysis.peaks.bpm, confidence: analysis.peaks.confidence } : null,
+		analysis.peaks
+			? { bpm: analysis.peaks.bpm, confidence: analysis.peaks.confidence }
+			: null,
 		analysis.spectral
 			? { bpm: analysis.spectral.bpm, confidence: analysis.spectral.confidence }
 			: null,
-		analysis.acf ? { bpm: analysis.acf.bpm, confidence: analysis.acf.confidence } : null,
+		analysis.acf
+			? { bpm: analysis.acf.bpm, confidence: analysis.acf.confidence }
+			: null,
 	].filter(
-		(candidate): candidate is { bpm: number; confidence: number } => candidate != null,
+		(candidate): candidate is { bpm: number; confidence: number } =>
+			candidate != null,
 	);
 	if (!candidates.length) return null;
 
@@ -532,7 +561,10 @@ function resolveBpm(
 	const support = candidates.filter(
 		(candidate) => Math.abs(candidate.bpm - anchor.bpm) <= 10,
 	);
-	const totalWeight = support.reduce((acc, candidate) => acc + candidate.confidence, 0);
+	const totalWeight = support.reduce(
+		(acc, candidate) => acc + candidate.confidence,
+		0,
+	);
 	if (totalWeight <= 0) return anchor.bpm;
 	return (
 		support.reduce(
@@ -550,8 +582,9 @@ function computeAgreement(values: Array<number | null>): number {
 	return clamp(1 - spread / 18, 0, 1);
 }
 
-
-function stripCandidateTrace(candidate: CandidateComputation): PpgChannelCandidate {
+function stripCandidateTrace(
+	candidate: CandidateComputation,
+): PpgChannelCandidate {
 	return {
 		source: candidate.source,
 		channel: candidate.channel,

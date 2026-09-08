@@ -236,7 +236,12 @@ export class MuseBleDevice {
 				"Web Bluetooth not available in this browser",
 				{
 					recoverable: false,
-					details: { platform: typeof navigator !== "undefined" ? navigator.userAgent : "unknown" },
+					details: {
+						platform:
+							typeof navigator !== "undefined"
+								? navigator.userAgent
+								: "unknown",
+					},
 				},
 			);
 		}
@@ -255,9 +260,13 @@ export class MuseBleDevice {
 
 		this.server = (await this.device.gatt?.connect()) ?? null;
 		if (!this.server) {
-			throw new ElataError("BLE_GATT_CONNECT_FAILED", "Failed to connect to GATT server", {
-				recoverable: true,
-			});
+			throw new ElataError(
+				"BLE_GATT_CONNECT_FAILED",
+				"Failed to connect to GATT server",
+				{
+					recoverable: true,
+				},
+			);
 		}
 		this.service = await this.server.getPrimaryService(this.SERVICE_UUID);
 

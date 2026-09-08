@@ -33,9 +33,7 @@ export type CreateManagedRppgSessionOptions = CreateRppgSessionOptions & {
 };
 
 type ManagedRppgSessionInternals = {
-	sessionFactory?: (
-		options: CreateRppgSessionOptions,
-	) => Promise<RppgSession>;
+	sessionFactory?: (options: CreateRppgSessionOptions) => Promise<RppgSession>;
 	setTimeoutFn?: typeof setTimeout;
 	clearTimeoutFn?: typeof clearTimeout;
 };
@@ -118,7 +116,9 @@ export class ManagedRppgSession {
 	}
 
 	getTraceSnapshot(maxPoints = 300): RppgTraceSnapshot {
-		return this.activeSession?.getTraceSnapshot(maxPoints) ?? emptyTraceSnapshot();
+		return (
+			this.activeSession?.getTraceSnapshot(maxPoints) ?? emptyTraceSnapshot()
+		);
 	}
 
 	async start(): Promise<void> {
@@ -170,8 +170,7 @@ export class ManagedRppgSession {
 		});
 
 		const sessionOptions = this.buildSessionOptions(generation);
-		const sessionFactory =
-			this.internals.sessionFactory ?? createRppgSession;
+		const sessionFactory = this.internals.sessionFactory ?? createRppgSession;
 
 		try {
 			const session = await sessionFactory(sessionOptions);
@@ -198,9 +197,7 @@ export class ManagedRppgSession {
 		}
 	}
 
-	private buildSessionOptions(
-		generation: number,
-	): CreateRppgSessionOptions {
+	private buildSessionOptions(generation: number): CreateRppgSessionOptions {
 		const {
 			maxRetries: _maxRetries,
 			retryDelayMs: _retryDelayMs,
@@ -292,9 +289,7 @@ export class ManagedRppgSession {
 		}
 	}
 
-	private updateState(
-		patch: Partial<ManagedRppgSessionState>,
-	) {
+	private updateState(patch: Partial<ManagedRppgSessionState>) {
 		this.stateValue = {
 			...this.stateValue,
 			...patch,
@@ -327,7 +322,10 @@ function normalizeSessionError(error: unknown): RppgSessionError {
 	return {
 		code: "backend_init_failed",
 		stage: "backend",
-		message: error instanceof Error ? error.message : "Failed to start managed rPPG session.",
+		message:
+			error instanceof Error
+				? error.message
+				: "Failed to start managed rPPG session.",
 		timestampMs: Date.now(),
 		cause: error,
 	};

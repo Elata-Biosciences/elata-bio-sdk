@@ -257,7 +257,10 @@ export function createMetricsHost(options: MetricsHostOptions): MetricsHost {
 			walletAddress,
 			appId,
 			value: req.value,
-			meta: req.meta === undefined ? undefined : JSON.parse(JSON.stringify(req.meta)),
+			meta:
+				req.meta === undefined
+					? undefined
+					: JSON.parse(JSON.stringify(req.meta)),
 			timestamp: now(),
 			sizeBytes,
 		};
@@ -296,11 +299,9 @@ export function createMetricsHost(options: MetricsHostOptions): MetricsHost {
 			port = channel.port1;
 			port.onmessage = handleMessage;
 			port.start();
-			win.postMessage(
-				{ kind: INIT_MESSAGE_KIND, v: PROTOCOL_VERSION },
-				"*",
-				[channel.port2],
-			);
+			win.postMessage({ kind: INIT_MESSAGE_KIND, v: PROTOCOL_VERSION }, "*", [
+				channel.port2,
+			]);
 		},
 		stop() {
 			stopped = true;
@@ -315,7 +316,8 @@ export function createMetricsHost(options: MetricsHostOptions): MetricsHost {
 
 function defaultRandomId(): string {
 	const c =
-		typeof globalThis.crypto !== "undefined" && "randomUUID" in globalThis.crypto
+		typeof globalThis.crypto !== "undefined" &&
+		"randomUUID" in globalThis.crypto
 			? globalThis.crypto
 			: undefined;
 	if (c) return c.randomUUID();

@@ -49,7 +49,9 @@ module.exports = {
 		notch_frequencies_hz() {
 			const mainsHz = this.config.notch?.mains_hz;
 			if (!mainsHz) return [];
-			return (this.config.notch?.harmonics || [1, 2]).map((harmonic) => harmonic * mainsHz);
+			return (this.config.notch?.harmonics || [1, 2]).map(
+				(harmonic) => harmonic * mainsHz,
+			);
 		}
 		free() {}
 	},

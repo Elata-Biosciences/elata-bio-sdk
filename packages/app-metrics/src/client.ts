@@ -83,11 +83,7 @@ export interface MetricsClient {
 export class MetricsClientError extends Error {
 	readonly code: HostErrorCode | "handshake_timeout" | "disposed" | "transport";
 	constructor(
-		code:
-			| HostErrorCode
-			| "handshake_timeout"
-			| "disposed"
-			| "transport",
+		code: HostErrorCode | "handshake_timeout" | "disposed" | "transport",
 		message: string,
 	) {
 		super(message);
@@ -171,7 +167,10 @@ export function createMetricsClient(
 			call.resolve(response.result);
 		} else {
 			call.reject(
-				new MetricsClientError(response.error, `metrics host: ${response.error}`),
+				new MetricsClientError(
+					response.error,
+					`metrics host: ${response.error}`,
+				),
 			);
 		}
 	};

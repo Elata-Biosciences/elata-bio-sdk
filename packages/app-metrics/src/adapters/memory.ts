@@ -26,7 +26,9 @@ export function createMemoryAdapter(): StorageAdapter {
 			const result = rows
 				.filter(scopeFilter(walletAddress, appId))
 				.filter((r): r is StoredRecord => !isStoredScore(r))
-				.filter((r) => (filter.type === undefined ? true : r.type === filter.type))
+				.filter((r) =>
+					filter.type === undefined ? true : r.type === filter.type,
+				)
 				.filter((r) => r.timestamp >= since && r.timestamp <= until)
 				.sort((a, b) => b.timestamp - a.timestamp)
 				.slice(0, limit);

@@ -232,8 +232,7 @@ export class DemoRunner {
 		}
 		const useSkinMask = this.opts.useSkinMask !== false;
 		if (this.opts.onRoiSamples && frame.namedRois) {
-			const sampler =
-				this.opts.roiPixelSampler ?? ELATA_YCBCR_V1_PIXEL_SAMPLER;
+			const sampler = this.opts.roiPixelSampler ?? ELATA_YCBCR_V1_PIXEL_SAMPLER;
 			const samples = Object.entries(frame.namedRois).flatMap(([name, roi]) =>
 				roi
 					? [
@@ -360,10 +359,7 @@ export class DemoRunner {
 		const ts = frame.timestampMs ?? Date.now();
 		const proc = this.processor as any;
 		try {
-			if (
-				fusionResult?.valid &&
-				typeof proc.pushFusedSample === "function"
-			) {
+			if (fusionResult?.valid && typeof proc.pushFusedSample === "function") {
 				// Fused pulse already carries CHROM + SNR-weighted blending; feed it
 				// straight to spectral BPM/HRV, with the fused SNR as quality.
 				proc.pushFusedSample(ts, fusionResult.fused, fusionResult.fusedSnr);
@@ -436,11 +432,7 @@ export class DemoRunner {
 		const n = Math.min(FUSION_ROIS.length, rois.length);
 		for (let i = 0; i < n; i++) {
 			const c = clampRoiToFrame(rois[i]!, frame.width, frame.height);
-			const s = sampleRgbWithSkinMask(
-				frame,
-				c,
-				this.opts.roiPixelSampler,
-			);
+			const s = sampleRgbWithSkinMask(frame, c, this.opts.roiPixelSampler);
 			samples[FUSION_ROIS[i]!] = {
 				r: s.r,
 				g: s.g,
@@ -577,13 +569,7 @@ function sampleRgbWithSkinMask(
 	pixelSampler?: RoiPixelSampler,
 ) {
 	if (!pixelSampler) {
-		return averageRgbInROIWithSkinMaskStats(
-			frame,
-			roi.x,
-			roi.y,
-			roi.w,
-			roi.h,
-		);
+		return averageRgbInROIWithSkinMaskStats(frame, roi.x, roi.y, roi.w, roi.h);
 	}
 	const sample = pixelSampler.sample(frame, roi);
 	return {

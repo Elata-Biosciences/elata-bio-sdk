@@ -45,7 +45,10 @@ mod tests {
             .map(|i| extract_packed_le(&packed, i * 10, 10))
             .collect();
 
-        assert_eq!(decoded, values.iter().map(|&v| v as u32).collect::<Vec<_>>());
+        assert_eq!(
+            decoded,
+            values.iter().map(|&v| v as u32).collect::<Vec<_>>()
+        );
     }
 
     #[test]

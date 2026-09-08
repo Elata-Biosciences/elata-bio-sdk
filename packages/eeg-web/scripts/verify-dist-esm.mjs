@@ -29,4 +29,3 @@ assert.equal(typeof mod.initEegWasm, "function");
 assert.equal(typeof mod.initEegWasmSync, "function");
 
 console.log("[eeg-web] Verified Node-friendly ESM dist imports.");
-

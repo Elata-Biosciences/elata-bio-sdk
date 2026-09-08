@@ -300,7 +300,9 @@ export class RppgGatingController {
 			captureConfidence != null &&
 			captureConfidence < this.opts.minCaptureConfidence
 		) {
-			reasons.push(`low_capture_confidence_${metrics.capture_limiting ?? "unknown"}`);
+			reasons.push(
+				`low_capture_confidence_${metrics.capture_limiting ?? "unknown"}`,
+			);
 			if (metrics.capture_limiting === "lighting") {
 				guidance = {
 					code: "increase_lighting",
@@ -328,4 +330,3 @@ export class RppgGatingController {
 		};
 	}
 }
-

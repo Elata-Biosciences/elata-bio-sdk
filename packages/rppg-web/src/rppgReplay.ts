@@ -1,7 +1,4 @@
-import {
-	BpmBayesTracker,
-	type EstimatorMeasurement,
-} from "./bpmBayesTracker";
+import { BpmBayesTracker, type EstimatorMeasurement } from "./bpmBayesTracker";
 import { computeWaveformPeriodicityProfile } from "./rppgDiagnostics";
 
 type CandidateSource = "peaks" | "acf" | "spectral";
@@ -189,7 +186,9 @@ export function replayBayesSession(
 		pairWindowMs?: number;
 	},
 ): ReplayBayesSessionResult {
-	const syncSamples = [...session.syncSamples].sort((a, b) => a.epochTs - b.epochTs);
+	const syncSamples = [...session.syncSamples].sort(
+		(a, b) => a.epochTs - b.epochTs,
+	);
 	const pairEvents = [...(session.pairEvents ?? [])]
 		.filter(
 			(event) =>
@@ -220,12 +219,11 @@ export function replayBayesSession(
 		}
 
 		const dtSec =
-			prevTs > 0
-				? clamp((sample.epochTs - prevTs) / 1000, 0.03, 0.7)
-				: 0.1;
+			prevTs > 0 ? clamp((sample.epochTs - prevTs) / 1000, 0.03, 0.7) : 0.1;
 		prevTs = sample.epochTs;
 		const estimators = sample.estimators ?? {};
-		const waveformValues = sample.museWindow?.values ?? sample.filteredWindow?.values ?? null;
+		const waveformValues =
+			sample.museWindow?.values ?? sample.filteredWindow?.values ?? null;
 		const waveformProfile =
 			Array.isArray(waveformValues) && waveformValues.length
 				? computeWaveformPeriodicityProfile(
@@ -259,7 +257,8 @@ export function replayBayesSession(
 			recordedBayesConfidence: safeNumber(estimators.bayesConfidence),
 			recordedFinalBpm,
 			referenceBpm: latestReferenceBpm,
-			recordedTrusted: recordedFinalBpm != null && estimators.suppressed !== true,
+			recordedTrusted:
+				recordedFinalBpm != null && estimators.suppressed !== true,
 			recordedManualLock,
 		});
 	}

@@ -105,11 +105,7 @@ pub struct StreamingEegPreprocessor {
 }
 
 impl StreamingEegPreprocessor {
-    pub fn new(
-        sample_rate_hz: f32,
-        channel_count: usize,
-        config: EegPreprocessorConfig,
-    ) -> Self {
+    pub fn new(sample_rate_hz: f32, channel_count: usize, config: EegPreprocessorConfig) -> Self {
         let mut processor = Self {
             sample_rate_hz,
             channel_count,
@@ -206,8 +202,8 @@ impl StreamingEegPreprocessor {
 
     fn apply_iir_filters(&mut self, rows: &mut [Vec<f32>]) {
         for row in rows {
-            for channel_idx in 0..self.channel_count {
-                let mut value = row[channel_idx];
+            for (channel_idx, slot) in row.iter_mut().enumerate().take(self.channel_count) {
+                let mut value = *slot;
                 for stage in &mut self.notch_stages {
                     if let Some(filter) = stage.get_mut(channel_idx) {
                         value = filter.process(value);
@@ -216,7 +212,7 @@ impl StreamingEegPreprocessor {
                 if let Some(filter) = self.detrend_stages.get_mut(channel_idx) {
                     value = filter.process(value);
                 }
-                row[channel_idx] = value;
+                *slot = value;
             }
         }
     }
@@ -276,7 +272,13 @@ impl StreamingEegPreprocessor {
             .iter()
             .map(|freq_hz| {
                 (0..self.channel_count)
-                    .map(|_| BiquadFilter::notch(*freq_hz, self.bandwidth_hz(*freq_hz), self.sample_rate_hz))
+                    .map(|_| {
+                        BiquadFilter::notch(
+                            *freq_hz,
+                            self.bandwidth_hz(*freq_hz),
+                            self.sample_rate_hz,
+                        )
+                    })
                     .collect()
             })
             .collect();
@@ -318,10 +320,13 @@ fn resolve_notch_frequencies(
     let mut out = Vec::new();
     for harmonic in harmonics {
         let frequency_hz = mains_hz * *harmonic;
-        if frequency_hz > 0.0 && frequency_hz < nyquist_hz - 1.0 {
-            if !out.iter().any(|existing| (existing - frequency_hz).abs() < 1e-3) {
-                out.push(frequency_hz);
-            }
+        if frequency_hz > 0.0
+            && frequency_hz < nyquist_hz - 1.0
+            && !out
+                .iter()
+                .any(|existing| (existing - frequency_hz).abs() < 1e-3)
+        {
+            out.push(frequency_hz);
         }
     }
     out.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
@@ -368,7 +373,8 @@ mod tests {
     use std::f32::consts::PI;
 
     fn rms(values: &[f32]) -> f32 {
-        let mean_square = values.iter().map(|value| value * value).sum::<f32>() / values.len() as f32;
+        let mean_square =
+            values.iter().map(|value| value * value).sum::<f32>() / values.len() as f32;
         mean_square.sqrt()
     }
 

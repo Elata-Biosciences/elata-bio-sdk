@@ -33,12 +33,7 @@
 		},
 		"./pkg/*": "./pkg/*"
 	},
-	"files": [
-		"dist",
-		"pkg",
-		"README.md",
-		"llms.txt"
-	],
+	"files": ["dist", "pkg", "README.md", "llms.txt"],
 	"publishConfig": {
 		"access": "public"
 	},

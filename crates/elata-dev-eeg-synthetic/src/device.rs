@@ -1,6 +1,8 @@
 //! Synthetic EEG device implementation
 
-use elata_eeg_hal::{ChannelConfig, DeviceInfo, DeviceState, EegDevice, HalError, Result, SampleBuffer};
+use elata_eeg_hal::{
+    ChannelConfig, DeviceInfo, DeviceState, EegDevice, HalError, Result, SampleBuffer,
+};
 
 use crate::generator::{NoiseLevel, SignalGenerator, SignalProfile};
 
