@@ -206,8 +206,8 @@ impl StreamingEegPreprocessor {
 
     fn apply_iir_filters(&mut self, rows: &mut [Vec<f32>]) {
         for row in rows {
-            for channel_idx in 0..self.channel_count {
-                let mut value = row[channel_idx];
+            for (channel_idx, slot) in row.iter_mut().enumerate().take(self.channel_count) {
+                let mut value = *slot;
                 for stage in &mut self.notch_stages {
                     if let Some(filter) = stage.get_mut(channel_idx) {
                         value = filter.process(value);
@@ -216,7 +216,7 @@ impl StreamingEegPreprocessor {
                 if let Some(filter) = self.detrend_stages.get_mut(channel_idx) {
                     value = filter.process(value);
                 }
-                row[channel_idx] = value;
+                *slot = value;
             }
         }
     }
@@ -318,10 +318,13 @@ fn resolve_notch_frequencies(
     let mut out = Vec::new();
     for harmonic in harmonics {
         let frequency_hz = mains_hz * *harmonic;
-        if frequency_hz > 0.0 && frequency_hz < nyquist_hz - 1.0 {
-            if !out.iter().any(|existing| (existing - frequency_hz).abs() < 1e-3) {
-                out.push(frequency_hz);
-            }
+        if frequency_hz > 0.0
+            && frequency_hz < nyquist_hz - 1.0
+            && !out
+                .iter()
+                .any(|existing| (existing - frequency_hz).abs() < 1e-3)
+        {
+            out.push(frequency_hz);
         }
     }
     out.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
