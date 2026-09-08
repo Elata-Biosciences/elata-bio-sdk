@@ -88,7 +88,7 @@ function normalizeDetrend(
 	return {
 		mode: detrendOptions.mode ?? "highpass",
 		cutoff_hz: detrendOptions.cutoffHz ?? 0.5,
-		q: detrendOptions.qualityFactor ?? 0.707,
+		q: detrendOptions.qualityFactor ?? Math.SQRT1_2,
 	};
 }
 

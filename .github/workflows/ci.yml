@@ -121,6 +121,23 @@ jobs:
           wasm-bindgen target/wasm32-unknown-unknown/release/rppg_wasm.wasm \
             --out-dir packages/rppg-web/demo/pkg --target web
 
+      # biosignal-features-wasm ships both targets, matching what
+      # packages/biosignal-analytics/scripts/build-wasm.mjs runs locally: web
+      # (bundlers, workers, browsers) for the package's own dist build, and
+      # nodejs (CJS glue) so Jest and Node consumers get the same binary
+      # without a browser-only import. Neither was ever wired into CI, so
+      # `pnpm build` here failed on a missing module every run since the
+      # package was added.
+      - name: Run wasm-bindgen for biosignal-features (web target)
+        run: |
+          wasm-bindgen target/wasm32-unknown-unknown/release/biosignal_features_wasm.wasm \
+            --out-dir packages/biosignal-analytics/wasm --target web
+
+      - name: Run wasm-bindgen for biosignal-features (nodejs target)
+        run: |
+          wasm-bindgen target/wasm32-unknown-unknown/release/biosignal_features_wasm.wasm \
+            --out-dir packages/biosignal-analytics/wasm/node --target nodejs
+
       - name: Upload eeg WASM artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -133,6 +150,13 @@ jobs:
         with:
           name: rppg-wasm-pkg
           path: packages/rppg-web/demo/pkg/
+          retention-days: 1
+
+      - name: Upload biosignal-features WASM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: biosignal-wasm-pkg
+          path: packages/biosignal-analytics/wasm/
           retention-days: 1
 
   web-tests:
@@ -163,6 +187,12 @@ jobs:
         with:
           name: eeg-wasm-pkg
           path: packages/eeg-web/wasm
+
+      - name: Download biosignal-features WASM artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: biosignal-wasm-pkg
+          path: packages/biosignal-analytics/wasm
 
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
@@ -221,6 +251,12 @@ jobs:
         with:
           name: rppg-wasm-pkg
           path: packages/rppg-web/demo/pkg
+
+      - name: Download biosignal-features WASM artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: biosignal-wasm-pkg
+          path: packages/biosignal-analytics/wasm
 
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile

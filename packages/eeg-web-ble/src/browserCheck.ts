@@ -15,7 +15,7 @@ export function checkWebBluetooth(): BluetoothSupportResult {
     return { supported: false, isIOS: false, message: "Web Bluetooth requires a browser environment." };
   }
 
-  if (!!navigator.bluetooth) {
+  if (navigator.bluetooth) {
     return { supported: true };
   }
 
