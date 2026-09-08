@@ -8,7 +8,8 @@
 			"**/coverage/**",
 			"packages/eeg-web/wasm/**",
 			"packages/rppg-web/demo/**",
-			"packages/rppg-web/e2e/**"
+			"packages/rppg-web/e2e/**",
+			"packages/biosignal-analytics/wasm/**"
 		]
 	},
 	"formatter": {
