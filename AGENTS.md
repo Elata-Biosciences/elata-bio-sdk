@@ -243,6 +243,14 @@ Before making release-related claims, inspect current `package.json` files and
 - Do not remove backward-compatible wrappers like `scripts/dev-link.sh` unless explicitly requested.
 - Be careful with generated-artifact flows: some packages publish generated files intentionally.
 - If docs mention commands, confirm the commands still exist before editing.
+- Never bundle a repo-wide formatter run with a scoped bug fix. A PR fixing
+  two Clippy lints once shipped as a 17,896-line diff across 139 files
+  because `biome format --write .` / `cargo fmt --all` got run alongside it
+  to also clear the separately-failing Format check. The formatter run is a
+  single, zero-risk command anyone can run on their own with nothing to
+  review line-by-line; a real fix is not. Ship them as separate PRs (or
+  don't ship the formatter run as a PR at all, just note that the command
+  exists) so a reviewer can actually see what changed.
 
 ## Good Default Workflow For Agents
 
