@@ -5,6 +5,7 @@ import {
 	observeFrame,
 	pastStartupGrace,
 	sameSignature,
+	shouldDeclareNoFrame,
 	signatureOf,
 } from "../cameraLiveness";
 
@@ -140,6 +141,34 @@ describe("pastStartupGrace", () => {
 	test("measures from the given start, not from zero", () => {
 		expect(pastStartupGrace(50_000, 50_000 + STARTUP_GRACE_MS)).toBe(true);
 		expect(pastStartupGrace(50_000, 50_000 + STARTUP_GRACE_MS - 1)).toBe(false);
+	});
+});
+
+describe("shouldDeclareNoFrame", () => {
+	test("is false before the grace period, even with no frame ever seen", () => {
+		const state = initialLiveness(0);
+		expect(shouldDeclareNoFrame(state, STARTUP_GRACE_MS - 1)).toBe(false);
+	});
+
+	test("is true past the grace period when no frame has ever been sampled", () => {
+		const state = initialLiveness(0);
+		expect(shouldDeclareNoFrame(state, STARTUP_GRACE_MS)).toBe(true);
+	});
+
+	test("THE REGRESSION THIS EXISTS FOR: is false once a real frame has already landed, however long ago the session armed", () => {
+		// Found independently in both peak-app and vitality-app: a synthetic-pulse
+		// e2e fixture was already producing real frames when a single missed
+		// readyState/videoWidth tick, well past startedAt, read as "never
+		// started" and forced a destructive reacquire mid-reading. startedAt
+		// never moves once armed, so pastStartupGrace alone stays true for the
+		// rest of the session; only the signature check tells "never started"
+		// apart from "started fine, one bad tick".
+		let state = initialLiveness(0);
+		state = observeFrame(state, [1, 2, 3], 100); // a real frame lands early
+		// Long after the grace period, readyState/videoWidth glitches false for
+		// one tick: a consumer's paint loop calls this with the CURRENT time
+		// but the liveness object from the last successful sample, unchanged.
+		expect(shouldDeclareNoFrame(state, STARTUP_GRACE_MS * 10)).toBe(false);
 	});
 });
 
