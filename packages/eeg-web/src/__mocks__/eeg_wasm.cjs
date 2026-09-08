@@ -8,22 +8,26 @@ module.exports = {
 	RppgPipeline: class RppgPipeline {
 		free() {}
 	},
-	WasmRppgPipeline: class WasmRppgPipeline {
-		constructor(sampleRate, windowSec) {
+	WasmRppgPipeline: (() => {
+		// A plain constructor function, not a class: returning an object here
+		// mocks wasm-bindgen's actual instance shape (Object.create off
+		// RppgPipeline.prototype), and a class constructor is not allowed to
+		// return a value under noConstructorReturn.
+		function WasmRppgPipeline(sampleRate, windowSec) {
 			const instance = Object.create(module.exports.RppgPipeline.prototype);
 			instance.__wbg_ptr = 1;
 			instance.sampleRate = sampleRate;
 			instance.windowSec = windowSec;
 			return instance;
 		}
-		push_sample(timestampMs, intensity) {
+		WasmRppgPipeline.prototype.push_sample = function (timestampMs, intensity) {
 			this.lastSample = { timestampMs, intensity };
-		}
-		get_metrics() {
-			return JSON.stringify({ bpm: null, confidence: 0, signal_quality: 0 });
-		}
-		free() {}
-	},
+		};
+		WasmRppgPipeline.prototype.get_metrics = () =>
+			JSON.stringify({ bpm: null, confidence: 0, signal_quality: 0 });
+		WasmRppgPipeline.prototype.free = () => {};
+		return WasmRppgPipeline;
+	})(),
 	WasmEegPreprocessor: class WasmEegPreprocessor {
 		constructor(sampleRateHz, channelCount, configJson) {
 			this.sampleRateHz = sampleRateHz;

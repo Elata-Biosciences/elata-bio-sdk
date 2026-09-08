@@ -19,7 +19,7 @@ export function checkWebBluetooth(): BluetoothSupportResult {
 		};
 	}
 
-	if (!!navigator.bluetooth) {
+	if (navigator.bluetooth) {
 		return { supported: true };
 	}
 
