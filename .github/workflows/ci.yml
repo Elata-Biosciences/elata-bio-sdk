@@ -2,78 +2,101 @@ name: CI
 
 on:
   push:
-    branches: [ main, webcam, npm-packages ]
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "LICENSE"
+      - ".github/ISSUE_TEMPLATE/**"
   pull_request:
-    branches: [ main ]
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "LICENSE"
+      - ".github/ISSUE_TEMPLATE/**"
+  schedule:
+    # Weekly macOS coverage only — macOS runners bill at ~10x the Linux rate,
+    # so we don't run them on every push/PR (see rust-test-macos below).
+    - cron: "0 6 * * 1"
+  workflow_dispatch: {}
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Resolved wasm-bindgen version from Cargo.lock. Must match exactly, or
+  # wasm-bindgen's codegen can break silently against the crate version.
+  WASM_BINDGEN_VERSION: "0.2.128"
 
 jobs:
-  test-matrix:
-    name: Test (${{ matrix.os }} / ${{ matrix.crate }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-        crate:
-          - elata-rppg
-          - elata-rppg-wasm
-          - elata-rppg-ffi
-          - elata-eeg-wasm
-          - elata-eeg-ffi
-          - elata-facial-affect
-          - elata-biosignal-features
-          - elata-biosignal-features-wasm
+  rust-test:
+    name: Rust tests (workspace)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-
-      - name: Cache cargo registry
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo target
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-target-${{ matrix.crate }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Run tests for crate
-        run: cargo test -p ${{ matrix.crate }} --all-targets
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
 
-  fmt-check:
-    name: Format check
-    runs-on: ubuntu-latest
+      - name: Run workspace tests
+        run: cargo test --workspace --all-targets
+
+  # macOS is only exercised weekly (or on demand) — nothing in this repo
+  # ships a macOS/iOS binary that needs per-push verification, and the
+  # per-crate/per-OS matrix this replaced was the single largest cost driver
+  # in the org's Actions usage.
+  rust-test-macos:
+    name: Rust tests (macOS, weekly)
+    runs-on: macos-latest
+    timeout-minutes: 15
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
-      - name: Install Rust
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run workspace tests
+        run: cargo test --workspace --all-targets
+
+  rust-lint:
+    name: Rust fmt + clippy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: rustfmt
+          components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
       - name: Run rustfmt check
         run: cargo fmt --all -- --check
 
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy
-          targets: wasm32-unknown-unknown
       - name: Run clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
 
   build-wasm:
     name: Build WASM targets
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -82,19 +105,8 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
-      - name: Cache cargo registry
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo target
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-wasm-${{ hashFiles('**/Cargo.lock') }}
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
 
       - name: Build eeg-wasm for wasm32
         run: cargo build -p elata-eeg-wasm --target wasm32-unknown-unknown --release
@@ -106,7 +118,9 @@ jobs:
         run: cargo build -p elata-biosignal-features-wasm --target wasm32-unknown-unknown --release
 
       - name: Install wasm-bindgen CLI
-        run: cargo install wasm-bindgen-cli --locked
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-bindgen-cli@${{ env.WASM_BINDGEN_VERSION }}
 
       - name: Run wasm-bindgen for eeg
         run: |
@@ -136,19 +150,17 @@ jobs:
           retention-days: 1
 
   web-tests:
-    name: Run all web package tests
+    name: Web unit tests + E2E
     runs-on: ubuntu-latest
     needs: build-wasm
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
       # No `version:` here on purpose. package.json carries
       # "packageManager": "pnpm@10.33.2", and pnpm/action-setup refuses to run
       # when both are set ("Multiple versions of pnpm specified: ... Remove one
-      # of these versions"). The pin here had drifted to 10.31.0 while
-      # packageManager moved to 10.33.2, which failed every web job in this
-      # workflow before a single test could run. packageManager is the single
-      # source of truth; bumping it is now enough.
+      # of these versions"). packageManager is the single source of truth.
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
@@ -167,32 +179,43 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
+      # Runs the audit/format/web-lint pieces of `pnpm lint` only. `lint:rust`
+      # (cargo clippy) is intentionally excluded here — it already runs once,
+      # standalone, in the rust-lint job above.
       - name: Run repo audit, format check, and web lint
-        run: pnpm lint
+        run: |
+          pnpm run audit:repo
+          pnpm run format:check
+          pnpm run lint:web
 
       - name: Run all unit tests
         run: pnpm test
 
-      - name: Install Playwright browsers
-        run: pnpm --dir packages/rppg-web exec playwright install --with-deps
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright Chromium
+        run: pnpm --dir packages/rppg-web exec playwright install --with-deps chromium
 
       - name: Run Playwright E2E
         run: pnpm --dir packages/rppg-web run ci:e2e
 
-  package-pack-check:
-    name: Validate npm package tarballs
+  npm-package-checks:
+    name: Validate npm packages + consumer smoke
     runs-on: ubuntu-latest
     needs: build-wasm
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
       # No `version:` here on purpose. package.json carries
       # "packageManager": "pnpm@10.33.2", and pnpm/action-setup refuses to run
       # when both are set ("Multiple versions of pnpm specified: ... Remove one
-      # of these versions"). The pin here had drifted to 10.31.0 while
-      # packageManager moved to 10.33.2, which failed every web job in this
-      # workflow before a single test could run. packageManager is the single
-      # source of truth; bumping it is now enough.
+      # of these versions"). packageManager is the single source of truth.
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
@@ -207,8 +230,17 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      # Several packages' prepack/build scripts (rppg-web, biosignal-analytics)
+      # fall back to `cargo install -f wasm-bindgen-cli` (compiled from
+      # source) when wasm-bindgen isn't already on PATH. Installing the
+      # pinned prebuilt binary up front avoids that source compile.
       - name: Install wasm-bindgen CLI
-        run: cargo install wasm-bindgen-cli --locked
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-bindgen-cli@${{ env.WASM_BINDGEN_VERSION }}
 
       - name: Download eeg WASM artifacts
         uses: actions/download-artifact@v4
@@ -237,39 +269,6 @@ jobs:
             echo "--- $pkg ---"
             (cd $pkg && pnpm pack --dry-run --json)
           done
-
-  consumer-smoke:
-    name: Consumer Smoke Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      # No `version:` here on purpose. package.json carries
-      # "packageManager": "pnpm@10.33.2", and pnpm/action-setup refuses to run
-      # when both are set ("Multiple versions of pnpm specified: ... Remove one
-      # of these versions"). The pin here had drifted to 10.31.0 while
-      # packageManager moved to 10.33.2, which failed every web job in this
-      # workflow before a single test could run. packageManager is the single
-      # source of truth; bumping it is now enough.
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
-
-      - name: Install wasm-bindgen CLI
-        run: cargo install wasm-bindgen-cli --locked
-
-      - name: Install workspace dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Run consumer smoke tests
         run: pnpm smoke:consumers
