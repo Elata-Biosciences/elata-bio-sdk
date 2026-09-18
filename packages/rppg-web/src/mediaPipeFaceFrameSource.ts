@@ -82,7 +82,7 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 		return this.lastError;
 	}
 
-	private detectAndEmit(now: number, metadata: any) {
+	private detectAndEmit(now: number, _metadata: any) {
 		// Resize canvas if the video dimensions became known after construction.
 		if (this.video.videoWidth && this.canvas.width !== this.video.videoWidth) {
 			this.canvas.width = this.video.videoWidth;
@@ -119,10 +119,10 @@ export class MediaPipeFaceFrameSource implements FrameSource {
 				this.canvas.width,
 				this.canvas.height,
 			);
-			const ts =
-				typeof metadata?.mediaTime === "number" && metadata.mediaTime > 0
-					? metadata.mediaTime * 1000
-					: now;
+			// Use the callback clock consistently. Chromium can report mediaTime=0
+			// for the first live frame and a positive value on the next one; changing
+			// clock domains mid-stream makes the rPPG timestamps jump backward.
+			const ts = now;
 			const frame: Frame = {
 				data: img.data,
 				width: this.canvas.width,

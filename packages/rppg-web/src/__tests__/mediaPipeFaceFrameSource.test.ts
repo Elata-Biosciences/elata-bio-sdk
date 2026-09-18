@@ -242,7 +242,7 @@ describe('MediaPipeFaceFrameSource edge cases', () => {
     restore();
   });
 
-  test('uses mediaTime when non-zero (video file playback)', async () => {
+  test('keeps callback timestamps monotonic when mediaTime changes from zero', async () => {
     const restore = setupCanvasMock(200, 100);
     const video = new FakeVideo(200, 100) as unknown as HTMLVideoElement;
     let vfcCb: any = null;
@@ -254,11 +254,11 @@ describe('MediaPipeFaceFrameSource edge cases', () => {
     src.onFrame = (f) => frames.push(f);
     await src.start();
 
-    vfcCb(99999, { mediaTime: 2.0 });
+    vfcCb(12345, { mediaTime: 0 });
+    vfcCb(12378, { mediaTime: 0.033 });
 
     await src.stop();
-    expect(frames.length).toBe(1);
-    expect(frames[0].timestampMs).toBe(2000);
+    expect(frames.map((frame) => frame.timestampMs)).toEqual([12345, 12378]);
     restore();
   });
 
