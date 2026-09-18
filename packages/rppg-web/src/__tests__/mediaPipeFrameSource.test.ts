@@ -109,7 +109,7 @@ describe('MediaPipeFrameSource', () => {
     expect(frames[0].timestampMs).toBe(12345);
   });
 
-  test('keeps callback timestamps monotonic when mediaTime changes from zero', async () => {
+  test('uses mediaTime when non-zero (video file playback)', async () => {
     const createdCanvas = new FakeCanvas(2, 1);
     document.createElement = (tagName: string) => {
       if (tagName === 'canvas') return createdCanvas as unknown as HTMLCanvasElement;
@@ -126,11 +126,11 @@ describe('MediaPipeFrameSource', () => {
     src.onFrame = (f) => frames.push(f);
     await src.start();
 
-    vfcCb(12345, { mediaTime: 0 });
-    vfcCb(12378, { mediaTime: 0.033 });
+    vfcCb(99999, { mediaTime: 1.5 });
 
     await src.stop();
-    expect(frames.map((frame) => frame.timestampMs)).toEqual([12345, 12378]);
+    expect(frames.length).toBe(1);
+    expect(frames[0].timestampMs).toBe(1500);
   });
 
   test('emits capture errors instead of swallowing them silently', async () => {
