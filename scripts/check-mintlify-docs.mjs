@@ -91,7 +91,7 @@ function sdkNavigationGroups(docsConfig) {
 
 	for (const language of docsConfig.navigation?.languages ?? []) {
 		for (const tab of language.tabs ?? []) {
-			if (tab.tab === "Biometric SDKs" && Array.isArray(tab.groups)) {
+			if (["Elata SDK", "Biometric SDKs"].includes(tab.tab) && Array.isArray(tab.groups)) {
 				return tab.groups;
 			}
 		}
