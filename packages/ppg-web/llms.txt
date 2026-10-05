@@ -1,0 +1,24 @@
+# @elata-biosciences/ppg-web — context for tools and agents
+
+## Role
+Browser heart rate and HRV from a headband's PPG (optical) sensor. Consumes the normalized `HeadbandFrameV1` stream from `@elata-biosciences/eeg-web` / `eeg-web-ble`: Muse classic `ppgRaw` and Muse S Athena `optics`.
+
+## Install
+`npm install @elata-biosciences/ppg-web @elata-biosciences/eeg-web @elata-biosciences/eeg-web-ble @elata-biosciences/rppg-web`
+
+## Entry points
+- `createMusePpgSession({ windowSec?, source?, channel?, onMetrics?, onDiagnostics?, onStatus?, deviceOptions? })`: creates a `BleTransport` and starts streaming. Call from a user gesture (Web Bluetooth needs one).
+- `createPpgSession({ transport, autoStart?, windowSec?, source?, channel?, ... })`: wraps any `HeadbandTransport`.
+- `PpgSession`: `getMetrics()`, `getDiagnostics()`, `getTraceSnapshot(maxPoints?)`, `start()`, `stop()`, `disconnect()`, `dispose()`.
+- `PpgProcessor`: lower-level processor.
+
+## Metrics
+`bpm`, `rmssdMs`, `sdnnMs`, `meanNnMs` (all `number | null`), plus `confidence`, `signalQuality`, `source` ("ppgRaw" | "optics"), `channel`, `sampleRateHz`.
+
+## Gotchas
+- Classic Muse `ppgRaw` uses browser frame timing, so treat HRV as a preview. Athena `optics` keeps device timestamps and is preferred.
+- Requires Web Bluetooth: Chrome or Edge on desktop or Android, over `https://` or `localhost`. Not Safari or iOS.
+- Scaffold a working example with `npm create @elata-biosciences/elata-demo my-app -- --template ppg`.
+
+## Source of truth
+https://github.com/Elata-Biosciences/elata-bio-sdk/tree/main/packages/ppg-web

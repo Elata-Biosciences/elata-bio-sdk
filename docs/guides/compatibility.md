@@ -11,6 +11,11 @@ published Elata SDK surfaces.
 | `@elata-biosciences/eeg-web` | modern browser with WebAssembly | `>= 20` | Node requirement is for package/tooling compatibility; browser usage depends on serving packaged WASM assets |
 | `@elata-biosciences/eeg-web-ble` | Chrome or Edge with Web Bluetooth | `>= 20` | depends on `@elata-biosciences/eeg-web` |
 | `@elata-biosciences/rppg-web` | modern browser with camera and WebAssembly | `>= 20` | packaged WASM assets must be reachable by the browser |
+| `@elata-biosciences/rppg-models-web` | modern browser with WebAssembly | `>= 20` | caller supplies the ONNX model URL |
+| `@elata-biosciences/ppg-web` | Chrome or Edge with Web Bluetooth | `>= 20` | runs on the `eeg-web-ble` transport |
+| `@elata-biosciences/biosignal-session` | modern browser with Web Workers | `>= 20` | recording needs a host that provides the storage side |
+| `@elata-biosciences/biosignal-analytics` | modern browser with WebAssembly | `>= 20` | packaged WASM assets must be reachable by the browser |
+| `@elata-biosciences/app-payments`, `app-state`, `app-metrics` | any modern browser | `>= 20` | only work inside the Elata App Store frame |
 
 ## Browser Support
 
@@ -20,6 +25,7 @@ published Elata SDK surfaces.
 | EEG WASM with `eeg-web` | Supported | Supported | Supported | requires packaged `wasm/` assets |
 | Web Bluetooth EEG with `eeg-web-ble` | Supported in secure context | Not supported for this workflow | Not supported for this workflow | requires Web Bluetooth |
 | rPPG with `rppg-web` | Supported | Supported | Supported with camera permissions | requires packaged `pkg/` assets |
+| Headband PPG with `ppg-web` | Supported in secure context | Not supported for this workflow | Not supported for this workflow | requires Web Bluetooth |
 
 ## Web Bluetooth Support
 

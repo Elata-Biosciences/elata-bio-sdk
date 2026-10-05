@@ -89,7 +89,7 @@ rather than forking consumer demos.
 
 ### Demo And Example Notes
 
-- `./run.sh demo eeg|rppg|hal` is for SDK development and manual repo
+- `./run.sh demo eeg|rppg|ppg|hal` is for SDK development and manual repo
   validation, not the default consumer onboarding flow.
 - `eeg-demo/`, `packages/rppg-web/demo/`, `ios-demo/`, and `android-demo/` are
   reference or SDK-development surfaces.

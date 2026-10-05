@@ -1,5 +1,10 @@
 # Changelog
 
+> Entries below stop at 0.3.0. Versions after that (through 0.14.0) were released
+> without Changesets entries. See the
+> [git history](https://github.com/Elata-Biosciences/elata-bio-sdk/commits/main/packages/rppg-web)
+> for those changes. New releases cut with `./run.sh bump` are recorded here again.
+
 ## 0.3.0
 
 ### Minor Changes

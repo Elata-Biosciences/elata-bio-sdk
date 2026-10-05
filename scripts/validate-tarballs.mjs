@@ -119,6 +119,7 @@ const packages = [
 			"dist/index.js",
 			"dist/index.d.ts",
 			"README.md",
+			"llms.txt",
 			"package.json",
 		],
 		forbiddenPatterns: [

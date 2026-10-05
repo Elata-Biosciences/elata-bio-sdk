@@ -71,8 +71,8 @@ Agents should implement against **`HeadbandTransport` + `HeadbandFrameV1`** from
 
 | Topic | Location |
 | ----- | -------- |
-| Release and Changesets | [releasing.md](../releasing.md), `elata-docs/sdk/maintainers/releasing.mdx` |
-| Repo layout | [repo-map.md](../repo-map.md), `elata-docs/sdk/maintainers/repo-workflows.mdx` |
+| Release and Changesets | [releasing.md](../releasing.md) |
+| Repo layout | [repo-map.md](../repo-map.md) |
 | Troubleshooting consumer issues | [troubleshooting.md](troubleshooting.md), `elata-docs/sdk/operations/troubleshooting.mdx` |
 | Compatibility matrix | [compatibility.md](compatibility.md), `elata-docs/sdk/operations/compatibility.mdx` |
 

@@ -1,5 +1,10 @@
 # Changelog
 
+> Entries below stop at 0.2.1. Versions after that (through 0.12.0) were released
+> without Changesets entries. See the
+> [git history](https://github.com/Elata-Biosciences/elata-bio-sdk/commits/main/packages/eeg-web-ble)
+> for those changes. New releases cut with `./run.sh bump` are recorded here again.
+
 ## 0.2.1
 
 ### Patch Changes

@@ -116,7 +116,7 @@ recording has no analysis dependency.
 Owns:
 
 - published app scaffolding flow
-- template generation for `rppg-demo`, `eeg-demo`, and `eeg-ble`
+- template generation for `rppg-demo`, `eeg-demo`, `eeg-ble`, `ppg-demo`, and `pulse-game`
 - template smoke-test coverage
 
 Use this package when you need:
@@ -148,14 +148,18 @@ Prefer these commands before creating new workflow docs or scripts:
 - `./run.sh doctor`
 - `./run.sh dev eeg|rppg|all`
 - `./run.sh build eeg|rppg|all`
-- `./run.sh demo eeg|rppg|hal`
+- `./run.sh demo eeg|rppg|ppg|hal`
 - `./run.sh test`
 - `./run.sh test create-elata-demo`
 - `./run.sh verify-all`
 - `./run.sh rust-release-check all`
 
 If a package-local command and `run.sh` overlap, `run.sh` is usually the better
-repo-level entry point.
+repo-level entry point. The `justfile` mirrors every `run.sh` command
+(`just demo ppg`, `just release-check all`, …) for people who use
+[just](https://github.com/casey/just); `./run.sh help` lists all commands,
+including `link`/`unlink`, `publish`, `promote`, `view`, `tag-release`, and
+`push-tags`.
 
 ## In-Repo Dev Demos And Scaffolds
 

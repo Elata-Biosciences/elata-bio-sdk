@@ -4,11 +4,8 @@ Open source browser apps built with Elata EEG, Web Bluetooth, and rPPG packages.
 this monorepo but are the best public reference for **full product-shaped** integrations (routing,
 sessions, charts, game loops) after you try [`create-elata-demo`](../create-elata-demo.md).
 
-**Screenshots** are WebP exports of real gameplay (desktop ~1200px wide below). Each repo also
-stores **full**, **1200w**, **800w** (and mobile **800w** / **480w**) derivatives under
-`docs/store-assets/` for docs and listings. PNG masters and the generator script live in
-[`app-store-assets`](../../app-store-assets) — run `npm run process-screenshots` there after
-updating source PNGs.
+**Screenshots** are WebP exports of real gameplay (desktop ~1200px wide below), loaded from
+each app's `docs/store-assets/` folder.
 
 ## Apps
 
@@ -26,23 +23,23 @@ Click an image to open the live app.
 
 ### Breathwork Trainer
 
-[![Breathwork Trainer — desktop gameplay](../../breathwork-trainer/docs/store-assets/preview-desktop-01-1200w.webp)](https://wkyleg.github.io/breathwork-trainer/)
+[![Breathwork Trainer — desktop gameplay](https://raw.githubusercontent.com/wkyleg/breathwork-trainer/main/docs/store-assets/preview-desktop-01-1200w.webp)](https://wkyleg.github.io/breathwork-trainer/)
 
 ### NeuroFlight
 
-[![NeuroFlight — desktop gameplay](../../neuroflight/docs/store-assets/preview-desktop-01-1200w.webp)](https://wkyleg.github.io/neuroflight/)
+[![NeuroFlight — desktop gameplay](https://raw.githubusercontent.com/wkyleg/neuroflight/main/docs/store-assets/preview-desktop-01-1200w.webp)](https://wkyleg.github.io/neuroflight/)
 
 ### Monkey Mind: Inner Invaders
 
-[![Monkey Mind — desktop gameplay](../../monkey-mind/docs/store-assets/preview-desktop-01-1200w.webp)](https://wkyleg.github.io/monkey-mind/)
+[![Monkey Mind — desktop gameplay](https://raw.githubusercontent.com/wkyleg/monkey-mind/main/docs/store-assets/preview-desktop-01-1200w.webp)](https://wkyleg.github.io/monkey-mind/)
 
 ### Neuro Chess
 
-[![Neuro Chess — desktop gameplay](../../neuro-chess/docs/store-assets/preview-desktop-01-1200w.webp)](https://wkyleg.github.io/neuro-chess/)
+[![Neuro Chess — desktop gameplay](https://raw.githubusercontent.com/wkyleg/neuro-chess/main/docs/store-assets/preview-desktop-01-1200w.webp)](https://wkyleg.github.io/neuro-chess/)
 
 ### Reaction Trainer
 
-[![Reaction Trainer — desktop gameplay](../../reaction-trainer/docs/store-assets/preview-desktop-01-1200w.webp)](https://wkyleg.github.io/reaction-trainer/)
+[![Reaction Trainer — desktop gameplay](https://raw.githubusercontent.com/wkyleg/reaction-trainer/main/docs/store-assets/preview-desktop-01-1200w.webp)](https://wkyleg.github.io/reaction-trainer/)
 
 ## Packages
 

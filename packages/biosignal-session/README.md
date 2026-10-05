@@ -19,7 +19,7 @@ A session is one recording episode following the model
 - **Event** — sparse annotations/markers, kept out of the Arrow plane.
 
 Raw biosignal data recorded through this protocol is **local-only by
-default**: the trusted host commits chunks to browser storage (OPFS payloads +
+default**: the trusted host (not shipped in this package; `createMemoryHost` in `./testing` is the reference) commits chunks to browser storage (for example OPFS payloads +
 an IndexedDB catalog) and ACKs only after a durable local commit. There is no
 remote mirror in this package.
 

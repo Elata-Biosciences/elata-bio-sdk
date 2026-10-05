@@ -1,5 +1,7 @@
 # SDK Adoption Baseline
 
+> **Historical snapshot (2026-03).** Written when the SDK had four published packages and three templates. Most issues listed here have since been resolved; see [docs/README.md](README.md) for current docs.
+
 Date: 2026-03-17 · **Commands and template IDs below were corrected 2026-04-08** to match the current scaffolder (`packages/create-elata-demo/index.mjs`).
 
 ## Purpose

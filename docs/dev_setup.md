@@ -33,6 +33,8 @@ This short guide shows quick ways to speed up the Rust edit/build/test loop for 
 
 ## Useful `run.sh` shortcuts
 - Build web artifacts (debug): `./run.sh dev [eeg|rppg|all]`
+- In-repo demos: `./run.sh demo rppg` (port 8080), `./run.sh demo eeg` (4173), `./run.sh demo ppg` (8081; `PPG_DEMO_PROFILE=debug` for a debug WASM build), `./run.sh demo hal`
+- Every `run.sh` command is mirrored in the `justfile` (`just demo ppg`)
 - Build web artifacts (release): `./run.sh build [eeg|rppg|all]`
 - Generate bindings only: `./run.sh bindings [release|debug]`
 - Run the in-repo rPPG demo: `./run.sh demo rppg`

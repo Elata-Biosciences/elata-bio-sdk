@@ -1,6 +1,6 @@
 # Affect Reporting Implementation Plan (`reportAffect`)
 
-Status: **proposed** — greenfield. No code written yet; this is the build spec.
+Status: **implemented**. `reportAffect` shipped in `@elata-biosciences/app-metrics` 0.2.0 (client and host), and the appstore host forwards it to `POST /api/scores/affect`. This document is kept as the design rationale; the package README and docs.elata.bio are the current reference.
 
 ## Goal
 

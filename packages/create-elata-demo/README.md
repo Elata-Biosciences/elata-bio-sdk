@@ -4,21 +4,21 @@ Scaffold Elata starter apps from published templates.
 
 ## What This Package Is
 
-This package provides the `create-elata-demo` CLI and these user-facing app starters:
+This package provides the `create-elata-demo` CLI and these app starters:
 
-- `rppg-demo`
-- `eeg-demo`
-- `eeg-ble`
+| Template | Aliases | What it is |
+| --- | --- | --- |
+| `rppg-demo` | `rppg` | Camera pulse / rPPG starter (default, no hardware) |
+| `eeg-demo` | `eeg` | Browser EEG starter with Muse Web Bluetooth support |
+| `eeg-ble` | `ble`, `eeg-web-ble-demo` | BLE-first EEG starter with the browser pairing flow and native reference callouts |
+| `ppg-demo` | `ppg`, `muse-ppg` | Muse PPG heart rate and HRV starter |
+| `pulse-game` | `pulse`, `recovery` | rPPG recovery game that runs in a sandboxed iframe and stores scores with `app-metrics` |
 
-Short aliases and compatibility names are also supported:
+Legacy names `rppg-web-demo` and `eeg-web-demo` are still accepted.
 
-- `rppg`
-- `eeg`
-- `ble`
-- `eeg-web-ble-demo`
-
-`eeg-ble` is a separate BLE-first starter with browser pairing flow and native
-reference callouts for the iOS and Android demo surfaces.
+Every template includes `npm run build:zip`, which writes `app.zip` with
+`index.html` at the root, ready to upload to the
+[Elata App Store](https://docs.elata.bio/apps/build/launch-your-app).
 
 Use it when you want a clean scaffolded app or a consumer-facing reference project.
 
@@ -49,8 +49,8 @@ npx @elata-biosciences/create-elata-demo my-app
 List templates:
 
 ```bash
-pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates
-npx @elata-biosciences/create-elata-demo -- --list-templates
+pnpm dlx @elata-biosciences/create-elata-demo --list-templates
+npx @elata-biosciences/create-elata-demo --list-templates
 ```
 
 Scaffold a project:
@@ -62,6 +62,8 @@ npm create @elata-biosciences/elata-demo my-app -- --template eeg-demo
 npm create @elata-biosciences/elata-demo my-app -- --template eeg
 npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
 npm create @elata-biosciences/elata-demo my-app -- --template ble
+npm create @elata-biosciences/elata-demo my-app -- --template ppg
+npm create @elata-biosciences/elata-demo my-app -- --template pulse-game
 ```
 
 When you run the CLI interactively without `--template`, it first asks which app
@@ -81,7 +83,8 @@ pnpm --dir packages/create-elata-demo test
 ```
 
 The third command also ensures workspace dependencies exist, then smoke-tests
-each template by scaffolding, installing dependencies, and running a build.
+the `rppg-demo`, `eeg-demo`, and `eeg-ble` templates by scaffolding, installing
+dependencies, and running a build.
 
 ## Workspace Caveat
 

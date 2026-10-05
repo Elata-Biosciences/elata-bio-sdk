@@ -13,7 +13,7 @@ These are **not** meant to be identical copies.
 
 **Keeping them aligned:** When you change SDK behavior, package APIs, or onboarding flows, update **package READMEs** first, then **both** any affected `docs/guides/*.md` here **and** the corresponding `elata-docs/sdk/**/*.mdx` (or other routes) on the docs site. The site uses MDX components (`CodeGroup`, frontmatter, etc.), so you typically **port facts and sections**, not raw file copies.
 
-Small **SDK reference** pages under `elata-docs/reference/` have been tracked with hashes in [`elata-docs/.sdk-sync-state`](../elata-docs/.sdk-sync-state) when syncing with this repo; treat that file as optional bookkeeping, not automatic CI.
+The docs site is **public**: only consumer-facing content belongs there. Maintainer workflows, plans, and architecture notes stay in this `docs/` tree. Run `pnpm docs:check` (needs the submodule: `git submodule update --init elata-docs`) after editing the site.
 
 If `elata-docs` has newer wording than `docs/guides/`, prefer **bringing the accurate facts into `docs/guides/`** so contributors who only open the monorepo still see current guidance.
 
@@ -37,13 +37,18 @@ Agents and humans using automation should start with **[guides/ai-assisted-devel
 - [guides/using-eeg-in-a-browser-app.md](guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
 - [guides/using-web-bluetooth-with-supported-devices.md](guides/using-web-bluetooth-with-supported-devices.md): Web Bluetooth headset flow (built-in Muse; extensible)
 - [guides/using-rppg-in-a-browser-app.md](guides/using-rppg-in-a-browser-app.md): browser rPPG integration guide
+- [guides/using-biosignal-sessions.md](guides/using-biosignal-sessions.md): recording sessions with `biosignal-session`
+- [guides/using-iap-in-a-browser-app.md](guides/using-iap-in-a-browser-app.md): in-app purchases with `app-payments`
+- [guides/ai-assisted-development.md](guides/ai-assisted-development.md): routing map for AI coding assistants
 - [guides/compatibility.md](guides/compatibility.md): browser, device, and tooling expectations
 - [guides/troubleshooting.md](guides/troubleshooting.md): common failures and fixes
 
 ## SDK Adoption Tracking
 
-- [sdk-adoption-baseline.md](sdk-adoption-baseline.md): current onboarding baseline and friction summary
-- [sdk-adoption-issues.md](sdk-adoption-issues.md): grouped issue list for the remaining DX work
+Historical snapshots from 2026-03 (four packages, three templates); most listed issues are resolved:
+
+- [sdk-adoption-baseline.md](sdk-adoption-baseline.md): onboarding baseline and friction summary at that time
+- [sdk-adoption-issues.md](sdk-adoption-issues.md): grouped DX issue list at that time
 
 ## Maintainers
 
@@ -54,7 +59,7 @@ Agents and humans using automation should start with **[guides/ai-assisted-devel
 
 ## Architecture
 
-- [architecture-biosignal-session-v1.md](architecture-biosignal-session-v1.md): proposed canonical mixed-modality session container, Arrow IPC chunk encoding, browser persistence, and iframe transport boundary
+- [architecture-biosignal-session-v1.md](architecture-biosignal-session-v1.md): the shipped `biosignal-session` design: session model, MessagePort protocol, Arrow IPC chunks, CRC32C, and the host's responsibilities
 - [implementation-plan-biosignal-session-reconciliation.md](implementation-plan-biosignal-session-reconciliation.md): why two implementations of this package existed, which one is the base, and what is being ported from the other
 - [architecture-rppg.md](architecture-rppg.md)
 - [architecture-sentiment.md](architecture-sentiment.md)
@@ -65,7 +70,7 @@ These files mix **completed work**, **roadmaps**, and **exploratory** ideas. Eac
 
 | Doc | Role |
 | --- | --- |
-| [implementation-plan-demo-scaffolding.md](implementation-plan-demo-scaffolding.md) | Historical; scaffolder is live (`rppg-demo` / `eeg-demo` / `eeg-ble`). `inject` not built. |
+| [implementation-plan-demo-scaffolding.md](implementation-plan-demo-scaffolding.md) | Historical; scaffolder is live with five templates (`rppg-demo`, `eeg-demo`, `eeg-ble`, `ppg-demo`, `pulse-game`). `inject` not built. |
 | [implementation-plan-sdk-adoption.md](implementation-plan-sdk-adoption.md) | Adoption checklist—most phases checked off; guides are primary follow-up. |
 | [implementation-plan-rppg.md](implementation-plan-rppg.md) | rPPG crate + `rppg-web` evolution; consumers use `createRppgSession()`. |
 | [rppg-multi-roi-learned-reconstruction.md](rppg-multi-roi-learned-reconstruction.md) | Detailed rPPG Phase 4.5/4.6 design note: multi-ROI Rust/WASM waveform construction and distilled learned reconstruction. |
@@ -75,7 +80,7 @@ These files mix **completed work**, **roadmaps**, and **exploratory** ideas. Eac
 | [implementation-plan-ios-safari-ble-bridge.md](implementation-plan-ios-safari-ble-bridge.md) | Future native bridge; not a statement of current browser support. |
 | [implementation-plan-sentiment.md](implementation-plan-sentiment.md) | Sentiment plan; overlaps **`crates/elata-facial-affect`** + [architecture-sentiment.md](architecture-sentiment.md). |
 | [implementation-plan-multi-modality-and-rppg.md](implementation-plan-multi-modality-and-rppg.md) | Draft architecture for multi-device aggregation (not fully implemented). |
-| [implementation-plan-affect-reporting.md](implementation-plan-affect-reporting.md) | **Proposed**; `reportAffect` op on `app-metrics` to contribute derived session aggregates to the appstore biometric Score. Not yet built. |
+| [implementation-plan-affect-reporting.md](implementation-plan-affect-reporting.md) | **Implemented**: `reportAffect` shipped in `app-metrics` 0.2.0 (client and host); the appstore handles it. Kept for design rationale. |
 
 ## Related Repo Guides
 

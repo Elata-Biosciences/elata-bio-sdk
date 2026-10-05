@@ -1,0 +1,26 @@
+# @elata-biosciences/app-state — context for tools and agents
+
+## Role
+Per-user, per-app key-value storage for apps running inside the Elata App Store's sandboxed iframe. Save games, settings, progress. No backend needed; the app never sees the user's identity. The store persists values to the user's account, so they follow the user across devices.
+
+## API
+- `getState(key) -> Promise<unknown | null>`: `null` if never set.
+- `setState(key, value) -> Promise<void>`.
+- `deleteState(key) -> Promise<void>`: idempotent.
+- Errors: `AppStateError` with `code` in `no_parent | timeout | invalid_input` (local) or `not_authenticated | value_too_large | fetch_failed` (from the store).
+
+## Limits
+- Keys: 1-256 chars from `A-Z a-z 0-9 . _ : / -`.
+- Values: JSON-serializable, up to 64 KB encoded.
+- Scope: one namespace per (user, app).
+
+## Gotchas
+- Signed-out users get `not_authenticated`. Keep a local fallback (e.g. localStorage) and sync when they sign in.
+- Outside the store (localhost) calls reject with `no_parent` or time out.
+- For histories of events or scores, use `@elata-biosciences/app-metrics` instead.
+
+## Message types (wrapped by this package)
+`elata:state:get|set|delete` → `elata:state:get|set|delete:result`.
+
+## Docs
+https://docs.elata.bio/apps/platform/app-state

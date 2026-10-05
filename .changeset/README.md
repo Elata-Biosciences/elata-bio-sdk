@@ -7,7 +7,7 @@ This repo uses [Changesets](https://github.com/changesets/changesets) for versio
 When you make a change that should be released:
 
 1. Run **`pnpm changeset`** (or `./run.sh changeset`) from the repo root.
-2. Choose which packages are affected (`@elata-biosciences/eeg-web`, `eeg-web-ble`, `rppg-web`).
+2. Choose which `@elata-biosciences/*` packages are affected (any package under `packages/`).
 3. Pick the bump type for each (patch / minor / major).
 4. Write a short summary for the changelog.
 

@@ -1,7 +1,7 @@
 # @elata-biosciences/app-metrics — context for tools and agents
 
 ## Role
-Per-user metrics storage for sandboxed apps in the Elata appstore. The host (appstore shell) owns IndexedDB; the app (inside the sandboxed iframe) talks to the host over a transferred `MessagePort`. Data is namespaced per `(walletAddress, appId)` and never crosses app boundaries.
+Per-user metrics storage for sandboxed apps in the Elata appstore. The host (appstore shell) owns storage; the app (inside the sandboxed iframe) talks to the host over a transferred `MessagePort`. Data is namespaced per `(walletAddress, appId)` and never crosses app boundaries.
 
 Two entry points:
 - Default — `createMetricsClient()` for apps.
@@ -10,7 +10,11 @@ Two entry points:
 ## Wire protocol
 Handshake: host posts `{ kind: '__elata_metrics_init', v: 1 }` with `port2` transferred. App captures `port1`, uses it for all traffic. After handshake, origin checks no longer apply — the port is the trust boundary.
 
-Ops: `record` / `query` / `clear` / `saveScore` / `loadScores`.
+Ops: `record` / `query` / `clear` / `saveScore` / `loadScores` / `reportAffect`.
+
+`reportAffect(report)` sends a derived session aggregate (dimension calm/stress/focus, baseline/session values, delta, optional meanHr, signalQuality, confidence, source, durationSec; never raw signal) to the Elata platform for the cross-app biometric Score. It requires the `biometrics` scope and user consent, otherwise it rejects with `scope_denied`. Returns `{ accepted, calibrating, score }`.
+
+Where record/score data lives is the host's choice. The Elata App Store keeps a local copy and syncs it to the signed-in user's account.
 
 ## Quotas
 - 5 MB per `(walletAddress, appId)`.

@@ -258,9 +258,10 @@ Prefer the scaffolded `rppg-demo` template when you want:
 
 ## Version Guidance
 
-If you install both `@elata-biosciences/rppg-web` and
-`@elata-biosciences/eeg-web`, prefer matching versions. They are developed and
-verified together in this repo.
+The packages are versioned independently, so `rppg-web` and `eeg-web` do not
+share a version number. If you use several Elata packages together, install
+their latest releases, or copy the compatible set that `create-elata-demo`
+pins in its templates.
 
 ## Next Steps
 

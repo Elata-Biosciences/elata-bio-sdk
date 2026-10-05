@@ -13,28 +13,34 @@ Use it when you want a working scaffolded app that already wires up the Elata SD
 
 ### Templates
 
-The scaffolder exposes three user-facing app starters:
+The scaffolder exposes five app starters:
 
-- `rppg-demo` – React + Vite rPPG starter app
+- `rppg-demo` – React + Vite rPPG starter app (default)
 - `eeg-demo` – React + Vite EEG starter app with synthetic data and browser EEG wiring
 - `eeg-ble` – Muse-compatible EEG starter path with Chrome or Bluefy-on-iOS Web Bluetooth guidance
+- `ppg-demo` – Muse PPG heart rate and HRV starter (BPM, RMSSD, live diagnostics)
+- `pulse-game` – rPPG recovery game that runs the app inside a sandboxed iframe and stores scores through an `app-metrics` host
 
 Short aliases and compatibility names are also supported:
 
 - `rppg` → `rppg-demo`
 - `eeg` → `eeg-demo`
-- `ble` → `eeg-ble`
-- `eeg-web-ble-demo` → `eeg-ble`
+- `ble`, `eeg-web-ble-demo` → `eeg-ble`
+- `ppg`, `muse-ppg` → `ppg-demo`
+- `pulse`, `recovery` → `pulse-game`
 
 `eeg-ble` is its own BLE-first scaffold. It starts in the headset flow and
 includes on-screen references to the repo's iOS and Android native demo
 surfaces.
 
+Every template has `npm run build:zip`, which builds and writes `app.zip` with
+`index.html` at the root for upload to the Elata App Store.
+
 You can list templates from any environment:
 
 ```bash
-pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates
-npx @elata-biosciences/create-elata-demo -- --list-templates
+pnpm dlx @elata-biosciences/create-elata-demo --list-templates
+npx @elata-biosciences/create-elata-demo --list-templates
 ```
 
 ### Creating a new app
@@ -132,7 +138,7 @@ This command:
 
 1. Ensures `node_modules/` exists at the workspace root (`pnpm install` if needed).
 2. Runs the `packages/create-elata-demo` test suite.
-3. For each template (`rppg-demo`, `eeg-demo`, `eeg-ble`):
+3. For the `rppg-demo`, `eeg-demo`, and `eeg-ble` templates (`ppg-demo` and `pulse-game` are not smoke-built yet):
    - scaffolds into a temporary directory,
    - installs dependencies with `pnpm install`, and
    - runs `pnpm run build` (Vite + TypeScript).

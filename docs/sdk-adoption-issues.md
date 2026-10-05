@@ -1,5 +1,7 @@
 # SDK Adoption Issue List
 
+> **Historical snapshot (2026-03).** Written when the SDK had four published packages and three templates. Most issues listed here have since been resolved; see [docs/README.md](README.md) for current docs.
+
 Date: 2026-03-17
 
 This issue list groups the remaining SDK adoption work by the friction it

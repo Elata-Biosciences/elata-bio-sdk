@@ -62,7 +62,7 @@ Prefer these repo-level commands over ad hoc package commands when possible:
 - `./run.sh doctor`: fast health check for toolchain, repo state, and artifacts
 - `./run.sh dev [eeg|rppg|all]`: build debug artifacts
 - `./run.sh build [eeg|rppg|all]`: build release artifacts
-- `./run.sh demo [eeg|rppg|hal]`: run demo flows
+- `./run.sh demo [eeg|rppg|ppg|hal]`: run demo flows (`just` mirrors every `run.sh` command)
 - `./run.sh test`: run Rust and web test suites
 - `./run.sh test create-elata-demo`: run scaffolder tests plus template smoke builds
 - `./run.sh verify-all`: run publish-grade verification

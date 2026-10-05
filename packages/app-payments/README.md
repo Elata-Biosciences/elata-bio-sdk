@@ -2,7 +2,7 @@
 
 In-app purchases for sandboxed apps running in the [Elata appstore](https://github.com/Elata-Biosciences/elata-appstore).
 
-The appstore renders apps inside a sandboxed iframe with no wallet or backend access. This package lets the app **request a purchase** from the parent frame and **read what the user owns**, all over `postMessage`. The parent owns the payment UI (PayEmbed, wallet, on-chain settlement) and the session. Your app declares intent and reads entitlements; it never touches wallets, USDC, or transaction signing.
+The appstore renders apps inside a sandboxed iframe with no wallet or backend access. This package lets the app **request a purchase** from the parent frame and **read what the user owns**, all over `postMessage`. The parent owns the checkout UI, payment verification, and the session. Your app declares intent and reads entitlements; it never touches wallets, USDC, or transaction signing.
 
 ## Install
 
@@ -125,11 +125,10 @@ const owned = await getOwnedItems(); // e.g. [1, 4, 7]
 
 Both take an optional `{ timeoutMs?, window? }` (default timeout **10 s**) and follow the same error model as below.
 
-> **Host support:** `hasItem` / `getOwnedItems` require the appstore's offchain
-> entitlement handlers ([appstore PR #472](https://github.com/Elata-Biosciences/elata-appstore/pull/472)).
-> Until that ships, calls against the live host **time out**. Degrade gracefully:
-> use a short `timeoutMs` and, on timeout, fall back to showing items as
-> available rather than dead-ending the UI.
+> **Outside the store:** when your app runs standalone (for example on
+> `localhost`), nothing answers these queries and they **time out**. Degrade
+> gracefully: use a short `timeoutMs` and, on timeout, fall back to showing
+> items as available rather than dead-ending the UI.
 
 ```ts
 let ownedSet;
@@ -201,7 +200,7 @@ The entitlement queries work the same way with their own message types (`elata:i
 
 - **Runnable demo:** [`examples/iap-demo`](https://github.com/Elata-Biosciences/elata-bio-sdk/tree/main/examples/iap-demo) — one self-contained `index.html` that runs standalone via a built-in mock host, exercising the full flow.
 - **Guide:** [Using IAP in a browser app](https://github.com/Elata-Biosciences/elata-bio-sdk/blob/main/docs/guides/using-iap-in-a-browser-app.md).
-- **Platform integration guide:** `IAP_SDK_INTEGRATION.md` in the appstore repo (host-side details, product model, known gaps).
+- **Platform docs:** [In-app purchases](https://docs.elata.bio/apps/platform/in-app-purchases) on docs.elata.bio.
 
 ## Versioning
 

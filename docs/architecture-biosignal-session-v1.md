@@ -1,6 +1,19 @@
 # Elata Biosignal Session v1
 
-Status: Implemented as a provisional Session v1 vertical slice (2026-08-23)
+Status: **partly implemented; read with care.** This document describes the full
+Session v1 design target. What ships in `packages/biosignal-session` today
+(0.1.0, not yet published to npm) is the recorder side: the
+Session → Source → Stream → Chunk → Event model, the `__elata_biosignal_init`
+MessagePort protocol, Arrow IPC chunk encoding with CRC32C checksums,
+backpressure and retry in `RecorderCore`, device adapters, and an in-memory
+reference host (`createMemoryHost`) for tests.
+
+Not yet in the package: the IndexedDB/OPFS persistent host, the `.elata` export
+bundle, and SHA-256 manifest hashing described below. See
+[implementation-plan-biosignal-session-reconciliation.md](implementation-plan-biosignal-session-reconciliation.md)
+for what is being ported, and `packages/biosignal-session/README.md` plus
+[guides/using-biosignal-sessions.md](guides/using-biosignal-sessions.md) for the
+shipped API.
 
 ## Decision summary
 

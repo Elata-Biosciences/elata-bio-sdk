@@ -59,8 +59,8 @@ console.log(powers.alpha);
 ## EEG Preprocessing
 
 `@elata-biosciences/eeg-web` now exposes the browser wrapper around the Rust EEG
-preprocessing pipeline. The DSP implementation lives in `crates/eeg-signal` and
-is surfaced through `eeg-wasm`; this package provides the stable TypeScript API
+preprocessing pipeline. The DSP implementation lives in `crates/elata-eeg-signal` and
+is surfaced through `crates/elata-eeg-wasm`; this package provides the stable TypeScript API
 for using it in browser code.
 
 Default processing stages:

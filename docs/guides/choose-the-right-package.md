@@ -46,6 +46,30 @@ Add `@elata-biosciences/rppg-models-web` only for optional diagnostic waveform
 reconstruction. It does not replace deterministic or Bayesian BPM, and its
 learned asset must be supplied explicitly.
 
+## Headband PPG
+
+Use `@elata-biosciences/ppg-web` when you need heart rate and HRV from a
+headband's optical sensor (Muse classic `ppgRaw` or Athena `optics`). It runs
+on the `eeg-web-ble` transport, so install `eeg-web`, `eeg-web-ble`, and
+`rppg-web` alongside it.
+
+## Session Recording And Analytics
+
+- `@elata-biosciences/biosignal-session`: record multi-sensor sessions to local
+  storage as Arrow IPC chunks with CRC32C checksums. See
+  [using-biosignal-sessions.md](using-biosignal-sessions.md).
+- `@elata-biosciences/biosignal-analytics`: WASM EEG window features, HRV,
+  robust statistics, and transparent headline scores.
+
+## Apps Running In The Elata App Store
+
+These only work inside the store's sandboxed iframe:
+
+- `@elata-biosciences/app-payments`: one-time purchases and entitlements. See
+  [using-iap-in-a-browser-app.md](using-iap-in-a-browser-app.md).
+- `@elata-biosciences/app-state`: per-user key-value storage.
+- `@elata-biosciences/app-metrics`: per-user records, scores, and `reportAffect`.
+
 ## Local Repo Development
 
 Use `./run.sh sync-to` only if you are modifying `packages/eeg-web` inside the

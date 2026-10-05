@@ -1,7 +1,7 @@
 # @elata-biosciences/create-elata-demo — context for tools and agents
 
 ## Role
-CLI **`create-elata-demo`** that scaffolds starter apps from embedded templates. Packaged **`elataSdkVersions`** in `package.json` pin compatible **`eeg-web` / `eeg-web-ble` / `rppg-web`** versions for generated `package.json` files.
+CLI **`create-elata-demo`** that scaffolds starter apps from embedded templates. Packaged **`elataSdkVersions`** in `package.json` pin compatible **`eeg-web` / `eeg-web-ble` / `rppg-web` / `ppg-web`** versions for generated `package.json` files.
 
 ## Templates (and aliases)
 | Template ID   | Aliases                          | Contents (short)                          |
@@ -9,6 +9,8 @@ CLI **`create-elata-demo`** that scaffolds starter apps from embedded templates.
 | `rppg-demo`   | `rppg`                           | React + Vite rPPG / camera                |
 | `eeg-demo`    | `eeg`                            | React + Vite EEG + Web Bluetooth          |
 | `eeg-ble`     | `ble`, `eeg-web-ble-demo`        | BLE-first EEG + native demo references    |
+| `ppg-demo`    | `ppg`, `muse-ppg`                | Muse PPG heart rate + HRV                 |
+| `pulse-game`  | `pulse`, `recovery`              | rPPG game in a sandboxed iframe + app-metrics |
 
 Legacy **`--template`** names still accepted: `rppg-web-demo` → `rppg-demo`, `eeg-web-demo` → `eeg-demo`.
 
@@ -21,7 +23,8 @@ Interactive runs ask for app type then project name. **Non-interactive runs with
 - `npm create @elata-biosciences/elata-demo <dir> [-- --template <name>]`
 - `pnpm dlx @elata-biosciences/create-elata-demo <dir>`
 - `npx @elata-biosciences/create-elata-demo <dir>`
-- List templates: `pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates` (note **`--` before flags** when the runner requires it)
+- List templates: `npx @elata-biosciences/create-elata-demo --list-templates`
+- Every template has `npm run build:zip`, which writes `app.zip` (index.html at the root) for upload to the Elata App Store.
 
 ## Workspace caveat
 Scaffolding **inside** a parent **pnpm workspace** may attach to the parent and skip a local `node_modules`. Use **`pnpm --dir <app> --ignore-workspace install`** or **`npm install`** inside the new app.

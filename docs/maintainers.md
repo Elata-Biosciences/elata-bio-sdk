@@ -44,13 +44,12 @@ Maintainer flow:
 
 ## Release Scope
 
-Published packages currently include:
-
-- `@elata-biosciences/eeg-web`
-- `@elata-biosciences/eeg-web-ble`
-- `@elata-biosciences/rppg-web`
-- `@elata-biosciences/rppg-models-web`
-- `@elata-biosciences/create-elata-demo`
+Published packages are listed in [AGENTS.md](../AGENTS.md#release-and-versioning-expectations)
+(11 packages). The `./run.sh release all` set comes from `release_targets_for` in
+`scripts/run-lib.sh`: `eeg-web eeg-web-ble rppg-web rppg-models-web ppg-web
+create-elata-demo app-metrics biosignal-session`. `app-payments` and
+`biosignal-analytics` are released individually; `app-state` is not wired into
+release targets yet.
 
 Before changing release docs, verify the package set against current
 `packages/*/package.json` files and root `package.json` verification scripts.
@@ -66,8 +65,8 @@ Before changing release docs, verify the package set against current
 - Docs that mention onboarding: verify `create-elata-demo` guidance and workspace caveats
 
 `./run.sh test create-elata-demo` runs the Node test suite in
-`packages/create-elata-demo`, including a smoke build for **each** of the three
-templates (`rppg-demo`, `eeg-demo`, `eeg-ble`): scaffold to a temp directory,
+`packages/create-elata-demo`, including a smoke build for the `rppg-demo`, `eeg-demo`, and `eeg-ble`
+templates (`ppg-demo` and `pulse-game` are not smoke-built yet): scaffold to a temp directory,
 `pnpm install`, and `pnpm run build`.
 
 ## Workspace Caveat

@@ -1,0 +1,29 @@
+# @elata-biosciences/app-payments — context for tools and agents
+
+## Role
+In-app purchases for apps running inside the Elata App Store's sandboxed iframe. The app asks the parent frame to open checkout and reads what the user owns, over `postMessage`. The store owns checkout, payment verification, and the session; the app never touches wallets or payment details.
+
+## API
+- `getCatalog(opts?) -> Promise<CatalogItem[]>`: `{ contentId, title, description?, imageUrl?, priceUsdc }`. `priceUsdc` is USDC base units (6 decimals): "50000" is $0.05.
+- `getOwnedItems(opts?) -> Promise<number[]>`: owned contentIds.
+- `hasItem(contentId, opts?) -> Promise<boolean>`.
+- `requestPurchase({ contentId, priceUsdc?, title?, description?, timeoutMs? }) -> Promise<PurchaseResult>`: `{ status: "success", requestId, txHash } | { status: "cancelled", requestId } | { status: "error", requestId, error }`. `priceUsdc` here is a display hint only.
+- Errors: `AppPaymentsError` with `code` in `invalid_input | no_window | no_parent | no_crypto | timeout | not_authenticated | fetch_failed`.
+
+## Correct pattern
+1. On startup: `getCatalog()` + `getOwnedItems()`, re-apply benefits for owned items.
+2. Render owned vs buyable.
+3. `requestPurchase`, then branch on `result.status`. On success, apply the benefit.
+
+## Gotchas
+- Branch on `status`, never on `txHash`: an already-owned item returns `{ status: "success", txHash: "" }`.
+- Items are one-time unlocks. No consumables, no recurring billing (use an app subscription plan for that).
+- Outside the store (localhost) nothing answers: calls time out or reject with `no_parent`. Use a short `timeoutMs` and degrade gracefully.
+- Timeouts: `requestPurchase` 5 minutes; queries 10 seconds.
+- Item catalogs are configured by the Elata team.
+
+## Message types (wrapped by this package)
+`elata:iap:request` → `elata:iap:result`; `elata:iap:getCatalog`, `elata:iap:hasItem`, `elata:iap:listOwned` → `…:result`.
+
+## Docs
+https://docs.elata.bio/apps/platform/in-app-purchases

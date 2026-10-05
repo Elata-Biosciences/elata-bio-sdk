@@ -1,6 +1,6 @@
 # Elata SDK
 
-> AI-assisted integration? Start with the **[AI-assisted development map](docs/guides/ai-assisted-development.md)** (routes to tutorials, vendor checklists, and package `llms.txt`), then the [getting started guide](docs/guides/getting-started.md), [consumer guides](docs/guides/README.md), or [Mintlify docs](elata-docs/quickstart.mdx).
+> Public documentation lives at **[docs.elata.bio](https://docs.elata.bio)**. Working with an AI coding assistant? Start with the **[AI-assisted development map](docs/guides/ai-assisted-development.md)** (routes to tutorials, vendor checklists, and package `llms.txt`).
 
 A cross-platform biosignal SDK spanning EEG device pipelines, browser
 transports, and rPPG processing for web and native clients.
@@ -8,8 +8,11 @@ transports, and rPPG processing for web and native clients.
 ## What Is In This Repo
 
 - EEG core crates, signal processing, and models
-- WebAssembly bindings for EEG and rPPG
+- WebAssembly bindings for EEG, rPPG, and biosignal analytics
 - Web Bluetooth EEG headset transport (`eeg-web-ble`; built-in Muse, open to more devices)
+- Headband PPG heart rate and HRV (`ppg-web`)
+- Local session recording and analytics (`biosignal-session`, `biosignal-analytics`)
+- SDKs for apps running in the Elata App Store (`app-payments`, `app-state`, `app-metrics`)
 - Native FFI layers for iOS and Android integration
 - App scaffolding and in-repo development demos
 
@@ -21,30 +24,23 @@ The recommended way to try the SDK is to scaffold a starter app with
 `create-elata-demo`.
 
 ```bash
-# Show the current template list
-pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates
-
 # Interactive template chooser
 npm create @elata-biosciences/elata-demo my-app
 
-# rPPG starter app
+# Pick a template directly
 npm create @elata-biosciences/elata-demo my-app -- --template rppg
 
-# EEG starter app
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-demo
-
-# EEG starter app (alias)
-npm create @elata-biosciences/elata-demo my-app -- --template eeg
-
-# EEG starter app with BLE starter name
-npm create @elata-biosciences/elata-demo my-app -- --template eeg-ble
-
-# EEG starter app with BLE alias
-npm create @elata-biosciences/elata-demo my-app -- --template ble
-
 # List templates
-pnpm dlx @elata-biosciences/create-elata-demo -- --list-templates
+npx @elata-biosciences/create-elata-demo --list-templates
 ```
+
+| Template | Aliases | What it is |
+|----------|---------|------------|
+| `rppg-demo` | `rppg` | Camera pulse / rPPG starter (default, no hardware) |
+| `eeg-demo` | `eeg` | Browser EEG starter with Muse Web Bluetooth support |
+| `eeg-ble` | `ble` | BLE-first EEG starter |
+| `ppg-demo` | `ppg`, `muse-ppg` | Muse PPG heart rate and HRV |
+| `pulse-game` | `pulse`, `recovery` | rPPG game in a sandboxed iframe using `app-metrics` |
 
 You can also call the scaffolder directly:
 
@@ -55,8 +51,7 @@ npx @elata-biosciences/create-elata-demo my-app
 
 The scaffolder supports interactive app-type selection when you omit
 `--template`, then prompts for the project name when needed. It also supports
-template aliases (`rppg`, `eeg`, `ble`) and uses `rppg-demo` as the
-non-interactive default.
+template aliases and uses `rppg-demo` as the non-interactive default.
 
 After scaffolding:
 
@@ -83,9 +78,9 @@ Published JavaScript and TypeScript packages live under the
 (org landing page: all packages in one place).
 
 ```bash
-pnpm add @elata-biosciences/eeg-web
-pnpm add @elata-biosciences/eeg-web-ble
 pnpm add @elata-biosciences/rppg-web
+pnpm add @elata-biosciences/eeg-web @elata-biosciences/eeg-web-ble
+pnpm add @elata-biosciences/ppg-web
 ```
 
 ## Choose The Right Package
@@ -99,7 +94,12 @@ Use this quick guide if you are starting from an existing app:
 | Connect to an EEG headset over Web Bluetooth in the browser | [`@elata-biosciences/eeg-web-ble`](https://www.npmjs.com/package/@elata-biosciences/eeg-web-ble) | Requires `@elata-biosciences/eeg-web` and Web Bluetooth; Muse built-in; [extend for other headsets](docs/contributing-eeg-transports.md) |
 | Run camera-based rPPG in a browser app | [`@elata-biosciences/rppg-web`](https://www.npmjs.com/package/@elata-biosciences/rppg-web) | Includes processor, backend loader, and demo helpers |
 | Add optional diagnostic waveform reconstruction | [`@elata-biosciences/rppg-models-web`](packages/rppg-models-web/README.md) | Requires `rppg-web`; model weights are caller-supplied pending license provenance |
+| Read heart rate and HRV from a headband's PPG sensor | [`@elata-biosciences/ppg-web`](https://www.npmjs.com/package/@elata-biosciences/ppg-web) | Runs on the `eeg-web-ble` transport; Muse classic `ppgRaw` and Athena `optics` |
+| Record multi-sensor sessions locally | [`@elata-biosciences/biosignal-session`](packages/biosignal-session/README.md) (not yet on npm) | Arrow IPC chunks, CRC32C, local-only; see [guide](docs/guides/using-biosignal-sessions.md) |
+| Compute EEG features, HRV, and headline scores | [`@elata-biosciences/biosignal-analytics`](packages/biosignal-analytics/README.md) (not yet on npm) | WASM features plus transparent score formulas |
 | Add in-app purchases to an appstore app | [`@elata-biosciences/app-payments`](https://www.npmjs.com/package/@elata-biosciences/app-payments) | Purchases + entitlements over `postMessage`; see [guide](docs/guides/using-iap-in-a-browser-app.md) and [demo](examples/iap-demo) |
+| Save per-user state in an appstore app | [`@elata-biosciences/app-state`](packages/app-state/README.md) (not yet on npm) | Key-value storage over `postMessage` |
+| Record events and scores in an appstore app | [`@elata-biosciences/app-metrics`](https://www.npmjs.com/package/@elata-biosciences/app-metrics) | Records, scores, and `reportAffect` over a `MessagePort` |
 
 If you are trying the SDK for the first time, prefer `create-elata-demo` over
 manual package setup.
@@ -114,7 +114,7 @@ Wrong turns to avoid:
 
 Open source browser apps that use `@elata-biosciences/eeg-web`, `eeg-web-ble`, and `rppg-web` together
 (with live GitHub Pages demos) are listed in [docs/guides/example-apps.md](docs/guides/example-apps.md).
-The Mintlify site exposes the same content as **Example applications** under `elata-docs/sdk/guides/example-apps.mdx`.
+The public docs site has the same list at [docs.elata.bio/sdk/guides/example-apps](https://docs.elata.bio/sdk/guides/example-apps).
 
 ## Packages
 
@@ -123,9 +123,14 @@ Scope overview: [@elata-biosciences on npm](https://www.npmjs.com/org/elata-bios
 - [@elata-biosciences/eeg-web](https://www.npmjs.com/package/@elata-biosciences/eeg-web): EEG WASM wrapper and re-export surface
 - [@elata-biosciences/eeg-web-ble](https://www.npmjs.com/package/@elata-biosciences/eeg-web-ble): Web Bluetooth transport for EEG headbands (Muse built-in; [contributor extensions](docs/contributing-eeg-transports.md))
 - [@elata-biosciences/rppg-web](https://www.npmjs.com/package/@elata-biosciences/rppg-web): rPPG processing wrapper and demo helpers
-- [@elata-biosciences/rppg-models-web](packages/rppg-models-web/README.md): optional diagnostic waveform adapter; learned asset not bundled
+- [@elata-biosciences/rppg-models-web](packages/rppg-models-web/README.md) (not yet on npm): optional diagnostic waveform adapter; learned asset not bundled
+- [@elata-biosciences/ppg-web](https://www.npmjs.com/package/@elata-biosciences/ppg-web): headband PPG heart rate and HRV
+- [@elata-biosciences/biosignal-session](packages/biosignal-session/README.md) (not yet on npm): local-first multi-sensor session recording
+- [@elata-biosciences/biosignal-analytics](packages/biosignal-analytics/README.md) (not yet on npm): metric registry, WASM EEG features, HRV, headline scores
 - [@elata-biosciences/app-payments](https://www.npmjs.com/package/@elata-biosciences/app-payments): in-app purchases and entitlements for sandboxed appstore apps
-- [@elata-biosciences/create-elata-demo](https://www.npmjs.com/package/@elata-biosciences/create-elata-demo): app scaffolder with multiple templates
+- [@elata-biosciences/app-state](packages/app-state/README.md) (not yet on npm): per-user key-value storage for sandboxed appstore apps
+- [@elata-biosciences/app-metrics](https://www.npmjs.com/package/@elata-biosciences/app-metrics): per-user records, scores, and biometric Score contribution for sandboxed appstore apps
+- [@elata-biosciences/create-elata-demo](https://www.npmjs.com/package/@elata-biosciences/create-elata-demo): app scaffolder with five templates
 
 ## Compatibility Summary
 
@@ -136,6 +141,9 @@ Scope overview: [@elata-biosciences on npm](https://www.npmjs.com/org/elata-bios
 | `eeg-web-ble` | Supported in secure context | Not supported for this workflow | Not supported for this workflow | `>= 20` for local repo tooling |
 | `rppg-web` | Supported | Supported | Supported with camera permissions | `>= 20` for local repo tooling |
 | `rppg-models-web` | Supported | Supported | Supported | `>= 20` for local repo tooling |
+| `ppg-web` | Supported in secure context | Not supported for this workflow | Not supported for this workflow | `>= 20` for local repo tooling |
+
+Full matrix, including the session, analytics, and appstore packages: [docs/guides/compatibility.md](docs/guides/compatibility.md).
 
 Browser caveats:
 
@@ -149,11 +157,20 @@ Package docs:
 - [packages/eeg-web/README.md](packages/eeg-web/README.md) · [npm](https://www.npmjs.com/package/@elata-biosciences/eeg-web)
 - [packages/eeg-web-ble/README.md](packages/eeg-web-ble/README.md) · [npm](https://www.npmjs.com/package/@elata-biosciences/eeg-web-ble)
 - [packages/rppg-web/README.md](packages/rppg-web/README.md) · [npm](https://www.npmjs.com/package/@elata-biosciences/rppg-web)
+- [packages/ppg-web/README.md](packages/ppg-web/README.md) · [npm](https://www.npmjs.com/package/@elata-biosciences/ppg-web)
+- [packages/rppg-models-web/README.md](packages/rppg-models-web/README.md)
+- [packages/biosignal-session/README.md](packages/biosignal-session/README.md) (not yet on npm)
+- [packages/biosignal-analytics/README.md](packages/biosignal-analytics/README.md) (not yet on npm)
+- [packages/app-payments/README.md](packages/app-payments/README.md) · [npm](https://www.npmjs.com/package/@elata-biosciences/app-payments)
+- [packages/app-state/README.md](packages/app-state/README.md) (not yet on npm)
+- [packages/app-metrics/README.md](packages/app-metrics/README.md) · [npm](https://www.npmjs.com/package/@elata-biosciences/app-metrics)
 - [packages/create-elata-demo/README.md](packages/create-elata-demo/README.md) · [npm](https://www.npmjs.com/package/@elata-biosciences/create-elata-demo)
 
 ## Common Repo Workflows
 
-Use `run.sh` as the canonical task runner:
+Use `run.sh` as the canonical task runner (`just <command>` runs the same
+recipes if you have [just](https://github.com/casey/just) installed; `./run.sh help`
+lists everything):
 
 ```bash
 ./run.sh doctor
@@ -161,6 +178,7 @@ Use `run.sh` as the canonical task runner:
 ./run.sh build all
 ./run.sh demo eeg
 ./run.sh demo rppg
+./run.sh demo ppg
 ./run.sh test create-elata-demo
 ./run.sh test
 ./run.sh verify-all
@@ -181,6 +199,8 @@ The repo also includes in-repo dev demos and example surfaces for SDK developmen
   by default.
 - `./run.sh demo eeg` builds the EEG WASM package and serves `eeg-demo/` on
   `http://127.0.0.1:4173` by default.
+- `./run.sh demo ppg` serves the `packages/ppg-web` Muse PPG demo on
+  `http://127.0.0.1:8081` by default.
 - `./run.sh demo hal` runs the native Rust HAL example.
 - `ios-demo/` and `android-demo/` are native integration references, not the
   normal browser onboarding path.
@@ -224,41 +244,18 @@ local EEG package against an app you already have.
 
 ## Docs Map
 
-- [docs/README.md](docs/README.md): docs index
-- [elata-docs/README.md](elata-docs/README.md): Mintlify docs site submodule for `docs.elata.bio`
+- [docs.elata.bio](https://docs.elata.bio): public documentation site (source: the [`elata-docs`](elata-docs/README.md) submodule)
+- [docs/README.md](docs/README.md): index of repo docs (guides, maintainer workflows, architecture, plans)
+- [docs/guides/README.md](docs/guides/README.md): consumer guide index
 - [docs/repo-map.md](docs/repo-map.md): package ownership and repo layout
 - [docs/create-elata-demo.md](docs/create-elata-demo.md): scaffolding workflow
 - [docs/dev_setup.md](docs/dev_setup.md): local setup and iteration tips
-- [docs/guides/README.md](docs/guides/README.md): consumer guide index
-- [docs/guides/getting-started.md](docs/guides/getting-started.md): fastest path to a running app
-- [elata-docs/sdk/guides/example-apps.mdx](elata-docs/sdk/guides/example-apps.mdx): example applications on the docs portal as **Example Applications**
-- [docs/guides/choose-the-right-package.md](docs/guides/choose-the-right-package.md): package selection help
-- [docs/guides/using-eeg-in-a-browser-app.md](docs/guides/using-eeg-in-a-browser-app.md): browser EEG integration guide
-- [docs/guides/using-web-bluetooth-with-supported-devices.md](docs/guides/using-web-bluetooth-with-supported-devices.md): browser Web Bluetooth headset flow
-- [docs/contributing-eeg-transports.md](docs/contributing-eeg-transports.md): contributing new headset transports
-- [docs/vendor-headset-onboarding-checklist.md](docs/vendor-headset-onboarding-checklist.md): vendor onboarding checklist for new headset support
-- [docs/guides/using-rppg-in-a-browser-app.md](docs/guides/using-rppg-in-a-browser-app.md): browser rPPG integration guide
-- [docs/guides/compatibility.md](docs/guides/compatibility.md): browser, device, and tooling expectations
-- [docs/guides/troubleshooting.md](docs/guides/troubleshooting.md): common setup and runtime failures
-- [docs/sdk-adoption-baseline.md](docs/sdk-adoption-baseline.md): current onboarding baseline and friction summary
-- [docs/sdk-adoption-issues.md](docs/sdk-adoption-issues.md): grouped issue list for remaining SDK DX work
-- [docs/maintainers.md](docs/maintainers.md): maintainer-focused workflow guide
-- [docs/releasing.md](docs/releasing.md): release and publish flow
+- [docs/maintainers.md](docs/maintainers.md) and [docs/releasing.md](docs/releasing.md): maintainer and release workflows
+- [docs/contributing-eeg-transports.md](docs/contributing-eeg-transports.md) and [docs/vendor-headset-onboarding-checklist.md](docs/vendor-headset-onboarding-checklist.md): adding headset support
 
-Architecture and planning notes:
-
-- [docs/architecture-rppg.md](docs/architecture-rppg.md)
-- [docs/architecture-sentiment.md](docs/architecture-sentiment.md)
-- [docs/implementation-plan-rppg.md](docs/implementation-plan-rppg.md)
-- [docs/implementation-plan-sentiment.md](docs/implementation-plan-sentiment.md)
-- [docs/implementation-plan-demo-scaffolding.md](docs/implementation-plan-demo-scaffolding.md)
-- [docs/implementation-plan-sdk-adoption.md](docs/implementation-plan-sdk-adoption.md)
-- [docs/implementation-plan-ios-safari-ble-bridge.md](docs/implementation-plan-ios-safari-ble-bridge.md)
-- [docs/implementation-plan-harmonic-selection.md](docs/implementation-plan-harmonic-selection.md)
-
-Some implementation-plan docs are historical or exploratory snapshots. Treat
-`run.sh`, package READMEs, and the maintainer/scaffolding docs above as the
-current operational source of truth.
+Implementation-plan and architecture docs are listed in [docs/README.md](docs/README.md)
+with their current status. Treat `run.sh`, package READMEs, and the guides as the
+operational source of truth.
 
 ## Contributor And Agent Guides
 

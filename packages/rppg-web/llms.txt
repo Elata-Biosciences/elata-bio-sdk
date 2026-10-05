@@ -24,7 +24,7 @@ Fixes (see README): copy `node_modules/.../rppg-web/pkg/` to **`public/pkg/`**, 
 - `normalizePhysiologyFeatures()` has no labels. `createPhysiologyInterpreter()` adds generic policy-free states; its activation score is distinct from face affect, emotional valence, stress, and clinical interpretation.
 
 ## Related
-If a project uses both **`rppg-web`** and **`eeg-web`**, prefer **matching published versions** unless release notes say otherwise.
+Packages are versioned independently (`rppg-web` and `eeg-web` do not share version numbers). Use the latest releases together, or the set `create-elata-demo` pins.
 
 ## Source of truth
 https://github.com/Elata-Biosciences/elata-bio-sdk/tree/main/packages/rppg-web

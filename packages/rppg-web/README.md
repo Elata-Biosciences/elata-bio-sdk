@@ -605,9 +605,10 @@ need custom lifecycle or rendering behavior.
 
 ## Version Compatibility
 
-`@elata-biosciences/rppg-web` and `@elata-biosciences/eeg-web` are tested in
-lockstep in this repo. Prefer matching package versions unless release notes
-say otherwise.
+The `@elata-biosciences/*` packages are versioned independently, so
+`rppg-web` and `eeg-web` do not share a version number. When you combine
+packages, install their latest releases, or copy the compatible set that
+`create-elata-demo` pins in its templates.
 
 ## Build And Dev Notes
 
