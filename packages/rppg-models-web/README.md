@@ -1,5 +1,7 @@
 # @elata-biosciences/rppg-models-web
 
+> **Not yet on npm.** This package is publishable but has not had its first npm release. Use it from this repository (workspace) until then; the API may change before release.
+
 Optional diagnostic waveform reconstruction for `@elata-biosciences/rppg-web`.
 
 The MCD proxy is not a BPM source or clinical model. Supply the model URL

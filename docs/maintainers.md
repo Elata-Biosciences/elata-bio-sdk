@@ -44,8 +44,9 @@ Maintainer flow:
 
 ## Release Scope
 
-Published packages are listed in [AGENTS.md](../AGENTS.md#release-and-versioning-expectations)
-(11 packages). The `./run.sh release all` set comes from `release_targets_for` in
+Publishable packages are listed in [AGENTS.md](../AGENTS.md#release-and-versioning-expectations)
+(11 packages, of which four, `rppg-models-web`, `app-state`,
+`biosignal-session`, and `biosignal-analytics`, are not on npm yet). The `./run.sh release all` set comes from `release_targets_for` in
 `scripts/run-lib.sh`: `eeg-web eeg-web-ble rppg-web rppg-models-web ppg-web
 create-elata-demo app-metrics biosignal-session`. `app-payments` and
 `biosignal-analytics` are released individually; `app-state` is not wired into

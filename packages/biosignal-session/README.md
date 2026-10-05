@@ -1,5 +1,7 @@
 # @elata-biosciences/biosignal-session
 
+> **Not yet on npm.** This package is publishable but has not had its first npm release. Use it from this repository (workspace) until then; the API may change before release.
+
 Local-first biosignal session recording for Elata apps: shared contracts, a
 fault-tolerant MessagePort wire protocol, and Arrow IPC chunk encoding.
 

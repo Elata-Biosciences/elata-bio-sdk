@@ -259,9 +259,12 @@ Prefer the scaffolded `rppg-demo` template when you want:
 ## Version Guidance
 
 The packages are versioned independently, so `rppg-web` and `eeg-web` do not
-share a version number. If you use several Elata packages together, install
-their latest releases, or copy the compatible set that `create-elata-demo`
-pins in its templates.
+share a version number, and the latest releases are not automatically
+compatible with each other. If you use several Elata packages together, use the
+set `create-elata-demo` pins in its templates (`eeg-web` 0.12.0, `eeg-web-ble`
+0.12.0, `ppg-web` 0.12.0, `rppg-web` 0.14.0).
+
+`eeg-web-ble@0.12.0` and `ppg-web@0.12.0` still declare outdated peer ranges (`eeg-web ^0.2.1`, `rppg-web ^0.3.0`), so npm reports `ERESOLVE` when you install them next to current `eeg-web` or `rppg-web`. Until those ranges are updated, use `npm install --legacy-peer-deps` (pnpm only warns).
 
 ## Next Steps
 

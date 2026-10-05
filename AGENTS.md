@@ -159,7 +159,7 @@ verify more broadly than the edited file suggests.
 ## When To Edit Which Doc
 
 - Edit [README.md](README.md) for repo entry points, package inventory, and high-level workflows.
-- Edit [docs/guides/ai-assisted-development.md](docs/guides/ai-assisted-development.md) when you add or rename **tutorial routes** in `elata-docs/`, change **vendor integration** entry points, or add new **published packages** that agents should discover via `llms.txt`/README.
+- Edit [docs/guides/ai-assisted-development.md](docs/guides/ai-assisted-development.md) when you add or rename **tutorial routes** in `elata-docs/`, change **vendor integration** entry points, or add new **publishable packages** that agents should discover via `llms.txt`/README.
 - Edit package READMEs for package-specific install/usage/build details.
 - Edit [docs/create-elata-demo.md](docs/create-elata-demo.md) for scaffolder workflows and caveats.
 - Edit [docs/releasing.md](docs/releasing.md) for release policy and maintainer flow.
@@ -172,19 +172,23 @@ If a workflow changed in code, update the nearest doc in the same task when prac
 This repo uses Changesets. If a user-facing package change should ship, expect a
 changeset unless the user explicitly says otherwise.
 
-Published packages currently include:
+Publishable packages (11). Seven are on npm today:
 
 - `@elata-biosciences/eeg-web`
 - `@elata-biosciences/eeg-web-ble`
 - `@elata-biosciences/rppg-web`
-- `@elata-biosciences/rppg-models-web`
 - `@elata-biosciences/ppg-web`
 - `@elata-biosciences/app-metrics`
 - `@elata-biosciences/app-payments`
+- `@elata-biosciences/create-elata-demo`
+
+Four are publishable but **not yet on npm**; docs must say so wherever they show
+an install command:
+
+- `@elata-biosciences/rppg-models-web`
 - `@elata-biosciences/app-state`
 - `@elata-biosciences/biosignal-session`
 - `@elata-biosciences/biosignal-analytics`
-- `@elata-biosciences/create-elata-demo`
 
 Not every publishable package is in the `all` release set. `release_targets_for`
 in `scripts/run-lib.sh` is the source of truth: `app-payments` and

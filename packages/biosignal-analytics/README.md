@@ -1,5 +1,7 @@
 # @elata-biosciences/biosignal-analytics
 
+> **Not yet on npm.** This package is publishable but has not had its first npm release. Use it from this repository (workspace) until then; the API may change before release.
+
 Browser-native analytics over standardized Elata biosignal data: a versioned
 metric registry, WASM-backed EEG window features, HRV and robust statistics,
 and transparent headline-score formulas.

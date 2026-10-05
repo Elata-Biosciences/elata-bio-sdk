@@ -1,5 +1,7 @@
 # @elata-biosciences/app-state
 
+> **Not yet on npm.** This package is publishable but has not had its first npm release. Use it from this repository (workspace) until then; the API may change before release.
+
 Per-user, per-app key-value storage for sandboxed apps in the Elata appstore.
 Lets apps persist save games, settings, progress, and other small JSON blobs
 without standing up their own backend and without ever seeing the user's
@@ -10,9 +12,14 @@ a postMessage to `window.parent` and awaits a typed reply.
 
 ## Install
 
+Once the first release is out:
+
 ```sh
 npm install @elata-biosciences/app-state
 ```
+
+Until then, apps can send the `elata:state:*` messages directly; see the
+[App State docs](https://docs.elata.bio/apps/platform/app-state).
 
 ## Usage
 

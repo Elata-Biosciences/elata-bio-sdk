@@ -607,8 +607,11 @@ need custom lifecycle or rendering behavior.
 
 The `@elata-biosciences/*` packages are versioned independently, so
 `rppg-web` and `eeg-web` do not share a version number. When you combine
-packages, install their latest releases, or copy the compatible set that
-`create-elata-demo` pins in its templates.
+packages, note that latest releases are not automatically compatible with each other: use
+the set `create-elata-demo` pins in its templates (`eeg-web` 0.12.0,
+`eeg-web-ble` 0.12.0, `ppg-web` 0.12.0, `rppg-web` 0.14.0).
+
+`eeg-web-ble@0.12.0` and `ppg-web@0.12.0` still declare outdated peer ranges (`eeg-web ^0.2.1`, `rppg-web ^0.3.0`), so npm reports `ERESOLVE` when you install them next to current `eeg-web` or `rppg-web`. Until those ranges are updated, use `npm install --legacy-peer-deps` (pnpm only warns).
 
 ## Build And Dev Notes
 
