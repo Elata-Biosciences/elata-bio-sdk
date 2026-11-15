@@ -54,7 +54,7 @@
 		"pack:check": "pnpm pack --dry-run --json"
 	},
 	"peerDependencies": {
-		"@elata-biosciences/eeg-web": "^0.2.1"
+		"@elata-biosciences/eeg-web": "^0.12.0"
 	},
 	"devDependencies": {
 		"@elata-biosciences/eeg-web": "workspace:*",
